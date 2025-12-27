@@ -188,11 +188,62 @@ const router = createRouter({
           name: 'inventory',
           component: () => import('@/pages/inventory/InventoryListPage.vue')
         },
+        {
+          path: 'inventory/movements',
+          name: 'inventory-movements',
+          component: () => import('@/pages/inventory/StockMovementsPage.vue')
+        },
+        {
+          path: 'inventory/adjust',
+          name: 'inventory-adjust',
+          component: () => import('@/pages/inventory/StockAdjustmentPage.vue')
+        },
         // Reports routes
         {
           path: 'reports',
           name: 'reports',
           component: () => import('@/pages/reports/ReportsPage.vue')
+        },
+        {
+          path: 'reports/balance-sheet',
+          name: 'report-balance-sheet',
+          component: () => import('@/pages/reports/BalanceSheetPage.vue')
+        },
+        {
+          path: 'reports/income-statement',
+          name: 'report-income-statement',
+          component: () => import('@/pages/reports/IncomeStatementPage.vue')
+        },
+        {
+          path: 'reports/cash-flow',
+          name: 'report-cash-flow',
+          component: () => import('@/pages/reports/CashFlowPage.vue')
+        },
+        {
+          path: 'reports/trial-balance',
+          name: 'report-trial-balance',
+          component: () => import('@/pages/reports/TrialBalancePage.vue')
+        },
+        {
+          path: 'reports/receivables-aging',
+          name: 'report-receivables-aging',
+          component: () => import('@/pages/reports/ReceivablesAgingPage.vue')
+        },
+        {
+          path: 'reports/payables-aging',
+          name: 'report-payables-aging',
+          component: () => import('@/pages/reports/PayablesAgingPage.vue')
+        },
+        {
+          path: 'reports/vat',
+          name: 'report-vat',
+          component: () => import('@/pages/reports/VatReportPage.vue')
+        },
+        // Settings route
+        {
+          path: 'settings',
+          name: 'settings',
+          component: () => import('@/pages/settings/SettingsPage.vue')
         },
       ]
     },

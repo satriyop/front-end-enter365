@@ -258,3 +258,38 @@ export function useReviseQuotation() {
     },
   })
 }
+
+// ============================================
+// Create from BOM
+// ============================================
+
+export interface CreateQuotationFromBomData {
+  bom_id: number
+  contact_id: number
+  margin_percent?: number
+  selling_price?: number
+  expand_items?: boolean
+  quotation_date?: string
+  valid_until?: string
+  subject?: string
+  tax_rate?: number
+  notes?: string
+  terms_conditions?: string
+}
+
+/**
+ * Create quotation from BOM (single variant)
+ */
+export function useCreateQuotationFromBom() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: CreateQuotationFromBomData) => {
+      const response = await api.post<{ data: Quotation }>('/quotations/from-bom', data)
+      return response.data.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['quotations'] })
+    },
+  })
+}

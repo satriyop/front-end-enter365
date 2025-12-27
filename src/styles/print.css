@@ -1,0 +1,269 @@
+/**
+ * Print-specific styles for Enter365 documents
+ * These styles only apply when printing (@media print)
+ */
+
+@media print {
+  /* Hide non-printable elements */
+  .no-print,
+  [data-no-print],
+  header,
+  nav,
+  aside,
+  .sidebar,
+  button:not(.print-visible),
+  .toast-container,
+  .modal-backdrop,
+  [role="dialog"] {
+    display: none !important;
+  }
+
+  /* Reset backgrounds for clean printing */
+  body,
+  html {
+    background: white !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Remove shadows and borders that don't print well */
+  .shadow,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl {
+    box-shadow: none !important;
+  }
+
+  /* Page settings */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  /* Ensure content doesn't break awkwardly */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+
+  table {
+    page-break-inside: avoid;
+  }
+
+  tr {
+    page-break-inside: avoid;
+  }
+
+  /* Document container */
+  .print-document {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Document header for invoices/quotations */
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20mm;
+    padding-bottom: 5mm;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .print-company {
+    font-size: 14pt;
+    font-weight: bold;
+    color: #1e293b;
+  }
+
+  .print-company-details {
+    font-size: 9pt;
+    color: #64748b;
+    margin-top: 2mm;
+  }
+
+  .print-document-title {
+    font-size: 18pt;
+    font-weight: bold;
+    text-align: right;
+    color: #ea580c;
+  }
+
+  .print-document-number {
+    font-size: 12pt;
+    text-align: right;
+    color: #1e293b;
+    margin-top: 2mm;
+  }
+
+  /* Customer/vendor info */
+  .print-parties {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10mm;
+  }
+
+  .print-party {
+    flex: 1;
+  }
+
+  .print-party-label {
+    font-size: 8pt;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 2mm;
+  }
+
+  .print-party-name {
+    font-size: 11pt;
+    font-weight: bold;
+    color: #1e293b;
+  }
+
+  .print-party-address {
+    font-size: 9pt;
+    color: #475569;
+    white-space: pre-line;
+  }
+
+  /* Line items table */
+  .print-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10mm;
+    font-size: 9pt;
+  }
+
+  .print-items-table th {
+    background-color: #f8fafc !important;
+    border-bottom: 2px solid #e2e8f0;
+    padding: 3mm 2mm;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    font-size: 8pt;
+  }
+
+  .print-items-table td {
+    padding: 3mm 2mm;
+    border-bottom: 1px solid #e2e8f0;
+    color: #1e293b;
+  }
+
+  .print-items-table .text-right {
+    text-align: right;
+  }
+
+  .print-items-table .font-medium {
+    font-weight: 500;
+  }
+
+  /* Summary totals */
+  .print-summary {
+    margin-left: auto;
+    width: 70mm;
+    font-size: 9pt;
+  }
+
+  .print-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2mm 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .print-summary-row.total {
+    border-top: 2px solid #e2e8f0;
+    border-bottom: none;
+    padding-top: 3mm;
+    margin-top: 2mm;
+    font-weight: bold;
+    font-size: 11pt;
+  }
+
+  .print-summary-label {
+    color: #64748b;
+  }
+
+  .print-summary-value {
+    color: #1e293b;
+    font-weight: 500;
+  }
+
+  /* Footer notes */
+  .print-footer {
+    margin-top: 15mm;
+    padding-top: 5mm;
+    border-top: 1px solid #e2e8f0;
+    font-size: 8pt;
+    color: #64748b;
+  }
+
+  .print-notes {
+    margin-bottom: 5mm;
+  }
+
+  .print-notes-title {
+    font-weight: 600;
+    margin-bottom: 2mm;
+  }
+
+  .print-terms {
+    font-size: 7pt;
+    color: #94a3b8;
+  }
+
+  /* Status badge for print */
+  .print-status {
+    display: inline-block;
+    padding: 1mm 3mm;
+    border-radius: 2mm;
+    font-size: 8pt;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .print-status-draft {
+    background: #f1f5f9;
+    color: #475569;
+  }
+
+  .print-status-posted,
+  .print-status-approved {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  .print-status-paid {
+    background: #dbeafe;
+    color: #1e40af;
+  }
+
+  .print-status-void,
+  .print-status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+
+  .print-status-overdue {
+    background: #fef3c7;
+    color: #92400e;
+  }
+
+  /* Force colors for backgrounds that need to print */
+  .bg-slate-50 {
+    background-color: #f8fafc !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Links should be black in print */
+  a {
+    color: #1e293b !important;
+    text-decoration: none !important;
+  }
+}

@@ -1,8 +1,15 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { api } from '@/api/client'
 import { useInvoices, type InvoiceFilters } from '@/api/useInvoices'
+import { useBulkSelection } from '@/composables/useBulkSelection'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Badge, Button, Input, Select, Pagination, EmptyState } from '@/components/ui'
+import { Badge, Button, Input, Select, Pagination, EmptyState, useToast } from '@/components/ui'
+import BulkActionsBar from '@/components/BulkActionsBar.vue'
+
+const toast = useToast()
+const queryClient = useQueryClient()
 
 // Filters state
 const filters = ref<InvoiceFilters>({
@@ -17,6 +24,26 @@ const { data, isLoading, error } = useInvoices(filters)
 
 const invoices = computed(() => data.value?.data ?? [])
 const pagination = computed(() => data.value?.meta)
+
+// Bulk selection
+const {
+  selectedCount,
+  isAllSelected,
+  isSomeSelected,
+  isSelected,
+  toggleItem,
+  toggleAll,
+  clearSelection,
+  getSelectedIds,
+} = useBulkSelection({
+  items: invoices,
+  getItemId: (inv) => inv.id,
+})
+
+// Clear selection when page/filters change
+watch([() => filters.value.page, () => filters.value.status], () => {
+  clearSelection()
+})
 
 // Status options
 const statusOptions = [
@@ -37,6 +64,35 @@ function handleSearch(value: string | number) {
   filters.value.search = String(value)
   filters.value.page = 1
 }
+
+// Bulk delete mutation
+const bulkDeleteMutation = useMutation({
+  mutationFn: async (ids: (number | string)[]) => {
+    await api.post('/invoices/bulk-delete', { ids })
+  },
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['invoices'] })
+    clearSelection()
+    toast.success('Invoices deleted successfully')
+  },
+  onError: () => {
+    toast.error('Failed to delete invoices')
+  },
+})
+
+// Bulk actions
+const bulkActions = computed(() => [
+  {
+    label: 'Delete',
+    variant: 'danger' as const,
+    loading: bulkDeleteMutation.isPending.value,
+    action: async () => {
+      if (confirm(`Delete ${selectedCount.value} invoice(s)?`)) {
+        await bulkDeleteMutation.mutateAsync(getSelectedIds())
+      }
+    },
+  },
+])
 </script>
 
 <template>
@@ -111,6 +167,15 @@ function handleSearch(value: string | number) {
       <table class="w-full">
         <thead class="bg-slate-50 border-b border-slate-200">
           <tr>
+            <th class="px-4 py-3 text-left">
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                :checked="isAllSelected"
+                :indeterminate="isSomeSelected"
+                @change="toggleAll"
+              />
+            </th>
             <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
               Invoice #
             </th>
@@ -138,30 +203,38 @@ function handleSearch(value: string | number) {
           <tr
             v-for="invoice in invoices"
             :key="invoice.id"
-            class="hover:bg-slate-50 cursor-pointer"
-            @click="$router.push(`/invoices/${invoice.id}`)"
+            class="hover:bg-slate-50"
+            :class="{ 'bg-primary-50': isSelected(invoice) }"
           >
-            <td class="px-6 py-4">
+            <td class="px-4 py-4" @click.stop>
+              <input
+                type="checkbox"
+                class="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                :checked="isSelected(invoice)"
+                @change="toggleItem(invoice)"
+              />
+            </td>
+            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               <span class="text-orange-600 hover:text-orange-700 font-medium">
                 {{ invoice.invoice_number }}
               </span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               <div class="font-medium text-slate-900">{{ invoice.contact?.name }}</div>
               <div class="text-sm text-slate-500">{{ invoice.description }}</div>
             </td>
-            <td class="px-6 py-4 text-right font-medium text-slate-900">
+            <td class="px-6 py-4 text-right font-medium text-slate-900 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               {{ formatCurrency(invoice.total_amount) }}
             </td>
-            <td class="px-6 py-4 text-right">
+            <td class="px-6 py-4 text-right cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               <span :class="invoice.outstanding_amount > 0 ? 'text-orange-600 font-medium' : 'text-slate-500'">
                 {{ formatCurrency(invoice.outstanding_amount) }}
               </span>
             </td>
-            <td class="px-6 py-4">
+            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               <Badge :status="invoice.status as any" />
             </td>
-            <td class="px-6 py-4 text-slate-500">
+            <td class="px-6 py-4 text-slate-500 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               {{ formatDate(invoice.due_date) }}
             </td>
             <td class="px-6 py-4 text-right" @click.stop>
@@ -184,5 +257,12 @@ function handleSearch(value: string | number) {
         />
       </div>
     </div>
+
+    <!-- Bulk Actions Bar -->
+    <BulkActionsBar
+      :selected-count="selectedCount"
+      :actions="bulkActions"
+      @clear="clearSelection"
+    />
   </div>
 </template>

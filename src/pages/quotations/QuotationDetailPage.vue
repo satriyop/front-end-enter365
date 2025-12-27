@@ -12,10 +12,13 @@ import {
 } from '@/api/useQuotations'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, useToast } from '@/components/ui'
+import { usePrint } from '@/composables/usePrint'
+import PrintableDocument from '@/components/PrintableDocument.vue'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { print, isPrinting } = usePrint()
 
 const quotationId = computed(() => Number(route.params.id))
 
@@ -32,6 +35,7 @@ const deleteMutation = useDeleteQuotation()
 // Modal states
 const showRejectModal = ref(false)
 const showDeleteModal = ref(false)
+const showPrintPreview = ref(false)
 const rejectReason = ref('')
 
 // Action handlers
@@ -102,6 +106,32 @@ const canApprove = computed(() => quotation.value?.status === 'submitted')
 const canReject = computed(() => quotation.value?.status === 'submitted')
 const canConvert = computed(() => quotation.value?.status === 'approved')
 const canDelete = computed(() => quotation.value?.status === 'draft')
+
+// Print functionality
+function handlePrint() {
+  print({
+    title: `Quotation ${quotation.value?.full_number}`,
+    onAfterPrint: () => {
+      showPrintPreview.value = false
+    },
+  })
+}
+
+// Transform quotation items for PrintableDocument
+const printableItems = computed(() => {
+  if (!quotation.value?.items) return []
+  return quotation.value.items.map((item) => ({
+    id: item.id,
+    description: item.product?.name || item.description,
+    notes: item.product?.name ? item.description : undefined,
+    quantity: item.quantity,
+    unit: item.unit,
+    unit_price: item.unit_price,
+    discount_percent: item.discount_percent,
+    tax_rate: item.tax_rate,
+    line_total: item.line_total,
+  }))
+})
 </script>
 
 <template>
@@ -140,6 +170,16 @@ const canDelete = computed(() => quotation.value?.status === 'draft')
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
+            <!-- Print -->
+            <Button
+              variant="ghost"
+              size="sm"
+              :loading="isPrinting"
+              @click="showPrintPreview = true"
+            >
+              Print
+            </Button>
+
             <!-- Duplicate -->
             <Button
               variant="ghost"
@@ -409,6 +449,47 @@ const canDelete = computed(() => quotation.value?.status === 'draft')
           @click="handleDelete"
         >
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Print Preview Modal -->
+    <Modal
+      :open="showPrintPreview"
+      title="Print Quotation"
+      size="2xl"
+      @update:open="showPrintPreview = $event"
+    >
+      <div class="no-print mb-4 p-3 bg-slate-50 rounded-lg text-sm text-slate-600">
+        Click "Print" to open the print dialog. You can print directly or save as PDF.
+      </div>
+
+      <div v-if="quotation" class="border border-slate-200 rounded-lg overflow-hidden">
+        <PrintableDocument
+          type="quotation"
+          :number="quotation.full_number"
+          :status="quotation.status"
+          :date="quotation.quotation_date"
+          :valid-until="quotation.valid_until"
+          :reference="quotation.reference"
+          :subject="quotation.subject"
+          :contact-name="quotation.contact?.name || ''"
+          :contact-address="quotation.contact?.address"
+          :contact-email="quotation.contact?.email"
+          :items="printableItems"
+          :subtotal="quotation.subtotal"
+          :discount-amount="quotation.discount_amount"
+          :tax-amount="quotation.tax_amount"
+          :total="quotation.total"
+          :notes="quotation.notes"
+          :terms-conditions="quotation.terms_conditions"
+        />
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showPrintPreview = false">Cancel</Button>
+        <Button variant="primary" :loading="isPrinting" @click="handlePrint">
+          Print
         </Button>
       </template>
     </Modal>

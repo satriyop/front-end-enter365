@@ -62,14 +62,14 @@ async function handleLogout() {
           <div class="text-sm font-medium text-slate-900">{{ auth.user?.name }}</div>
           <div class="text-xs text-slate-500">{{ auth.user?.email }}</div>
         </div>
-        <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
-          ⚙️ Settings
-        </a>
+        <RouterLink to="/settings" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
+          Settings
+        </RouterLink>
         <button
-          class="w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-slate-50"
           @click="handleLogout"
         >
-          🚪 Logout
+          Logout
         </button>
       </div>
     </div>

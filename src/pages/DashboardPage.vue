@@ -5,6 +5,7 @@ import { useDashboardSummary, useDashboardKPIs } from '@/api/useDashboard'
 import { useProjects } from '@/api/useProjects'
 import { formatCurrency } from '@/utils/format'
 import { Card, Badge } from '@/components/ui'
+import { BarChart, DoughnutChart } from '@/components/charts'
 
 const auth = useAuthStore()
 
@@ -87,6 +88,35 @@ const attentionItems = computed(() => {
 })
 
 const isLoading = computed(() => loadingSummary.value || loadingKPIs.value)
+
+// Monthly comparison chart data
+const monthlyChartData = computed(() => {
+  const monthly = (summary.value?.monthly_comparison || []) as Array<{ label: string; revenue: number; expenses: number }>
+  return {
+    labels: monthly.map((m) => m.label),
+    datasets: [
+      {
+        label: 'Revenue',
+        data: monthly.map((m) => Number(m.revenue) || 0),
+        backgroundColor: '#22c55e',
+      },
+      {
+        label: 'Expenses',
+        data: monthly.map((m) => Number(m.expenses) || 0),
+        backgroundColor: '#ef4444',
+      },
+    ],
+  }
+})
+
+// Cash position breakdown
+const cashBreakdownData = computed(() => {
+  const accounts = summary.value?.cash_position?.accounts || []
+  return {
+    labels: accounts.map((a: any) => a.name),
+    data: accounts.map((a: any) => Math.abs(Number(a.balance) || 0)),
+  }
+})
 </script>
 
 <template>
@@ -229,6 +259,37 @@ const isLoading = computed(() => loadingSummary.value || loadingKPIs.value)
           <div class="text-sm text-slate-500 mb-1">Active Projects</div>
           <div class="text-xl font-bold text-slate-900">{{ kpis.project_metrics?.active_count ?? 0 }}</div>
         </div>
+      </Card>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Monthly Revenue vs Expenses -->
+      <Card v-if="monthlyChartData.labels.length > 0">
+        <template #header>
+          <h2 class="font-semibold text-slate-900">Revenue vs Expenses (6 Months)</h2>
+        </template>
+        <div v-if="isLoading" class="h-64 bg-slate-100 rounded animate-pulse" />
+        <BarChart
+          v-else
+          :labels="monthlyChartData.labels"
+          :datasets="monthlyChartData.datasets"
+          :height="280"
+        />
+      </Card>
+
+      <!-- Cash Breakdown -->
+      <Card v-if="cashBreakdownData.labels.length > 0">
+        <template #header>
+          <h2 class="font-semibold text-slate-900">Cash Position by Account</h2>
+        </template>
+        <div v-if="isLoading" class="h-64 bg-slate-100 rounded animate-pulse" />
+        <DoughnutChart
+          v-else
+          :labels="cashBreakdownData.labels"
+          :data="cashBreakdownData.data"
+          :height="280"
+        />
       </Card>
     </div>
   </div>

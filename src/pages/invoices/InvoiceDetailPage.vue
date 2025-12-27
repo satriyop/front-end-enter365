@@ -10,10 +10,13 @@ import {
 } from '@/api/useInvoices'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, useToast } from '@/components/ui'
+import { usePrint } from '@/composables/usePrint'
+import PrintableDocument from '@/components/PrintableDocument.vue'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const { print, isPrinting } = usePrint()
 
 const invoiceId = computed(() => Number(route.params.id))
 
@@ -28,6 +31,7 @@ const deleteMutation = useDeleteInvoice()
 // Modal states
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
+const showPrintPreview = ref(false)
 const voidReason = ref('')
 
 // Action handlers
@@ -77,6 +81,30 @@ const canEdit = computed(() => invoice.value?.status === 'draft')
 const canPost = computed(() => invoice.value?.status === 'draft')
 const canVoid = computed(() => ['posted', 'partial'].includes(invoice.value?.status ?? ''))
 const canDelete = computed(() => invoice.value?.status === 'draft')
+
+// Print functionality
+function handlePrint() {
+  print({
+    title: `Invoice ${invoice.value?.invoice_number}`,
+    onAfterPrint: () => {
+      showPrintPreview.value = false
+    },
+  })
+}
+
+// Transform invoice items for PrintableDocument
+const printableItems = computed(() => {
+  if (!invoice.value?.items) return []
+  return invoice.value.items.map((item) => ({
+    id: item.id,
+    description: item.description,
+    notes: item.notes,
+    quantity: item.quantity,
+    unit: item.unit,
+    unit_price: item.unit_price,
+    line_total: item.line_total,
+  }))
+})
 </script>
 
 <template>
@@ -115,6 +143,16 @@ const canDelete = computed(() => invoice.value?.status === 'draft')
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
+            <!-- Print -->
+            <Button
+              variant="ghost"
+              size="sm"
+              :loading="isPrinting"
+              @click="showPrintPreview = true"
+            >
+              Print
+            </Button>
+
             <!-- Duplicate -->
             <Button
               variant="ghost"
@@ -310,8 +348,13 @@ const canDelete = computed(() => invoice.value?.status === 'draft')
               <Button variant="secondary" class="w-full">
                 Send Invoice
               </Button>
-              <Button variant="ghost" class="w-full">
-                Download PDF
+              <Button
+                variant="ghost"
+                class="w-full"
+                :loading="isPrinting"
+                @click="showPrintPreview = true"
+              >
+                Print / Download PDF
               </Button>
             </div>
           </Card>
@@ -358,6 +401,47 @@ const canDelete = computed(() => invoice.value?.status === 'draft')
           @click="handleDelete"
         >
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Print Preview Modal -->
+    <Modal
+      :open="showPrintPreview"
+      title="Print Invoice"
+      size="2xl"
+      @update:open="showPrintPreview = $event"
+    >
+      <div class="no-print mb-4 p-3 bg-slate-50 rounded-lg text-sm text-slate-600">
+        Click "Print" to open the print dialog. You can print directly or save as PDF.
+      </div>
+
+      <div v-if="invoice" class="border border-slate-200 rounded-lg overflow-hidden">
+        <PrintableDocument
+          type="invoice"
+          :number="invoice.invoice_number"
+          :status="invoice.status"
+          :date="invoice.invoice_date"
+          :due-date="invoice.due_date"
+          :reference="invoice.reference"
+          :contact-name="invoice.contact?.name || ''"
+          :contact-address="invoice.contact?.address"
+          :contact-email="invoice.contact?.email"
+          :items="printableItems"
+          :subtotal="invoice.subtotal"
+          :discount-amount="invoice.discount_amount"
+          :tax-rate="invoice.tax_rate"
+          :tax-amount="invoice.tax_amount"
+          :total="invoice.total_amount"
+          :paid-amount="invoice.paid_amount"
+          :outstanding-amount="invoice.outstanding_amount"
+        />
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showPrintPreview = false">Cancel</Button>
+        <Button variant="primary" :loading="isPrinting" @click="handlePrint">
+          Print
         </Button>
       </template>
     </Modal>
