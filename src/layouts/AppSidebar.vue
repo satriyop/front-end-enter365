@@ -53,6 +53,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Stock', path: '/inventory', icon: '📦', permission: 'inventory.view' },
       { name: 'Products', path: '/products', icon: '🏷️', permission: 'products.view' },
+      { name: 'BOMs', path: '/boms', icon: '📐', permission: 'boms.view' },
     ]
   },
   {
@@ -61,6 +62,12 @@ const navigation: NavGroup[] = [
       { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
       { name: 'Bills', path: '/bills', icon: '📑', permission: 'bills.view' },
       { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.view' },
+    ]
+  },
+  {
+    label: 'Admin',
+    items: [
+      { name: 'Users', path: '/users', icon: '👤', permission: 'users.view' },
     ]
   },
 ]

@@ -51,8 +51,11 @@ export function useInvoices(filters: Ref<InvoiceFilters>) {
   return useQuery({
     queryKey: computed(() => ['invoices', filters.value]),
     queryFn: async () => {
+      const cleanParams = Object.fromEntries(
+        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
+      )
       const response = await api.get<PaginatedResponse<Invoice>>('/invoices', {
-        params: filters.value
+        params: cleanParams
       })
       return response.data
     },

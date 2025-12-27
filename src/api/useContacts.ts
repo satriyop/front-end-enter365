@@ -45,8 +45,11 @@ export function useContacts(filters: Ref<ContactFilters>) {
   return useQuery({
     queryKey: computed(() => ['contacts', filters.value]),
     queryFn: async () => {
+      const cleanParams = Object.fromEntries(
+        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
+      )
       const response = await api.get<PaginatedResponse<Contact>>('/contacts', {
-        params: filters.value
+        params: cleanParams
       })
       return response.data
     },

@@ -245,6 +245,33 @@ const router = createRouter({
           name: 'settings',
           component: () => import('@/pages/settings/SettingsPage.vue')
         },
+        // BOM routes
+        {
+          path: 'boms',
+          name: 'boms',
+          component: () => import('@/pages/boms/BomListPage.vue')
+        },
+        {
+          path: 'boms/new',
+          name: 'bom-new',
+          component: () => import('@/pages/boms/BomFormPage.vue')
+        },
+        {
+          path: 'boms/:id',
+          name: 'bom-detail',
+          component: () => import('@/pages/boms/BomDetailPage.vue')
+        },
+        {
+          path: 'boms/:id/edit',
+          name: 'bom-edit',
+          component: () => import('@/pages/boms/BomFormPage.vue')
+        },
+        // User Management routes
+        {
+          path: 'users',
+          name: 'users',
+          component: () => import('@/pages/users/UserListPage.vue')
+        },
       ]
     },
     {

@@ -29,8 +29,11 @@ export function useProducts(filters: Ref<ProductFilters>) {
   return useQuery({
     queryKey: computed(() => ['products', filters.value]),
     queryFn: async () => {
+      const cleanParams = Object.fromEntries(
+        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
+      )
       const response = await api.get<PaginatedResponse<Product>>('/products', {
-        params: filters.value
+        params: cleanParams
       })
       return response.data
     },
