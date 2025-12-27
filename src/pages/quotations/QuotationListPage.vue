@@ -51,9 +51,15 @@ function getStatusLabel(status: string) {
         <h1 class="text-2xl font-semibold text-slate-900">Quotations</h1>
         <p class="text-slate-500">Manage sales quotations and proposals</p>
       </div>
-      <button class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium">
-        + New Quotation
-      </button>
+      <RouterLink
+        to="/quotations/new"
+        class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 font-medium inline-flex items-center gap-2"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        New Quotation
+      </RouterLink>
     </div>
 
     <!-- Filters -->
@@ -142,11 +148,11 @@ function getStatusLabel(status: string) {
               </RouterLink>
             </td>
             <td class="px-6 py-4">
-              <div class="font-medium text-slate-900">{{ quotation.contact?.company_name }}</div>
+              <div class="font-medium text-slate-900">{{ quotation.contact?.name }}</div>
               <div class="text-sm text-slate-500">{{ quotation.subject }}</div>
             </td>
             <td class="px-6 py-4 text-right font-medium text-slate-900">
-              {{ formatCurrency(quotation.grand_total) }}
+              {{ formatCurrency(quotation.total) }}
             </td>
             <td class="px-6 py-4">
               <span

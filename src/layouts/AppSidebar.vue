@@ -38,7 +38,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Quotations', path: '/quotations', icon: '📋', permission: 'quotations.view' },
       { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view' },
-      { name: 'Customers', path: '/customers', icon: '👥', permission: 'contacts.view' },
+      { name: 'Contacts', path: '/contacts', icon: '👥', permission: 'contacts.view' },
     ]
   },
   {
@@ -89,8 +89,8 @@ function isActive(path: string): boolean {
   >
     <!-- Logo -->
     <div class="flex items-center h-16 px-4 border-b border-slate-200">
-      <span v-if="open" class="text-xl font-bold text-primary-600">☀️ Solar ERP</span>
-      <span v-else class="text-xl">☀️</span>
+      <span v-if="open" class="text-xl font-bold text-primary-600">Enter365</span>
+      <span v-else class="text-xl font-bold text-primary-600">E</span>
     </div>
 
     <!-- Navigation -->
@@ -133,7 +133,7 @@ function isActive(path: string): boolean {
             {{ auth.user?.name ?? 'User' }}
           </div>
           <div class="text-xs text-slate-500 truncate">
-            {{ auth.user?.roles?.[0] ?? 'User' }}
+            {{ auth.user?.roles?.[0]?.display_name ?? 'User' }}
           </div>
         </div>
       </div>

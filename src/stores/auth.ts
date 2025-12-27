@@ -3,12 +3,29 @@ import { ref, computed } from 'vue'
 import { api } from '@/api/client'
 import router from '@/router'
 
+// Role and Permission types matching UserResource from API
+export interface Role {
+  id: number
+  name: string
+  display_name: string
+}
+
+export interface Permission {
+  id: number
+  name: string
+  display_name?: string
+}
+
 export interface User {
   id: number
   name: string
   email: string
-  roles: string[]
-  permissions: string[]
+  email_verified_at?: string
+  is_active?: boolean
+  roles?: Role[]
+  permissions?: Permission[]
+  created_at?: string
+  updated_at?: string
 }
 
 export interface LoginCredentials {
@@ -27,12 +44,12 @@ export const useAuthStore = defineStore('auth', () => {
   const hasPermission = (permission: string) => {
     if (!user.value) return false
     // Admin has all permissions
-    if (user.value.roles.includes('admin')) return true
-    return user.value.permissions.includes(permission)
+    if (user.value.roles?.some(r => r.name === 'admin')) return true
+    return user.value.permissions?.some(p => p.name === permission) ?? false
   }
 
   const hasRole = (role: string) => {
-    return user.value?.roles.includes(role) ?? false
+    return user.value?.roles?.some(r => r.name === role) ?? false
   }
 
   // Actions
@@ -63,8 +80,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
 
     try {
-      const response = await api.get<User>('/auth/me')
-      user.value = response.data
+      const response = await api.get<{ user: User }>('/auth/me')
+      // API returns { user: UserResource }
+      user.value = response.data.user
     } catch {
       // Token invalid, logout
       await logout()

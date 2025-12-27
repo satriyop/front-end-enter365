@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import GlobalSearch from '@/components/GlobalSearch.vue'
+import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 
 defineEmits<{
   toggleSidebar: []
@@ -27,23 +29,13 @@ async function handleLogout() {
     <!-- Spacer -->
     <div class="flex-1" />
 
-    <!-- Search (optional) -->
-    <div class="hidden md:flex items-center mr-4">
-      <div class="relative">
-        <input
-          type="text"
-          placeholder="Search... (Ctrl+K)"
-          class="w-64 pl-10 pr-4 py-2 text-sm rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-        />
-        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-      </div>
+    <!-- Global Search -->
+    <div class="hidden md:block mr-4">
+      <GlobalSearch />
     </div>
 
     <!-- Notifications -->
-    <button class="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700">
-      <span class="text-xl">🔔</span>
-      <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-    </button>
+    <NotificationsDropdown />
 
     <!-- User Menu -->
     <div class="relative ml-2">

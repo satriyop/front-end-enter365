@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import { ToastProvider } from '@/components/ui'
 </script>
 
 <template>
-  <RouterView />
+  <ToastProvider>
+    <RouterView />
+  </ToastProvider>
 </template>

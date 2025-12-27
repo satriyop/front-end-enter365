@@ -13,8 +13,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000', // Laravel backend
+        target: 'https://enter365.test',
         changeOrigin: true,
+        secure: false, // Accept self-signed SSL from Valet
       }
     }
   }
