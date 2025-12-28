@@ -251,7 +251,7 @@ async function handleDelete() {
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
         <Button
-          variant="danger"
+          variant="destructive"
           :loading="deleteMutation.isPending.value"
           @click="handleDelete"
         >

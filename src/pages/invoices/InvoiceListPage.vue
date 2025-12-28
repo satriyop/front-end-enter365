@@ -84,7 +84,7 @@ const bulkDeleteMutation = useMutation({
 const bulkActions = computed(() => [
   {
     label: 'Delete',
-    variant: 'danger' as const,
+    variant: 'destructive' as const,
     loading: bulkDeleteMutation.isPending.value,
     action: async () => {
       if (confirm(`Delete ${selectedCount.value} invoice(s)?`)) {
@@ -104,7 +104,7 @@ const bulkActions = computed(() => [
         <p class="text-slate-500">Manage sales invoices and receivables</p>
       </div>
       <RouterLink to="/invoices/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>

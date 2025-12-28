@@ -339,7 +339,7 @@ const contactOptions = computed(() => {
           </div>
         </template>
 
-        <Alert v-if="errors.items" variant="error" class="mb-4">
+        <Alert v-if="errors.items" variant="destructive" class="mb-4">
           {{ errors.items }}
         </Alert>
 
@@ -528,7 +528,7 @@ const contactOptions = computed(() => {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" variant="primary" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Quotation' : 'Create Quotation' }}
         </Button>
       </div>

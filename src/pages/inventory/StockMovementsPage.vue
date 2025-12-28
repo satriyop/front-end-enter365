@@ -34,14 +34,14 @@ function handlePageChange(page: number) {
   filters.value.page = page
 }
 
-function getTypeVariant(type: string): 'success' | 'error' | 'warning' | 'info' {
+function getTypeVariant(type: string): 'success' | 'destructive' | 'warning' | 'info' {
   switch (type) {
     case 'in':
     case 'transfer_in':
       return 'success'
     case 'out':
     case 'transfer_out':
-      return 'error'
+      return 'destructive'
     case 'adjustment':
       return 'warning'
     default:
@@ -81,7 +81,7 @@ function clearFilters() {
       <div class="flex gap-2">
         <Button variant="ghost" @click="router.push('/inventory')">Back to Stock</Button>
         <RouterLink to="/inventory/adjust">
-          <Button variant="primary">New Adjustment</Button>
+          <Button>New Adjustment</Button>
         </RouterLink>
       </div>
     </div>

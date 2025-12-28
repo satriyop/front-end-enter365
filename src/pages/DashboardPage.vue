@@ -77,7 +77,7 @@ const attentionItems = computed(() => {
 
   if (overduePayables > 0) {
     items.push({
-      type: 'danger',
+      type: 'destructive',
       label: 'Overdue Bills',
       count: overduePayables,
       link: '/bills?status=overdue',
@@ -201,7 +201,7 @@ const cashBreakdownData = computed(() => {
         <template #header>
           <div class="flex items-center justify-between">
             <h2 class="font-semibold text-slate-900">Requires Attention</h2>
-            <Badge v-if="attentionItems.length > 0" variant="error">{{ attentionItems.length }}</Badge>
+            <Badge v-if="attentionItems.length > 0" variant="destructive">{{ attentionItems.length }}</Badge>
           </div>
         </template>
         <div v-if="isLoading" class="space-y-3">
@@ -218,20 +218,20 @@ const cashBreakdownData = computed(() => {
             class="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 transition-colors"
             :class="{
               'bg-orange-50 border border-orange-200': item.type === 'warning',
-              'bg-red-50 border border-red-200': item.type === 'danger',
+              'bg-red-50 border border-red-200': item.type === 'destructive',
             }"
           >
             <span
               class="font-medium"
               :class="{
                 'text-orange-700': item.type === 'warning',
-                'text-red-700': item.type === 'danger',
+                'text-red-700': item.type === 'destructive',
               }"
             >
               {{ item.label }}
             </span>
             <Badge
-              :variant="item.type === 'warning' ? 'warning' : 'error'"
+              :variant="item.type === 'warning' ? 'warning' : 'destructive'"
             >
               {{ item.count }}
             </Badge>

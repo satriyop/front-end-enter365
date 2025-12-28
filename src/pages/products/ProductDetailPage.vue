@@ -50,7 +50,7 @@ async function handleDelete() {
           <RouterLink :to="`/products/${product.id}/edit`">
             <Button variant="secondary">Edit</Button>
           </RouterLink>
-          <Button variant="danger" @click="handleDelete" :loading="deleteMutation.isPending.value">
+          <Button variant="destructive" @click="handleDelete" :loading="deleteMutation.isPending.value">
             Delete
           </Button>
         </div>
@@ -154,7 +154,7 @@ async function handleDelete() {
               <div class="flex justify-between">
                 <dt class="text-slate-500">Active</dt>
                 <dd>
-                  <Badge :variant="product.is_active ? 'success' : 'error'">
+                  <Badge :variant="product.is_active ? 'success' : 'destructive'">
                     {{ product.is_active ? 'Active' : 'Inactive' }}
                   </Badge>
                 </dd>

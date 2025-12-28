@@ -27,13 +27,13 @@ const statusOptions = [
   { value: 'overdue', label: 'Overdue' },
 ]
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
   draft: 'default',
   posted: 'info',
   partial: 'warning',
   paid: 'success',
-  overdue: 'error',
-  voided: 'error',
+  overdue: 'destructive',
+  voided: 'destructive',
 }
 
 function handlePageChange(page: number) {
@@ -76,7 +76,7 @@ async function handleDelete() {
         <p class="text-slate-500">Manage supplier bills and payables</p>
       </div>
       <RouterLink to="/bills/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
@@ -195,7 +195,7 @@ async function handleDelete() {
       <p class="text-slate-600">Are you sure you want to delete this bill?</p>
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
-        <Button variant="danger" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
+        <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>
   </div>

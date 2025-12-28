@@ -168,7 +168,7 @@ async function handleSubmit() {
 
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.back()">Cancel</Button>
-        <Button type="submit" variant="primary" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting">
           Record Payment
         </Button>
       </div>

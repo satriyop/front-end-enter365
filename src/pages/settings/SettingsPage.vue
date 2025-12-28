@@ -217,7 +217,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
       </Card>
 
       <div class="flex justify-end">
-        <Button type="submit" variant="primary" :loading="isProfileSaving">
+        <Button type="submit" :loading="isProfileSaving">
           Save Changes
         </Button>
       </div>
@@ -259,7 +259,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
       </Card>
 
       <div class="flex justify-end">
-        <Button type="submit" variant="primary" :loading="isPasswordSaving">
+        <Button type="submit" :loading="isPasswordSaving">
           Update Password
         </Button>
       </div>

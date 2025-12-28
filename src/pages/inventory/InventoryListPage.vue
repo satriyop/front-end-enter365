@@ -67,8 +67,8 @@ function handleSearch(value: string | number) {
   filters.value.page = 1
 }
 
-function getStockLevel(quantity: number): 'success' | 'warning' | 'error' {
-  if (quantity <= 0) return 'error'
+function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' {
+  if (quantity <= 0) return 'destructive'
   if (quantity < 10) return 'warning'
   return 'success'
 }
@@ -86,7 +86,7 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'error' {
           <Button variant="secondary">Stock Movements</Button>
         </RouterLink>
         <RouterLink to="/inventory/adjust">
-          <Button variant="primary">Adjust Stock</Button>
+          <Button>Adjust Stock</Button>
         </RouterLink>
       </div>
     </div>

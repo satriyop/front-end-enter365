@@ -39,7 +39,7 @@ async function handleVoid() {
             <Badge :variant="payment.type === 'receive' ? 'success' : 'warning'">
               {{ payment.type === 'receive' ? 'Received' : 'Paid' }}
             </Badge>
-            <Badge v-if="payment.is_voided" variant="error">Voided</Badge>
+            <Badge v-if="payment.is_voided" variant="destructive">Voided</Badge>
           </div>
           <p class="text-slate-500">{{ payment.contact?.name }}</p>
         </div>
@@ -47,7 +47,7 @@ async function handleVoid() {
           <Button variant="ghost" @click="router.back()">Back</Button>
           <Button
             v-if="!payment.is_voided"
-            variant="danger"
+            variant="destructive"
             @click="handleVoid"
             :loading="voidMutation.isPending.value"
           >

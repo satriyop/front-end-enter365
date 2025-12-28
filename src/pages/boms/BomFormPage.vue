@@ -387,7 +387,7 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
           <Button type="button" variant="ghost" @click="router.back()">
             Cancel
           </Button>
-          <Button type="submit" variant="primary" :loading="isSaving">
+          <Button type="submit" :loading="isSaving">
             {{ isEditing ? 'Update BOM' : 'Create BOM' }}
           </Button>
         </div>

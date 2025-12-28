@@ -163,21 +163,21 @@ async function handleSubmit() {
         <div class="flex gap-2">
           <Button
             type="button"
-            :variant="adjustmentType === 'adjust' ? 'primary' : 'secondary'"
+            :variant="adjustmentType === 'adjust' ? 'default' : 'secondary'"
             @click="adjustmentType = 'adjust'"
           >
             Set Quantity
           </Button>
           <Button
             type="button"
-            :variant="adjustmentType === 'in' ? 'primary' : 'secondary'"
+            :variant="adjustmentType === 'in' ? 'default' : 'secondary'"
             @click="adjustmentType = 'in'"
           >
             Stock In (+)
           </Button>
           <Button
             type="button"
-            :variant="adjustmentType === 'out' ? 'primary' : 'secondary'"
+            :variant="adjustmentType === 'out' ? 'default' : 'secondary'"
             @click="adjustmentType = 'out'"
           >
             Stock Out (-)
@@ -273,7 +273,7 @@ async function handleSubmit() {
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.push('/inventory')">Cancel</Button>
-        <Button type="submit" variant="primary" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting">
           {{ adjustmentType === 'adjust' ? 'Adjust Stock' : adjustmentType === 'in' ? 'Record Stock In' : 'Record Stock Out' }}
         </Button>
       </div>

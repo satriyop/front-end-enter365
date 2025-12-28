@@ -1,1 +1,0 @@
-function n(r){return r==null?"Rp 0":new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",minimumFractionDigits:0,maximumFractionDigits:0}).format(r)}function e(r){if(!r)return"-";const t=new Date(r);return new Intl.DateTimeFormat("id-ID",{day:"numeric",month:"short",year:"numeric"}).format(t)}export{e as a,n as f};

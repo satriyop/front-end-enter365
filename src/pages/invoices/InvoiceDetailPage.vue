@@ -171,7 +171,7 @@ const printableItems = computed(() => {
             <!-- Post (draft only) -->
             <Button
               v-if="canPost"
-              variant="primary"
+             
               size="sm"
               :loading="postMutation.isPending.value"
               @click="handlePost"
@@ -182,7 +182,7 @@ const printableItems = computed(() => {
             <!-- Void (posted/partial) -->
             <Button
               v-if="canVoid"
-              variant="danger"
+              variant="destructive"
               size="sm"
               @click="showVoidModal = true"
             >
@@ -341,7 +341,7 @@ const printableItems = computed(() => {
 
             <div class="space-y-2">
               <RouterLink :to="`/payments/new?invoice_id=${invoice.id}`" class="block">
-                <Button variant="primary" class="w-full">
+                <Button class="w-full">
                   Record Payment
                 </Button>
               </RouterLink>
@@ -363,7 +363,7 @@ const printableItems = computed(() => {
     </template>
 
     <!-- Void Modal -->
-    <Modal :open="showVoidModal" title="Void Invoice" size="md" @update:open="showVoidModal = $event">
+    <Modal :open="showVoidModal" title="Void Invoice" @update:open="showVoidModal = $event">
       <p class="text-slate-600 mb-4">
         Are you sure you want to void this invoice? This will reverse the journal entry.
       </p>
@@ -379,7 +379,7 @@ const printableItems = computed(() => {
       <template #footer>
         <Button variant="ghost" @click="showVoidModal = false">Cancel</Button>
         <Button
-          variant="danger"
+          variant="destructive"
           :loading="voidMutation.isPending.value"
           @click="handleVoid"
         >
@@ -396,7 +396,7 @@ const printableItems = computed(() => {
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
         <Button
-          variant="danger"
+          variant="destructive"
           :loading="deleteMutation.isPending.value"
           @click="handleDelete"
         >
@@ -440,7 +440,7 @@ const printableItems = computed(() => {
 
       <template #footer>
         <Button variant="ghost" @click="showPrintPreview = false">Cancel</Button>
-        <Button variant="primary" :loading="isPrinting" @click="handlePrint">
+        <Button :loading="isPrinting" @click="handlePrint">
           Print
         </Button>
       </template>

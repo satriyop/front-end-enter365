@@ -1,15 +1,65 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/utils/cn'
 
-type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'info'
-type StatusType = 'draft' | 'pending' | 'in_progress' | 'submitted' | 'approved' | 'completed' | 'on_hold' | 'cancelled' | 'rejected' | 'overdue' | 'sent' | 'partial' | 'paid' | 'expired' | 'converted'
+/**
+ * Badge variants using class-variance-authority
+ * Provides consistent styling for labels and status indicators
+ */
+const badgeVariants = cva(
+  // Base styles
+  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
+  {
+    variants: {
+      variant: {
+        default: 'bg-secondary text-secondary-foreground',
+        primary: 'bg-primary/15 text-primary',
+        secondary: 'bg-secondary text-secondary-foreground',
+        success: 'bg-success/15 text-success',
+        warning: 'bg-warning/15 text-warning',
+        destructive: 'bg-destructive/15 text-destructive',
+        info: 'bg-info/15 text-info',
+        outline: 'border border-border bg-transparent text-foreground',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+    },
+  }
+)
+
+type BadgeVariants = VariantProps<typeof badgeVariants>
+
+// Domain-specific status types for business logic
+type StatusType =
+  | 'draft'
+  | 'pending'
+  | 'in_progress'
+  | 'submitted'
+  | 'approved'
+  | 'completed'
+  | 'on_hold'
+  | 'cancelled'
+  | 'rejected'
+  | 'overdue'
+  | 'sent'
+  | 'partial'
+  | 'paid'
+  | 'expired'
+  | 'converted'
 
 interface Props {
-  variant?: BadgeVariant
+  /** Visual style variant */
+  variant?: NonNullable<BadgeVariants['variant']>
+  /** Domain-specific status (overrides variant) */
   status?: StatusType
+  /** Show status dot indicator */
   dot?: boolean
+  /** Animate dot with pulse effect */
   pulse?: boolean
+  /** Additional classes */
+  class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -18,63 +68,40 @@ const props = withDefaults(defineProps<Props>(), {
   pulse: false,
 })
 
-// Map status to colors following design system
-const statusColors: Record<StatusType, string> = {
-  draft: 'bg-slate-100 text-slate-700',
-  pending: 'bg-amber-100 text-amber-700',
-  submitted: 'bg-amber-100 text-amber-700',
-  in_progress: 'bg-blue-100 text-blue-700',
-  approved: 'bg-green-100 text-green-700',
-  completed: 'bg-green-100 text-green-700',
-  paid: 'bg-green-100 text-green-700',
-  on_hold: 'bg-violet-100 text-violet-700',
-  cancelled: 'bg-red-100 text-red-700',
-  rejected: 'bg-red-100 text-red-700',
-  overdue: 'bg-red-100 text-red-700',
-  sent: 'bg-blue-100 text-blue-700',
-  partial: 'bg-amber-100 text-amber-700',
-  expired: 'bg-slate-100 text-slate-700',
-  converted: 'bg-green-100 text-green-700',
+// Domain-specific status colors (fixed meaning, don't change with theme)
+const statusStyles: Record<StatusType, { badge: string; dot: string }> = {
+  draft: { badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300', dot: 'bg-slate-400' },
+  pending: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
+  submitted: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
+  in_progress: { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', dot: 'bg-blue-500' },
+  approved: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
+  completed: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
+  paid: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
+  on_hold: { badge: 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400', dot: 'bg-violet-500' },
+  cancelled: { badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dot: 'bg-red-500' },
+  rejected: { badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dot: 'bg-red-500' },
+  overdue: { badge: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', dot: 'bg-red-500' },
+  sent: { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', dot: 'bg-blue-500' },
+  partial: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
+  expired: { badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300', dot: 'bg-slate-400' },
+  converted: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
 }
 
-const statusDotColors: Record<StatusType, string> = {
-  draft: 'bg-slate-400',
-  pending: 'bg-amber-500',
-  submitted: 'bg-amber-500',
-  in_progress: 'bg-blue-500',
-  approved: 'bg-green-500',
-  completed: 'bg-green-500',
-  paid: 'bg-green-500',
-  on_hold: 'bg-violet-500',
-  cancelled: 'bg-red-500',
-  rejected: 'bg-red-500',
-  overdue: 'bg-red-500',
-  sent: 'bg-blue-500',
-  partial: 'bg-amber-500',
-  expired: 'bg-slate-400',
-  converted: 'bg-green-500',
-}
-
-const variantColors: Record<BadgeVariant, string> = {
-  default: 'bg-slate-100 text-slate-700',
-  primary: 'bg-orange-100 text-orange-700',
-  success: 'bg-green-100 text-green-700',
-  warning: 'bg-amber-100 text-amber-700',
-  error: 'bg-red-100 text-red-700',
-  info: 'bg-blue-100 text-blue-700',
-}
-
-const badgeClasses = computed(() =>
-  cn(
-    'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium',
-    props.status ? statusColors[props.status] : variantColors[props.variant]
-  )
-)
+const badgeClasses = computed(() => {
+  if (props.status) {
+    return cn(
+      'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
+      statusStyles[props.status].badge,
+      props.class
+    )
+  }
+  return cn(badgeVariants({ variant: props.variant }), props.class)
+})
 
 const dotClasses = computed(() => {
   if (!props.dot) return ''
-  const baseColor = props.status ? statusDotColors[props.status] : 'bg-current'
-  return cn('w-1.5 h-1.5 rounded-full', baseColor)
+  const dotColor = props.status ? statusStyles[props.status].dot : 'bg-current'
+  return cn('h-1.5 w-1.5 rounded-full', dotColor)
 })
 </script>
 

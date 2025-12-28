@@ -37,6 +37,7 @@ const navigation: NavGroup[] = [
     label: 'Sales',
     items: [
       { name: 'Quotations', path: '/quotations', icon: '📋', permission: 'quotations.view' },
+      { name: 'Solar Proposals', path: '/solar-proposals', icon: '☀️', permission: 'solar_proposals.view' },
       { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view' },
       { name: 'Contacts', path: '/contacts', icon: '👥', permission: 'contacts.view' },
     ]
@@ -54,6 +55,7 @@ const navigation: NavGroup[] = [
       { name: 'Stock', path: '/inventory', icon: '📦', permission: 'inventory.view' },
       { name: 'Products', path: '/products', icon: '🏷️', permission: 'products.view' },
       { name: 'BOMs', path: '/boms', icon: '📐', permission: 'boms.view' },
+      { name: 'Variant Groups', path: '/boms/variant-groups', icon: '🔄', permission: 'boms.view' },
     ]
   },
   {
@@ -62,6 +64,12 @@ const navigation: NavGroup[] = [
       { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
       { name: 'Bills', path: '/bills', icon: '📑', permission: 'bills.view' },
       { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.view' },
+    ]
+  },
+  {
+    label: 'Settings',
+    items: [
+      { name: 'Component Library', path: '/settings/component-library', icon: '🔌', permission: 'products.view' },
     ]
   },
   {

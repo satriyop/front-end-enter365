@@ -23,6 +23,24 @@ export { default as DataTable } from './DataTable.vue'
 export { default as Pagination } from './Pagination.vue'
 export { default as EmptyState } from './EmptyState.vue'
 export { default as LoadingSkeleton } from './LoadingSkeleton.vue'
+export { default as PageSkeleton } from './PageSkeleton.vue'
+
+// Dialogs
+export { default as ConfirmDialog } from './ConfirmDialog.vue'
+
+// Navigation
+export { default as Breadcrumbs } from './Breadcrumbs.vue'
+
+// Utilities
+export { default as CopyButton } from './CopyButton.vue'
+export { default as ExportButton } from './ExportButton.vue'
+export { default as FilterPresetDropdown } from './FilterPresetDropdown.vue'
+export { default as ThemeToggle } from './ThemeToggle.vue'
+
+// Performance & Mobile
+export { default as VirtualTable } from './VirtualTable.vue'
+export { default as ResponsiveTable } from './ResponsiveTable.vue'
+export { default as PullToRefresh } from './PullToRefresh.vue'
 
 // Toast System
 export { Toast, ToastProvider, useToast } from './Toast'

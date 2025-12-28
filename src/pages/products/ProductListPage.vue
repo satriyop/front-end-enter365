@@ -64,7 +64,7 @@ async function handleDelete() {
         <p class="text-slate-500">Manage products and services</p>
       </div>
       <RouterLink to="/products/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
@@ -173,7 +173,7 @@ async function handleDelete() {
       <p class="text-slate-600">Are you sure you want to delete this product?</p>
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
-        <Button variant="danger" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
+        <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>
   </div>

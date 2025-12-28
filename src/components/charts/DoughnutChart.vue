@@ -30,39 +30,40 @@ const defaultColors = [
 </script>
 
 <template>
-  <Doughnut
-    :data="{
-      labels,
-      datasets: [{
-        data,
-        backgroundColor: backgroundColor || defaultColors.slice(0, data.length),
-        borderWidth: 0,
-      }],
-    }"
-    :options="{
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'right' as const,
-          labels: {
-            usePointStyle: true,
-            padding: 15,
+  <div :style="{ height: `${height || 250}px`, position: 'relative' }">
+    <Doughnut
+      :data="{
+        labels,
+        datasets: [{
+          data,
+          backgroundColor: backgroundColor || defaultColors.slice(0, data.length),
+          borderWidth: 0,
+        }],
+      }"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right' as const,
+            labels: {
+              usePointStyle: true,
+              padding: 15,
+            },
           },
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const value = context.raw as number
-              const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0)
-              const percentage = ((value / total) * 100).toFixed(1)
-              return `${context.label}: ${new Intl.NumberFormat('id-ID').format(value)} (${percentage}%)`
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const value = context.raw as number
+                const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0)
+                const percentage = ((value / total) * 100).toFixed(1)
+                return `${context.label}: ${new Intl.NumberFormat('id-ID').format(value)} (${percentage}%)`
+              },
             },
           },
         },
-      },
-      cutout: '60%',
-    }"
-    :style="{ height: `${height || 250}px` }"
-  />
+        cutout: '60%',
+      }"
+    />
+  </div>
 </template>

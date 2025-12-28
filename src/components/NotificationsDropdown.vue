@@ -15,7 +15,7 @@ const { data: summary } = useDashboardSummary()
 const notifications = computed(() => {
   const items: Array<{
     id: string
-    type: 'info' | 'warning' | 'danger' | 'success'
+    type: 'info' | 'warning' | 'destructive' | 'success'
     title: string
     message: string
     link?: string
@@ -42,7 +42,7 @@ const notifications = computed(() => {
   if (overduePayables > 0) {
     items.push({
       id: 'overdue-bills',
-      type: 'danger',
+      type: 'destructive',
       title: 'Overdue Bills',
       message: `${overduePayables} bill${overduePayables > 1 ? 's' : ''} are past due`,
       link: '/bills?status=overdue',
@@ -74,14 +74,14 @@ const unreadCount = computed(() =>
 const typeColors = {
   info: 'bg-blue-100 text-blue-600',
   warning: 'bg-orange-100 text-orange-600',
-  danger: 'bg-red-100 text-red-600',
+  destructive: 'bg-red-100 text-red-600',
   success: 'bg-green-100 text-green-600',
 }
 
 const typeIcons = {
   info: '📋',
   warning: '⚠️',
-  danger: '🚨',
+  destructive: '🚨',
   success: '✅',
 }
 
@@ -136,7 +136,7 @@ onUnmounted(() => {
         <!-- Header -->
         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
           <h3 class="font-semibold text-slate-900">Notifications</h3>
-          <Badge v-if="unreadCount > 0" variant="error">{{ unreadCount }} new</Badge>
+          <Badge v-if="unreadCount > 0" variant="destructive">{{ unreadCount }} new</Badge>
         </div>
 
         <!-- Notifications list -->

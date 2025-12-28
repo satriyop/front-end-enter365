@@ -257,7 +257,7 @@ defineExpose({
     </svg>
     <span>Search...</span>
     <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-white rounded border border-slate-300">
-      <span class="text-xs">⌘</span>K
+      Ctrl+K
     </kbd>
   </button>
 

@@ -17,20 +17,20 @@ const completeMutation = useCompleteProject()
 const cancelMutation = useCancelProject()
 const deleteMutation = useDeleteProject()
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
   draft: 'default',
   planning: 'info',
   in_progress: 'warning',
-  on_hold: 'error',
+  on_hold: 'destructive',
   completed: 'success',
-  cancelled: 'error',
+  cancelled: 'destructive',
 }
 
-const priorityColors: Record<string, 'default' | 'info' | 'warning' | 'error'> = {
+const priorityColors: Record<string, 'default' | 'info' | 'warning' | 'destructive'> = {
   low: 'default',
   medium: 'info',
   high: 'warning',
-  urgent: 'error',
+  urgent: 'destructive',
 }
 
 async function handleStart() {
@@ -103,7 +103,7 @@ async function handleDelete() {
           </RouterLink>
           <Button
             v-if="project.status === 'draft' || project.status === 'planning'"
-            variant="primary"
+           
             @click="handleStart"
             :loading="startMutation.isPending.value"
           >
@@ -119,7 +119,7 @@ async function handleDelete() {
           </Button>
           <Button
             v-if="project.status !== 'completed' && project.status !== 'cancelled'"
-            variant="danger"
+            variant="destructive"
             @click="handleCancel"
             :loading="cancelMutation.isPending.value"
           >

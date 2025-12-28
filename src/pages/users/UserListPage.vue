@@ -302,7 +302,7 @@ function toggleRole(roleId: number) {
         <h1 class="text-2xl font-semibold text-slate-900">Users</h1>
         <p class="text-slate-500">Manage user accounts and roles</p>
       </div>
-      <Button variant="primary" @click="openCreateModal">
+      <Button @click="openCreateModal">
         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
@@ -408,7 +408,7 @@ function toggleRole(roleId: number) {
               </div>
             </td>
             <td class="px-6 py-4">
-              <Badge :variant="user.is_active ? 'success' : 'error'">
+              <Badge :variant="user.is_active ? 'success' : 'destructive'">
                 {{ user.is_active ? 'Active' : 'Inactive' }}
               </Badge>
             </td>
@@ -459,7 +459,7 @@ function toggleRole(roleId: number) {
     </div>
 
     <!-- Create Modal -->
-    <Modal :open="showCreateModal" title="Create User" size="md" @update:open="showCreateModal = $event">
+    <Modal :open="showCreateModal" title="Create User" @update:open="showCreateModal = $event">
       <div class="space-y-4">
         <FormField label="Name" required :error="formErrors.name || ''">
           <Input v-model="form.name" placeholder="Full name" />
@@ -508,14 +508,14 @@ function toggleRole(roleId: number) {
 
       <template #footer>
         <Button variant="ghost" @click="showCreateModal = false">Cancel</Button>
-        <Button variant="primary" :loading="createMutation.isPending.value" @click="handleCreate">
+        <Button :loading="createMutation.isPending.value" @click="handleCreate">
           Create User
         </Button>
       </template>
     </Modal>
 
     <!-- Edit Modal -->
-    <Modal :open="showEditModal" title="Edit User" size="md" @update:open="showEditModal = $event">
+    <Modal :open="showEditModal" title="Edit User" @update:open="showEditModal = $event">
       <div class="space-y-4">
         <FormField label="Name" required :error="formErrors.name || ''">
           <Input v-model="form.name" placeholder="Full name" />
@@ -556,7 +556,7 @@ function toggleRole(roleId: number) {
 
       <template #footer>
         <Button variant="ghost" @click="showEditModal = false">Cancel</Button>
-        <Button variant="primary" :loading="updateMutation.isPending.value" @click="handleUpdate">
+        <Button :loading="updateMutation.isPending.value" @click="handleUpdate">
           Save Changes
         </Button>
       </template>
@@ -580,7 +580,7 @@ function toggleRole(roleId: number) {
 
       <template #footer>
         <Button variant="ghost" @click="showPasswordModal = false">Cancel</Button>
-        <Button variant="primary" :loading="updatePasswordMutation.isPending.value" @click="handleUpdatePassword">
+        <Button :loading="updatePasswordMutation.isPending.value" @click="handleUpdatePassword">
           Update Password
         </Button>
       </template>
@@ -593,7 +593,7 @@ function toggleRole(roleId: number) {
       </p>
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
-        <Button variant="danger" :loading="deleteMutation.isPending.value" @click="handleDelete">
+        <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">
           Delete
         </Button>
       </template>

@@ -85,7 +85,7 @@ function formatAmount(amount: number): string {
           <h2 class="text-xl font-semibold text-slate-900">{{ report.report_name }}</h2>
           <p class="text-slate-500">As of {{ report.as_of_date }}</p>
           <Badge v-if="report.is_balanced" variant="success" class="mt-2">Balanced</Badge>
-          <Badge v-else variant="error" class="mt-2">Not Balanced</Badge>
+          <Badge v-else variant="destructive" class="mt-2">Not Balanced</Badge>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">

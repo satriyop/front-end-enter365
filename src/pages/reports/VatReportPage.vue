@@ -47,14 +47,14 @@ function formatAmount(amount: number): string {
       <div class="flex flex-wrap items-end gap-4">
         <div class="flex gap-2">
           <Button
-            :variant="viewMode === 'summary' ? 'primary' : 'secondary'"
+            :variant="viewMode === 'summary' ? 'default' : 'secondary'"
             size="sm"
             @click="viewMode = 'summary'"
           >
             Period Summary
           </Button>
           <Button
-            :variant="viewMode === 'monthly' ? 'primary' : 'secondary'"
+            :variant="viewMode === 'monthly' ? 'default' : 'secondary'"
             size="sm"
             @click="viewMode = 'monthly'"
           >

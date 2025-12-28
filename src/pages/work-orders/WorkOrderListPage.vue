@@ -27,12 +27,12 @@ const statusOptions = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
   draft: 'default',
   confirmed: 'info',
   in_progress: 'warning',
   completed: 'success',
-  cancelled: 'error',
+  cancelled: 'destructive',
 }
 
 function handlePageChange(page: number) {
@@ -75,7 +75,7 @@ async function handleDelete() {
         <p class="text-slate-500">Manage manufacturing and assembly work orders</p>
       </div>
       <RouterLink to="/work-orders/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
@@ -202,7 +202,7 @@ async function handleDelete() {
       <p class="text-slate-600">Are you sure you want to delete this work order?</p>
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
-        <Button variant="danger" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
+        <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>
   </div>

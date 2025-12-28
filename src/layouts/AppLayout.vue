@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { RouterView } from 'vue-router'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
+import { Breadcrumbs } from '@/components/ui'
 
 const sidebarOpen = ref(true)
 
@@ -26,7 +27,15 @@ function toggleSidebar() {
 
       <!-- Page Content -->
       <main class="p-6">
-        <RouterView />
+        <!-- Breadcrumbs -->
+        <Breadcrumbs />
+
+        <!-- Route Transition -->
+        <RouterView v-slot="{ Component }">
+          <Transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </main>
     </div>
   </div>

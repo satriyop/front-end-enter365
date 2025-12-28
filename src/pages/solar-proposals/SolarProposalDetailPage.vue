@@ -1,0 +1,594 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import Card from '@/components/ui/Card.vue'
+import Button from '@/components/ui/Button.vue'
+import Modal from '@/components/ui/Modal.vue'
+import LineChart from '@/components/charts/LineChart.vue'
+import { useToast } from '@/components/ui/Toast/useToast'
+import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/format'
+import { getErrorMessage } from '@/api/client'
+import {
+  useSolarProposal,
+  useSendSolarProposal,
+  useAcceptSolarProposal,
+  useRejectSolarProposal,
+  useConvertSolarToQuotation,
+  useDeleteSolarProposal,
+  useCalculateSolarProposal,
+  downloadSolarProposalPdf,
+} from '@/api/useSolarProposals'
+
+// Type interfaces for financial analysis (OpenAPI types these as unknown[])
+interface YearlyProjection {
+  year: number
+  savings: number
+  cumulative_savings: number
+  electricity_rate: number
+}
+
+interface FinancialAnalysis {
+  payback_period_years: number
+  roi_percent: number
+  npv: number
+  irr_percent: number
+  yearly_projections: YearlyProjection[]
+}
+
+interface EnvironmentalImpact {
+  co2_offset_tons: number
+  co2_lifetime_tons: number
+  trees_equivalent: number
+  cars_equivalent: number
+}
+
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+
+const proposalId = computed(() => Number(route.params.id))
+
+const { data: proposal, isLoading, error } = useSolarProposal(proposalId)
+
+// Mutations
+const sendMutation = useSendSolarProposal()
+const acceptMutation = useAcceptSolarProposal()
+const rejectMutation = useRejectSolarProposal()
+const convertMutation = useConvertSolarToQuotation()
+const deleteMutation = useDeleteSolarProposal()
+const calculateMutation = useCalculateSolarProposal()
+
+// Modal states
+const showRejectModal = ref(false)
+const showDeleteConfirm = ref(false)
+const rejectReason = ref('')
+const isDownloading = ref(false)
+
+// Status-based action availability
+const canEdit = computed(() => proposal.value?.can_edit)
+const canSend = computed(() => proposal.value?.can_send)
+const canAccept = computed(() => proposal.value?.can_accept)
+const canReject = computed(() => proposal.value?.can_reject)
+const canConvert = computed(() => proposal.value?.can_convert)
+const canDelete = computed(() => proposal.value?.status === 'draft')
+
+// Action handlers
+async function handleSend() {
+  try {
+    await sendMutation.mutateAsync(proposalId.value)
+    toast.success('Proposal sent to customer')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to send proposal'))
+  }
+}
+
+async function handleAccept() {
+  try {
+    await acceptMutation.mutateAsync({ id: proposalId.value })
+    toast.success('Proposal accepted')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to accept proposal'))
+  }
+}
+
+async function handleReject() {
+  try {
+    await rejectMutation.mutateAsync({ id: proposalId.value, reason: rejectReason.value })
+    showRejectModal.value = false
+    rejectReason.value = ''
+    toast.success('Proposal rejected')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to reject proposal'))
+  }
+}
+
+async function handleConvert() {
+  try {
+    const result = await convertMutation.mutateAsync(proposalId.value)
+    toast.success('Quotation created successfully')
+    router.push(`/quotations/${result.quotation_id}`)
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to convert to quotation'))
+  }
+}
+
+async function handleDelete() {
+  try {
+    await deleteMutation.mutateAsync(proposalId.value)
+    toast.success('Proposal deleted')
+    router.push('/solar-proposals')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to delete proposal'))
+  }
+  showDeleteConfirm.value = false
+}
+
+async function handleRecalculate() {
+  try {
+    await calculateMutation.mutateAsync(proposalId.value)
+    toast.success('Calculations updated')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to recalculate'))
+  }
+}
+
+async function handleDownloadPdf() {
+  isDownloading.value = true
+  try {
+    await downloadSolarProposalPdf(proposalId.value, `${proposal.value?.proposal_number}.pdf`)
+    toast.success('PDF downloaded')
+  } catch (err) {
+    toast.error(getErrorMessage(err, 'Failed to download PDF'))
+  } finally {
+    isDownloading.value = false
+  }
+}
+
+// Status badge styles
+function getStatusClass(status: string) {
+  const classes: Record<string, string> = {
+    draft: 'bg-slate-100 text-slate-700',
+    sent: 'bg-blue-100 text-blue-700',
+    accepted: 'bg-green-100 text-green-700',
+    rejected: 'bg-red-100 text-red-700',
+    expired: 'bg-slate-100 text-slate-500',
+    converted: 'bg-purple-100 text-purple-700',
+  }
+  return classes[status] ?? 'bg-slate-100 text-slate-700'
+}
+
+// Cast financial_analysis and environmental_impact to proper types
+const financialAnalysis = computed(() =>
+  proposal.value?.financial_analysis as FinancialAnalysis | undefined
+)
+const environmentalImpact = computed(() =>
+  proposal.value?.environmental_impact as EnvironmentalImpact | undefined
+)
+
+// Chart data from proposal financial_analysis
+const savingsChartData = computed(() => {
+  const projections = financialAnalysis.value?.yearly_projections || []
+  return {
+    labels: projections.map((p) => `Year ${p.year}`),
+    datasets: [
+      {
+        label: 'Annual Savings (Rp)',
+        data: projections.map((p) => p.savings),
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  }
+})
+
+const cumulativeSavingsChartData = computed(() => {
+  const projections = financialAnalysis.value?.yearly_projections || []
+  let cumulative = 0
+  const data = projections.map((p) => {
+    cumulative += p.savings
+    return cumulative
+  })
+
+  return {
+    labels: projections.map((p) => `Year ${p.year}`),
+    datasets: [
+      {
+        label: 'Cumulative Savings (Rp)',
+        data,
+        borderColor: '#f97316',
+        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  }
+})
+</script>
+
+<template>
+  <div>
+    <!-- Loading -->
+    <div v-if="isLoading" class="flex justify-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-500" />
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="text-center py-12 text-red-500">
+      {{ getErrorMessage(error, 'Failed to load proposal') }}
+    </div>
+
+    <!-- Content -->
+    <template v-else-if="proposal">
+      <!-- Breadcrumb -->
+      <div class="text-sm text-slate-500 mb-4">
+        <RouterLink to="/solar-proposals" class="hover:text-slate-700">Solar Proposals</RouterLink>
+        <span class="mx-2">/</span>
+        <span class="text-slate-900">{{ proposal.proposal_number }}</span>
+      </div>
+
+      <!-- Header -->
+      <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+        <div class="flex items-start justify-between">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <h1 class="text-2xl font-semibold text-slate-900">
+                {{ proposal.proposal_number }}
+              </h1>
+              <span
+                class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium"
+                :class="getStatusClass(proposal.status)"
+              >
+                {{ proposal.status_label }}
+              </span>
+            </div>
+            <p class="text-slate-500">{{ proposal.contact?.name }} - {{ proposal.site_name }}</p>
+            <p class="text-sm text-slate-400 mt-1">
+              Valid until {{ formatDate(proposal.valid_until) }}
+              <span v-if="proposal.is_expired" class="text-red-500 ml-2">(Expired)</span>
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-2">
+            <!-- Download PDF -->
+            <Button
+              variant="ghost"
+              size="sm"
+              :loading="isDownloading"
+              @click="handleDownloadPdf"
+            >
+              Download PDF
+            </Button>
+
+            <!-- Recalculate -->
+            <Button
+              v-if="canEdit"
+              variant="ghost"
+              size="sm"
+              :loading="calculateMutation.isPending.value"
+              @click="handleRecalculate"
+            >
+              Recalculate
+            </Button>
+
+            <!-- Edit (draft only) -->
+            <RouterLink v-if="canEdit" :to="`/solar-proposals/${proposalId}/edit`">
+              <Button variant="secondary" size="sm">Edit</Button>
+            </RouterLink>
+
+            <!-- Send -->
+            <Button
+              v-if="canSend"
+             
+              size="sm"
+              :loading="sendMutation.isPending.value"
+              @click="handleSend"
+            >
+              Send to Customer
+            </Button>
+
+            <!-- Accept -->
+            <Button
+              v-if="canAccept"
+              variant="success"
+              size="sm"
+              :loading="acceptMutation.isPending.value"
+              @click="handleAccept"
+            >
+              Accept
+            </Button>
+
+            <!-- Reject -->
+            <Button
+              v-if="canReject"
+              variant="destructive"
+              size="sm"
+              @click="showRejectModal = true"
+            >
+              Reject
+            </Button>
+
+            <!-- Convert to Quotation -->
+            <Button
+              v-if="canConvert"
+             
+              size="sm"
+              :loading="convertMutation.isPending.value"
+              @click="handleConvert"
+            >
+              Convert to Quotation
+            </Button>
+
+            <!-- Delete -->
+            <Button
+              v-if="canDelete"
+              variant="ghost"
+              size="sm"
+              @click="showDeleteConfirm = true"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left Column: Details -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- System Overview -->
+          <Card>
+            <template #header>
+              <h2 class="text-lg font-medium text-slate-900">System Overview</h2>
+            </template>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div>
+                <div class="text-sm text-slate-500">System Capacity</div>
+                <div class="text-2xl font-bold text-slate-900">{{ proposal.system_capacity_kwp }} kWp</div>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500">Annual Production</div>
+                <div class="text-2xl font-bold text-slate-900">{{ formatNumber(proposal.annual_production_kwh || 0) }} kWh</div>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500">Monthly Production</div>
+                <div class="text-2xl font-bold text-slate-900">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500">Solar Offset</div>
+                <div class="text-2xl font-bold text-green-600">{{ formatPercent(proposal.solar_offset_percent || 0) }}</div>
+              </div>
+            </div>
+          </Card>
+
+          <!-- Financial Summary -->
+          <Card v-if="proposal.financial_analysis">
+            <template #header>
+              <h2 class="text-lg font-medium text-slate-900">Financial Summary</h2>
+            </template>
+
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
+              <div class="p-4 bg-green-50 rounded-lg">
+                <div class="text-sm text-green-600">First Year Savings</div>
+                <div class="text-xl font-bold text-green-700">{{ formatCurrency(proposal.first_year_savings) }}</div>
+              </div>
+              <div class="p-4 bg-orange-50 rounded-lg">
+                <div class="text-sm text-orange-600">Payback Period</div>
+                <div class="text-xl font-bold text-orange-700">{{ proposal.payback_years?.toFixed(1) }} years</div>
+              </div>
+              <div class="p-4 bg-blue-50 rounded-lg">
+                <div class="text-sm text-blue-600">ROI</div>
+                <div class="text-xl font-bold text-blue-700">{{ formatPercent(proposal.roi_percent || 0) }}</div>
+              </div>
+              <div class="p-4 bg-purple-50 rounded-lg">
+                <div class="text-sm text-purple-600">NPV</div>
+                <div class="text-xl font-bold text-purple-700">{{ formatCurrency(proposal.npv) }}</div>
+              </div>
+              <div class="p-4 bg-indigo-50 rounded-lg">
+                <div class="text-sm text-indigo-600">IRR</div>
+                <div class="text-xl font-bold text-indigo-700">{{ formatPercent(proposal.irr_percent || 0) }}</div>
+              </div>
+              <div class="p-4 bg-emerald-50 rounded-lg">
+                <div class="text-sm text-emerald-600">25-Year Savings</div>
+                <div class="text-xl font-bold text-emerald-700">{{ formatCurrency(proposal.total_lifetime_savings) }}</div>
+              </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+              <div>
+                <h4 class="text-sm font-medium text-slate-700 mb-3">Annual Savings</h4>
+                <LineChart
+                  v-if="savingsChartData.labels.length"
+                  :labels="savingsChartData.labels"
+                  :datasets="savingsChartData.datasets"
+                  :height="200"
+                />
+              </div>
+              <div>
+                <h4 class="text-sm font-medium text-slate-700 mb-3">Cumulative Savings</h4>
+                <LineChart
+                  v-if="cumulativeSavingsChartData.labels.length"
+                  :labels="cumulativeSavingsChartData.labels"
+                  :datasets="cumulativeSavingsChartData.datasets"
+                  :height="200"
+                />
+              </div>
+            </div>
+          </Card>
+
+          <!-- Environmental Impact -->
+          <Card v-if="proposal.environmental_impact">
+            <template #header>
+              <h2 class="text-lg font-medium text-slate-900">Environmental Impact</h2>
+            </template>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div class="text-center p-4 bg-green-50 rounded-lg">
+                <div class="text-3xl mb-2">🌱</div>
+                <div class="text-xl font-bold text-green-700">{{ proposal.co2_offset_tons?.toFixed(1) }}</div>
+                <div class="text-sm text-green-600">Tons CO2/Year</div>
+              </div>
+              <div class="text-center p-4 bg-emerald-50 rounded-lg">
+                <div class="text-3xl mb-2">🌳</div>
+                <div class="text-xl font-bold text-emerald-700">{{ proposal.trees_equivalent }}</div>
+                <div class="text-sm text-emerald-600">Trees Equivalent</div>
+              </div>
+              <div class="text-center p-4 bg-teal-50 rounded-lg">
+                <div class="text-3xl mb-2">🚗</div>
+                <div class="text-xl font-bold text-teal-700">{{ proposal.cars_equivalent }}</div>
+                <div class="text-sm text-teal-600">Cars Off Road</div>
+              </div>
+              <div class="text-center p-4 bg-cyan-50 rounded-lg">
+                <div class="text-3xl mb-2">🌍</div>
+                <div class="text-xl font-bold text-cyan-700">{{ environmentalImpact?.co2_lifetime_tons?.toFixed(0) }}</div>
+                <div class="text-sm text-cyan-600">Lifetime Tons CO2</div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        <!-- Right Column: Info Cards -->
+        <div class="space-y-6">
+          <!-- Site Information -->
+          <Card>
+            <template #header>
+              <h3 class="font-medium text-slate-900">Site Information</h3>
+            </template>
+
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-slate-500">Site Name</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.site_name }}</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Address</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.site_address }}</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Location</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.city }}, {{ proposal.province }}</dd>
+              </div>
+              <div v-if="proposal.roof_area_m2">
+                <dt class="text-slate-500">Roof Area</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.roof_area_m2 }} m²</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Roof Type</dt>
+                <dd class="font-medium text-slate-900 capitalize">{{ proposal.roof_type_label }}</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Orientation</dt>
+                <dd class="font-medium text-slate-900 capitalize">{{ proposal.roof_orientation_label }}</dd>
+              </div>
+            </dl>
+          </Card>
+
+          <!-- Electricity Profile -->
+          <Card>
+            <template #header>
+              <h3 class="font-medium text-slate-900">Electricity Profile</h3>
+            </template>
+
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-slate-500">Monthly Consumption</dt>
+                <dd class="font-medium text-slate-900">{{ formatNumber(proposal.monthly_consumption_kwh || 0) }} kWh</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">PLN Tariff</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.pln_tariff_category }}</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Electricity Rate</dt>
+                <dd class="font-medium text-slate-900">{{ formatCurrency(proposal.electricity_rate) }}/kWh</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Tariff Escalation</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.tariff_escalation_percent }}%/year</dd>
+              </div>
+            </dl>
+          </Card>
+
+          <!-- Solar Data -->
+          <Card>
+            <template #header>
+              <h3 class="font-medium text-slate-900">Solar Data</h3>
+            </template>
+
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-slate-500">Peak Sun Hours</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.peak_sun_hours }} h/day</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Solar Irradiance</dt>
+                <dd class="font-medium text-slate-900">{{ proposal.solar_irradiance }} kWh/m²/day</dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Performance Ratio</dt>
+                <dd class="font-medium text-slate-900">{{ formatPercent((proposal.performance_ratio || 0) * 100, 0) }}</dd>
+              </div>
+            </dl>
+          </Card>
+
+          <!-- Notes -->
+          <Card v-if="proposal.notes">
+            <template #header>
+              <h3 class="font-medium text-slate-900">Notes</h3>
+            </template>
+
+            <p class="text-sm text-slate-600 whitespace-pre-wrap">{{ proposal.notes }}</p>
+          </Card>
+        </div>
+      </div>
+    </template>
+
+    <!-- Reject Modal -->
+    <Modal v-model:open="showRejectModal" title="Reject Proposal">
+      <div class="space-y-4">
+        <p class="text-sm text-slate-600">
+          Are you sure you want to reject this proposal? Please provide a reason.
+        </p>
+        <textarea
+          v-model="rejectReason"
+          rows="3"
+          class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          placeholder="Reason for rejection..."
+        />
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showRejectModal = false">Cancel</Button>
+        <Button
+          variant="destructive"
+          :loading="rejectMutation.isPending.value"
+          @click="handleReject"
+        >
+          Reject Proposal
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Delete Confirmation -->
+    <Modal v-model:open="showDeleteConfirm" title="Delete Proposal">
+      <p class="text-sm text-slate-600">
+        Are you sure you want to delete this proposal? This action cannot be undone.
+      </p>
+
+      <template #footer>
+        <Button variant="ghost" @click="showDeleteConfirm = false">Cancel</Button>
+        <Button
+          variant="destructive"
+          :loading="deleteMutation.isPending.value"
+          @click="handleDelete"
+        >
+          Delete
+        </Button>
+      </template>
+    </Modal>
+  </div>
+</template>

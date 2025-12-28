@@ -40,7 +40,7 @@ function handleSearch(value: string | number) {
         <p class="text-slate-500">Track incoming and outgoing payments</p>
       </div>
       <RouterLink to="/payments/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
@@ -125,7 +125,7 @@ function handleSearch(value: string | number) {
               {{ formatCurrency(payment.amount) }}
             </td>
             <td class="px-6 py-4">
-              <Badge :variant="payment.is_voided ? 'error' : 'success'">
+              <Badge :variant="payment.is_voided ? 'destructive' : 'success'">
                 {{ payment.is_voided ? 'Voided' : 'Active' }}
               </Badge>
             </td>

@@ -1,23 +1,39 @@
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted } from 'vue'
+import { computed } from 'vue'
+import {
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogOverlay,
+  DialogPortal,
+  DialogRoot,
+  DialogTitle,
+} from 'radix-vue'
+import { X } from 'lucide-vue-next'
 import { cn } from '@/utils/cn'
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | 'full'
 
 interface Props {
+  /** Controls modal visibility */
   open: boolean
+  /** Modal width size */
   size?: ModalSize
+  /** Modal title */
   title?: string
+  /** Optional description below title */
   description?: string
+  /** Close when clicking backdrop */
   closeOnBackdrop?: boolean
-  closeOnEscape?: boolean
+  /** Show close button */
   showClose?: boolean
+  /** Additional content classes */
+  class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   size: 'lg',
   closeOnBackdrop: true,
-  closeOnEscape: true,
   showClose: true,
 })
 
@@ -27,150 +43,110 @@ const emit = defineEmits<{
 }>()
 
 const sizeClasses: Record<ModalSize, string> = {
-  sm: 'max-w-sm',      // 384px
-  md: 'max-w-md',      // 448px
-  lg: 'max-w-lg',      // 512px
-  xl: 'max-w-xl',      // 576px
-  '2xl': 'max-w-2xl',  // 672px
-  '3xl': 'max-w-3xl',  // 768px
-  '4xl': 'max-w-4xl',  // 896px
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+  '3xl': 'max-w-3xl',
+  '4xl': 'max-w-4xl',
   full: 'max-w-[calc(100%-2rem)] sm:max-w-[calc(100%-4rem)]',
 }
 
-const panelClasses = computed(() =>
+const contentClasses = computed(() =>
   cn(
-    'relative w-full bg-white rounded-lg shadow-xl',
-    'transform transition-all duration-200',
-    sizeClasses[props.size]
+    // Base styles
+    'fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2',
+    'bg-card text-card-foreground rounded-lg shadow-lg border',
+    // Animation
+    'data-[state=open]:animate-in data-[state=closed]:animate-out',
+    'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+    'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+    'data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]',
+    'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
+    'duration-200',
+    // Size
+    sizeClasses[props.size],
+    // Custom classes
+    props.class
   )
 )
 
-function close() {
-  emit('update:open', false)
-  emit('close')
-}
-
-function handleBackdropClick() {
-  if (props.closeOnBackdrop) {
-    close()
+function handleOpenChange(value: boolean) {
+  emit('update:open', value)
+  if (!value) {
+    emit('close')
   }
 }
 
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === 'Escape' && props.closeOnEscape && props.open) {
-    close()
+function handleBackdropClick(event: Event) {
+  if (!props.closeOnBackdrop) {
+    event.preventDefault()
   }
 }
-
-// Lock body scroll when modal is open
-watch(
-  () => props.open,
-  (isOpen) => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden'
-    } else {
-      document.body.style.overflow = ''
-    }
-  }
-)
-
-onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydown)
-  document.body.style.overflow = ''
-})
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="duration-200 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="duration-150 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div
-        v-if="open"
-        class="fixed inset-0 z-50 overflow-y-auto"
-        aria-modal="true"
-        role="dialog"
+  <DialogRoot
+    :open="open"
+    @update:open="handleOpenChange"
+  >
+    <DialogPortal>
+      <!-- Backdrop -->
+      <DialogOverlay
+        class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        @click="handleBackdropClick"
+      />
+
+      <!-- Content -->
+      <DialogContent
+        :class="contentClasses"
+        @pointer-down-outside="handleBackdropClick"
+        @escape-key-down="(e) => !closeOnBackdrop && e.preventDefault()"
       >
-        <!-- Backdrop -->
+        <!-- Header -->
         <div
-          class="fixed inset-0 bg-slate-900/50 transition-opacity"
-          @click="handleBackdropClick"
-        />
-
-        <!-- Modal container -->
-        <div class="flex min-h-full items-center justify-center p-4">
-          <Transition
-            enter-active-class="duration-200 ease-out"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="duration-150 ease-in"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
-          >
-            <div
-              v-if="open"
-              :class="panelClasses"
-              @click.stop
+          v-if="title || showClose"
+          class="flex items-start justify-between p-6 border-b border-border"
+        >
+          <div class="flex-1">
+            <DialogTitle
+              v-if="title"
+              class="text-lg font-semibold leading-none tracking-tight"
             >
-              <!-- Header -->
-              <div
-                v-if="title || showClose"
-                class="flex items-start justify-between p-6 border-b border-slate-200"
-              >
-                <div>
-                  <h3
-                    v-if="title"
-                    class="text-lg font-semibold text-slate-900"
-                  >
-                    {{ title }}
-                  </h3>
-                  <p
-                    v-if="description"
-                    class="mt-1 text-sm text-slate-500"
-                  >
-                    {{ description }}
-                  </p>
-                </div>
+              {{ title }}
+            </DialogTitle>
+            <DialogDescription
+              v-if="description"
+              class="mt-2 text-sm text-muted-foreground"
+            >
+              {{ description }}
+            </DialogDescription>
+          </div>
 
-                <!-- Close button -->
-                <button
-                  v-if="showClose"
-                  type="button"
-                  class="ml-4 p-1 text-slate-400 hover:text-slate-500 transition-colors rounded-sm hover:bg-slate-100"
-                  @click="close"
-                >
-                  <span class="sr-only">Close</span>
-                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Body -->
-              <div class="p-6">
-                <slot />
-              </div>
-
-              <!-- Footer -->
-              <div
-                v-if="$slots.footer"
-                class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-lg"
-              >
-                <slot name="footer" />
-              </div>
-            </div>
-          </Transition>
+          <!-- Close button -->
+          <DialogClose
+            v-if="showClose"
+            class="ml-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+          >
+            <X class="h-4 w-4" />
+            <span class="sr-only">Close</span>
+          </DialogClose>
         </div>
-      </div>
-    </Transition>
-  </Teleport>
+
+        <!-- Body -->
+        <div class="p-6">
+          <slot />
+        </div>
+
+        <!-- Footer -->
+        <div
+          v-if="$slots.footer"
+          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted/50 rounded-b-lg"
+        >
+          <slot name="footer" />
+        </div>
+      </DialogContent>
+    </DialogPortal>
+  </DialogRoot>
 </template>

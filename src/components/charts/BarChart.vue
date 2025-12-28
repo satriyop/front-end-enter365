@@ -26,30 +26,31 @@ defineProps<{
 </script>
 
 <template>
-  <Bar
-    :data="{ labels, datasets }"
-    :options="{
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top' as const,
+  <div :style="{ height: `${height || 300}px`, position: 'relative' }">
+    <Bar
+      :data="{ labels, datasets }"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top' as const,
+          },
         },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return new Intl.NumberFormat('id-ID', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(Number(value))
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return new Intl.NumberFormat('id-ID', {
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(Number(value))
+              },
             },
           },
         },
-      },
-    }"
-    :style="{ height: `${height || 300}px` }"
-  />
+      }"
+    />
+  </div>
 </template>

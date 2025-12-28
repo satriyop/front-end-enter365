@@ -6,7 +6,7 @@ defineProps<{
   actions: Array<{
     label: string
     icon?: string
-    variant?: 'primary' | 'secondary' | 'danger' | 'ghost'
+    variant?: 'default' | 'secondary' | 'destructive' | 'ghost'
     action: () => void | Promise<void>
     loading?: boolean
   }>

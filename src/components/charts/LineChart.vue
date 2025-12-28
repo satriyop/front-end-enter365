@@ -29,34 +29,35 @@ defineProps<{
 </script>
 
 <template>
-  <Line
-    :data="{ labels, datasets }"
-    :options="{
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top' as const,
+  <div :style="{ height: `${height || 300}px`, position: 'relative' }">
+    <Line
+      :data="{ labels, datasets }"
+      :options="{
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'top' as const,
+          },
         },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return new Intl.NumberFormat('id-ID', {
-                notation: 'compact',
-                compactDisplay: 'short',
-              }).format(Number(value))
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return new Intl.NumberFormat('id-ID', {
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(Number(value))
+              },
             },
           },
         },
-      },
-      interaction: {
-        intersect: false,
-        mode: 'index' as const,
-      },
-    }"
-    :style="{ height: `${height || 300}px` }"
-  />
+        interaction: {
+          intersect: false,
+          mode: 'index' as const,
+        },
+      }"
+    />
+  </div>
 </template>

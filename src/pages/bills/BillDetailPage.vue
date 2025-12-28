@@ -16,13 +16,13 @@ const postMutation = usePostBill()
 const voidMutation = useVoidBill()
 const deleteMutation = useDeleteBill()
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
   draft: 'default',
   posted: 'info',
   partial: 'warning',
   paid: 'success',
-  overdue: 'error',
-  voided: 'error',
+  overdue: 'destructive',
+  voided: 'destructive',
 }
 
 async function handlePost() {
@@ -76,16 +76,16 @@ async function handleDelete() {
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
-          <Button v-if="bill.status === 'draft'" variant="primary" @click="handlePost" :loading="postMutation.isPending.value">
+          <Button v-if="bill.status === 'draft'" @click="handlePost" :loading="postMutation.isPending.value">
             Post Bill
           </Button>
           <RouterLink v-if="bill.status === 'draft'" :to="`/bills/${bill.id}/edit`">
             <Button variant="secondary">Edit</Button>
           </RouterLink>
-          <Button v-if="bill.status === 'posted'" variant="danger" @click="handleVoid" :loading="voidMutation.isPending.value">
+          <Button v-if="bill.status === 'posted'" variant="destructive" @click="handleVoid" :loading="voidMutation.isPending.value">
             Void
           </Button>
-          <Button v-if="bill.status === 'draft'" variant="danger" @click="handleDelete" :loading="deleteMutation.isPending.value">
+          <Button v-if="bill.status === 'draft'" variant="destructive" @click="handleDelete" :loading="deleteMutation.isPending.value">
             Delete
           </Button>
         </div>
@@ -181,7 +181,7 @@ async function handleDelete() {
 
           <Card v-if="bill.outstanding_amount > 0 && bill.status !== 'draft'">
             <RouterLink :to="`/payments/new?type=pay&bill_id=${bill.id}`">
-              <Button variant="primary" class="w-full">Record Payment</Button>
+              <Button class="w-full">Record Payment</Button>
             </RouterLink>
           </Card>
         </div>

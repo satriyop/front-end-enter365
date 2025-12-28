@@ -25,12 +25,12 @@ const completeMutation = useCompleteWorkOrder()
 const cancelMutation = useCancelWorkOrder()
 const deleteMutation = useDeleteWorkOrder()
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'error'> = {
+const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
   draft: 'default',
   confirmed: 'info',
   in_progress: 'warning',
   completed: 'success',
-  cancelled: 'error',
+  cancelled: 'destructive',
 }
 
 const typeLabels: Record<string, string> = {
@@ -40,11 +40,11 @@ const typeLabels: Record<string, string> = {
   maintenance: 'Maintenance',
 }
 
-const priorityColors: Record<string, 'default' | 'info' | 'warning' | 'error'> = {
+const priorityColors: Record<string, 'default' | 'info' | 'warning' | 'destructive'> = {
   low: 'default',
   medium: 'info',
   high: 'warning',
-  urgent: 'error',
+  urgent: 'destructive',
 }
 
 async function handleConfirm() {
@@ -141,7 +141,7 @@ function formatPercent(value: string | number | undefined): string {
           </RouterLink>
           <Button
             v-if="workOrder.status === 'draft'"
-            variant="primary"
+           
             @click="handleConfirm"
             :loading="confirmMutation.isPending.value"
           >
@@ -149,7 +149,7 @@ function formatPercent(value: string | number | undefined): string {
           </Button>
           <Button
             v-if="workOrder.status === 'confirmed'"
-            variant="primary"
+           
             @click="handleStart"
             :loading="startMutation.isPending.value"
           >
@@ -165,7 +165,7 @@ function formatPercent(value: string | number | undefined): string {
           </Button>
           <Button
             v-if="workOrder.status !== 'completed' && workOrder.status !== 'cancelled'"
-            variant="danger"
+            variant="destructive"
             @click="handleCancel"
             :loading="cancelMutation.isPending.value"
           >

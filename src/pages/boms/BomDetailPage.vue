@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   useBom,
@@ -8,8 +8,21 @@ import {
   useDuplicateBom,
   useDeleteBom,
 } from '@/api/useBoms'
+import {
+  useAvailableBrands,
+  useSwapBomBrand,
+  useSwapBrandPreview,
+  useGenerateBrandVariants,
+  useBrandComparison,
+  useCostOptimizationPreview,
+  useApplyCostOptimization,
+  type SwapReport,
+  type SwapPreview,
+  type CostOptimizationReport,
+} from '@/api/useComponentStandards'
+import { Check, TrendingDown } from 'lucide-vue-next'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, Card, useToast } from '@/components/ui'
+import { Button, Badge, Modal, Card, Input, useToast } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -24,9 +37,64 @@ const activateMutation = useActivateBom()
 const deactivateMutation = useDeactivateBom()
 const duplicateMutation = useDuplicateBom()
 const deleteMutation = useDeleteBom()
+const swapBrandMutation = useSwapBomBrand()
+const swapPreviewMutation = useSwapBrandPreview()
+const generateVariantsMutation = useGenerateBrandVariants()
+
+// Brand data
+const { data: availableBrands } = useAvailableBrands()
+const { data: brandComparison, isLoading: isLoadingComparison, refetch: refetchComparison } = useBrandComparison(bomId)
+
+// Cost optimization
+const { data: costOptimization, isLoading: isLoadingOptimization, refetch: refetchOptimization } = useCostOptimizationPreview(bomId)
+const applyCostOptimizationMutation = useApplyCostOptimization()
+
+// Best value brand recommendation
+const bestValueBrand = computed(() => {
+  if (!brandComparison.value?.recommendations?.best_value) return null
+  return brandComparison.value.brands.find(
+    b => b.brand === brandComparison.value?.recommendations.best_value
+  ) || null
+})
 
 // Modal states
 const showDeleteModal = ref(false)
+const showSwapBrandModal = ref(false)
+const showGenerateVariantsModal = ref(false)
+const showSwapReportModal = ref(false)
+const showCompareModal = ref(false)
+const showOptimizeModal = ref(false)
+const showOptimizationReportModal = ref(false)
+
+// Brand swap state
+const selectedBrand = ref('')
+const selectedBrands = ref<string[]>([])
+const variantGroupName = ref('')
+const lastSwapReport = ref<SwapReport | null>(null)
+const lastSwappedBomId = ref<number | null>(null)
+const swapPreview = ref<SwapPreview | null>(null)
+
+// Cost optimization state
+const selectedOptimizations = ref<Set<number>>(new Set())
+const lastOptimizationReport = ref<CostOptimizationReport | null>(null)
+const lastOptimizedBomId = ref<number | null>(null)
+
+// Fetch preview when brand is selected
+watch(selectedBrand, async (brand) => {
+  if (brand && bomId.value) {
+    swapPreview.value = null
+    try {
+      swapPreview.value = await swapPreviewMutation.mutateAsync({
+        bomId: bomId.value,
+        targetBrand: brand
+      })
+    } catch {
+      // Preview failed, will show without preview
+    }
+  } else {
+    swapPreview.value = null
+  }
+})
 
 // Action handlers
 async function handleActivate() {
@@ -68,14 +136,185 @@ async function handleDelete() {
   }
 }
 
+async function handleSwapBrand() {
+  if (!selectedBrand.value) {
+    toast.error('Please select a target brand')
+    return
+  }
+  try {
+    const result = await swapBrandMutation.mutateAsync({
+      bomId: bomId.value,
+      targetBrand: selectedBrand.value,
+      createVariant: true
+    })
+    showSwapBrandModal.value = false
+    lastSwapReport.value = result.data.swap_report
+    lastSwappedBomId.value = result.data.bom.id
+    showSwapReportModal.value = true
+    toast.success(`Brand swap complete! New BOM: ${result.data.bom.bom_number}`)
+    selectedBrand.value = ''
+    swapPreview.value = null
+  } catch {
+    toast.error('Failed to swap brand')
+  }
+}
+
+function viewSwappedBom() {
+  if (lastSwappedBomId.value) {
+    showSwapReportModal.value = false
+    router.push(`/boms/${lastSwappedBomId.value}`)
+  }
+}
+
+async function handleQuickSwap(brandCode: string) {
+  try {
+    const result = await swapBrandMutation.mutateAsync({
+      bomId: bomId.value,
+      targetBrand: brandCode,
+      createVariant: true
+    })
+    showCompareModal.value = false
+    lastSwapReport.value = result.data.swap_report
+    lastSwappedBomId.value = result.data.bom.id
+    showSwapReportModal.value = true
+    toast.success(`Brand swap complete! New BOM: ${result.data.bom.bom_number}`)
+  } catch {
+    toast.error('Failed to swap brand')
+  }
+}
+
+function openCompareModal() {
+  showCompareModal.value = true
+  refetchComparison()
+}
+
+function openOptimizeModal() {
+  showOptimizeModal.value = true
+  refetchOptimization()
+  // Pre-select all optimizable items
+  if (costOptimization.value) {
+    selectedOptimizations.value = new Set(
+      costOptimization.value.items
+        .filter(item => item.can_optimize && !item.is_already_cheapest)
+        .map(item => item.bom_item_id)
+    )
+  }
+}
+
+// Watch for optimization data to pre-select items
+watch(costOptimization, (data) => {
+  if (data && showOptimizeModal.value) {
+    selectedOptimizations.value = new Set(
+      data.items
+        .filter(item => item.can_optimize && !item.is_already_cheapest)
+        .map(item => item.bom_item_id)
+    )
+  }
+})
+
+function toggleOptimizationItem(itemId: number) {
+  if (selectedOptimizations.value.has(itemId)) {
+    selectedOptimizations.value.delete(itemId)
+  } else {
+    selectedOptimizations.value.add(itemId)
+  }
+  // Force reactivity
+  selectedOptimizations.value = new Set(selectedOptimizations.value)
+}
+
+function selectAllOptimizations() {
+  if (costOptimization.value) {
+    selectedOptimizations.value = new Set(
+      costOptimization.value.items
+        .filter(item => item.can_optimize && !item.is_already_cheapest)
+        .map(item => item.bom_item_id)
+    )
+  }
+}
+
+function deselectAllOptimizations() {
+  selectedOptimizations.value = new Set()
+}
+
+// Computed for selected savings
+const selectedSavings = computed(() => {
+  if (!costOptimization.value) return { total: 0, count: 0 }
+  const selected = costOptimization.value.items.filter(
+    item => selectedOptimizations.value.has(item.bom_item_id)
+  )
+  return {
+    total: selected.reduce((sum, item) => sum + item.savings, 0),
+    count: selected.length
+  }
+})
+
+async function handleApplyOptimization() {
+  if (selectedOptimizations.value.size === 0) {
+    toast.error('Please select at least one item to optimize')
+    return
+  }
+  try {
+    const result = await applyCostOptimizationMutation.mutateAsync({
+      bomId: bomId.value,
+      itemIds: Array.from(selectedOptimizations.value)
+    })
+    showOptimizeModal.value = false
+    lastOptimizationReport.value = result.data.optimization_report
+    lastOptimizedBomId.value = result.data.bom.id
+    showOptimizationReportModal.value = true
+    toast.success(`Optimization applied! New BOM: ${result.data.bom.bom_number}`)
+    selectedOptimizations.value = new Set()
+  } catch {
+    toast.error('Failed to apply optimization')
+  }
+}
+
+function viewOptimizedBom() {
+  if (lastOptimizedBomId.value) {
+    showOptimizationReportModal.value = false
+    router.push(`/boms/${lastOptimizedBomId.value}`)
+  }
+}
+
+async function handleGenerateVariants() {
+  if (selectedBrands.value.length === 0) {
+    toast.error('Please select at least one brand')
+    return
+  }
+  try {
+    const result = await generateVariantsMutation.mutateAsync({
+      bomId: bomId.value,
+      brands: selectedBrands.value,
+      groupName: variantGroupName.value || undefined
+    })
+    showGenerateVariantsModal.value = false
+    toast.success(`Generated ${result.data.boms.length} brand variants!`)
+    selectedBrands.value = []
+    variantGroupName.value = ''
+    // Navigate to variant group
+    router.push(`/boms?variant_group=${result.data.variant_group.id}`)
+  } catch {
+    toast.error('Failed to generate variants')
+  }
+}
+
+function toggleBrandSelection(brandCode: string) {
+  const index = selectedBrands.value.indexOf(brandCode)
+  if (index === -1) {
+    selectedBrands.value.push(brandCode)
+  } else {
+    selectedBrands.value.splice(index, 1)
+  }
+}
+
 // Status-based action availability
 const canEdit = computed(() => bom.value?.status === 'draft')
 const canActivate = computed(() => bom.value?.status === 'draft')
 const canDeactivate = computed(() => bom.value?.status === 'active')
 const canDelete = computed(() => bom.value?.status === 'draft')
 
-function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'error' {
-  const map: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'destructive' {
+  const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
     draft: 'default',
     active: 'success',
     inactive: 'warning',
@@ -149,6 +388,47 @@ const costBreakdown = computed(() => {
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
+            <!-- Brand Swap Buttons (Primary Feature) -->
+            <Button
+              variant="success"
+              size="sm"
+              @click="openOptimizeModal"
+            >
+              <TrendingDown class="w-4 h-4 mr-1" />
+              Optimize Cost
+            </Button>
+            <Button
+              size="sm"
+              @click="openCompareModal"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              Compare Brands
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="showSwapBrandModal = true"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              </svg>
+              Swap Brand
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="showGenerateVariantsModal = true"
+            >
+              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              Generate Variants
+            </Button>
+
+            <div class="w-px h-6 bg-slate-200 self-center mx-1"></div>
+
             <Button
               variant="ghost"
               size="sm"
@@ -410,11 +690,666 @@ const costBreakdown = computed(() => {
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
         <Button
-          variant="danger"
+          variant="destructive"
           :loading="deleteMutation.isPending.value"
           @click="handleDelete"
         >
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Swap Brand Modal -->
+    <Modal :open="showSwapBrandModal" title="Swap Brand" size="lg" @update:open="showSwapBrandModal = $event">
+      <div class="space-y-4">
+        <!-- Brand Selection -->
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Select Target Brand</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button
+              v-for="brand in availableBrands"
+              :key="brand.code"
+              type="button"
+              class="px-3 py-2 rounded-lg border-2 text-left transition-colors"
+              :class="selectedBrand === brand.code
+                ? 'border-orange-500 bg-orange-50 text-orange-700'
+                : 'border-slate-200 hover:border-slate-300'"
+              @click="selectedBrand = brand.code"
+            >
+              <div class="font-medium text-sm">{{ brand.name }}</div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Preview Loading -->
+        <div v-if="swapPreviewMutation.isPending.value" class="py-6 text-center">
+          <div class="flex items-center justify-center gap-2 text-slate-500">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span>Calculating price impact...</span>
+          </div>
+        </div>
+
+        <!-- Preview Results -->
+        <div v-else-if="swapPreview" class="space-y-4">
+          <!-- Price Summary -->
+          <div class="bg-slate-50 rounded-xl p-4">
+            <div class="grid grid-cols-3 gap-4 text-center">
+              <div>
+                <div class="text-sm text-slate-500">Current Total</div>
+                <div class="text-lg font-semibold text-slate-900">{{ formatCurrency(swapPreview.current_total) }}</div>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500">After Swap</div>
+                <div class="text-lg font-semibold text-slate-900">{{ formatCurrency(swapPreview.estimated_total) }}</div>
+              </div>
+              <div>
+                <div class="text-sm text-slate-500">{{ swapPreview.savings >= 0 ? 'Savings' : 'Increase' }}</div>
+                <div
+                  class="text-lg font-bold"
+                  :class="swapPreview.savings >= 0 ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{ swapPreview.savings >= 0 ? '' : '+' }}{{ formatCurrency(Math.abs(swapPreview.savings)) }}
+                  <span class="text-sm font-normal">({{ swapPreview.savings >= 0 ? '-' : '+' }}{{ Math.abs(swapPreview.savings_percentage) }}%)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Coverage Info -->
+          <div class="flex items-center gap-4 text-sm">
+            <div class="flex items-center gap-2">
+              <div class="w-3 h-3 rounded-full bg-green-500"></div>
+              <span>{{ swapPreview.coverage.swappable }} items can be swapped</span>
+            </div>
+            <div v-if="swapPreview.coverage.no_mapping > 0" class="flex items-center gap-2 text-amber-600">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{{ swapPreview.coverage.no_mapping }} items have no equivalent</span>
+            </div>
+          </div>
+
+          <!-- Item Preview (collapsible) -->
+          <details class="group">
+            <summary class="cursor-pointer text-sm font-medium text-slate-700 hover:text-slate-900">
+              View item details
+              <span class="ml-1 text-slate-400 group-open:hidden">▶</span>
+              <span class="ml-1 text-slate-400 hidden group-open:inline">▼</span>
+            </summary>
+            <div class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200">
+              <table class="w-full text-sm">
+                <thead class="bg-slate-50 sticky top-0">
+                  <tr>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">Item</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">Current</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">New</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">Change</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  <tr v-for="(item, idx) in swapPreview.items" :key="idx" :class="!item.can_swap ? 'bg-amber-50' : ''">
+                    <td class="px-3 py-2">
+                      <div class="font-medium text-slate-900 truncate max-w-[200px]">{{ item.description }}</div>
+                      <div v-if="item.target_sku" class="text-xs text-slate-400">→ {{ item.target_sku }}</div>
+                      <div v-else class="text-xs text-amber-600">No equivalent</div>
+                    </td>
+                    <td class="px-3 py-2 text-right text-slate-600">{{ formatCurrency(item.current_total) }}</td>
+                    <td class="px-3 py-2 text-right text-slate-600">{{ formatCurrency(item.estimated_total) }}</td>
+                    <td class="px-3 py-2 text-right">
+                      <span
+                        v-if="item.cost_change !== 0"
+                        :class="item.cost_change < 0 ? 'text-green-600' : 'text-red-600'"
+                      >
+                        {{ item.cost_change < 0 ? '' : '+' }}{{ formatCurrency(item.cost_change) }}
+                      </span>
+                      <span v-else class="text-slate-400">-</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </details>
+        </div>
+
+        <!-- No brand selected -->
+        <div v-else-if="!selectedBrand" class="py-6 text-center text-slate-500">
+          Select a brand above to see price comparison
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showSwapBrandModal = false; selectedBrand = ''">Cancel</Button>
+        <Button
+         
+          :loading="swapBrandMutation.isPending.value"
+          :disabled="!selectedBrand || swapPreviewMutation.isPending.value"
+          @click="handleSwapBrand"
+        >
+          <template v-if="swapPreview && swapPreview.savings > 0">
+            Swap & Save {{ Math.abs(swapPreview.savings_percentage) }}%
+          </template>
+          <template v-else-if="swapPreview">
+            Swap to {{ availableBrands?.find(b => b.code === selectedBrand)?.name }}
+          </template>
+          <template v-else>
+            Select a Brand
+          </template>
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Generate Variants Modal -->
+    <Modal :open="showGenerateVariantsModal" title="Generate Brand Variants" @update:open="showGenerateVariantsModal = $event">
+      <div class="space-y-4">
+        <p class="text-slate-600">
+          Generate multiple BOM variants at once by selecting the target brands.
+          All variants will be grouped together for easy comparison.
+        </p>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-2">Select Brands</label>
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              v-for="brand in availableBrands"
+              :key="brand.code"
+              type="button"
+              class="px-4 py-3 rounded-lg border-2 text-left transition-colors"
+              :class="selectedBrands.includes(brand.code)
+                ? 'border-orange-500 bg-orange-50 text-orange-700'
+                : 'border-slate-200 hover:border-slate-300'"
+              @click="toggleBrandSelection(brand.code)"
+            >
+              <div class="flex items-center gap-2">
+                <div
+                  class="w-5 h-5 rounded border-2 flex items-center justify-center"
+                  :class="selectedBrands.includes(brand.code)
+                    ? 'bg-orange-500 border-orange-500'
+                    : 'border-slate-300'"
+                >
+                  <svg v-if="selectedBrands.includes(brand.code)" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="font-medium">{{ brand.name }}</div>
+              </div>
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Variant Group Name (Optional)</label>
+          <Input
+            v-model="variantGroupName"
+            placeholder="e.g., Panel MDP Lantai 1 - Brand Options"
+          />
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showGenerateVariantsModal = false">Cancel</Button>
+        <Button
+         
+          :loading="generateVariantsMutation.isPending.value"
+          :disabled="selectedBrands.length === 0"
+          @click="handleGenerateVariants"
+        >
+          Generate {{ selectedBrands.length }} Variant{{ selectedBrands.length !== 1 ? 's' : '' }}
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Swap Report Modal -->
+    <Modal :open="showSwapReportModal" title="Swap Report" size="lg" @update:open="showSwapReportModal = $event">
+      <div v-if="lastSwapReport" class="space-y-4">
+        <!-- Summary -->
+        <div class="grid grid-cols-4 gap-4">
+          <div class="bg-slate-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-slate-900">{{ lastSwapReport.total_items }}</div>
+            <div class="text-sm text-slate-500">Total Items</div>
+          </div>
+          <div class="bg-green-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">{{ lastSwapReport.swapped }}</div>
+            <div class="text-sm text-green-600">Swapped</div>
+          </div>
+          <div class="bg-yellow-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-yellow-600">{{ lastSwapReport.partial_match }}</div>
+            <div class="text-sm text-yellow-600">Partial Match</div>
+          </div>
+          <div class="bg-red-50 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-600">{{ lastSwapReport.no_mapping }}</div>
+            <div class="text-sm text-red-600">No Mapping</div>
+          </div>
+        </div>
+
+        <!-- Item Details -->
+        <div v-if="lastSwapReport.items?.length" class="max-h-64 overflow-y-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 sticky top-0">
+              <tr>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Original</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">New</th>
+                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Cost Change</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="(item, index) in lastSwapReport.items" :key="index">
+                <td class="px-3 py-2">
+                  <Badge
+                    :variant="item.status === 'swapped' ? 'success' : item.status === 'partial_match' ? 'warning' : 'destructive'"
+                  >
+                    {{ item.status === 'swapped' ? 'Swapped' : item.status === 'partial_match' ? 'Partial' : 'No Map' }}
+                  </Badge>
+                </td>
+                <td class="px-3 py-2">
+                  <div class="text-slate-900">{{ item.original.description }}</div>
+                  <div class="text-xs text-slate-400">{{ formatCurrency(item.original.unit_cost) }}</div>
+                </td>
+                <td class="px-3 py-2">
+                  <template v-if="item.new">
+                    <div class="text-slate-900">{{ item.new.description }}</div>
+                    <div class="text-xs text-slate-400">{{ item.new.brand_sku }}</div>
+                  </template>
+                  <span v-else class="text-slate-400">-</span>
+                </td>
+                <td class="px-3 py-2 text-right">
+                  <template v-if="item.new">
+                    <span
+                      :class="item.new.unit_cost > item.original.unit_cost
+                        ? 'text-red-600'
+                        : item.new.unit_cost < item.original.unit_cost
+                          ? 'text-green-600'
+                          : 'text-slate-500'"
+                    >
+                      {{ item.new.unit_cost > item.original.unit_cost ? '+' : '' }}{{ formatCurrency(item.new.unit_cost - item.original.unit_cost) }}
+                    </span>
+                  </template>
+                  <span v-else class="text-slate-400">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showSwapReportModal = false">Close</Button>
+        <Button @click="viewSwappedBom">
+          View New BOM
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Brand Comparison Modal -->
+    <Modal :open="showCompareModal" title="Compare All Brands" size="xl" @update:open="showCompareModal = $event">
+      <div class="space-y-4">
+        <!-- Loading state -->
+        <div v-if="isLoadingComparison" class="py-12 text-center">
+          <div class="flex items-center justify-center gap-2 text-slate-500">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span>Comparing all brands...</span>
+          </div>
+        </div>
+
+        <!-- Comparison content -->
+        <template v-else-if="brandComparison">
+          <!-- Current BOM Summary -->
+          <div class="bg-slate-50 rounded-xl p-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-slate-500">Current BOM Total</div>
+                <div class="text-2xl font-bold text-slate-900">{{ formatCurrency(brandComparison.current.total) }}</div>
+              </div>
+              <div class="text-right">
+                <div class="text-sm text-slate-500">Total Items</div>
+                <div class="text-2xl font-bold text-slate-900">{{ brandComparison.current.total_items }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommendation -->
+          <div v-if="bestValueBrand" class="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div>
+              <div class="font-medium text-green-800">
+                Best Value: {{ bestValueBrand.brand_label }}
+              </div>
+              <div class="text-sm text-green-600">
+                Save {{ formatCurrency(bestValueBrand.savings) }}
+                with {{ bestValueBrand.coverage_percentage }}% coverage
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Comparison Table -->
+          <div class="overflow-x-auto rounded-lg border border-slate-200">
+            <table class="w-full">
+              <thead class="bg-slate-50">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Brand</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Est. Total</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Savings</th>
+                  <th class="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Coverage</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200">
+                <tr
+                  v-for="(item, index) in brandComparison.brands"
+                  :key="item.brand"
+                  :class="index === 0 ? 'bg-green-50/50' : ''"
+                >
+                  <td class="px-4 py-3">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-slate-900">{{ item.brand_label }}</span>
+                      <Badge v-if="index === 0" variant="success" class="text-xs">Best Value</Badge>
+                    </div>
+                    <div class="text-xs text-slate-500 mt-0.5">
+                      {{ item.swappable_items }} swappable, {{ item.no_mapping_items }} unmapped
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <span class="font-semibold text-slate-900">{{ formatCurrency(item.estimated_total) }}</span>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <span
+                      v-if="item.savings > 0"
+                      class="font-medium text-green-600"
+                    >
+                      -{{ formatCurrency(item.savings) }}
+                      <span class="text-xs">({{ item.savings_percentage }}%)</span>
+                    </span>
+                    <span
+                      v-else-if="item.savings < 0"
+                      class="font-medium text-red-600"
+                    >
+                      +{{ formatCurrency(Math.abs(item.savings)) }}
+                      <span class="text-xs">({{ Math.abs(item.savings_percentage) }}%)</span>
+                    </span>
+                    <span v-else class="text-slate-400">-</span>
+                  </td>
+                  <td class="px-4 py-3">
+                    <div class="flex items-center justify-center gap-2">
+                      <div class="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                          class="h-full rounded-full"
+                          :class="item.coverage_percentage >= 80 ? 'bg-green-500' : item.coverage_percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'"
+                          :style="{ width: `${item.coverage_percentage}%` }"
+                        ></div>
+                      </div>
+                      <span class="text-sm text-slate-600">{{ item.coverage_percentage }}%</span>
+                    </div>
+                  </td>
+                  <td class="px-4 py-3 text-right">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      :loading="swapBrandMutation.isPending.value"
+                      @click="handleQuickSwap(item.brand)"
+                    >
+                      Swap
+                    </Button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Info Note -->
+          <p class="text-xs text-slate-500 text-center">
+            Brands are sorted by potential savings. Coverage shows % of items that can be swapped to each brand.
+          </p>
+        </template>
+
+        <!-- No data -->
+        <div v-else class="py-12 text-center text-slate-500">
+          Unable to load brand comparison data.
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showCompareModal = false">Close</Button>
+      </template>
+    </Modal>
+
+    <!-- Cost Optimization Modal -->
+    <Modal :open="showOptimizeModal" title="Cost Optimization" size="xl" @update:open="showOptimizeModal = $event">
+      <div class="space-y-4">
+        <!-- Loading state -->
+        <div v-if="isLoadingOptimization" class="py-12 text-center">
+          <div class="flex items-center justify-center gap-2 text-muted-foreground">
+            <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span>Analyzing cost optimization opportunities...</span>
+          </div>
+        </div>
+
+        <template v-else-if="costOptimization">
+          <!-- Summary Cards -->
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-card rounded-xl p-4 border border-border">
+              <div class="text-sm text-muted-foreground">Current Total</div>
+              <div class="text-2xl font-bold">{{ formatCurrency(costOptimization.current_total) }}</div>
+            </div>
+            <div class="bg-card rounded-xl p-4 border border-border">
+              <div class="text-sm text-muted-foreground">Optimized Total</div>
+              <div class="text-2xl font-bold">{{ formatCurrency(costOptimization.optimized_total) }}</div>
+            </div>
+            <div class="bg-green-50 rounded-xl p-4 border border-green-200">
+              <div class="text-sm text-green-600">Potential Savings</div>
+              <div class="text-2xl font-bold text-green-600">
+                {{ formatCurrency(costOptimization.savings) }}
+                <span class="text-base font-normal">({{ costOptimization.savings_percentage }}%)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selection Controls -->
+          <div class="flex items-center justify-between border-b border-border pb-3">
+            <div class="flex items-center gap-4">
+              <button
+                type="button"
+                class="text-sm text-primary hover:underline"
+                @click="selectAllOptimizations"
+              >
+                Select All
+              </button>
+              <button
+                type="button"
+                class="text-sm text-muted-foreground hover:underline"
+                @click="deselectAllOptimizations"
+              >
+                Deselect All
+              </button>
+            </div>
+            <div class="text-sm text-muted-foreground">
+              {{ costOptimization.summary.can_optimize }} of {{ costOptimization.summary.total_items }} items optimizable
+            </div>
+          </div>
+
+          <!-- Items List -->
+          <div class="max-h-80 overflow-y-auto space-y-2">
+            <div
+              v-for="item in costOptimization.items"
+              :key="item.bom_item_id"
+              class="rounded-lg border p-3 transition-colors"
+              :class="{
+                'border-green-300 bg-green-50': selectedOptimizations.has(item.bom_item_id),
+                'border-border bg-card': !selectedOptimizations.has(item.bom_item_id) && item.can_optimize && !item.is_already_cheapest,
+                'border-border bg-muted/50 opacity-60': !item.can_optimize || item.is_already_cheapest
+              }"
+            >
+              <div class="flex items-start gap-3">
+                <!-- Checkbox -->
+                <button
+                  v-if="item.can_optimize && !item.is_already_cheapest"
+                  type="button"
+                  class="mt-0.5 w-5 h-5 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors"
+                  :class="selectedOptimizations.has(item.bom_item_id)
+                    ? 'bg-green-500 border-green-500'
+                    : 'border-border hover:border-green-400'"
+                  @click="toggleOptimizationItem(item.bom_item_id)"
+                >
+                  <Check v-if="selectedOptimizations.has(item.bom_item_id)" class="w-3 h-3 text-white" />
+                </button>
+                <div v-else class="mt-0.5 w-5 h-5 rounded border-2 border-border bg-muted flex-shrink-0" />
+
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium truncate">{{ item.description }}</span>
+                    <span class="text-xs text-muted-foreground">×{{ item.quantity }}</span>
+                  </div>
+                  <div class="flex items-center gap-2 mt-1 text-sm">
+                    <span class="text-muted-foreground">{{ item.current_brand || 'Unknown' }}</span>
+                    <span v-if="item.can_optimize && !item.is_already_cheapest" class="text-muted-foreground">→</span>
+                    <span v-if="item.can_optimize && !item.is_already_cheapest" class="text-green-600 font-medium">
+                      {{ item.cheapest_brand_label }}
+                    </span>
+                    <Badge v-if="item.is_already_cheapest" variant="success" class="text-xs">Already Cheapest</Badge>
+                    <Badge v-else-if="!item.can_optimize" variant="warning" class="text-xs">No Alternative</Badge>
+                  </div>
+                </div>
+
+                <!-- Price & Savings -->
+                <div class="text-right flex-shrink-0">
+                  <div class="text-sm">
+                    <span class="text-muted-foreground">{{ formatCurrency(item.current_unit_cost) }}</span>
+                    <span v-if="item.can_optimize && !item.is_already_cheapest" class="text-muted-foreground mx-1">→</span>
+                    <span v-if="item.can_optimize && !item.is_already_cheapest" class="text-foreground">
+                      {{ formatCurrency(item.cheapest_unit_cost) }}
+                    </span>
+                  </div>
+                  <div v-if="item.savings > 0" class="text-green-600 font-medium text-sm">
+                    Save {{ formatCurrency(item.savings) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Savings Bar -->
+              <div v-if="item.savings > 0 && costOptimization.savings > 0" class="mt-2 flex items-center gap-2">
+                <div class="flex-1 h-1.5 bg-border rounded-full overflow-hidden">
+                  <div
+                    class="h-full bg-green-500 rounded-full"
+                    :style="{ width: `${(item.savings / costOptimization.savings) * 100}%` }"
+                  />
+                </div>
+                <span class="text-xs text-muted-foreground">{{ item.savings_percentage }}%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selected Summary -->
+          <div v-if="selectedSavings.count > 0" class="bg-green-50 border border-green-200 rounded-lg p-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <Check class="w-5 h-5 text-green-600" />
+                <span class="font-medium text-green-800">
+                  {{ selectedSavings.count }} items selected
+                </span>
+              </div>
+              <div class="text-green-800 font-bold">
+                Save {{ formatCurrency(selectedSavings.total) }}
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- No data -->
+        <div v-else class="py-12 text-center text-muted-foreground">
+          Unable to load optimization data.
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showOptimizeModal = false">Cancel</Button>
+        <Button
+          variant="success"
+          :loading="applyCostOptimizationMutation.isPending.value"
+          :disabled="selectedOptimizations.size === 0"
+          @click="handleApplyOptimization"
+        >
+          Create Optimized BOM
+          <span v-if="selectedSavings.total > 0" class="ml-1">
+            (Save {{ formatCurrency(selectedSavings.total) }})
+          </span>
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Optimization Report Modal -->
+    <Modal :open="showOptimizationReportModal" title="Optimization Report" size="lg" @update:open="showOptimizationReportModal = $event">
+      <div v-if="lastOptimizationReport" class="space-y-4">
+        <!-- Summary -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-card rounded-lg p-4 text-center border border-border">
+            <div class="text-2xl font-bold">{{ lastOptimizationReport.total_items }}</div>
+            <div class="text-sm text-muted-foreground">Total Items</div>
+          </div>
+          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200">
+            <div class="text-2xl font-bold text-green-600">{{ lastOptimizationReport.optimized }}</div>
+            <div class="text-sm text-green-600">Optimized</div>
+          </div>
+          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200">
+            <div class="text-2xl font-bold text-green-600">{{ formatCurrency(lastOptimizationReport.total_savings) }}</div>
+            <div class="text-sm text-green-600">Total Savings</div>
+          </div>
+        </div>
+
+        <!-- Item Details -->
+        <div v-if="lastOptimizationReport.items?.length" class="max-h-64 overflow-y-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-muted sticky top-0">
+              <tr>
+                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Original</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">New</th>
+                <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground uppercase">Savings</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr v-for="(item, index) in lastOptimizationReport.items" :key="index">
+                <td class="px-3 py-2">
+                  <Badge
+                    :variant="item.status === 'optimized' ? 'success' : item.status === 'already_cheapest' ? 'info' : 'warning'"
+                  >
+                    {{ item.status === 'optimized' ? 'Optimized' : item.status === 'already_cheapest' ? 'Already Best' : 'No Alt' }}
+                  </Badge>
+                </td>
+                <td class="px-3 py-2">
+                  <div>{{ item.original.description }}</div>
+                  <div class="text-xs text-muted-foreground">{{ formatCurrency(item.original.unit_cost) }}</div>
+                </td>
+                <td class="px-3 py-2">
+                  <template v-if="item.new">
+                    <div>{{ item.new.description }}</div>
+                    <div class="text-xs text-muted-foreground">{{ item.new.brand_label }} • {{ formatCurrency(item.new.unit_cost) }}</div>
+                  </template>
+                  <span v-else class="text-muted-foreground">-</span>
+                </td>
+                <td class="px-3 py-2 text-right">
+                  <span v-if="item.savings > 0" class="text-green-600 font-medium">
+                    {{ formatCurrency(item.savings) }}
+                  </span>
+                  <span v-else class="text-muted-foreground">-</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showOptimizationReportModal = false">Close</Button>
+        <Button @click="viewOptimizedBom">
+          View Optimized BOM
         </Button>
       </template>
     </Modal>

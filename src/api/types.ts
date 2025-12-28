@@ -564,6 +564,162 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bom-variant-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of variant groups */
+        get: operations["bom-variant-groups.index"];
+        put?: never;
+        /** Store a newly created variant group */
+        post: operations["bom-variant-groups.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified variant group */
+        get: operations["bom-variant-groups.show"];
+        /** Update the specified variant group */
+        put: operations["bom-variant-groups.update"];
+        post?: never;
+        /** Remove the specified variant group */
+        delete: operations["bom-variant-groups.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get side-by-side comparison data */
+        get: operations["bomVariantGroup.compare"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/compare-detailed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get detailed item-level comparison */
+        get: operations["bomVariantGroup.compareDetailed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/boms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a BOM to the variant group */
+        post: operations["bomVariantGroup.addBom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/boms/{bom}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a BOM from the variant group */
+        delete: operations["bomVariantGroup.removeBom"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/boms/{bom}/set-primary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set primary variant */
+        post: operations["bomVariantGroup.setPrimary"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder variants */
+        post: operations["bomVariantGroup.reorder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-variant-groups/{bomVariantGroup}/create-variant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a new variant from existing BOM */
+        post: operations["bomVariantGroup.createVariant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/budgets": {
         parameters: {
             query?: never;
@@ -764,6 +920,231 @@ export interface paths {
         };
         /** Get over-budget accounts */
         get: operations["budget.overBudget"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}/mappings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a brand mapping to a component standard */
+        post: operations["componentBrandMapping.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}/mappings/{mapping}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a brand mapping */
+        put: operations["componentBrandMapping.update"];
+        post?: never;
+        /** Remove a brand mapping */
+        delete: operations["componentBrandMapping.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}/mappings/{mapping}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Verify a brand mapping */
+        post: operations["componentBrandMapping.verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}/mappings/{mapping}/set-preferred": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set mapping as preferred */
+        post: operations["componentBrandMapping.setPreferred"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/products/{product}/equivalents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Find equivalent products for a given product */
+        get: operations["componentCrossReference.productEquivalents"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search components by specifications */
+        get: operations["componentCrossReference.search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/available-brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get available brands from mappings */
+        get: operations["componentCrossReference.availableBrands"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/swap-brand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Swap BOM to a different brand */
+        post: operations["componentCrossReference.swapBrand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/generate-brand-variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate all brand variants for a BOM */
+        post: operations["componentCrossReference.generateBrandVariants"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of component standards */
+        get: operations["componentStandard.index"];
+        put?: never;
+        /** Store a newly created component standard */
+        post: operations["componentStandard.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get categories with counts */
+        get: operations["componentStandard.categories"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified component standard */
+        get: operations["componentStandard.show"];
+        /** Update the specified component standard */
+        put: operations["componentStandard.update"];
+        post?: never;
+        /** Remove the specified component standard */
+        delete: operations["componentStandard.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-standards/{componentStandard}/brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get available brands for a standard */
+        get: operations["componentStandard.brands"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3451,6 +3832,84 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/quotations/from-bom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Create a quotation from a BOM
+         * @description Allows salespeople to pick a specific BOM (e.g., from a variant group)
+         *     and auto-generate a quotation with proper pricing.
+         *
+         *     Options:
+         *     - margin_percent: Add margin on top of BOM cost (default: 20%)
+         *     - selling_price: Override with direct selling price
+         *     - expand_items: true = expand BOM items as quotation lines, false = single line item
+         */
+        post: operations["quotation.fromBom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/quotations/{quotation}/variant-options": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get variant options for a multi-option quotation */
+        get: operations["quotation.variantOptions"];
+        /** Add or update variant options for a multi-option quotation */
+        put: operations["quotation.syncVariantOptions"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/quotations/{quotation}/select-variant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Select a variant for a multi-option quotation */
+        post: operations["quotation.selectVariant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/quotations/{quotation}/variant-comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get variant comparison data for customer-facing display */
+        get: operations["quotation.variantComparison"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/quotation-follow-up": {
         parameters: {
             query?: never;
@@ -4439,6 +4898,303 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/solar-data/lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lookup solar data by location
+         * @description Supports lookup by:
+         *     - province + city (exact match)
+         *     - latitude + longitude (nearest location)
+         */
+        get: operations["lookupSolarData"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-data/provinces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of provinces with solar data */
+        get: operations["getSolarProvinces"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-data/cities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get list of cities in a province */
+        get: operations["getSolarCities"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-data/locations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all solar data locations */
+        get: operations["listSolarLocations"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pln-tariffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all active PLN tariffs */
+        get: operations["listPlnTariffs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pln-tariffs/grouped": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get PLN tariffs grouped by customer type */
+        get: operations["getPlnTariffsGrouped"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pln-tariffs/{code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a specific PLN tariff by code */
+        get: operations["getPlnTariffByCode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a listing of solar proposals */
+        get: operations["listSolarProposals"];
+        put?: never;
+        /** Store a newly created solar proposal */
+        post: operations["createSolarProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display the specified solar proposal */
+        get: operations["getSolarProposal"];
+        /** Update the specified solar proposal */
+        put: operations["updateSolarProposal"];
+        post?: never;
+        /** Remove the specified solar proposal */
+        delete: operations["deleteSolarProposal"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/calculate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calculate/recalculate all proposal values */
+        post: operations["calculateSolarProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/attach-variants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attach a BOM variant group to the proposal */
+        post: operations["attachSolarVariants"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/select-bom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Select a specific BOM from the variant group */
+        post: operations["selectSolarBom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark proposal as sent to customer */
+        post: operations["sendSolarProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark proposal as accepted by customer */
+        post: operations["acceptSolarProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark proposal as rejected by customer */
+        post: operations["rejectSolarProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals/{solarProposal}/convert-to-quotation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Convert accepted proposal to a quotation */
+        post: operations["convertSolarProposalToQuotation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/solar-proposals-statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get solar proposal statistics */
+        get: operations["getSolarProposalStatistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stock-opnames": {
         parameters: {
             query?: never;
@@ -5305,6 +6061,10 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptSolarProposalRequest */
+        AcceptSolarProposalRequest: {
+            selected_bom_id?: number | null;
+        };
         /** AccountResource */
         AccountResource: {
             id: number;
@@ -5329,6 +6089,10 @@ export interface components {
             /** Format: date-time */
             applied_date?: string;
             notes?: string | null;
+        };
+        /** AttachSolarVariantsRequest */
+        AttachSolarVariantsRequest: {
+            variant_group_id: number;
         };
         /** AttachmentResource */
         AttachmentResource: {
@@ -5451,37 +6215,99 @@ export interface components {
         };
         /** BomResource */
         BomResource: {
-            id: string;
+            id: number;
             bom_number: string;
             name: string;
-            description: string;
-            product_id: string;
+            description: string | null;
+            product_id: number;
             product?: {
-                id: string;
+                id: number;
                 name: string;
                 sku: string;
             };
             output_quantity: number;
-            output_unit: string;
-            total_material_cost: string;
-            total_labor_cost: string;
-            total_overhead_cost: string;
-            total_cost: string;
-            unit_cost: string;
+            output_unit: string | null;
+            total_material_cost: number;
+            total_labor_cost: number;
+            total_overhead_cost: number;
+            total_cost: number;
+            unit_cost: number;
             status: string;
             version: string;
-            parent_bom_id: string;
-            notes: string;
+            parent_bom_id: number | null;
+            variant_group_id: number | null;
+            variant_name: string | null;
+            variant_label: string | null;
+            is_primary_variant: boolean;
+            variant_sort_order: number;
+            notes: string | null;
             items?: components["schemas"]["BomItemResource"][];
             items_count?: number;
-            cost_breakdown?: string;
-            created_by: string;
+            cost_breakdown?: {
+                [key: string]: unknown;
+            };
+            created_by: number | null;
             creator?: {
-                id: string;
+                id: number;
                 name: string;
             };
-            approved_by: string;
+            approved_by: number | null;
             approved_at: string;
+            created_at: string;
+            updated_at: string;
+        };
+        /** BomVariantGroupResource */
+        BomVariantGroupResource: {
+            id: number;
+            product_id: number;
+            product?: {
+                id: number;
+                name: string;
+                sku: string;
+            };
+            name: string;
+            description: string | null;
+            comparison_notes: string | null;
+            status: string;
+            created_by: number | null;
+            creator?: {
+                id: number;
+                name: string;
+            };
+            boms?: {
+                id: number;
+                bom_number: string;
+                name: string;
+                variant_name: string | null;
+                variant_label: string | null;
+                is_primary_variant: boolean;
+                variant_sort_order: number;
+                status: string;
+                total_cost: number;
+                unit_cost: number;
+                cost_breakdown: {
+                    material: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    labor: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    overhead: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    total: number;
+                    unit_cost: number;
+                };
+            }[];
+            variants_count?: number;
+            cost_summary?: {
+                min: unknown;
+                max: unknown;
+                difference: string;
+            } | null;
             created_at: string;
             updated_at: string;
         };
@@ -5553,6 +6379,55 @@ export interface components {
             /** @description Lines */
             lines?: components["schemas"]["BudgetLineResource"][];
             lines_count?: number;
+            created_at: string;
+            updated_at: string;
+        };
+        /** ComponentBrandMappingResource */
+        ComponentBrandMappingResource: {
+            id: number;
+            component_standard_id: number;
+            brand: string;
+            brand_label: string;
+            product_id: number;
+            product?: {
+                id: number;
+                name: string;
+                sku: string;
+                purchase_price: number;
+                selling_price: number;
+                current_stock: number;
+            };
+            brand_sku: string;
+            is_preferred: boolean;
+            is_verified: boolean;
+            price_factor: number;
+            variant_specs: unknown[] | null;
+            notes: string | null;
+            verified_by: number | null;
+            verified_at: string;
+            created_at: string;
+            updated_at: string;
+        };
+        /** ComponentStandardResource */
+        ComponentStandardResource: {
+            id: number;
+            code: string;
+            name: string;
+            category: string;
+            category_label: string;
+            subcategory: string | null;
+            specifications: unknown[];
+            standard: string | null;
+            description: string | null;
+            unit: string;
+            is_active: boolean;
+            brand_mappings?: components["schemas"]["ComponentBrandMappingResource"][];
+            available_brands?: unknown[];
+            brand_count?: number;
+            creator?: {
+                id: number;
+                name: string;
+            };
             created_at: string;
             updated_at: string;
         };
@@ -5827,6 +6702,24 @@ export interface components {
             created_by: string;
             created_at: string;
             updated_at: string;
+        };
+        /** IndonesiaSolarDataResource */
+        IndonesiaSolarDataResource: {
+            id: number;
+            province: string;
+            city: string;
+            latitude: number;
+            longitude: number;
+            peak_sun_hours: number;
+            solar_irradiance_kwh_m2_day: number;
+            optimal_tilt_angle: number;
+            irradiance_rating: string;
+            irradiance_rating_label: string;
+            /** @description Extended data */
+            ghi_annual: number | null;
+            dni_annual: number | null;
+            dhi_annual: number | null;
+            temperature_avg: number | null;
         };
         /** InventoryMovementResource */
         InventoryMovementResource: {
@@ -6213,6 +7106,72 @@ export interface components {
             description: string | null;
             created_at: string;
             updated_at: string;
+        };
+        /** PlnTariffResource */
+        PlnTariffResource: {
+            id: number;
+            category_code: string;
+            category_name: string;
+            customer_type: string;
+            customer_type_label: string;
+            power_va_min: number;
+            power_va_max: number | null;
+            power_range_label: string;
+            rate_per_kwh: number;
+            formatted_rate: string;
+            capacity_charge: number | null;
+            minimum_charge: number | null;
+            /** @description Time-of-Use rates */
+            is_tou_tariff: boolean;
+            peak_rate_per_kwh: number | null;
+            off_peak_rate_per_kwh: number | null;
+            peak_hours: string | null;
+            is_active: boolean;
+            effective_from: string;
+            effective_until: string;
+            notes: string | null;
+        };
+        /** Product */
+        Product: {
+            id: number;
+            sku: string;
+            name: string;
+            description: string | null;
+            type: string;
+            category_id: number | null;
+            unit: string;
+            purchase_price: number;
+            selling_price: number;
+            tax_rate: string;
+            is_taxable: boolean;
+            track_inventory: boolean;
+            min_stock: number;
+            current_stock: number;
+            inventory_account_id: number | null;
+            cogs_account_id: number | null;
+            sales_account_id: number | null;
+            purchase_account_id: number | null;
+            is_active: boolean;
+            is_purchasable: boolean;
+            is_sellable: boolean;
+            barcode: string | null;
+            brand: string | null;
+            custom_fields: unknown[] | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            /** Format: date-time */
+            deleted_at: string | null;
+            reorder_point: number;
+            safety_stock: number;
+            lead_time_days: number;
+            min_order_qty: string;
+            order_multiple: string;
+            max_stock: number | null;
+            default_supplier_id: number | null;
+            abc_class: string;
+            procurement_type: string;
         };
         /** ProductCategoryResource */
         ProductCategoryResource: {
@@ -6644,6 +7603,13 @@ export interface components {
             is_expired: boolean;
             reference: string | null;
             subject: string | null;
+            quotation_type: string;
+            is_multi_option: boolean;
+            variant_group_id: number | null;
+            variant_group?: components["schemas"]["BomVariantGroupResource"];
+            selected_variant_id: number | null;
+            selected_variant?: components["schemas"]["BomResource"];
+            has_selected_variant: boolean;
             status: string;
             status_label: string;
             currency: string;
@@ -6699,7 +7665,53 @@ export interface components {
             revisions?: components["schemas"]["QuotationResource"][];
             converted_invoice?: components["schemas"]["InvoiceResource"];
             activities?: components["schemas"]["QuotationActivityResource"][];
+            variant_options?: components["schemas"]["QuotationVariantOptionResource"][];
+            variant_comparison?: {
+                options: {
+                    [key: string]: unknown;
+                }[];
+                price_range: {
+                    min: number;
+                    max: number;
+                    difference: number;
+                };
+            } | null;
             created_by: number | null;
+            created_at: string;
+            updated_at: string;
+        };
+        /** QuotationVariantOptionResource */
+        QuotationVariantOptionResource: {
+            id: number;
+            quotation_id: number;
+            bom_id: number;
+            bom?: {
+                id: number;
+                bom_number: string;
+                name: string;
+                variant_name: string | null;
+                variant_label: string | null;
+                total_cost: number;
+                unit_cost: number;
+            };
+            display_name: string;
+            tagline: string | null;
+            is_recommended: boolean;
+            selling_price: number;
+            features: unknown[] | null;
+            specifications: unknown[] | null;
+            warranty_terms: string | null;
+            sort_order: number;
+            /** @description Calculated fields (from BOM relationship) */
+            profit_margin?: number;
+            profit_amount?: number;
+            cost_breakdown?: {
+                material: number;
+                labor: number;
+                overhead: number;
+                total: number;
+                unit_cost: number;
+            };
             created_at: string;
             updated_at: string;
         };
@@ -6842,6 +7854,108 @@ export interface components {
             rejection_reason: string;
             completed_by: string;
             completed_at: string;
+            created_at: string;
+            updated_at: string;
+        };
+        /** SolarProposalListResource */
+        SolarProposalListResource: {
+            id: number;
+            proposal_number: string;
+            status: string;
+            status_label: string;
+            contact_id: number;
+            contact?: components["schemas"]["ContactResource"];
+            site_name: string | null;
+            province: string | null;
+            city: string | null;
+            system_capacity_kwp: number | null;
+            system_cost: number | null;
+            payback_years: number | null;
+            roi_percent: number | null;
+            valid_until: string;
+            is_expired: boolean;
+            created_by: number;
+            creator?: components["schemas"]["UserResource"];
+            created_at: string;
+            updated_at: string;
+        };
+        /** SolarProposalResource */
+        SolarProposalResource: {
+            id: number;
+            proposal_number: string;
+            status: string;
+            status_label: string;
+            /** @description Contact */
+            contact_id: number;
+            contact?: components["schemas"]["ContactResource"];
+            /** @description Site Information */
+            site_name: string | null;
+            site_address: string | null;
+            province: string | null;
+            city: string | null;
+            latitude: number | null;
+            longitude: number | null;
+            roof_area_m2: number | null;
+            roof_type: string;
+            roof_type_label: string;
+            roof_orientation: string;
+            roof_orientation_label: string;
+            roof_tilt_degrees: number | null;
+            shading_percentage: number | null;
+            /** @description Electricity Profile */
+            monthly_consumption_kwh: number | null;
+            pln_tariff_category: string | null;
+            electricity_rate: number | null;
+            tariff_escalation_percent: number | null;
+            /** @description Solar Data */
+            peak_sun_hours: number | null;
+            solar_irradiance: number | null;
+            performance_ratio: number | null;
+            /** @description System Selection */
+            variant_group_id: number | null;
+            variant_group?: components["schemas"]["BomVariantGroupResource"];
+            selected_bom_id: number | null;
+            selected_bom?: components["schemas"]["BomResource"];
+            system_capacity_kwp: number | null;
+            annual_production_kwh: number | null;
+            monthly_production_kwh: number | null;
+            solar_offset_percent: number | null;
+            system_cost: number | null;
+            /** @description Financial Analysis */
+            financial_analysis: unknown[] | null;
+            payback_years: number | null;
+            roi_percent: number | null;
+            npv: number | null;
+            irr_percent: number | null;
+            first_year_savings: number | null;
+            total_lifetime_savings: number | null;
+            /** @description Environmental Impact */
+            environmental_impact: unknown[] | null;
+            co2_offset_tons: number | null;
+            trees_equivalent: number | null;
+            cars_equivalent: number | null;
+            /** @description Proposal Settings */
+            sections_config: unknown[] | null;
+            custom_content: unknown[] | null;
+            valid_until: string;
+            days_until_expiry: number | null;
+            is_expired: boolean;
+            notes: string | null;
+            /** @description Metadata */
+            created_by: number;
+            creator?: components["schemas"]["UserResource"];
+            sent_at: string;
+            accepted_at: string;
+            rejected_at: string;
+            rejection_reason: string | null;
+            converted_quotation_id: number | null;
+            converted_quotation?: components["schemas"]["QuotationResource"];
+            /** @description Permissions */
+            can_edit: boolean;
+            can_send: boolean;
+            can_accept: boolean;
+            can_reject: boolean;
+            can_convert: boolean;
             created_at: string;
             updated_at: string;
         };
@@ -7039,6 +8153,17 @@ export interface components {
                 notes?: string | null;
             }[];
         };
+        /** StoreBomVariantGroupRequest */
+        StoreBomVariantGroupRequest: {
+            product_id: number;
+            name: string;
+            description?: string | null;
+            comparison_notes?: string | null;
+            /** @enum {string|null} */
+            status?: "draft" | "active" | "archived" | null;
+            variant_names?: string[] | null;
+            bom_ids?: number[] | null;
+        };
         /** StoreBudgetLineRequest */
         StoreBudgetLineRequest: {
             account_id: number;
@@ -7083,6 +8208,30 @@ export interface components {
                 dec_amount?: number | null;
                 notes?: string | null;
             }[] | null;
+        };
+        /** StoreComponentBrandMappingRequest */
+        StoreComponentBrandMappingRequest: {
+            brand: string;
+            product_id: number;
+            brand_sku: string;
+            is_preferred?: boolean | null;
+            is_verified?: boolean | null;
+            price_factor?: number | null;
+            variant_specs?: string[] | null;
+            notes?: string | null;
+        };
+        /** StoreComponentStandardRequest */
+        StoreComponentStandardRequest: {
+            code: string;
+            name: string;
+            /** @enum {string} */
+            category: "circuit_breaker" | "contactor" | "relay" | "cable" | "busbar" | "enclosure" | "terminal" | "meter" | "transformer" | "capacitor";
+            subcategory?: string | null;
+            specifications: string[];
+            standard?: string | null;
+            description?: string | null;
+            unit?: string | null;
+            is_active?: boolean | null;
         };
         /** StoreContactRequest */
         StoreContactRequest: {
@@ -7373,6 +8522,25 @@ export interface components {
             /** @enum {string|null} */
             outcome?: "positive" | "neutral" | "negative" | "no_answer" | null;
         };
+        /** StoreQuotationFromBomRequest */
+        StoreQuotationFromBomRequest: {
+            bom_id: number;
+            contact_id: number;
+            margin_percent?: number | null;
+            selling_price?: number | null;
+            expand_items?: boolean | null;
+            /** Format: date-time */
+            quotation_date?: string | null;
+            /** Format: date-time */
+            valid_until?: string | null;
+            subject?: string | null;
+            reference?: string | null;
+            notes?: string | null;
+            terms_conditions?: string | null;
+            tax_rate?: number | null;
+            currency?: string | null;
+            exchange_rate?: number | null;
+        };
         /** StoreQuotationRequest */
         StoreQuotationRequest: {
             contact_id: number;
@@ -7465,6 +8633,44 @@ export interface components {
                 condition?: "good" | "damaged" | "defective" | null;
                 notes?: string | null;
             }[];
+        };
+        /** StoreSolarProposalRequest */
+        StoreSolarProposalRequest: {
+            /** @description Required */
+            contact_id: number;
+            /** @description Site Information */
+            site_name?: string | null;
+            site_address?: string | null;
+            province?: string | null;
+            city?: string | null;
+            latitude?: number | null;
+            longitude?: number | null;
+            roof_area_m2?: number | null;
+            /** @enum {string|null} */
+            roof_type?: "flat" | "sloped" | "carport" | "ground" | null;
+            /** @enum {string|null} */
+            roof_orientation?: "north" | "south" | "east" | "west" | "northeast" | "northwest" | "southeast" | "southwest" | null;
+            roof_tilt_degrees?: number | null;
+            shading_percentage?: number | null;
+            /** @description Electricity Profile */
+            monthly_consumption_kwh?: number | null;
+            pln_tariff_category?: string | null;
+            electricity_rate?: number | null;
+            tariff_escalation_percent?: number | null;
+            /** @description Solar Data (usually auto-filled from location) */
+            peak_sun_hours?: number | null;
+            solar_irradiance?: number | null;
+            performance_ratio?: number | null;
+            /** @description System Selection */
+            variant_group_id?: number | null;
+            selected_bom_id?: number | null;
+            system_capacity_kwp?: number | null;
+            /**
+             * Format: date-time
+             * @description Settings
+             */
+            valid_until?: string | null;
+            notes?: string | null;
         };
         /** StoreStockOpnameRequest */
         StoreStockOpnameRequest: {
@@ -7723,6 +8929,14 @@ export interface components {
                 notes?: string | null;
             }[];
         };
+        /** UpdateBomVariantGroupRequest */
+        UpdateBomVariantGroupRequest: {
+            name?: string;
+            description?: string | null;
+            comparison_notes?: string | null;
+            /** @enum {string|null} */
+            status?: "draft" | "active" | "archived" | null;
+        };
         /** UpdateBudgetLineRequest */
         UpdateBudgetLineRequest: {
             annual_amount?: number | null;
@@ -7748,6 +8962,30 @@ export interface components {
             /** @enum {string} */
             type?: "annual" | "quarterly" | "monthly";
             notes?: string | null;
+        };
+        /** UpdateComponentBrandMappingRequest */
+        UpdateComponentBrandMappingRequest: {
+            brand?: string;
+            product_id?: number;
+            brand_sku?: string;
+            is_preferred?: boolean | null;
+            is_verified?: boolean | null;
+            price_factor?: number | null;
+            variant_specs?: string[] | null;
+            notes?: string | null;
+        };
+        /** UpdateComponentStandardRequest */
+        UpdateComponentStandardRequest: {
+            code?: string;
+            name?: string;
+            /** @enum {string} */
+            category?: "circuit_breaker" | "contactor" | "relay" | "cable" | "busbar" | "enclosure" | "terminal" | "meter" | "transformer" | "capacitor";
+            subcategory?: string | null;
+            specifications?: string[];
+            standard?: string | null;
+            description?: string | null;
+            unit?: string | null;
+            is_active?: boolean | null;
         };
         /** UpdateContactRequest */
         UpdateContactRequest: {
@@ -8057,6 +9295,45 @@ export interface components {
                 condition?: "good" | "damaged" | "defective" | null;
                 notes?: string | null;
             }[];
+        };
+        /** UpdateSolarProposalRequest */
+        UpdateSolarProposalRequest: {
+            /** @description Contact */
+            contact_id?: number;
+            /** @description Site Information */
+            site_name?: string | null;
+            site_address?: string | null;
+            province?: string | null;
+            city?: string | null;
+            latitude?: number | null;
+            longitude?: number | null;
+            roof_area_m2?: number | null;
+            /** @enum {string|null} */
+            roof_type?: "flat" | "sloped" | "carport" | "ground" | null;
+            /** @enum {string|null} */
+            roof_orientation?: "north" | "south" | "east" | "west" | "northeast" | "northwest" | "southeast" | "southwest" | null;
+            roof_tilt_degrees?: number | null;
+            shading_percentage?: number | null;
+            /** @description Electricity Profile */
+            monthly_consumption_kwh?: number | null;
+            pln_tariff_category?: string | null;
+            electricity_rate?: number | null;
+            tariff_escalation_percent?: number | null;
+            /** @description Solar Data */
+            peak_sun_hours?: number | null;
+            solar_irradiance?: number | null;
+            performance_ratio?: number | null;
+            /** @description System Selection */
+            system_capacity_kwp?: number | null;
+            /**
+             * Format: date-time
+             * @description Settings
+             */
+            valid_until?: string | null;
+            notes?: string | null;
+            /** @description Proposal customization */
+            sections_config?: string[] | null;
+            custom_content?: string[] | null;
         };
         /** UpdateStockOpnameRequest */
         UpdateStockOpnameRequest: {
@@ -9997,6 +11274,506 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
+    "bom-variant-groups.index": {
+        parameters: {
+            query?: {
+                product_id?: string;
+                status?: string;
+                search?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `BomVariantGroupResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomVariantGroupResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "bom-variant-groups.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreBomVariantGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomVariantGroupResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomVariantGroupResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bom-variant-groups.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `BomVariantGroupResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomVariantGroupResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bom-variant-groups.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateBomVariantGroupRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomVariantGroupResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomVariantGroupResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bom-variant-groups.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Variant group berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomVariantGroup.compare": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            product: components["schemas"]["Product"];
+                            variants: {
+                                id: number;
+                                bom_number: string;
+                                name: string;
+                                variant_name: string | null;
+                                variant_label: string | null;
+                                is_primary: boolean;
+                                status: string;
+                                cost_breakdown: {
+                                    material: {
+                                        amount: number;
+                                        percentage: number;
+                                    };
+                                    labor: {
+                                        amount: number;
+                                        percentage: number;
+                                    };
+                                    overhead: {
+                                        amount: number;
+                                        percentage: number;
+                                    };
+                                    total: number;
+                                    unit_cost: number;
+                                };
+                                items: string[][];
+                            }[];
+                            summary: {
+                                total_variants: string;
+                                cost_range: {
+                                    min: string;
+                                    max: string;
+                                    difference: string;
+                                    difference_percentage: number | 0;
+                                };
+                                material_cost_range: {
+                                    min: string;
+                                    max: string;
+                                };
+                                labor_cost_range: {
+                                    min: string;
+                                    max: string;
+                                };
+                                cheapest_variant: string;
+                                most_expensive_variant: string;
+                            };
+                        } | {
+                            product: components["schemas"]["Product"];
+                            variants: string[];
+                            summary: string[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomVariantGroup.compareDetailed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            product: components["schemas"]["Product"];
+                            variants: {
+                                id: number;
+                                variant_name: string | null;
+                                variant_label: string | null;
+                                is_primary: boolean;
+                                total_cost: number;
+                                unit_cost: number;
+                            }[];
+                            item_comparison: {
+                                [key: string]: unknown;
+                            };
+                            summary: {
+                                total_variants: string;
+                                cost_range: {
+                                    min: string;
+                                    max: string;
+                                    difference: string;
+                                    difference_percentage: number | 0;
+                                };
+                                material_cost_range: {
+                                    min: string;
+                                    max: string;
+                                };
+                                labor_cost_range: {
+                                    min: string;
+                                    max: string;
+                                };
+                                cheapest_variant: string;
+                                most_expensive_variant: string;
+                            };
+                        } | {
+                            product: components["schemas"]["Product"];
+                            variants: string[];
+                            item_comparison: string[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomVariantGroup.addBom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    bom_id: number;
+                    variant_name?: string | null;
+                    variant_label?: string | null;
+                    is_primary_variant?: boolean | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "BOM berhasil ditambahkan ke variant group.";
+                        data: components["schemas"]["BomResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomVariantGroup.removeBom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "BOM berhasil dihapus dari variant group.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "bomVariantGroup.setPrimary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Primary variant berhasil diubah.";
+                        data: components["schemas"]["BomResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "bomVariantGroup.reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    order: {
+                        bom_id: number;
+                        sort_order: number;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Urutan variant berhasil diubah.";
+                        data: components["schemas"]["BomVariantGroupResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomVariantGroup.createVariant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom variant group ID */
+                bomVariantGroup: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    source_bom_id: number;
+                    variant_name: string;
+                    variant_label?: string | null;
+                    name?: string | null;
+                    is_primary_variant?: boolean | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Variant baru berhasil dibuat.";
+                        data: components["schemas"]["BomResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "budgets.index": {
         parameters: {
             query?: {
@@ -10603,6 +12380,566 @@ export interface operations {
                         month: number | null;
                         over_budget_count: number;
                         accounts: Record<string, never>[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentBrandMapping.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreComponentBrandMappingRequest"];
+            };
+        };
+        responses: {
+            /** @description `ComponentBrandMappingResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentBrandMappingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentBrandMapping.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+                /** @description The mapping ID */
+                mapping: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateComponentBrandMappingRequest"];
+            };
+        };
+        responses: {
+            /** @description `ComponentBrandMappingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentBrandMappingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentBrandMapping.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+                /** @description The mapping ID */
+                mapping: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Brand mapping berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentBrandMapping.verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+                /** @description The mapping ID */
+                mapping: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Brand mapping berhasil diverifikasi.";
+                        data: components["schemas"]["ComponentBrandMappingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentBrandMapping.setPreferred": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+                /** @description The mapping ID */
+                mapping: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Brand mapping berhasil di-set sebagai preferred.";
+                        data: components["schemas"]["ComponentBrandMappingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.productEquivalents": {
+        parameters: {
+            query?: {
+                brand?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The product ID */
+                product: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentBrandMappingResource"][];
+                        source_product: {
+                            id: number;
+                            name: string;
+                            sku: string;
+                            brand: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.search": {
+        parameters: {
+            query: {
+                category: string;
+                "specs[]"?: string[] | null;
+                brand?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentStandardResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.availableBrands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            code: unknown;
+                            name: string;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "componentCrossReference.swapBrand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    target_brand: string;
+                    create_variant?: boolean | null;
+                    variant_group_id?: number | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Brand swap berhasil.";
+                        data: {
+                            bom: components["schemas"]["BomResource"];
+                            swap_report: {
+                                [key: string]: unknown;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.generateBrandVariants": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    group_name?: string | null;
+                    brands: string[];
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Brand variants berhasil dibuat.";
+                        data: {
+                            variant_group: components["schemas"]["BomVariantGroupResource"];
+                            boms: components["schemas"]["BomResource"][];
+                            report: {
+                                [key: string]: unknown;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentStandard.index": {
+        parameters: {
+            query?: {
+                category?: string;
+                subcategory?: string;
+                is_active?: boolean;
+                search?: string;
+                specs?: string;
+                brand?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `ComponentStandardResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentStandardResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "componentStandard.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreComponentStandardRequest"];
+            };
+        };
+        responses: {
+            /** @description `ComponentStandardResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentStandardResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentStandard.categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            category: string;
+                            label: string;
+                            count: string;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "componentStandard.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `ComponentStandardResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentStandardResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentStandard.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateComponentStandardRequest"];
+            };
+        };
+        responses: {
+            /** @description `ComponentStandardResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["ComponentStandardResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentStandard.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Component standard berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "componentStandard.brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The component standard ID */
+                componentStandard: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            code: unknown;
+                            name: string;
+                        }[];
                     };
                 };
             };
@@ -17552,6 +19889,7 @@ export interface operations {
             query?: {
                 status?: string;
                 contact_id?: string;
+                quotation_type?: string;
                 start_date?: string;
                 end_date?: string;
                 search?: string;
@@ -18006,6 +20344,206 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "quotation.fromBom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreQuotationFromBomRequest"];
+            };
+        };
+        responses: {
+            /** @description `QuotationResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["QuotationResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "quotation.variantOptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The quotation ID */
+                quotation: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["QuotationVariantOptionResource"][];
+                        meta: {
+                            quotation_id: number;
+                            quotation_number: string;
+                            variant_group_id: number | null;
+                            selected_variant_id: number | null;
+                            has_selected_variant: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Penawaran ini bukan tipe multi-option.";
+                    };
+                };
+            };
+        };
+    };
+    "quotation.syncVariantOptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The quotation ID */
+                quotation: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    options: {
+                        bom_id: number;
+                        display_name: string;
+                        tagline?: string | null;
+                        is_recommended?: boolean;
+                        selling_price: number;
+                        features?: string[] | null;
+                        specifications?: string[] | null;
+                        warranty_terms?: string | null;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Opsi varian berhasil disimpan.";
+                        data: components["schemas"]["QuotationVariantOptionResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "quotation.selectVariant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The quotation ID */
+                quotation: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    variant_option_id: number;
+                };
+            };
+        };
+        responses: {
+            /** @description `QuotationResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["QuotationResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "quotation.variantComparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The quotation ID */
+                quotation: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            quotation: {
+                                id: number;
+                                quotation_number: string;
+                                subject: string | null;
+                                contact: {
+                                    id: number;
+                                    name: string;
+                                } | null;
+                                selected_variant_id: number | null;
+                            };
+                            options: string | string[];
+                            price_range: string | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Penawaran ini bukan tipe multi-option.";
+                    };
+                };
+            };
         };
     };
     "quotationFollowUp.index": {
@@ -20931,6 +23469,676 @@ export interface operations {
                             count: number;
                             total: string;
                         }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    lookupSolarData: {
+        parameters: {
+            query: {
+                latitude: number;
+                longitude: number;
+                max_distance_km?: string;
+                province?: string;
+                city?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["IndonesiaSolarDataResource"];
+                    };
+                };
+            };
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Harap berikan province+city atau latitude+longitude.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            /** @description Try to find nearest in the same province */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Tidak ada data untuk kota ini. Gunakan koordinat untuk mencari lokasi terdekat.";
+                        data: null;
+                    } | {
+                        /** @enum {string} */
+                        message: "Tidak ada data solar untuk lokasi ini.";
+                        data: null;
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    getSolarProvinces: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    getSolarCities: {
+        parameters: {
+            query: {
+                province: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    listSolarLocations: {
+        parameters: {
+            query?: {
+                province?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `IndonesiaSolarDataResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["IndonesiaSolarDataResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    listPlnTariffs: {
+        parameters: {
+            query?: {
+                customer_type?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `PlnTariffResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlnTariffResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    getPlnTariffsGrouped: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    getPlnTariffByCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PlnTariffResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Tarif tidak ditemukan.";
+                    };
+                };
+            };
+        };
+    };
+    listSolarProposals: {
+        parameters: {
+            query?: {
+                status?: string;
+                contact_id?: string;
+                province?: string;
+                city?: string;
+                search?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `SolarProposalListResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalListResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    createSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreSolarProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    getSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    updateSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateSolarProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    deleteSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    calculateSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    attachSolarVariants: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachSolarVariantsRequest"];
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    selectSolarBom: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    bom_id: number;
+                };
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    sendSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    acceptSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AcceptSolarProposalRequest"];
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    rejectSolarProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    reason?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description `SolarProposalResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    convertSolarProposalToQuotation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal berhasil dikonversi ke quotation.";
+                        quotation: components["schemas"]["QuotationResource"];
+                        proposal: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    getSolarProposalStatistics: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            total: number;
+                            draft: number;
+                            sent: number;
+                            accepted: number;
+                            rejected: number;
+                            expired: number;
+                            active: number;
+                            /** @description Financial metrics */
+                            total_system_value: string;
+                            /** @description This month */
+                            created_this_month: number;
+                            accepted_this_month: number;
+                        };
                     };
                 };
             };

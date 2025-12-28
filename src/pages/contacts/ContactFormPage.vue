@@ -1,12 +1,18 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useContact,
   useCreateContact,
   useUpdateContact,
   type CreateContactData
 } from '@/api/useContacts'
+import { getErrorMessage } from '@/api/client'
+import { contactSchema, type ContactFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
+import { useFormShortcuts } from '@/composables/useFormShortcuts'
 import {
   Button,
   Input,
@@ -14,6 +20,7 @@ import {
   Textarea,
   Select,
   Card,
+  PageSkeleton,
   useToast
 } from '@/components/ui'
 
@@ -34,39 +41,25 @@ const pageTitle = computed(() => isEditing.value ? 'Edit Contact' : 'New Contact
 const contactIdRef = computed(() => contactId.value ?? 0)
 const { data: existingContact, isLoading: loadingContact } = useContact(contactIdRef)
 
-// Form state - use strings for form binding, convert to null on submit
-interface FormState {
-  code: string
-  name: string
-  type: 'customer' | 'supplier' | 'both'
-  email: string
-  phone: string
-  address: string
-  city: string
-  province: string
-  postal_code: string
-  npwp: string
-  nik: string
-  credit_limit: number
-  payment_term_days: number
-  is_active: boolean
-}
-
-const form = ref<FormState>({
-  code: '',
-  name: '',
-  type: 'customer',
-  email: '',
-  phone: '',
-  address: '',
-  city: '',
-  province: '',
-  postal_code: '',
-  npwp: '',
-  nik: '',
-  credit_limit: 0,
-  payment_term_days: 30,
-  is_active: true,
+// Form with Zod validation
+const { values, errors, handleSubmit, setValues, setErrors, meta, validateField } = useForm<ContactFormData>({
+  validationSchema: toTypedSchema(contactSchema),
+  initialValues: {
+    code: '',
+    name: '',
+    type: 'customer',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    province: '',
+    postal_code: '',
+    npwp: '',
+    nik: '',
+    credit_limit: 0,
+    payment_term_days: 30,
+    is_active: true,
+  },
 })
 
 // Type options
@@ -79,7 +72,7 @@ const typeOptions = [
 // Populate form when editing
 watch(existingContact, (contact) => {
   if (contact) {
-    form.value = {
+    setValues({
       code: contact.code,
       name: contact.name,
       type: contact.type as 'customer' | 'supplier' | 'both',
@@ -94,7 +87,7 @@ watch(existingContact, (contact) => {
       credit_limit: contact.credit_limit,
       payment_term_days: contact.payment_term_days,
       is_active: contact.is_active,
-    }
+    })
   }
 }, { immediate: true })
 
@@ -106,41 +99,22 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  // Basic validation
-  if (!form.value.code.trim()) {
-    errors.value.code = 'Code is required'
-  }
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
-  }
-  if (form.value.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.value.email)) {
-    errors.value.email = 'Invalid email format'
-  }
-
-  if (Object.keys(errors.value).length > 0) {
-    return
-  }
-
+const onSubmit = handleSubmit(async (formValues) => {
   const payload: CreateContactData = {
-    code: form.value.code,
-    name: form.value.name,
-    type: form.value.type,
-    email: form.value.email || null,
-    phone: form.value.phone || null,
-    address: form.value.address || null,
-    city: form.value.city || null,
-    province: form.value.province || null,
-    postal_code: form.value.postal_code || null,
-    npwp: form.value.npwp || null,
-    nik: form.value.nik || null,
-    credit_limit: form.value.credit_limit,
-    payment_term_days: form.value.payment_term_days,
-    is_active: form.value.is_active,
+    code: formValues.code,
+    name: formValues.name,
+    type: formValues.type,
+    email: formValues.email || null,
+    phone: formValues.phone || null,
+    address: formValues.address || null,
+    city: formValues.city || null,
+    province: formValues.province || null,
+    postal_code: formValues.postal_code || null,
+    npwp: formValues.npwp || null,
+    nik: formValues.nik || null,
+    credit_limit: formValues.credit_limit ?? 0,
+    payment_term_days: formValues.payment_term_days ?? 30,
+    is_active: formValues.is_active ?? true,
   }
 
   try {
@@ -153,11 +127,21 @@ async function handleSubmit() {
       toast.success('Contact created successfully')
       router.push(`/contacts/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save contact')
-    console.error(err)
+  } catch (err: unknown) {
+    // Handle server validation errors
+    const error = err as { validationErrors?: Record<string, string[]> }
+    if (error.validationErrors) {
+      setServerErrors({ setErrors } as any, error.validationErrors)
+    }
+    toast.error(getErrorMessage(err, 'Failed to save contact'))
   }
-}
+})
+
+// Keyboard shortcut: Ctrl+S to save
+useFormShortcuts({
+  onSave: async () => { await onSubmit() },
+  onCancel: () => router.back(),
+})
 </script>
 
 <template>
@@ -170,18 +154,21 @@ async function handleSubmit() {
           {{ isEditing ? 'Update contact information' : 'Add a new customer or supplier' }}
         </p>
       </div>
-      <Button variant="ghost" @click="router.back()">
-        Cancel
-      </Button>
+      <div class="flex items-center gap-2">
+        <kbd class="hidden sm:inline-flex px-2 py-1 text-xs text-slate-400 bg-slate-100 rounded border">
+          Ctrl+S to save
+        </kbd>
+        <Button variant="ghost" @click="router.back()">
+          Cancel
+        </Button>
+      </div>
     </div>
 
     <!-- Loading state for edit mode -->
-    <div v-if="isEditing && loadingContact" class="text-center py-12">
-      <div class="text-slate-500">Loading contact...</div>
-    </div>
+    <PageSkeleton v-if="isEditing && loadingContact" type="form" />
 
     <!-- Form -->
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <!-- Basic Information -->
       <Card>
         <template #header>
@@ -191,29 +178,46 @@ async function handleSubmit() {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Code" required :error="errors.code">
             <Input
-              v-model="form.code"
+              v-model="values.code"
               placeholder="e.g., CUST001"
               :disabled="isEditing"
+              @blur="validateField('code')"
             />
           </FormField>
 
-          <FormField label="Type" required>
+          <FormField label="Type" required :error="errors.type">
             <Select
-              v-model="form.type"
+              v-model="values.type"
               :options="typeOptions"
+              @blur="validateField('type')"
             />
           </FormField>
 
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="Contact or company name" />
+            <Input
+              v-model="values.name"
+              placeholder="Contact or company name"
+              @blur="validateField('name')"
+            />
           </FormField>
 
           <FormField label="Email" :error="errors.email">
-            <Input v-model="form.email" type="email" placeholder="email@example.com" />
+            <Input
+              :model-value="values.email ?? ''"
+              @update:model-value="values.email = String($event)"
+              type="email"
+              placeholder="email@example.com"
+              @blur="validateField('email')"
+            />
           </FormField>
 
-          <FormField label="Phone">
-            <Input v-model="form.phone" placeholder="+62 812 3456 7890" />
+          <FormField label="Phone" :error="errors.phone">
+            <Input
+              :model-value="values.phone ?? ''"
+              @update:model-value="values.phone = String($event)"
+              placeholder="08123456789"
+              @blur="validateField('phone')"
+            />
           </FormField>
         </div>
       </Card>
@@ -225,25 +229,26 @@ async function handleSubmit() {
         </template>
 
         <div class="space-y-4">
-          <FormField label="Street Address">
+          <FormField label="Street Address" :error="errors.address">
             <Textarea
-              v-model="form.address"
+              :model-value="values.address ?? ''"
+              @update:model-value="values.address = String($event)"
               :rows="2"
               placeholder="Street address"
             />
           </FormField>
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <FormField label="City">
-              <Input v-model="form.city" placeholder="City" />
+            <FormField label="City" :error="errors.city">
+              <Input :model-value="values.city ?? ''" @update:model-value="values.city = String($event)" placeholder="City" />
             </FormField>
 
-            <FormField label="Province">
-              <Input v-model="form.province" placeholder="Province" />
+            <FormField label="Province" :error="errors.province">
+              <Input :model-value="values.province ?? ''" @update:model-value="values.province = String($event)" placeholder="Province" />
             </FormField>
 
-            <FormField label="Postal Code">
-              <Input v-model="form.postal_code" placeholder="12345" />
+            <FormField label="Postal Code" :error="errors.postal_code">
+              <Input :model-value="values.postal_code ?? ''" @update:model-value="values.postal_code = String($event)" placeholder="12345" />
             </FormField>
           </div>
         </div>
@@ -256,26 +261,38 @@ async function handleSubmit() {
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="NPWP">
-            <Input v-model="form.npwp" placeholder="00.000.000.0-000.000" />
-          </FormField>
-
-          <FormField label="NIK">
-            <Input v-model="form.nik" placeholder="16-digit NIK" />
-          </FormField>
-
-          <FormField label="Credit Limit">
+          <FormField label="NPWP" :error="errors.npwp">
             <Input
-              v-model.number="form.credit_limit"
+              :model-value="values.npwp ?? ''"
+              @update:model-value="values.npwp = String($event)"
+              placeholder="00.000.000.0-000.000"
+              @blur="validateField('npwp')"
+            />
+          </FormField>
+
+          <FormField label="NIK" :error="errors.nik">
+            <Input
+              :model-value="values.nik ?? ''"
+              @update:model-value="values.nik = String($event)"
+              placeholder="16-digit NIK"
+              @blur="validateField('nik')"
+            />
+          </FormField>
+
+          <FormField label="Credit Limit" :error="errors.credit_limit">
+            <Input
+              :model-value="values.credit_limit ?? 0"
+              @update:model-value="values.credit_limit = Number($event)"
               type="number"
               min="0"
               step="1000000"
             />
           </FormField>
 
-          <FormField label="Payment Terms (days)">
+          <FormField label="Payment Terms (days)" :error="errors.payment_term_days">
             <Input
-              v-model.number="form.payment_term_days"
+              :model-value="values.payment_term_days ?? 30"
+              @update:model-value="values.payment_term_days = Number($event)"
               type="number"
               min="0"
             />
@@ -292,7 +309,7 @@ async function handleSubmit() {
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input
-              v-model="form.is_active"
+              v-model="values.is_active"
               type="checkbox"
               class="sr-only peer"
             />
@@ -301,12 +318,17 @@ async function handleSubmit() {
         </div>
       </Card>
 
+      <!-- Form Status Indicator -->
+      <div v-if="meta.dirty" class="text-sm text-amber-600">
+        You have unsaved changes
+      </div>
+
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" variant="primary" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Contact' : 'Create Contact' }}
         </Button>
       </div>

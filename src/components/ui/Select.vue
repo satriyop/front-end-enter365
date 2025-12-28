@@ -1,8 +1,24 @@
 <script setup lang="ts">
-import { computed, useAttrs } from 'vue'
+import { computed } from 'vue'
+import {
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectItemIndicator,
+  SelectItemText,
+  SelectPortal,
+  SelectRoot,
+  SelectScrollDownButton,
+  SelectScrollUpButton,
+  SelectTrigger,
+  SelectValue,
+  SelectViewport,
+} from 'radix-vue'
+import { Check, ChevronDown, ChevronUp } from 'lucide-vue-next'
 import { cn } from '@/utils/cn'
 
-type SelectSize = 'sm' | 'md' | 'lg'
+// Internal placeholder for empty string values (Radix doesn't allow empty strings)
+const EMPTY_VALUE_PLACEHOLDER = '__empty__'
 
 interface Option {
   value: string | number
@@ -11,18 +27,26 @@ interface Option {
 }
 
 interface Props {
+  /** Selected value for v-model */
   modelValue?: string | number | null
+  /** Available options */
   options: Option[]
+  /** Placeholder text when nothing selected */
   placeholder?: string
-  size?: SelectSize
+  /** Size variant */
+  size?: 'sm' | 'default' | 'lg'
+  /** Show error state */
   error?: boolean
+  /** Disable the select */
   disabled?: boolean
+  /** Additional trigger classes */
+  class?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: null,
   placeholder: 'Select an option',
-  size: 'md',
+  size: 'default',
   error: false,
   disabled: false,
 })
@@ -31,57 +55,131 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number | null]
 }>()
 
-const attrs = useAttrs()
-
-const sizeClasses: Record<SelectSize, string> = {
-  sm: 'h-8 text-sm pl-3 pr-8',
-  md: 'h-10 text-sm pl-3 pr-10',
-  lg: 'h-12 text-base pl-4 pr-12',
+const sizeStyles = {
+  sm: 'h-8 text-xs px-3',
+  default: 'h-9 px-3 py-2 text-sm',
+  lg: 'h-11 px-4 text-base',
 }
 
-const selectClasses = computed(() =>
+const triggerClasses = computed(() =>
   cn(
-    'w-full rounded-sm border bg-white appearance-none transition-colors duration-150',
-    'focus:outline-none focus:ring-1',
-    // Background arrow
-    'bg-[url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 20 20\'%3E%3Cpath stroke=\'%236B7280\' stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'m6 8 4 4 4-4\'/%3E%3C/svg%3E")]',
-    'bg-[length:1.25rem_1.25rem] bg-[right_0.5rem_center] bg-no-repeat',
-    // Size
-    sizeClasses[props.size],
-    // State: default
-    !props.error && !props.disabled && 'border-slate-300 focus:border-orange-500 focus:ring-orange-500',
-    // State: error
-    props.error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
-    // State: disabled
-    props.disabled && 'bg-slate-50 cursor-not-allowed text-slate-500'
+    'flex w-full items-center justify-between gap-2 rounded-md border bg-transparent',
+    'placeholder:text-muted-foreground',
+    'focus:outline-none focus:ring-2 focus:ring-ring',
+    'disabled:cursor-not-allowed disabled:opacity-50',
+    '[&>span]:line-clamp-1',
+    'transition-colors',
+    sizeStyles[props.size],
+    props.error
+      ? 'border-destructive focus:ring-destructive'
+      : 'border-input',
+    props.class
   )
 )
 
-function handleChange(event: Event) {
-  const target = event.target as HTMLSelectElement
-  const value = target.value === '' ? null : target.value
-  emit('update:modelValue', value)
+// Convert external value to internal Radix value
+function toInternalValue(value: string | number | null | undefined): string | undefined {
+  if (value === null || value === undefined) return undefined
+  if (value === '') return EMPTY_VALUE_PLACEHOLDER
+  return String(value)
 }
+
+// Convert internal Radix value back to external value
+function toExternalValue(internalValue: string): string | number | null {
+  if (internalValue === EMPTY_VALUE_PLACEHOLDER) return ''
+
+  // Try to find the original option to preserve number types
+  const originalOption = props.options.find(
+    (o) => String(o.value) === internalValue ||
+           (o.value === '' && internalValue === EMPTY_VALUE_PLACEHOLDER)
+  )
+  if (originalOption) {
+    return originalOption.value
+  }
+  return internalValue || null
+}
+
+// Internal value for Radix
+const internalValue = computed(() => toInternalValue(props.modelValue))
+
+// Transform options for Radix (replace empty strings with placeholder)
+const internalOptions = computed(() =>
+  props.options.map((opt) => ({
+    ...opt,
+    internalValue: opt.value === '' ? EMPTY_VALUE_PLACEHOLDER : String(opt.value),
+  }))
+)
+
+function handleValueChange(value: string) {
+  emit('update:modelValue', toExternalValue(value))
+}
+
+// Get label for current value
+const selectedLabel = computed(() => {
+  if (props.modelValue === null || props.modelValue === undefined) {
+    return null
+  }
+  const option = props.options.find(
+    (o) => String(o.value) === String(props.modelValue)
+  )
+  return option?.label ?? String(props.modelValue)
+})
 </script>
 
 <template>
-  <select
-    :value="modelValue ?? ''"
+  <SelectRoot
+    :model-value="internalValue"
     :disabled="disabled"
-    :class="selectClasses"
-    v-bind="attrs"
-    @change="handleChange"
+    @update:model-value="handleValueChange"
   >
-    <option value="" disabled>
-      {{ placeholder }}
-    </option>
-    <option
-      v-for="option in options"
-      :key="option.value"
-      :value="option.value"
-      :disabled="option.disabled"
-    >
-      {{ option.label }}
-    </option>
-  </select>
+    <SelectTrigger :class="triggerClasses">
+      <SelectValue :placeholder="placeholder">
+        <span v-if="selectedLabel">{{ selectedLabel }}</span>
+      </SelectValue>
+      <ChevronDown class="h-4 w-4 shrink-0 opacity-50" />
+    </SelectTrigger>
+
+    <SelectPortal>
+      <SelectContent
+        class="z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-border bg-white text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:bg-slate-900"
+        :side-offset="4"
+        position="popper"
+      >
+        <SelectScrollUpButton
+          class="flex cursor-default items-center justify-center py-1"
+        >
+          <ChevronUp class="h-4 w-4" />
+        </SelectScrollUpButton>
+
+        <SelectViewport
+          class="p-1 w-full min-w-[var(--radix-select-trigger-width)]"
+        >
+          <SelectGroup>
+            <SelectItem
+              v-for="option in internalOptions"
+              :key="option.internalValue"
+              :value="option.internalValue"
+              :disabled="option.disabled"
+              class="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-slate-100 focus:bg-slate-100 data-[highlighted]:bg-slate-100 dark:hover:bg-slate-800 dark:focus:bg-slate-800 dark:data-[highlighted]:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
+            >
+              <span
+                class="absolute left-2 flex h-3.5 w-3.5 items-center justify-center"
+              >
+                <SelectItemIndicator>
+                  <Check class="h-4 w-4" />
+                </SelectItemIndicator>
+              </span>
+              <SelectItemText>{{ option.label }}</SelectItemText>
+            </SelectItem>
+          </SelectGroup>
+        </SelectViewport>
+
+        <SelectScrollDownButton
+          class="flex cursor-default items-center justify-center py-1"
+        >
+          <ChevronDown class="h-4 w-4" />
+        </SelectScrollDownButton>
+      </SelectContent>
+    </SelectPortal>
+  </SelectRoot>
 </template>

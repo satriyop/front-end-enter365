@@ -210,21 +210,28 @@ export function useRejectQuotation() {
 
 /**
  * Convert quotation to invoice
+ * Backend returns: { message, invoice: InvoiceResource, quotation: QuotationResource }
  */
 export function useConvertToInvoice() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await api.post<{ data: Quotation; invoice_id: number }>(
-        `/quotations/${id}/convert-to-invoice`
-      )
-      return response.data
+      const response = await api.post<{
+        message: string
+        invoice: { id: number }
+        quotation: Quotation
+      }>(`/quotations/${id}/convert-to-invoice`)
+      // Return normalized shape for easier consumption
+      return {
+        invoice_id: response.data.invoice.id,
+        quotation: response.data.quotation,
+      }
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] })
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.setQueryData(['quotation', data.data.id], data.data)
+      queryClient.setQueryData(['quotation', data.quotation.id], data.quotation)
     },
   })
 }

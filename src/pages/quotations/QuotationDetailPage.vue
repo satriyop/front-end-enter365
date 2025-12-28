@@ -10,8 +10,9 @@ import {
   useDuplicateQuotation,
   useDeleteQuotation,
 } from '@/api/useQuotations'
+import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, useToast } from '@/components/ui'
+import { Button, Badge, Modal, ConfirmDialog, PageSkeleton, useToast } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
 
@@ -34,17 +35,17 @@ const deleteMutation = useDeleteQuotation()
 
 // Modal states
 const showRejectModal = ref(false)
-const showDeleteModal = ref(false)
 const showPrintPreview = ref(false)
 const rejectReason = ref('')
+const deleteConfirmRef = ref<InstanceType<typeof ConfirmDialog>>()
 
 // Action handlers
 async function handleSubmit() {
   try {
     await submitMutation.mutateAsync(quotationId.value)
     toast.success('Quotation submitted for approval')
-  } catch {
-    toast.error('Failed to submit quotation')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to submit quotation'))
   }
 }
 
@@ -52,8 +53,8 @@ async function handleApprove() {
   try {
     await approveMutation.mutateAsync(quotationId.value)
     toast.success('Quotation approved')
-  } catch {
-    toast.error('Failed to approve quotation')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to approve quotation'))
   }
 }
 
@@ -63,8 +64,8 @@ async function handleReject() {
     showRejectModal.value = false
     rejectReason.value = ''
     toast.success('Quotation rejected')
-  } catch {
-    toast.error('Failed to reject quotation')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to reject quotation'))
   }
 }
 
@@ -73,8 +74,8 @@ async function handleConvert() {
     const result = await convertMutation.mutateAsync(quotationId.value)
     toast.success('Invoice created successfully')
     router.push(`/invoices/${result.invoice_id}`)
-  } catch {
-    toast.error('Failed to convert to invoice')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to convert to invoice'))
   }
 }
 
@@ -83,19 +84,21 @@ async function handleDuplicate() {
     const duplicate = await duplicateMutation.mutateAsync(quotationId.value)
     toast.success('Quotation duplicated')
     router.push(`/quotations/${duplicate.id}/edit`)
-  } catch {
-    toast.error('Failed to duplicate quotation')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to duplicate quotation'))
   }
 }
 
 async function handleDelete() {
+  const confirmed = await deleteConfirmRef.value?.open()
+  if (!confirmed) return
+
   try {
     await deleteMutation.mutateAsync(quotationId.value)
-    showDeleteModal.value = false
     toast.success('Quotation deleted')
     router.push('/quotations')
-  } catch {
-    toast.error('Failed to delete quotation')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to delete quotation'))
   }
 }
 
@@ -137,13 +140,11 @@ const printableItems = computed(() => {
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12 text-slate-500">
-      Loading...
-    </div>
+    <PageSkeleton v-if="isLoading" type="detail" />
 
     <!-- Error -->
     <div v-else-if="error" class="text-center py-12 text-red-500">
-      Failed to load quotation
+      {{ getErrorMessage(error, 'Failed to load quotation') }}
     </div>
 
     <!-- Content -->
@@ -203,7 +204,7 @@ const printableItems = computed(() => {
             <!-- Submit (draft only) -->
             <Button
               v-if="canSubmit"
-              variant="primary"
+             
               size="sm"
               :loading="submitMutation.isPending.value"
               @click="handleSubmit"
@@ -225,7 +226,7 @@ const printableItems = computed(() => {
             <!-- Reject (submitted only) -->
             <Button
               v-if="canReject"
-              variant="danger"
+              variant="destructive"
               size="sm"
               @click="showRejectModal = true"
             >
@@ -235,7 +236,7 @@ const printableItems = computed(() => {
             <!-- Convert to Invoice (approved only) -->
             <Button
               v-if="canConvert"
-              variant="primary"
+             
               size="sm"
               :loading="convertMutation.isPending.value"
               @click="handleConvert"
@@ -249,7 +250,7 @@ const printableItems = computed(() => {
               variant="ghost"
               size="sm"
               class="text-red-500 hover:text-red-600"
-              @click="showDeleteModal = true"
+              @click="handleDelete"
             >
               Delete
             </Button>
@@ -411,7 +412,7 @@ const printableItems = computed(() => {
     </template>
 
     <!-- Reject Modal -->
-    <Modal :open="showRejectModal" title="Reject Quotation" size="md" @update:open="showRejectModal = $event">
+    <Modal :open="showRejectModal" title="Reject Quotation" @update:open="showRejectModal = $event">
       <p class="text-slate-600 mb-4">
         Are you sure you want to reject this quotation? This action cannot be undone.
       </p>
@@ -427,7 +428,7 @@ const printableItems = computed(() => {
       <template #footer>
         <Button variant="ghost" @click="showRejectModal = false">Cancel</Button>
         <Button
-          variant="danger"
+          variant="destructive"
           :loading="rejectMutation.isPending.value"
           @click="handleReject"
         >
@@ -436,22 +437,14 @@ const printableItems = computed(() => {
       </template>
     </Modal>
 
-    <!-- Delete Modal -->
-    <Modal :open="showDeleteModal" title="Delete Quotation" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
-        Are you sure you want to delete this quotation? This action cannot be undone.
-      </p>
-      <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
-        <Button
-          variant="danger"
-          :loading="deleteMutation.isPending.value"
-          @click="handleDelete"
-        >
-          Delete
-        </Button>
-      </template>
-    </Modal>
+    <!-- Delete Confirmation -->
+    <ConfirmDialog
+      ref="deleteConfirmRef"
+      title="Delete Quotation"
+      message="Are you sure you want to delete this quotation? This action cannot be undone."
+      confirm-text="Delete"
+      variant="destructive"
+    />
 
     <!-- Print Preview Modal -->
     <Modal
@@ -488,7 +481,7 @@ const printableItems = computed(() => {
 
       <template #footer>
         <Button variant="ghost" @click="showPrintPreview = false">Cancel</Button>
-        <Button variant="primary" :loading="isPrinting" @click="handlePrint">
+        <Button :loading="isPrinting" @click="handlePrint">
           Print
         </Button>
       </template>

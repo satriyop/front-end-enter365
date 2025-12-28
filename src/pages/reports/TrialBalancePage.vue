@@ -91,7 +91,7 @@ function getAccountTypeColor(type: string): string {
           <h2 class="text-xl font-semibold text-slate-900">{{ report.report_name }}</h2>
           <p class="text-slate-500">As of {{ report.as_of_date }}</p>
           <Badge v-if="report.is_balanced" variant="success" class="mt-2">Balanced</Badge>
-          <Badge v-else variant="error" class="mt-2">Not Balanced - Difference: {{ formatCurrency(Math.abs(report.total_debit - report.total_credit)) }}</Badge>
+          <Badge v-else variant="destructive" class="mt-2">Not Balanced - Difference: {{ formatCurrency(Math.abs(report.total_debit - report.total_credit)) }}</Badge>
         </div>
 
         <div class="overflow-x-auto">

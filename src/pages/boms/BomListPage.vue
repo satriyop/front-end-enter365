@@ -32,8 +32,8 @@ function handleSearch(value: string | number) {
   filters.value.page = 1
 }
 
-function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'error' {
-  const map: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
+function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'destructive' {
+  const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
     draft: 'default',
     active: 'success',
     inactive: 'warning',
@@ -51,7 +51,7 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
         <p class="text-slate-500">Manage product BOMs and production costs</p>
       </div>
       <RouterLink to="/boms/new">
-        <Button variant="primary">
+        <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>

@@ -22,7 +22,8 @@ export function formatNumber(value: number | null | undefined): string {
 /**
  * Format percentage
  */
-export function formatPercent(value: number, decimals: number = 1): string {
+export function formatPercent(value: number | null | undefined, decimals: number = 1): string {
+  if (value == null) return '0%'
   return `${value.toFixed(decimals).replace('.', ',')}%`
 }
 
