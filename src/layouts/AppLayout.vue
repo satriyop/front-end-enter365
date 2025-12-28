@@ -4,8 +4,11 @@ import { RouterView } from 'vue-router'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
 import { Breadcrumbs } from '@/components/ui'
+import CommandPalette from '@/components/CommandPalette.vue'
+import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 
 const sidebarOpen = ref(true)
+const showShortcuts = ref(false)
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
@@ -13,7 +16,7 @@ function toggleSidebar() {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-50">
+  <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
     <!-- Sidebar -->
     <AppSidebar :open="sidebarOpen" @toggle="toggleSidebar" />
 
@@ -26,7 +29,7 @@ function toggleSidebar() {
       <AppHeader @toggle-sidebar="toggleSidebar" />
 
       <!-- Page Content -->
-      <main class="p-6">
+      <main class="p-6 min-h-screen">
         <!-- Breadcrumbs -->
         <Breadcrumbs />
 
@@ -38,5 +41,11 @@ function toggleSidebar() {
         </RouterView>
       </main>
     </div>
+
+    <!-- Command Palette (Cmd+K) -->
+    <CommandPalette @show-shortcuts="showShortcuts = true" />
+
+    <!-- Keyboard Shortcuts Modal -->
+    <KeyboardShortcutsModal v-model:open="showShortcuts" />
   </div>
 </template>

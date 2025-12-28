@@ -983,3 +983,289 @@ export function useImportStats() {
     staleTime: 60 * 1000, // Cache for 1 minute
   })
 }
+
+// ============================================
+// Quick Swap Types & Hooks
+// ============================================
+
+export interface ItemAlternative {
+  mapping_id: number
+  product_id: number
+  product_name: string
+  product_sku: string
+  brand: string
+  brand_label: string
+  brand_sku: string
+  unit_cost: number
+  price_diff: number
+  price_diff_percent: number
+  is_preferred: boolean
+  is_verified: boolean
+  stock: number
+}
+
+export interface ItemAlternativesResponse {
+  current: {
+    product_id: number | null
+    product_name: string
+    product_sku: string | null
+    unit_cost: number
+    brand: string | null
+    brand_label: string | null
+    component_standard_id: number | null
+  }
+  alternatives: ItemAlternative[]
+  has_standard: boolean
+}
+
+export interface QuickSwapResult {
+  success: boolean
+  item: {
+    id: number
+    description: string
+    unit_cost: number
+    product_id: number
+  }
+  previous: {
+    product_id: number | null
+    product_name: string
+    product_sku: string | null
+    unit_cost: number
+  }
+  new: {
+    product_id: number
+    product_name: string
+    product_sku: string
+    unit_cost: number
+  }
+  savings: number
+  reason: string | null
+}
+
+/**
+ * Fetch alternatives for a BOM item
+ */
+export function useItemAlternatives(bomId: Ref<number>, itemId: Ref<number>) {
+  return useQuery({
+    queryKey: computed(() => ['bom-item-alternatives', bomId.value, itemId.value]),
+    queryFn: async () => {
+      const response = await api.get<{ data: ItemAlternativesResponse }>(
+        `/boms/${bomId.value}/items/${itemId.value}/alternatives`
+      )
+      return response.data.data
+    },
+    enabled: computed(() => !!bomId.value && bomId.value > 0 && !!itemId.value && itemId.value > 0),
+    staleTime: 30 * 1000,
+  })
+}
+
+/**
+ * Quick swap a BOM item to a different product (in-place edit)
+ */
+export function useQuickSwapItem() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      bomId,
+      itemId,
+      productId,
+      reason
+    }: {
+      bomId: number
+      itemId: number
+      productId: number
+      reason?: string
+    }) => {
+      const response = await api.patch<{ message: string; data: QuickSwapResult }>(
+        `/boms/${bomId}/items/${itemId}/swap`,
+        { product_id: productId, reason }
+      )
+      return response.data
+    },
+    onSuccess: (_, variables) => {
+      // Invalidate BOM detail and item alternatives
+      queryClient.invalidateQueries({ queryKey: ['bom', variables.bomId] })
+      queryClient.invalidateQueries({ queryKey: ['bom-item-alternatives', variables.bomId] })
+      queryClient.invalidateQueries({ queryKey: ['boms'] })
+    },
+  })
+}
+
+// ============================================
+// Auto-Mapping Types & Hooks
+// ============================================
+
+export interface UnmappedProduct {
+  id: number
+  name: string
+  sku: string
+  brand: string | null
+  purchase_price: number
+}
+
+export interface ParsedProductSpecs {
+  category: string | null
+  subcategory: string | null
+  specs: Record<string, unknown>
+  brand: string | null
+}
+
+export interface MappingSuggestion {
+  component_standard_id: number
+  code: string
+  name: string
+  category: string
+  subcategory: string | null
+  specifications: Record<string, unknown>
+  match_score: number
+  existing_brands: string[]
+}
+
+export interface ProductMappingSuggestion {
+  product_id: number
+  product_name: string
+  product_sku: string | null
+  product_brand: string | null
+  parsed_specs: ParsedProductSpecs
+  suggestions: MappingSuggestion[]
+  has_suggestions: boolean
+}
+
+export interface BulkMappingInput {
+  product_id: number
+  component_standard_id: number
+  brand_sku?: string
+  is_preferred?: boolean
+}
+
+export interface BulkMappingResult {
+  created: number
+  skipped: number
+  errors: string[]
+}
+
+/**
+ * Fetch unmapped products (products without component mappings)
+ */
+export function useUnmappedProducts(brand?: Ref<string | undefined>, limit?: Ref<number>) {
+  return useQuery({
+    queryKey: computed(() => ['unmapped-products', brand?.value, limit?.value]),
+    queryFn: async () => {
+      const params: Record<string, string | number> = {}
+      if (brand?.value) params.brand = brand.value
+      if (limit?.value) params.limit = limit.value
+      const response = await api.get<{
+        data: UnmappedProduct[]
+        meta: { total: number; brand: string | null; limit: number }
+      }>('/auto-mapping/unmapped-products', { params })
+      return response.data
+    },
+    staleTime: 30 * 1000,
+  })
+}
+
+/**
+ * Get mapping suggestions for a single product
+ */
+export function useProductMappingSuggestion(productId: Ref<number>) {
+  return useQuery({
+    queryKey: computed(() => ['product-mapping-suggestion', productId.value]),
+    queryFn: async () => {
+      const response = await api.get<{ data: ProductMappingSuggestion }>(
+        `/auto-mapping/products/${productId.value}/suggest`
+      )
+      return response.data.data
+    },
+    enabled: computed(() => !!productId.value && productId.value > 0),
+    staleTime: 60 * 1000,
+  })
+}
+
+/**
+ * Get mapping suggestions for multiple products (batch)
+ */
+export function useBatchMappingSuggestions() {
+  return useMutation({
+    mutationFn: async (productIds: number[]) => {
+      const response = await api.post<{ data: ProductMappingSuggestion[] }>(
+        '/auto-mapping/suggest-batch',
+        { product_ids: productIds }
+      )
+      return response.data.data
+    },
+  })
+}
+
+/**
+ * Accept a single mapping suggestion
+ */
+export function useAcceptMappingSuggestion() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({
+      productId,
+      componentStandardId,
+      brandSku,
+      isPreferred
+    }: {
+      productId: number
+      componentStandardId: number
+      brandSku?: string
+      isPreferred?: boolean
+    }) => {
+      const response = await api.post<{ message: string; data: ComponentBrandMapping }>(
+        `/auto-mapping/products/${productId}/accept`,
+        {
+          component_standard_id: componentStandardId,
+          brand_sku: brandSku,
+          is_preferred: isPreferred
+        }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unmapped-products'] })
+      queryClient.invalidateQueries({ queryKey: ['component-standards'] })
+      queryClient.invalidateQueries({ queryKey: ['import-stats'] })
+    },
+  })
+}
+
+/**
+ * Bulk accept multiple mapping suggestions
+ */
+export function useBulkAcceptMappingSuggestions() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (mappings: BulkMappingInput[]) => {
+      const response = await api.post<{ message: string; data: BulkMappingResult }>(
+        '/auto-mapping/bulk-accept',
+        { mappings }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['unmapped-products'] })
+      queryClient.invalidateQueries({ queryKey: ['component-standards'] })
+      queryClient.invalidateQueries({ queryKey: ['import-stats'] })
+    },
+  })
+}
+
+/**
+ * Parse a product name to extract specs (debug/preview)
+ */
+export function useParseProductName() {
+  return useMutation({
+    mutationFn: async (name: string) => {
+      const response = await api.get<{ data: ParsedProductSpecs }>(
+        '/auto-mapping/parse-name',
+        { params: { name } }
+      )
+      return response.data.data
+    },
+  })
+}

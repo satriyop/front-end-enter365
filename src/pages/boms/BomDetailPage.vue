@@ -16,11 +16,13 @@ import {
   useBrandComparison,
   useCostOptimizationPreview,
   useApplyCostOptimization,
+  useItemAlternatives,
+  useQuickSwapItem,
   type SwapReport,
   type SwapPreview,
   type CostOptimizationReport,
 } from '@/api/useComponentStandards'
-import { Check, TrendingDown } from 'lucide-vue-next'
+import { Check, TrendingDown, ArrowLeftRight, Loader2 } from 'lucide-vue-next'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, useToast } from '@/components/ui'
 
@@ -78,6 +80,18 @@ const swapPreview = ref<SwapPreview | null>(null)
 const selectedOptimizations = ref<Set<number>>(new Set())
 const lastOptimizationReport = ref<CostOptimizationReport | null>(null)
 const lastOptimizedBomId = ref<number | null>(null)
+
+// Quick Swap state
+const showQuickSwapModal = ref(false)
+const quickSwapItemId = ref<number>(0)
+const quickSwapItem = ref<{ id: number; description: string; product_sku?: string } | null>(null)
+const quickSwapMutation = useQuickSwapItem()
+
+// Item alternatives (only fetch when modal is open)
+const { data: itemAlternatives, isLoading: isLoadingAlternatives, refetch: refetchAlternatives } = useItemAlternatives(
+  bomId,
+  computed(() => quickSwapItemId.value)
+)
 
 // Fetch preview when brand is selected
 watch(selectedBrand, async (brand) => {
@@ -273,6 +287,41 @@ function viewOptimizedBom() {
   if (lastOptimizedBomId.value) {
     showOptimizationReportModal.value = false
     router.push(`/boms/${lastOptimizedBomId.value}`)
+  }
+}
+
+// Quick Swap handlers
+function openQuickSwapModal(item: { id: number; description: string; product?: { sku?: string }; component_standard_id?: number | null }) {
+  if (!item.component_standard_id) {
+    toast.info('This item has no component standard mapping')
+    return
+  }
+  quickSwapItem.value = {
+    id: item.id,
+    description: item.description,
+    product_sku: item.product?.sku
+  }
+  quickSwapItemId.value = item.id
+  showQuickSwapModal.value = true
+  refetchAlternatives()
+}
+
+async function handleQuickSwapToProduct(productId: number) {
+  if (!quickSwapItemId.value) return
+
+  try {
+    await quickSwapMutation.mutateAsync({
+      bomId: bomId.value,
+      itemId: quickSwapItemId.value,
+      productId,
+      reason: 'quick_swap'
+    })
+    showQuickSwapModal.value = false
+    quickSwapItemId.value = 0
+    quickSwapItem.value = null
+    toast.success('Item berhasil diganti')
+  } catch {
+    toast.error('Failed to swap item')
   }
 }
 
@@ -526,6 +575,7 @@ const costBreakdown = computed(() => {
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Qty</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Unit Cost</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase w-20"></th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-200">
@@ -557,6 +607,17 @@ const costBreakdown = computed(() => {
                     </td>
                     <td class="px-6 py-4 text-right font-medium text-slate-900">
                       {{ formatCurrency(item.total_cost) }}
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                      <button
+                        v-if="item.component_standard_id"
+                        type="button"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors"
+                        title="Swap to equivalent product"
+                        @click="openQuickSwapModal(item)"
+                      >
+                        <ArrowLeftRight class="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
                 </tbody>
@@ -1351,6 +1412,104 @@ const costBreakdown = computed(() => {
         <Button @click="viewOptimizedBom">
           View Optimized BOM
         </Button>
+      </template>
+    </Modal>
+
+    <!-- Quick Swap Modal -->
+    <Modal :open="showQuickSwapModal" title="Swap Item" size="lg" @update:open="showQuickSwapModal = $event">
+      <div class="space-y-4">
+        <!-- Current Item -->
+        <div v-if="quickSwapItem" class="bg-slate-50 rounded-lg p-4">
+          <div class="text-xs text-slate-500 mb-1">Current Item</div>
+          <div class="font-medium text-slate-900">{{ quickSwapItem.description }}</div>
+          <div v-if="quickSwapItem.product_sku" class="text-sm text-slate-500">{{ quickSwapItem.product_sku }}</div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="isLoadingAlternatives" class="py-8 text-center">
+          <div class="flex items-center justify-center gap-2 text-slate-500">
+            <Loader2 class="w-5 h-5 animate-spin" />
+            <span>Loading alternatives...</span>
+          </div>
+        </div>
+
+        <!-- Alternatives List -->
+        <template v-else-if="itemAlternatives">
+          <!-- Current Product Info -->
+          <div v-if="itemAlternatives.current" class="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+              <Check class="w-4 h-4 text-orange-600" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-orange-800 truncate">{{ itemAlternatives.current.product_name }}</div>
+              <div class="text-sm text-orange-600">{{ itemAlternatives.current.brand_label }} • {{ formatCurrency(itemAlternatives.current.unit_cost) }}</div>
+            </div>
+            <Badge variant="warning">Current</Badge>
+          </div>
+
+          <!-- No alternatives message -->
+          <div v-if="!itemAlternatives.alternatives?.length" class="py-6 text-center text-slate-500">
+            No alternative products available for this item.
+          </div>
+
+          <!-- Alternatives -->
+          <div v-else class="space-y-2">
+            <div class="text-sm font-medium text-slate-700">Available Alternatives</div>
+            <div class="max-h-64 overflow-y-auto space-y-2">
+              <button
+                v-for="alt in itemAlternatives.alternatives"
+                :key="alt.product_id"
+                type="button"
+                class="w-full p-3 rounded-lg border-2 text-left transition-all hover:border-orange-300 hover:bg-orange-50/50"
+                :class="alt.is_preferred ? 'border-green-300 bg-green-50/50' : 'border-slate-200'"
+                :disabled="quickSwapMutation.isPending.value"
+                @click="handleQuickSwapToProduct(alt.product_id)"
+              >
+                <div class="flex items-start justify-between gap-3">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="font-medium text-slate-900 truncate">{{ alt.product_name }}</span>
+                      <Badge v-if="alt.is_preferred" variant="success" class="text-xs">Preferred</Badge>
+                      <Badge v-if="alt.is_verified" variant="info" class="text-xs">Verified</Badge>
+                    </div>
+                    <div class="text-sm text-slate-500 mt-0.5">
+                      {{ alt.brand_label }} • {{ alt.product_sku }}
+                    </div>
+                    <div v-if="alt.stock !== null" class="text-xs text-slate-400 mt-1">
+                      Stock: {{ alt.stock }} units
+                    </div>
+                  </div>
+                  <div class="text-right flex-shrink-0">
+                    <div class="font-semibold text-slate-900">{{ formatCurrency(alt.unit_cost) }}</div>
+                    <div
+                      v-if="alt.price_diff !== 0"
+                      class="text-sm font-medium"
+                      :class="alt.price_diff < 0 ? 'text-green-600' : 'text-red-600'"
+                    >
+                      {{ alt.price_diff < 0 ? '' : '+' }}{{ formatCurrency(alt.price_diff) }}
+                      <span class="text-xs">({{ alt.price_diff_percent > 0 ? '+' : '' }}{{ alt.price_diff_percent.toFixed(1) }}%)</span>
+                    </div>
+                    <div v-else class="text-sm text-slate-400">Same price</div>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- No Standard Info -->
+          <div v-if="!itemAlternatives.has_standard" class="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+            This item has no component standard mapping. Add mapping in Component Library to enable brand alternatives.
+          </div>
+        </template>
+
+        <!-- No data -->
+        <div v-else class="py-8 text-center text-slate-500">
+          Unable to load alternatives.
+        </div>
+      </div>
+
+      <template #footer>
+        <Button variant="ghost" @click="showQuickSwapModal = false">Close</Button>
       </template>
     </Modal>
   </div>

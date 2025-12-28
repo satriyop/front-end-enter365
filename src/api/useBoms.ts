@@ -27,6 +27,7 @@ export interface BomItem {
   effective_quantity: number
   sort_order: number
   notes: string | null
+  component_standard_id: number | null
   created_at: string
   updated_at: string
 }
