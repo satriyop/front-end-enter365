@@ -5,9 +5,15 @@ import {
   useComponentCategories,
   useAvailableBrands,
   useDeleteComponentStandard,
-  type ComponentStandardFilters
+  useValidateImport,
+  useImportMappings,
+  useImportStats,
+  downloadMappingTemplate,
+  type ComponentStandardFilters,
+  type ImportValidationResult,
 } from '@/api/useComponentStandards'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
 
 const toast = useToast()
 
@@ -81,6 +87,94 @@ async function handleDelete() {
   }
 }
 
+// ============================================
+// Import handling
+// ============================================
+const showImportModal = ref(false)
+const importStep = ref<'upload' | 'preview' | 'result'>('upload')
+const selectedFile = ref<File | null>(null)
+const validationResult = ref<ImportValidationResult | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+const validateMutation = useValidateImport()
+const importMutation = useImportMappings()
+const { data: importStats } = useImportStats()
+
+function openImportModal() {
+  importStep.value = 'upload'
+  selectedFile.value = null
+  validationResult.value = null
+  showImportModal.value = true
+}
+
+function handleFileSelect(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files && input.files[0]) {
+    selectedFile.value = input.files[0]
+  }
+}
+
+function handleFileDrop(event: DragEvent) {
+  event.preventDefault()
+  if (event.dataTransfer?.files && event.dataTransfer.files[0]) {
+    const file = event.dataTransfer.files[0]
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls') || file.name.endsWith('.csv')) {
+      selectedFile.value = file
+    } else {
+      toast.error('Please upload an Excel or CSV file')
+    }
+  }
+}
+
+async function validateFile() {
+  if (!selectedFile.value) return
+  try {
+    const result = await validateMutation.mutateAsync(selectedFile.value)
+    validationResult.value = result
+    importStep.value = 'preview'
+  } catch (err: unknown) {
+    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Validation failed'
+    toast.error(message)
+  }
+}
+
+async function executeImport() {
+  if (!selectedFile.value) return
+  try {
+    const result = await importMutation.mutateAsync({ file: selectedFile.value })
+    importStep.value = 'result'
+    toast.success(result.message)
+  } catch (err: unknown) {
+    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Import failed'
+    toast.error(message)
+  }
+}
+
+function closeImportModal() {
+  showImportModal.value = false
+  // Reset state after modal close animation
+  setTimeout(() => {
+    importStep.value = 'upload'
+    selectedFile.value = null
+    validationResult.value = null
+  }, 300)
+}
+
+const isDownloading = ref(false)
+
+async function downloadTemplate() {
+  isDownloading.value = true
+  try {
+    await downloadMappingTemplate({ includeExamples: true, includeProducts: true })
+    toast.success('Template downloaded')
+  } catch (err: unknown) {
+    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to download template'
+    toast.error(message)
+  } finally {
+    isDownloading.value = false
+  }
+}
+
 // Format specs for display
 function formatSpecs(specs: Record<string, unknown>): string {
   const parts: string[] = []
@@ -114,16 +208,48 @@ function getCategoryColor(category: string): string {
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-2xl font-semibold text-slate-900">Component Library</h1>
-        <p class="text-slate-500">Manage IEC component standards and brand mappings</p>
+        <p class="text-muted-foreground">Manage IEC component standards and brand mappings</p>
       </div>
-      <RouterLink to="/settings/component-library/new">
-        <Button>
-          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Standard
+      <div class="flex items-center gap-3">
+        <Button variant="outline" @click="openImportModal">
+          <Upload class="w-4 h-4 mr-2" />
+          Import
         </Button>
-      </RouterLink>
+        <RouterLink to="/settings/component-library/new">
+          <Button>
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Standard
+          </Button>
+        </RouterLink>
+      </div>
+    </div>
+
+    <!-- Stats Banner -->
+    <div v-if="importStats" class="bg-card rounded-xl border border-border p-4 mb-6">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
+        <div>
+          <div class="text-2xl font-semibold">{{ importStats.total_standards }}</div>
+          <div class="text-sm text-muted-foreground">Standards</div>
+        </div>
+        <div>
+          <div class="text-2xl font-semibold">{{ importStats.total_mappings }}</div>
+          <div class="text-sm text-muted-foreground">Brand Mappings</div>
+        </div>
+        <div>
+          <div class="text-2xl font-semibold text-green-600">{{ importStats.products_with_mapping }}</div>
+          <div class="text-sm text-muted-foreground">Products Mapped</div>
+        </div>
+        <div>
+          <div class="text-2xl font-semibold text-amber-600">{{ importStats.products_without_mapping }}</div>
+          <div class="text-sm text-muted-foreground">Unmapped</div>
+        </div>
+        <div>
+          <div class="text-2xl font-semibold">{{ importStats.coverage_percentage }}%</div>
+          <div class="text-sm text-muted-foreground">Coverage</div>
+        </div>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -283,6 +409,193 @@ function getCategoryColor(category: string): string {
       <template #footer>
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
+      </template>
+    </Modal>
+
+    <!-- Import Modal -->
+    <Modal
+      :open="showImportModal"
+      :title="importStep === 'upload' ? 'Import Component Mappings' : importStep === 'preview' ? 'Validation Preview' : 'Import Complete'"
+      size="lg"
+      @update:open="closeImportModal"
+    >
+      <!-- Step 1: Upload -->
+      <div v-if="importStep === 'upload'" class="space-y-6">
+        <!-- Template Download -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <FileSpreadsheet class="w-5 h-5 text-blue-600 mt-0.5" />
+            <div class="flex-1">
+              <h4 class="font-medium text-blue-900">Download Template</h4>
+              <p class="text-sm text-blue-700 mt-1">
+                Download the Excel template with all required columns, example data, and reference sheets for products, categories, and brands.
+              </p>
+              <Button variant="outline" size="sm" class="mt-3" :loading="isDownloading" @click="downloadTemplate">
+                <Download class="w-4 h-4 mr-2" />
+                Download Template
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <!-- File Upload Area -->
+        <div
+          class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
+          :class="selectedFile ? 'border-green-300 bg-green-50' : 'border-border hover:border-primary/50'"
+          @dragover.prevent
+          @drop="handleFileDrop"
+        >
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            class="hidden"
+            @change="handleFileSelect"
+          />
+
+          <div v-if="selectedFile" class="space-y-3">
+            <CheckCircle2 class="w-12 h-12 mx-auto text-green-500" />
+            <div>
+              <p class="font-medium">{{ selectedFile.name }}</p>
+              <p class="text-sm text-muted-foreground">{{ (selectedFile.size / 1024).toFixed(1) }} KB</p>
+            </div>
+            <Button variant="ghost" size="sm" @click="selectedFile = null">
+              Choose Different File
+            </Button>
+          </div>
+
+          <div v-else class="space-y-3">
+            <Upload class="w-12 h-12 mx-auto text-muted-foreground" />
+            <div>
+              <p class="font-medium">Drop your file here or click to browse</p>
+              <p class="text-sm text-muted-foreground">Supports Excel (.xlsx, .xls) and CSV files</p>
+            </div>
+            <Button variant="outline" @click="fileInputRef?.click()">
+              Select File
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Validation Preview -->
+      <div v-else-if="importStep === 'preview' && validationResult" class="space-y-6">
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-700">{{ validationResult.valid_count }}</div>
+            <div class="text-sm text-green-600">Valid Rows</div>
+          </div>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-amber-700">{{ validationResult.warning_count }}</div>
+            <div class="text-sm text-amber-600">Warnings</div>
+          </div>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-700">{{ validationResult.error_count }}</div>
+            <div class="text-sm text-red-600">Errors</div>
+          </div>
+        </div>
+
+        <!-- Import Preview -->
+        <div class="bg-card border border-border rounded-lg p-4">
+          <h4 class="font-medium mb-2">What will be imported:</h4>
+          <ul class="text-sm text-muted-foreground space-y-1">
+            <li>• {{ validationResult.summary.new_standards }} new component standards will be created</li>
+            <li>• {{ validationResult.summary.new_mappings }} new brand mappings will be added</li>
+          </ul>
+        </div>
+
+        <!-- Errors -->
+        <div v-if="validationResult.errors.length > 0" class="space-y-2">
+          <h4 class="font-medium text-red-700 flex items-center gap-2">
+            <AlertCircle class="w-4 h-4" />
+            Errors (will be skipped)
+          </h4>
+          <div class="bg-red-50 border border-red-200 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <ul class="text-sm text-red-700 space-y-1">
+              <li v-for="error in validationResult.errors" :key="`error-${error.row}`">
+                <span class="font-medium">Row {{ error.row }}:</span> {{ error.message }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Warnings -->
+        <div v-if="validationResult.warnings.length > 0" class="space-y-2">
+          <h4 class="font-medium text-amber-700 flex items-center gap-2">
+            <AlertTriangle class="w-4 h-4" />
+            Warnings
+          </h4>
+          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <ul class="text-sm text-amber-700 space-y-1">
+              <li v-for="warning in validationResult.warnings" :key="`warning-${warning.row}`">
+                <span class="font-medium">Row {{ warning.row }}:</span> {{ warning.message }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Cannot Import Message -->
+        <div v-if="!validationResult.can_import" class="bg-red-100 border border-red-300 rounded-lg p-4">
+          <p class="text-red-700 font-medium">Cannot import: No valid rows found in the file.</p>
+        </div>
+      </div>
+
+      <!-- Step 3: Result -->
+      <div v-else-if="importStep === 'result' && importMutation.data.value" class="space-y-6">
+        <div class="text-center py-4">
+          <CheckCircle2 class="w-16 h-16 mx-auto text-green-500 mb-4" />
+          <h3 class="text-xl font-semibold text-green-700">Import Successful!</h3>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-card border border-border rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold">{{ importMutation.data.value.data.created_standards }}</div>
+            <div class="text-sm text-muted-foreground">Standards Created</div>
+          </div>
+          <div class="bg-card border border-border rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold">{{ importMutation.data.value.data.created_mappings }}</div>
+            <div class="text-sm text-muted-foreground">Mappings Created</div>
+          </div>
+        </div>
+
+        <div v-if="importMutation.data.value.data.updated_mappings > 0" class="text-center text-muted-foreground">
+          {{ importMutation.data.value.data.updated_mappings }} existing mappings were updated.
+        </div>
+
+        <div v-if="importMutation.data.value.data.skipped_errors > 0" class="text-center text-amber-600">
+          {{ importMutation.data.value.data.skipped_errors }} rows were skipped due to errors.
+        </div>
+      </div>
+
+      <template #footer>
+        <!-- Step 1 Footer -->
+        <template v-if="importStep === 'upload'">
+          <Button variant="ghost" @click="closeImportModal">Cancel</Button>
+          <Button
+            :disabled="!selectedFile"
+            :loading="validateMutation.isPending.value"
+            @click="validateFile"
+          >
+            Validate File
+          </Button>
+        </template>
+
+        <!-- Step 2 Footer -->
+        <template v-else-if="importStep === 'preview'">
+          <Button variant="ghost" @click="importStep = 'upload'">Back</Button>
+          <Button
+            :disabled="!validationResult?.can_import"
+            :loading="importMutation.isPending.value"
+            @click="executeImport"
+          >
+            Import {{ validationResult?.valid_count }} Rows
+          </Button>
+        </template>
+
+        <!-- Step 3 Footer -->
+        <template v-else>
+          <Button @click="closeImportModal">Done</Button>
+        </template>
       </template>
     </Modal>
   </div>

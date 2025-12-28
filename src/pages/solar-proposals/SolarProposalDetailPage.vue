@@ -6,7 +6,7 @@ import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
 import LineChart from '@/components/charts/LineChart.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
-import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/format'
+import { formatCurrency, formatDate, formatNumber, formatPercent, formatSolarOffset } from '@/utils/format'
 import { getErrorMessage } from '@/api/client'
 import {
   useSolarProposal,
@@ -141,6 +141,16 @@ async function handleDownloadPdf() {
     toast.error(getErrorMessage(err, 'Failed to download PDF'))
   } finally {
     isDownloading.value = false
+  }
+}
+
+async function copyPublicUrl() {
+  if (!proposal.value?.public_url) return
+  try {
+    await navigator.clipboard.writeText(proposal.value.public_url)
+    toast.success('Link copied to clipboard')
+  } catch {
+    toast.error('Failed to copy link')
   }
 }
 
@@ -344,22 +354,34 @@ const cumulativeSavingsChartData = computed(() => {
               <h2 class="text-lg font-medium text-slate-900">System Overview</h2>
             </template>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
                 <div class="text-sm text-slate-500">System Capacity</div>
-                <div class="text-2xl font-bold text-slate-900">{{ proposal.system_capacity_kwp }} kWp</div>
+                <div class="text-xl font-bold text-slate-900">{{ proposal.system_capacity_kwp }} kWp</div>
               </div>
               <div>
                 <div class="text-sm text-slate-500">Annual Production</div>
-                <div class="text-2xl font-bold text-slate-900">{{ formatNumber(proposal.annual_production_kwh || 0) }} kWh</div>
+                <div class="text-xl font-bold text-slate-900">{{ formatNumber(proposal.annual_production_kwh || 0) }} kWh</div>
               </div>
               <div>
                 <div class="text-sm text-slate-500">Monthly Production</div>
-                <div class="text-2xl font-bold text-slate-900">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
+                <div class="text-xl font-bold text-slate-900">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
               </div>
               <div>
-                <div class="text-sm text-slate-500">Solar Offset</div>
-                <div class="text-2xl font-bold text-green-600">{{ formatPercent(proposal.solar_offset_percent || 0) }}</div>
+                <div class="text-sm text-slate-500">{{ formatSolarOffset(proposal.solar_offset_percent).label }}</div>
+                <div class="text-xl font-bold" :class="formatSolarOffset(proposal.solar_offset_percent).isSurplus ? 'text-emerald-600' : 'text-green-600'">
+                  {{ formatSolarOffset(proposal.solar_offset_percent).value }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Investment - Featured Row -->
+            <div class="pt-4 border-t border-slate-100">
+              <div class="flex items-center justify-between">
+                <div class="text-sm text-slate-500">Total Investment</div>
+                <div class="text-2xl font-bold text-orange-600">
+                  {{ proposal.system_cost ? formatCurrency(proposal.system_cost) : 'Not set' }}
+                </div>
               </div>
             </div>
           </Card>
@@ -373,7 +395,7 @@ const cumulativeSavingsChartData = computed(() => {
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
               <div class="p-4 bg-green-50 rounded-lg">
                 <div class="text-sm text-green-600">First Year Savings</div>
-                <div class="text-xl font-bold text-green-700">{{ formatCurrency(proposal.first_year_savings) }}</div>
+                <div class="text-lg font-bold text-green-700">{{ formatCurrency(proposal.first_year_savings) }}</div>
               </div>
               <div class="p-4 bg-orange-50 rounded-lg">
                 <div class="text-sm text-orange-600">Payback Period</div>
@@ -385,7 +407,7 @@ const cumulativeSavingsChartData = computed(() => {
               </div>
               <div class="p-4 bg-purple-50 rounded-lg">
                 <div class="text-sm text-purple-600">NPV</div>
-                <div class="text-xl font-bold text-purple-700">{{ formatCurrency(proposal.npv) }}</div>
+                <div class="text-lg font-bold text-purple-700">{{ formatCurrency(proposal.npv) }}</div>
               </div>
               <div class="p-4 bg-indigo-50 rounded-lg">
                 <div class="text-sm text-indigo-600">IRR</div>
@@ -393,7 +415,7 @@ const cumulativeSavingsChartData = computed(() => {
               </div>
               <div class="p-4 bg-emerald-50 rounded-lg">
                 <div class="text-sm text-emerald-600">25-Year Savings</div>
-                <div class="text-xl font-bold text-emerald-700">{{ formatCurrency(proposal.total_lifetime_savings) }}</div>
+                <div class="text-lg font-bold text-emerald-700">{{ formatCurrency(proposal.total_lifetime_savings) }}</div>
               </div>
             </div>
 
@@ -533,6 +555,90 @@ const cumulativeSavingsChartData = computed(() => {
                 <dd class="font-medium text-slate-900">{{ formatPercent((proposal.performance_ratio || 0) * 100, 0) }}</dd>
               </div>
             </dl>
+          </Card>
+
+          <!-- BOM / System Selection -->
+          <Card>
+            <template #header>
+              <h3 class="font-medium text-slate-900">System Selection</h3>
+            </template>
+
+            <dl class="space-y-3 text-sm">
+              <div>
+                <dt class="text-slate-500">Variant Group</dt>
+                <dd class="font-medium text-slate-900">
+                  {{ proposal.variant_group?.name || 'Not selected' }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-slate-500">Selected BOM</dt>
+                <dd class="font-medium text-slate-900">
+                  {{ proposal.selected_bom?.name || 'Auto (lowest cost)' }}
+                </dd>
+              </div>
+              <div v-if="proposal.system_cost">
+                <dt class="text-slate-500">System Cost</dt>
+                <dd class="font-medium text-orange-600">{{ formatCurrency(proposal.system_cost) }}</dd>
+              </div>
+            </dl>
+
+            <!-- Available BOMs from variant group -->
+            <div v-if="proposal.variant_group?.active_boms?.length" class="mt-4 pt-4 border-t border-slate-100">
+              <div class="text-xs font-medium text-slate-500 uppercase mb-2">Available Options</div>
+              <div class="space-y-2">
+                <div
+                  v-for="bom in proposal.variant_group.active_boms"
+                  :key="bom.id"
+                  class="flex items-center justify-between p-2 rounded-lg text-sm"
+                  :class="proposal.selected_bom_id === bom.id ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50'"
+                >
+                  <div>
+                    <span class="font-medium text-slate-900">{{ bom.name }}</span>
+                    <span v-if="proposal.selected_bom_id === bom.id" class="ml-2 text-xs text-orange-600">(Selected)</span>
+                  </div>
+                  <span class="font-medium text-slate-700">{{ formatCurrency(bom.total_cost) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div v-else-if="!proposal.variant_group_id" class="text-sm text-slate-500 italic">
+              No variant group attached. Edit proposal to select one.
+            </div>
+          </Card>
+
+          <!-- Public Link (after sent) -->
+          <Card v-if="proposal.public_url && proposal.status !== 'draft'">
+            <template #header>
+              <h3 class="font-medium text-slate-900">Customer Link</h3>
+            </template>
+
+            <div class="space-y-3">
+              <p class="text-sm text-slate-600">
+                Share this link with your customer to view and respond to the proposal:
+              </p>
+              <div class="flex items-center gap-2">
+                <input
+                  type="text"
+                  :value="proposal.public_url"
+                  readonly
+                  class="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg"
+                />
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  @click="copyPublicUrl"
+                >
+                  Copy
+                </Button>
+              </div>
+              <a
+                :href="proposal.public_url"
+                target="_blank"
+                class="text-sm text-orange-600 hover:text-orange-700 inline-flex items-center gap-1"
+              >
+                Open in new tab →
+              </a>
+            </div>
           </Card>
 
           <!-- Notes -->

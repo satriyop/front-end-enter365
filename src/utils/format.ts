@@ -12,6 +12,38 @@ export function formatCurrency(value: number | null | undefined): string {
 }
 
 /**
+ * Format currency in compact form (Indonesian style)
+ * < 1M: full format (Rp 500.000)
+ * 1M - 1B: Rp 326 jt (millions)
+ * >= 1B: Rp 1,5 M (billions)
+ */
+export function formatCurrencyCompact(value: number | null | undefined): string {
+  if (value == null || value === 0) return 'Rp 0'
+
+  const absValue = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+
+  if (absValue >= 1_000_000_000) {
+    // Billions (Miliar)
+    const billions = absValue / 1_000_000_000
+    return `${sign}Rp ${billions.toFixed(1).replace('.', ',')} M`
+  }
+
+  if (absValue >= 1_000_000) {
+    // Millions (Juta)
+    const millions = absValue / 1_000_000
+    if (millions >= 100) {
+      // Show without decimal for >= 100 juta
+      return `${sign}Rp ${Math.round(millions)} jt`
+    }
+    return `${sign}Rp ${millions.toFixed(1).replace('.', ',')} jt`
+  }
+
+  // Under 1 million - show full format
+  return formatCurrency(value)
+}
+
+/**
  * Format number with Indonesian thousand separators
  */
 export function formatNumber(value: number | null | undefined): string {
@@ -107,4 +139,35 @@ export function getInitials(name: string): string {
     .join('')
     .toUpperCase()
     .slice(0, 2)
+}
+
+/**
+ * Format solar offset percentage with smart label
+ * < 100%: Shows coverage percentage (e.g., "85% Tercukupi")
+ * >= 100%: Shows surplus/multiplier (e.g., "Surplus 2.5x")
+ */
+export function formatSolarOffset(percent: number | null | undefined): {
+  value: string
+  label: string
+  isSurplus: boolean
+} {
+  if (percent == null || percent === 0) {
+    return { value: '0%', label: 'Kebutuhan Tercukupi', isSurplus: false }
+  }
+
+  if (percent < 100) {
+    return {
+      value: `${percent.toFixed(1).replace('.', ',')}%`,
+      label: 'Kebutuhan Tercukupi',
+      isSurplus: false,
+    }
+  }
+
+  // >= 100% - surplus
+  const multiplier = percent / 100
+  return {
+    value: `${multiplier.toFixed(1).replace('.', ',')}x`,
+    label: 'Surplus Energi',
+    isSurplus: true,
+  }
 }

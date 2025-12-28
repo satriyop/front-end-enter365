@@ -22,6 +22,13 @@ const router = createRouter({
       component: () => import('@/pages/LoginPage.vue'),
       meta: { guest: true }
     },
+    // Public routes (no authentication required)
+    {
+      path: '/p/:token',
+      name: 'public-proposal',
+      component: () => import('@/pages/public/PublicProposalPage.vue'),
+      meta: { guest: true }
+    },
     {
       path: '/',
       component: () => import('@/layouts/AppLayout.vue'),

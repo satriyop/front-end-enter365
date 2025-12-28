@@ -1048,6 +1048,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/boms/{bom}/brand-comparison": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Compare BOM across all available brands.
+         *     Returns side-by-side comparison for quick decision making
+         */
+        get: operations["componentCrossReference.compareBrands"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/swap-brand-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview swap without creating a new BOM.
+         *     Returns estimated costs and item-by-item breakdown
+         */
+        post: operations["componentCrossReference.previewSwapBrand"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/boms/{bom}/swap-brand": {
         parameters: {
             query?: never;
@@ -1076,6 +1116,130 @@ export interface paths {
         put?: never;
         /** Generate all brand variants for a BOM */
         post: operations["componentCrossReference.generateBrandVariants"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/cost-optimization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Preview mixed-brand cost optimization.
+         *     Finds cheapest alternative for each item across all brands
+         */
+        get: operations["componentCrossReference.previewCostOptimization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/apply-cost-optimization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Apply cost optimization to create a new BOM with cheapest alternatives */
+        post: operations["componentCrossReference.applyCostOptimization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-mappings/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Download component mapping template
+         * @description Downloads an Excel template for bulk importing component mappings.
+         *     The template includes:
+         *     - Main sheet with column headers and example data
+         *     - Products reference sheet with all available products
+         *     - Categories reference sheet with valid category codes
+         *     - Brands reference sheet with valid brand codes
+         */
+        get: operations["componentMappingImport.downloadTemplate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-mappings/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Validate component mapping import file
+         * @description Validates the uploaded file without actually importing.
+         *     Returns a preview of what will be imported and any errors found.
+         */
+        post: operations["componentMappingImport.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-mappings/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import component mappings from file
+         * @description Imports component mappings from the uploaded Excel or CSV file.
+         *     Creates component standards and brand mappings.
+         */
+        post: operations["componentMappingImport.import"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/component-mappings/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get import statistics
+         * @description Returns current statistics about component mappings in the system.
+         */
+        get: operations["componentMappingImport.stats"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -3296,6 +3460,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/public/solar-proposals/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Show a solar proposal by public token */
+        get: operations["getPublicProposal"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/solar-proposals/{token}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a solar proposal by public token */
+        post: operations["acceptPublicProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/solar-proposals/{token}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a solar proposal by public token */
+        post: operations["rejectPublicProposal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/purchase-orders": {
         parameters: {
             query?: never;
@@ -5178,6 +5393,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/solar-proposals/{solarProposal}/pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download PDF for a solar proposal */
+        get: operations["downloadSolarProposalPdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/solar-proposals-statistics": {
         parameters: {
             query?: never;
@@ -6301,6 +6533,15 @@ export interface components {
                     total: number;
                     unit_cost: number;
                 };
+            }[];
+            active_boms?: {
+                id: number;
+                bom_number: string;
+                name: string;
+                variant_name: string | null;
+                variant_label: string | null;
+                is_primary_variant: boolean;
+                total_cost: number;
             }[];
             variants_count?: number;
             cost_summary?: {
@@ -7896,6 +8137,7 @@ export interface components {
             latitude: number | null;
             longitude: number | null;
             roof_area_m2: number | null;
+            roof_polygon: unknown[] | null;
             roof_type: string;
             roof_type_label: string;
             roof_orientation: string;
@@ -7950,6 +8192,9 @@ export interface components {
             rejection_reason: string | null;
             converted_quotation_id: number | null;
             converted_quotation?: components["schemas"]["QuotationResource"];
+            /** @description Public Access */
+            public_url: string | null;
+            has_valid_public_token: boolean;
             /** @description Permissions */
             can_edit: boolean;
             can_send: boolean;
@@ -8671,6 +8916,11 @@ export interface components {
              */
             valid_until?: string | null;
             notes?: string | null;
+            roof_polygon?: {
+                /** @enum {string} */
+                type?: "Polygon";
+                coordinates?: string[];
+            };
         };
         /** StoreStockOpnameRequest */
         StoreStockOpnameRequest: {
@@ -9334,6 +9584,11 @@ export interface components {
             /** @description Proposal customization */
             sections_config?: string[] | null;
             custom_content?: string[] | null;
+            roof_polygon?: {
+                /** @enum {string} */
+                type?: "Polygon";
+                coordinates?: string[];
+            };
         };
         /** UpdateStockOpnameRequest */
         UpdateStockOpnameRequest: {
@@ -12628,6 +12883,119 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
+    "componentCrossReference.compareBrands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            current: {
+                                total: string;
+                                total_items: number;
+                            };
+                            brands: [
+                                {
+                                    brand: string;
+                                    brand_label: string;
+                                    /** @enum {integer} */
+                                    estimated_total: 0;
+                                    savings: string;
+                                    savings_percentage: number;
+                                    coverage_percentage: number | 0;
+                                    /** @enum {integer} */
+                                    swappable_items: 0;
+                                    /** @enum {integer} */
+                                    no_mapping_items: 0;
+                                }
+                            ];
+                            recommendations: {
+                                best_value: string;
+                                best_coverage: string;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.previewSwapBrand": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    target_brand: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            target_brand: unknown;
+                            /** @enum {integer} */
+                            current_total: 0;
+                            /** @enum {integer} */
+                            estimated_total: 0;
+                            savings: string;
+                            savings_percentage: number;
+                            coverage: {
+                                total: number;
+                                /** @enum {integer} */
+                                swappable: 0;
+                                /** @enum {integer} */
+                                no_mapping: 0;
+                                percentage: number | 0;
+                            };
+                            items: [
+                                {
+                                    description: string;
+                                    quantity: string;
+                                    current_unit_cost: string;
+                                    current_total: string;
+                                    estimated_unit_cost: string;
+                                    estimated_total: string;
+                                    cost_change: string;
+                                    can_swap: string;
+                                    target_product: string;
+                                    target_sku: string;
+                                }
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "componentCrossReference.swapBrand": {
         parameters: {
             query?: never;
@@ -12710,6 +13078,205 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.previewCostOptimization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @enum {integer} */
+                            current_total: 0;
+                            /** @enum {integer} */
+                            optimized_total: 0;
+                            savings: string;
+                            savings_percentage: number;
+                            summary: {
+                                total_items: number;
+                                can_optimize: number;
+                                already_cheapest: number;
+                                no_alternative: number;
+                            };
+                            items: [
+                                {
+                                    bom_item_id: string;
+                                    description: string;
+                                    quantity: string;
+                                    unit: string;
+                                    current_brand: string;
+                                    current_unit_cost: string;
+                                    current_total: string;
+                                    cheapest_brand: string;
+                                    cheapest_brand_label: string;
+                                    cheapest_unit_cost: string;
+                                    cheapest_total: string;
+                                    cheapest_product_id: string;
+                                    cheapest_product_name: string;
+                                    cheapest_sku: string;
+                                    savings: string;
+                                    savings_percentage: number | 0;
+                                    can_optimize: string;
+                                    is_already_cheapest: string;
+                                }
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.applyCostOptimization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    item_ids?: number[] | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Cost optimization berhasil diterapkan.";
+                        data: {
+                            bom: components["schemas"]["BomResource"];
+                            optimization_report: unknown[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentMappingImport.downloadTemplate": {
+        parameters: {
+            query?: {
+                include_examples?: boolean;
+                include_products?: boolean;
+                format?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 200;
+                };
+            };
+        };
+    };
+    "componentMappingImport.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 200;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentMappingImport.import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    skip_errors?: boolean | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 201;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentMappingImport.stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": 200;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
     };
     "componentStandard.index": {
@@ -18948,6 +19515,165 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
+    getPublicProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal tidak ditemukan.";
+                    };
+                };
+            };
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Link proposal sudah kedaluwarsa.";
+                    };
+                };
+            };
+        };
+    };
+    acceptPublicProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal berhasil diterima.";
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal tidak ditemukan.";
+                    };
+                };
+            };
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Link proposal sudah kedaluwarsa.";
+                    };
+                };
+            };
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal tidak dapat diterima.";
+                        /** @enum {string} */
+                        reason: "Proposal sudah diterima sebelumnya." | "Proposal sudah ditolak." | "Proposal belum dikirim." | "Proposal sudah kedaluwarsa." | "Status proposal tidak valid.";
+                    };
+                };
+            };
+        };
+    };
+    rejectPublicProposal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    reason?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal berhasil ditolak.";
+                        data: components["schemas"]["SolarProposalResource"];
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Proposal tidak ditemukan.";
+                    };
+                };
+            };
+            410: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Link proposal sudah kedaluwarsa.";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "purchase-orders.index": {
         parameters: {
             query?: {
@@ -24105,6 +24831,35 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
+                    };
+                };
+            };
+        };
+    };
+    downloadSolarProposalPdf: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            /** @description TODO: Implement PDF generation */
+            501: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Fitur PDF belum tersedia.";
+                        proposal_number: string;
                     };
                 };
             };

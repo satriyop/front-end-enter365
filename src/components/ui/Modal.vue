@@ -57,7 +57,9 @@ const contentClasses = computed(() =>
   cn(
     // Base styles
     'fixed left-1/2 top-1/2 z-50 w-full -translate-x-1/2 -translate-y-1/2',
-    'bg-card text-card-foreground rounded-lg shadow-lg border',
+    'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700',
+    // Max height to fit in viewport with scrolling
+    'max-h-[90vh] flex flex-col',
     // Animation
     'data-[state=open]:animate-in data-[state=closed]:animate-out',
     'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -94,7 +96,7 @@ function handleBackdropClick(event: Event) {
     <DialogPortal>
       <!-- Backdrop -->
       <DialogOverlay
-        class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
         @click="handleBackdropClick"
       />
 
@@ -107,7 +109,7 @@ function handleBackdropClick(event: Event) {
         <!-- Header -->
         <div
           v-if="title || showClose"
-          class="flex items-start justify-between p-6 border-b border-border"
+          class="flex items-start justify-between p-6 border-b border-slate-200 dark:border-slate-700 flex-shrink-0"
         >
           <div class="flex-1">
             <DialogTitle
@@ -127,22 +129,22 @@ function handleBackdropClick(event: Event) {
           <!-- Close button -->
           <DialogClose
             v-if="showClose"
-            class="ml-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            class="ml-4 p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           >
             <X class="h-4 w-4" />
             <span class="sr-only">Close</span>
           </DialogClose>
         </div>
 
-        <!-- Body -->
-        <div class="p-6">
+        <!-- Body - scrollable -->
+        <div class="p-6 overflow-y-auto flex-1 min-h-0">
           <slot />
         </div>
 
         <!-- Footer -->
         <div
           v-if="$slots.footer"
-          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-muted/50 rounded-b-lg"
+          class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 rounded-b-lg flex-shrink-0"
         >
           <slot name="footer" />
         </div>

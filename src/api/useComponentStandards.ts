@@ -823,3 +823,163 @@ export function useApplyCostOptimization() {
     },
   })
 }
+
+// ============================================
+// Bulk Import Types & Hooks
+// ============================================
+
+export interface ImportValidationError {
+  row: number
+  message: string
+  data?: Record<string, unknown>
+}
+
+export interface ImportValidationWarning {
+  row: number
+  message: string
+  data?: Record<string, unknown>
+}
+
+export interface ImportValidationResult {
+  valid_count: number
+  error_count: number
+  warning_count: number
+  can_import: boolean
+  errors: ImportValidationError[]
+  warnings: ImportValidationWarning[]
+  summary: {
+    new_standards: number
+    new_mappings: number
+  }
+}
+
+export interface ImportResult {
+  created_standards: number
+  created_mappings: number
+  updated_mappings: number
+  skipped_errors: number
+  errors: ImportValidationError[]
+}
+
+export interface ImportStats {
+  total_standards: number
+  total_mappings: number
+  products_with_mapping: number
+  products_without_mapping: number
+  coverage_percentage: number
+  brands: Record<string, number>
+}
+
+/**
+ * Download the component mapping template (authenticated)
+ *
+ * Uses blob download pattern since the template contains sensitive data
+ * (product purchase prices) and requires authentication.
+ */
+export async function downloadMappingTemplate(options?: {
+  includeExamples?: boolean
+  includeProducts?: boolean
+  format?: 'xlsx' | 'csv'
+}): Promise<void> {
+  const params = new URLSearchParams()
+  if (options?.includeExamples !== undefined) {
+    params.set('include_examples', String(options.includeExamples))
+  }
+  if (options?.includeProducts !== undefined) {
+    params.set('include_products', String(options.includeProducts))
+  }
+  if (options?.format) {
+    params.set('format', options.format)
+  }
+
+  const queryString = params.toString()
+  const url = `/component-mappings/template${queryString ? `?${queryString}` : ''}`
+
+  const response = await api.get(url, { responseType: 'blob' })
+
+  // Extract filename from Content-Disposition header or use default
+  const contentDisposition = response.headers['content-disposition']
+  let filename = `component_mapping_template_${new Date().toISOString().split('T')[0]}.xlsx`
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^";\n]+)"?/)
+    if (match) {
+      filename = match[1]
+    }
+  }
+
+  // Create blob and trigger download
+  const blob = new Blob([response.data])
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(link.href)
+}
+
+/**
+ * Validate an import file before importing
+ */
+export function useValidateImport() {
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      const response = await api.post<{ data: ImportValidationResult }>(
+        '/component-mappings/validate',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+      return response.data.data
+    },
+  })
+}
+
+/**
+ * Import component mappings from file
+ */
+export function useImportMappings() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async ({ file, skipErrors = true }: { file: File; skipErrors?: boolean }) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('skip_errors', String(skipErrors))
+      const response = await api.post<{ message: string; data: ImportResult }>(
+        '/component-mappings/import',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['component-standards'] })
+      queryClient.invalidateQueries({ queryKey: ['available-brands'] })
+      queryClient.invalidateQueries({ queryKey: ['import-stats'] })
+    },
+  })
+}
+
+/**
+ * Fetch import statistics
+ */
+export function useImportStats() {
+  return useQuery({
+    queryKey: ['import-stats'],
+    queryFn: async () => {
+      const response = await api.get<{ data: ImportStats }>('/component-mappings/stats')
+      return response.data.data
+    },
+    staleTime: 60 * 1000, // Cache for 1 minute
+  })
+}

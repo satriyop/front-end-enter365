@@ -190,3 +190,55 @@ src/
 - **class-variance-authority** - Variant management
 - **tailwind-merge** - Class merging
 - **clsx** - Conditional classes
+
+---
+
+## SPA + API Architecture Notes
+
+### File Downloads in SPA
+
+Since this is a Vue SPA with token-based auth (Sanctum), `window.open(url)` does NOT include the auth token.
+
+**IMPORTANT:** Always use the blob download pattern for file downloads. Do NOT make routes public just for convenience - files often contain sensitive data (prices, costs, etc.).
+
+**Blob download pattern (PREFERRED):**
+```typescript
+async function downloadFile(url: string, defaultFilename: string) {
+  const response = await api.get(url, { responseType: 'blob' })
+
+  // Extract filename from Content-Disposition header
+  const contentDisposition = response.headers['content-disposition']
+  let filename = defaultFilename
+  if (contentDisposition) {
+    const match = contentDisposition.match(/filename="?([^";\n]+)"?/)
+    if (match) filename = match[1]
+  }
+
+  // Trigger download
+  const blob = new Blob([response.data])
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(link.href)
+}
+```
+
+**Example usage in component:**
+```typescript
+const isDownloading = ref(false)
+
+async function handleDownload() {
+  isDownloading.value = true
+  try {
+    await downloadFile('/exports/report', 'report.xlsx')
+    toast.success('Downloaded')
+  } catch (err) {
+    toast.error('Download failed')
+  } finally {
+    isDownloading.value = false
+  }
+}
+```

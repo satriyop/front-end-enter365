@@ -736,23 +736,25 @@ const costBreakdown = computed(() => {
         <div v-else-if="swapPreview" class="space-y-4">
           <!-- Price Summary -->
           <div class="bg-slate-50 rounded-xl p-4">
-            <div class="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <div class="text-sm text-slate-500">Current Total</div>
-                <div class="text-lg font-semibold text-slate-900">{{ formatCurrency(swapPreview.current_total) }}</div>
+            <div class="grid grid-cols-3 gap-3 text-center">
+              <div class="min-w-0">
+                <div class="text-xs text-slate-500">Current Total</div>
+                <div class="text-base font-semibold text-slate-900 truncate">{{ formatCurrency(swapPreview.current_total) }}</div>
               </div>
-              <div>
-                <div class="text-sm text-slate-500">After Swap</div>
-                <div class="text-lg font-semibold text-slate-900">{{ formatCurrency(swapPreview.estimated_total) }}</div>
+              <div class="min-w-0">
+                <div class="text-xs text-slate-500">After Swap</div>
+                <div class="text-base font-semibold text-slate-900 truncate">{{ formatCurrency(swapPreview.estimated_total) }}</div>
               </div>
-              <div>
-                <div class="text-sm text-slate-500">{{ swapPreview.savings >= 0 ? 'Savings' : 'Increase' }}</div>
+              <div class="min-w-0">
+                <div class="text-xs text-slate-500">{{ swapPreview.savings >= 0 ? 'Savings' : 'Increase' }}</div>
                 <div
-                  class="text-lg font-bold"
+                  class="text-base font-bold truncate"
                   :class="swapPreview.savings >= 0 ? 'text-green-600' : 'text-red-600'"
                 >
                   {{ swapPreview.savings >= 0 ? '' : '+' }}{{ formatCurrency(Math.abs(swapPreview.savings)) }}
-                  <span class="text-sm font-normal">({{ swapPreview.savings >= 0 ? '-' : '+' }}{{ Math.abs(swapPreview.savings_percentage) }}%)</span>
+                </div>
+                <div class="text-xs" :class="swapPreview.savings >= 0 ? 'text-green-500' : 'text-red-500'">
+                  ({{ swapPreview.savings >= 0 ? '-' : '+' }}{{ Math.abs(swapPreview.savings_percentage) }}%)
                 </div>
               </div>
             </div>
@@ -902,22 +904,22 @@ const costBreakdown = computed(() => {
     <Modal :open="showSwapReportModal" title="Swap Report" size="lg" @update:open="showSwapReportModal = $event">
       <div v-if="lastSwapReport" class="space-y-4">
         <!-- Summary -->
-        <div class="grid grid-cols-4 gap-4">
-          <div class="bg-slate-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-slate-900">{{ lastSwapReport.total_items }}</div>
-            <div class="text-sm text-slate-500">Total Items</div>
+        <div class="grid grid-cols-4 gap-2">
+          <div class="bg-slate-50 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-slate-900">{{ lastSwapReport.total_items }}</div>
+            <div class="text-xs text-slate-500">Total</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-green-600">{{ lastSwapReport.swapped }}</div>
-            <div class="text-sm text-green-600">Swapped</div>
+          <div class="bg-green-50 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-green-600">{{ lastSwapReport.swapped }}</div>
+            <div class="text-xs text-green-600">Swapped</div>
           </div>
-          <div class="bg-yellow-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-yellow-600">{{ lastSwapReport.partial_match }}</div>
-            <div class="text-sm text-yellow-600">Partial Match</div>
+          <div class="bg-yellow-50 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-yellow-600">{{ lastSwapReport.partial_match }}</div>
+            <div class="text-xs text-yellow-600">Partial</div>
           </div>
-          <div class="bg-red-50 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-red-600">{{ lastSwapReport.no_mapping }}</div>
-            <div class="text-sm text-red-600">No Mapping</div>
+          <div class="bg-red-50 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-red-600">{{ lastSwapReport.no_mapping }}</div>
+            <div class="text-xs text-red-600">No Map</div>
           </div>
         </div>
 
@@ -997,14 +999,14 @@ const costBreakdown = computed(() => {
         <template v-else-if="brandComparison">
           <!-- Current BOM Summary -->
           <div class="bg-slate-50 rounded-xl p-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-slate-500">Current BOM Total</div>
-                <div class="text-2xl font-bold text-slate-900">{{ formatCurrency(brandComparison.current.total) }}</div>
+            <div class="flex items-center justify-between gap-4">
+              <div class="min-w-0 flex-1">
+                <div class="text-xs text-slate-500">Current BOM Total</div>
+                <div class="text-xl font-bold text-slate-900 truncate">{{ formatCurrency(brandComparison.current.total) }}</div>
               </div>
-              <div class="text-right">
-                <div class="text-sm text-slate-500">Total Items</div>
-                <div class="text-2xl font-bold text-slate-900">{{ brandComparison.current.total_items }}</div>
+              <div class="text-right min-w-0">
+                <div class="text-xs text-slate-500">Total Items</div>
+                <div class="text-xl font-bold text-slate-900">{{ brandComparison.current.total_items }}</div>
               </div>
             </div>
           </div>
@@ -1134,26 +1136,24 @@ const costBreakdown = computed(() => {
 
         <template v-else-if="costOptimization">
           <!-- Summary Cards -->
-          <div class="grid grid-cols-3 gap-4">
-            <div class="bg-card rounded-xl p-4 border border-border">
-              <div class="text-sm text-muted-foreground">Current Total</div>
-              <div class="text-2xl font-bold">{{ formatCurrency(costOptimization.current_total) }}</div>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="bg-white rounded-xl p-4 border border-slate-200">
+              <div class="text-xs text-slate-500 mb-1">Current Total</div>
+              <div class="text-lg font-bold text-slate-900 truncate">{{ formatCurrency(costOptimization.current_total) }}</div>
             </div>
-            <div class="bg-card rounded-xl p-4 border border-border">
-              <div class="text-sm text-muted-foreground">Optimized Total</div>
-              <div class="text-2xl font-bold">{{ formatCurrency(costOptimization.optimized_total) }}</div>
+            <div class="bg-white rounded-xl p-4 border border-slate-200">
+              <div class="text-xs text-slate-500 mb-1">Optimized Total</div>
+              <div class="text-lg font-bold text-slate-900 truncate">{{ formatCurrency(costOptimization.optimized_total) }}</div>
             </div>
             <div class="bg-green-50 rounded-xl p-4 border border-green-200">
-              <div class="text-sm text-green-600">Potential Savings</div>
-              <div class="text-2xl font-bold text-green-600">
-                {{ formatCurrency(costOptimization.savings) }}
-                <span class="text-base font-normal">({{ costOptimization.savings_percentage }}%)</span>
-              </div>
+              <div class="text-xs text-green-600 mb-1">Potential Savings</div>
+              <div class="text-lg font-bold text-green-600 truncate">{{ formatCurrency(costOptimization.savings) }}</div>
+              <div class="text-sm text-green-500">({{ costOptimization.savings_percentage }}%)</div>
             </div>
           </div>
 
           <!-- Selection Controls -->
-          <div class="flex items-center justify-between border-b border-border pb-3">
+          <div class="flex items-center justify-between border-b border-slate-200 pb-3">
             <div class="flex items-center gap-4">
               <button
                 type="button"
@@ -1289,30 +1289,30 @@ const costBreakdown = computed(() => {
     <Modal :open="showOptimizationReportModal" title="Optimization Report" size="lg" @update:open="showOptimizationReportModal = $event">
       <div v-if="lastOptimizationReport" class="space-y-4">
         <!-- Summary -->
-        <div class="grid grid-cols-3 gap-4">
-          <div class="bg-card rounded-lg p-4 text-center border border-border">
-            <div class="text-2xl font-bold">{{ lastOptimizationReport.total_items }}</div>
-            <div class="text-sm text-muted-foreground">Total Items</div>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white rounded-lg p-4 text-center border border-slate-200 min-w-0">
+            <div class="text-xl font-bold text-slate-900 truncate">{{ lastOptimizationReport.total_items }}</div>
+            <div class="text-xs text-slate-500">Total Items</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-            <div class="text-2xl font-bold text-green-600">{{ lastOptimizationReport.optimized }}</div>
-            <div class="text-sm text-green-600">Optimized</div>
+          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200 min-w-0">
+            <div class="text-xl font-bold text-green-600 truncate">{{ lastOptimizationReport.optimized }}</div>
+            <div class="text-xs text-green-600">Optimized</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200">
-            <div class="text-2xl font-bold text-green-600">{{ formatCurrency(lastOptimizationReport.total_savings) }}</div>
-            <div class="text-sm text-green-600">Total Savings</div>
+          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200 min-w-0">
+            <div class="text-xl font-bold text-green-600 truncate" :title="formatCurrency(lastOptimizationReport.total_savings)">{{ formatCurrency(lastOptimizationReport.total_savings) }}</div>
+            <div class="text-xs text-green-600">Total Savings</div>
           </div>
         </div>
 
         <!-- Item Details -->
         <div v-if="lastOptimizationReport.items?.length" class="max-h-64 overflow-y-auto">
           <table class="w-full text-sm">
-            <thead class="bg-muted sticky top-0">
+            <thead class="bg-slate-50 sticky top-0">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Status</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">Original</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-muted-foreground uppercase">New</th>
-                <th class="px-3 py-2 text-right text-xs font-medium text-muted-foreground uppercase">Savings</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Original</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">New</th>
+                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Savings</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">

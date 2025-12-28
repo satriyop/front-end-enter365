@@ -8,15 +8,13 @@ import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import LineChart from '@/components/charts/LineChart.vue'
+import LocationMapPicker, { type LocationData, type SolarData } from '@/components/maps/LocationMapPicker.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
-import { formatCurrency, formatNumber, formatPercent } from '@/utils/format'
+import { formatCurrency, formatNumber, formatSolarOffset } from '@/utils/format'
 import { useContacts, type Contact } from '@/api/useContacts'
 import { useBomVariantGroups, type BomVariantGroup } from '@/api/useComponentStandards'
 import {
   useSolarProposal,
-  useSolarProvinces,
-  useSolarCities,
-  useSolarDataLookup,
   usePlnTariffs,
   useCreateSolarProposal,
   useUpdateSolarProposal,
@@ -61,6 +59,7 @@ const form = ref({
   latitude: undefined as number | undefined,
   longitude: undefined as number | undefined,
   roof_area_m2: undefined as number | undefined,
+  roof_polygon: undefined as GeoJSON.Polygon | undefined,
   roof_type: 'flat' as 'flat' | 'sloped' | 'carport',
   roof_orientation: 'south' as 'north' | 'south' | 'east' | 'west',
   roof_tilt_degrees: 10,
@@ -96,17 +95,40 @@ const contactFilters = ref({ type: 'customer' as const, per_page: 100, is_active
 const { data: contactsData } = useContacts(contactFilters)
 const contacts = computed(() => contactsData.value?.data || [])
 
-// Provinces and cities
-const { data: provinces } = useSolarProvinces()
-const selectedProvince = computed(() => form.value.province)
-const { data: cities } = useSolarCities(selectedProvince)
+// Location data for map picker
+const locationData = computed({
+  get: () => ({
+    latitude: form.value.latitude,
+    longitude: form.value.longitude,
+    province: form.value.province,
+    city: form.value.city,
+    roofArea: form.value.roof_area_m2,
+    roofPolygon: form.value.roof_polygon,
+  }),
+  set: (val: LocationData) => {
+    form.value.latitude = val.latitude
+    form.value.longitude = val.longitude
+    form.value.province = val.province
+    form.value.city = val.city
+    form.value.roof_area_m2 = val.roofArea
+    form.value.roof_polygon = val.roofPolygon
 
-// Solar data lookup
-const solarLookupParams = computed(() => ({
-  province: form.value.province,
-  city: form.value.city,
-}))
-const { data: solarData } = useSolarDataLookup(solarLookupParams)
+    // Clear location errors when values are set
+    if (val.province) delete errors.value.province
+    if (val.city) delete errors.value.city
+  }
+})
+
+// Solar data from map (for display and form population)
+const solarData = ref<SolarData | null>(null)
+
+function onSolarDataLoaded(data: SolarData) {
+  solarData.value = data
+  // Auto-populate form fields
+  form.value.peak_sun_hours = data.peak_sun_hours
+  form.value.solar_irradiance = data.solar_irradiance_kwh_m2_day
+  form.value.roof_tilt_degrees = data.optimal_tilt_angle
+}
 
 // PLN tariffs
 const { data: plnTariffs } = usePlnTariffs()
@@ -141,14 +163,6 @@ const contactOptions = computed(() =>
   contacts.value.map((c: Contact) => ({ value: c.id, label: `${c.code} - ${c.name}` }))
 )
 
-const provinceOptions = computed(() =>
-  (provinces.value || []).map((p: string) => ({ value: p, label: p }))
-)
-
-const cityOptions = computed(() =>
-  (cities.value || []).map((c: string) => ({ value: c, label: c }))
-)
-
 const tariffOptions = computed(() =>
   (plnTariffs.value || []).map((t: PlnTariff) => ({
     value: t.category_code,
@@ -169,12 +183,13 @@ const orientationOptions = [
   { value: 'west', label: 'West' },
 ]
 
-const variantGroupOptions = computed(() =>
-  variantGroups.value.map((vg: BomVariantGroup) => ({
+const variantGroupOptions = computed(() => [
+  { value: '', label: '— None —' }, // Allow clearing selection
+  ...variantGroups.value.map((vg: BomVariantGroup) => ({
     value: vg.id,
     label: vg.name,
-  }))
-)
+  })),
+])
 
 // ============================================
 // Calculations (Client-side preview)
@@ -189,8 +204,10 @@ const monthlyProduction = computed(() => annualProduction.value / 12)
 
 const solarOffsetPercent = computed(() => {
   if (!form.value.monthly_consumption_kwh || !monthlyProduction.value) return 0
-  return Math.min(100, (monthlyProduction.value / form.value.monthly_consumption_kwh) * 100)
+  return (monthlyProduction.value / form.value.monthly_consumption_kwh) * 100
 })
+
+const solarOffsetFormatted = computed(() => formatSolarOffset(solarOffsetPercent.value))
 
 const firstYearSavings = computed(() => {
   if (!annualProduction.value || !form.value.electricity_rate) return 0
@@ -266,7 +283,7 @@ const cumulativeSavingsChartData = computed(() => {
 // Watchers
 // ============================================
 
-// Load existing proposal data
+// Load existing proposal data (immediate: true ensures it runs if data is already cached)
 watch(existingProposal, (proposal) => {
   if (proposal) {
     form.value = {
@@ -278,6 +295,7 @@ watch(existingProposal, (proposal) => {
       latitude: proposal.latitude ?? undefined,
       longitude: proposal.longitude ?? undefined,
       roof_area_m2: proposal.roof_area_m2 ?? undefined,
+      roof_polygon: (proposal as any).roof_polygon ?? undefined,
       roof_type: (proposal.roof_type as 'flat' | 'sloped' | 'carport') || 'flat',
       roof_orientation: (proposal.roof_orientation as 'north' | 'south' | 'east' | 'west') || 'south',
       roof_tilt_degrees: proposal.roof_tilt_degrees || 10,
@@ -296,17 +314,7 @@ watch(existingProposal, (proposal) => {
       notes: proposal.notes || '',
     }
   }
-})
-
-// Auto-fill solar data when location is selected
-watch(solarData, (data) => {
-  if (data) {
-    form.value.peak_sun_hours = data.peak_sun_hours
-    form.value.solar_irradiance = data.solar_irradiance_kwh_m2_day
-    form.value.latitude = data.latitude
-    form.value.longitude = data.longitude
-  }
-})
+}, { immediate: true })
 
 // Auto-fill electricity rate when tariff is selected
 watch(() => form.value.pln_tariff_category, (category) => {
@@ -402,6 +410,7 @@ async function handleSubmit() {
     latitude: form.value.latitude,
     longitude: form.value.longitude,
     roof_area_m2: form.value.roof_area_m2,
+    roof_polygon: form.value.roof_polygon,
     roof_type: form.value.roof_type,
     roof_orientation: form.value.roof_orientation,
     roof_tilt_degrees: form.value.roof_tilt_degrees,
@@ -413,8 +422,8 @@ async function handleSubmit() {
     peak_sun_hours: form.value.peak_sun_hours,
     solar_irradiance: form.value.solar_irradiance,
     performance_ratio: form.value.performance_ratio,
-    variant_group_id: form.value.variant_group_id,
-    selected_bom_id: form.value.selected_bom_id,
+    variant_group_id: form.value.variant_group_id || undefined,
+    selected_bom_id: form.value.selected_bom_id || undefined,
     system_capacity_kwp: form.value.system_capacity_kwp,
     valid_until: form.value.valid_until,
     notes: form.value.notes || undefined,
@@ -442,14 +451,33 @@ async function handleSubmit() {
 }
 
 async function handleSaveAsDraft() {
-  // Save without full validation
+  // Save without full validation - include all current form data
   const payload = {
     contact_id: form.value.contact_id!,
     site_name: form.value.site_name || undefined,
     site_address: form.value.site_address || undefined,
     province: form.value.province || undefined,
     city: form.value.city || undefined,
+    latitude: form.value.latitude,
+    longitude: form.value.longitude,
+    roof_area_m2: form.value.roof_area_m2,
+    roof_polygon: form.value.roof_polygon,
+    roof_type: form.value.roof_type,
+    roof_orientation: form.value.roof_orientation,
+    roof_tilt_degrees: form.value.roof_tilt_degrees,
+    shading_percentage: form.value.shading_percentage,
+    monthly_consumption_kwh: form.value.monthly_consumption_kwh,
+    pln_tariff_category: form.value.pln_tariff_category || undefined,
+    electricity_rate: form.value.electricity_rate,
+    tariff_escalation_percent: form.value.tariff_escalation_percent,
+    peak_sun_hours: form.value.peak_sun_hours,
+    solar_irradiance: form.value.solar_irradiance,
+    performance_ratio: form.value.performance_ratio,
+    variant_group_id: form.value.variant_group_id || undefined,
+    selected_bom_id: form.value.selected_bom_id || undefined,
+    system_capacity_kwp: form.value.system_capacity_kwp,
     valid_until: form.value.valid_until,
+    notes: form.value.notes || undefined,
   }
 
   if (!form.value.contact_id) {
@@ -597,60 +625,38 @@ const steps = computed(() => [
           </FormField>
 
           <!-- Site Address -->
-          <FormField label="Site Address" required :error="errors.site_address">
+          <FormField label="Site Address" :error="errors.site_address">
             <Input
               v-model="form.site_address"
-              placeholder="Full address"
+              placeholder="Full address (optional - use map below)"
               :error="!!errors.site_address"
             />
           </FormField>
 
-          <!-- Province -->
-          <FormField label="Province" required :error="errors.province">
-            <Select
-              v-model="form.province"
-              :options="provinceOptions"
-              placeholder="Select province..."
-              :error="!!errors.province"
+          <!-- Interactive Location Map -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-slate-700 mb-2">
+              Site Location <span class="text-red-500">*</span>
+            </label>
+            <p class="text-sm text-slate-500 mb-3">
+              Click on the map or search to select the installation site. Switch to Satellite view and draw the roof outline for accurate area calculation.
+            </p>
+            <LocationMapPicker
+              v-model="locationData"
+              :show-draw-tools="true"
+              @solar-data-loaded="onSolarDataLoaded"
             />
-          </FormField>
-
-          <!-- City -->
-          <FormField label="City" required :error="errors.city">
-            <Select
-              v-model="form.city"
-              :options="cityOptions"
-              placeholder="Select city..."
-              :disabled="!form.province"
-              :error="!!errors.city"
-            />
-          </FormField>
-
-          <!-- Solar Data Info -->
-          <div v-if="solarData" class="md:col-span-2 p-4 bg-green-50 rounded-lg border border-green-200">
-            <h4 class="font-medium text-green-800 mb-2">Solar Data for {{ form.city }}</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span class="text-green-600">Peak Sun Hours:</span>
-                <span class="ml-1 font-medium">{{ solarData.peak_sun_hours }} h/day</span>
-              </div>
-              <div>
-                <span class="text-green-600">Irradiance:</span>
-                <span class="ml-1 font-medium">{{ solarData.solar_irradiance_kwh_m2_day }} kWh/m²/day</span>
-              </div>
-              <div>
-                <span class="text-green-600">Optimal Tilt:</span>
-                <span class="ml-1 font-medium">{{ solarData.optimal_tilt_angle }}°</span>
-              </div>
-              <div>
-                <span class="text-green-600">Avg Temp:</span>
-                <span class="ml-1 font-medium">{{ solarData.temperature_avg }}°C</span>
-              </div>
+            <div v-if="errors.province || errors.city" class="mt-2 text-sm text-red-600">
+              Please select a location on the map
             </div>
           </div>
 
-          <!-- Roof Area -->
-          <FormField label="Roof Area (m²)" hint="Available area for solar panels">
+          <!-- Manual Roof Area (fallback if not drawn) -->
+          <FormField
+            v-if="!form.roof_polygon"
+            label="Roof Area (m²)"
+            hint="Or draw on the map for accurate measurement"
+          >
             <Input
               v-model.number="form.roof_area_m2"
               type="number"
@@ -838,8 +844,8 @@ const steps = computed(() => [
                 <div class="font-medium text-lg">{{ formatNumber(monthlyProduction) }} kWh</div>
               </div>
               <div>
-                <span class="text-yellow-600">Solar Offset:</span>
-                <div class="font-medium text-lg">{{ formatPercent(solarOffsetPercent) }}</div>
+                <span class="text-yellow-600">{{ solarOffsetFormatted.label }}:</span>
+                <div class="font-medium text-lg" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : ''">{{ solarOffsetFormatted.value }}</div>
               </div>
               <div>
                 <span class="text-yellow-600">First Year Savings:</span>
@@ -867,9 +873,9 @@ const steps = computed(() => [
                   <div class="text-2xl font-bold text-blue-700">{{ formatNumber(annualProduction) }}</div>
                   <div class="text-sm text-blue-600">kWh/Year Production</div>
                 </div>
-                <div class="p-4 bg-purple-50 rounded-lg text-center">
-                  <div class="text-2xl font-bold text-purple-700">{{ formatPercent(solarOffsetPercent) }}</div>
-                  <div class="text-sm text-purple-600">Energy Offset</div>
+                <div class="p-4 rounded-lg text-center" :class="solarOffsetFormatted.isSurplus ? 'bg-emerald-50' : 'bg-purple-50'">
+                  <div class="text-2xl font-bold" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-700' : 'text-purple-700'">{{ solarOffsetFormatted.value }}</div>
+                  <div class="text-sm" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : 'text-purple-600'">{{ solarOffsetFormatted.label }}</div>
                 </div>
               </div>
 
@@ -961,8 +967,8 @@ const steps = computed(() => [
                   <dd class="font-medium">{{ formatNumber(annualProduction) }} kWh</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Solar Offset:</dt>
-                  <dd class="font-medium">{{ formatPercent(solarOffsetPercent) }}</dd>
+                  <dt class="text-slate-500">{{ solarOffsetFormatted.label }}:</dt>
+                  <dd class="font-medium" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : ''">{{ solarOffsetFormatted.value }}</dd>
                 </div>
               </dl>
             </div>
