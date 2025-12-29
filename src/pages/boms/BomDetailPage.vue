@@ -373,11 +373,11 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
 
 function getTypeColor(type: string): string {
   const map: Record<string, string> = {
-    material: 'text-blue-600 bg-blue-50',
-    labor: 'text-purple-600 bg-purple-50',
-    overhead: 'text-orange-600 bg-orange-50',
+    material: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/30',
+    labor: 'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/30',
+    overhead: 'text-orange-600 bg-orange-50 dark:text-orange-400 dark:bg-orange-900/30',
   }
-  return map[type] || 'text-slate-600 bg-slate-50'
+  return map[type] || 'text-slate-600 bg-slate-50 dark:text-slate-400 dark:bg-slate-800'
 }
 
 // Cost breakdown percentages
@@ -395,22 +395,22 @@ const costBreakdown = computed(() => {
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12 text-slate-500">
+    <div v-if="isLoading" class="text-center py-12 text-slate-500 dark:text-slate-400">
       Loading...
     </div>
 
     <!-- Error -->
-    <div v-else-if="error" class="text-center py-12 text-red-500">
+    <div v-else-if="error" class="text-center py-12 text-red-500 dark:text-red-400">
       Failed to load BOM
     </div>
 
     <!-- Content -->
     <template v-else-if="bom">
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/boms" class="hover:text-slate-700">Bill of Materials</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/boms" class="hover:text-slate-700 dark:hover:text-slate-300">Bill of Materials</RouterLink>
         <span class="mx-2">/</span>
-        <span class="text-slate-900">{{ bom.bom_number }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ bom.bom_number }}</span>
       </div>
 
       <!-- Header -->
@@ -418,20 +418,20 @@ const costBreakdown = computed(() => {
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-semibold text-slate-900">
+              <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ bom.bom_number }}
               </h1>
               <Badge :variant="getStatusVariant(bom.status)">
                 {{ bom.status }}
               </Badge>
-              <span v-if="bom.version > 1" class="text-sm text-slate-500">
+              <span v-if="bom.version > 1" class="text-sm text-slate-500 dark:text-slate-400">
                 v{{ bom.version }}
               </span>
             </div>
-            <p class="text-slate-500">{{ bom.name }}</p>
-            <p v-if="bom.product" class="text-sm text-slate-600 mt-1">
+            <p class="text-slate-500 dark:text-slate-400">{{ bom.name }}</p>
+            <p v-if="bom.product" class="text-sm text-slate-600 dark:text-slate-400 mt-1">
               Product: <span class="font-medium">{{ bom.product.name }}</span>
-              <span v-if="bom.product.sku" class="text-slate-400">({{ bom.product.sku }})</span>
+              <span v-if="bom.product.sku" class="text-slate-400 dark:text-slate-500">({{ bom.product.sku }})</span>
             </p>
           </div>
 
@@ -476,7 +476,7 @@ const costBreakdown = computed(() => {
               Generate Variants
             </Button>
 
-            <div class="w-px h-6 bg-slate-200 self-center mx-1"></div>
+            <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
 
             <Button
               variant="ghost"
@@ -531,31 +531,31 @@ const costBreakdown = computed(() => {
           <!-- Details Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Details</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Details</h2>
             </template>
 
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Output Quantity</dt>
-                <dd class="font-medium text-slate-900">
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Output Quantity</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ bom.output_quantity }} {{ bom.output_unit }}
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Unit Cost</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(bom.unit_cost) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Unit Cost</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(bom.unit_cost) }}</dd>
               </div>
               <div v-if="bom.variant_label">
-                <dt class="text-sm text-slate-500">Variant</dt>
-                <dd class="font-medium text-slate-900">{{ bom.variant_label }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Variant</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ bom.variant_label }}</dd>
               </div>
               <div v-if="bom.creator">
-                <dt class="text-sm text-slate-500">Created By</dt>
-                <dd class="font-medium text-slate-900">{{ bom.creator.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Created By</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ bom.creator.name }}</dd>
               </div>
               <div v-if="bom.description" class="col-span-2">
-                <dt class="text-sm text-slate-500">Description</dt>
-                <dd class="font-medium text-slate-900">{{ bom.description }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Description</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ bom.description }}</dd>
               </div>
             </dl>
           </Card>
@@ -563,23 +563,23 @@ const costBreakdown = computed(() => {
           <!-- BOM Items Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">BOM Items</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">BOM Items</h2>
             </template>
 
             <div class="overflow-x-auto -mx-6">
               <table class="w-full">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50 dark:bg-slate-800">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Description</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Unit Cost</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase w-20"></th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Description</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Unit Cost</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-20"></th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
-                  <tr v-for="item in bom.items" :key="item.id">
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tr v-for="item in bom.items" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
                     <td class="px-6 py-4">
                       <span
                         class="inline-flex items-center px-2 py-1 rounded text-xs font-medium capitalize"
@@ -589,30 +589,30 @@ const costBreakdown = computed(() => {
                       </span>
                     </td>
                     <td class="px-6 py-4">
-                      <div class="font-medium text-slate-900">
+                      <div class="font-medium text-slate-900 dark:text-slate-100">
                         {{ item.product?.name || item.description }}
                       </div>
-                      <div v-if="item.product?.sku" class="text-sm text-slate-500">
+                      <div v-if="item.product?.sku" class="text-sm text-slate-500 dark:text-slate-400">
                         {{ item.product.sku }}
                       </div>
-                      <div v-if="item.waste_percentage > 0" class="text-xs text-orange-600">
+                      <div v-if="item.waste_percentage > 0" class="text-xs text-orange-600 dark:text-orange-400">
                         +{{ item.waste_percentage }}% waste allowance
                       </div>
                     </td>
-                    <td class="px-6 py-4 text-right text-slate-900">
+                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                       {{ item.quantity }} {{ item.unit }}
                     </td>
-                    <td class="px-6 py-4 text-right text-slate-900">
+                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                       {{ formatCurrency(item.unit_cost) }}
                     </td>
-                    <td class="px-6 py-4 text-right font-medium text-slate-900">
+                    <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
                       {{ formatCurrency(item.total_cost) }}
                     </td>
                     <td class="px-6 py-4 text-center">
                       <button
                         v-if="item.component_standard_id"
                         type="button"
-                        class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-colors"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
                         title="Swap to equivalent product"
                         @click="openQuickSwapModal(item)"
                       >
@@ -624,7 +624,7 @@ const costBreakdown = computed(() => {
               </table>
             </div>
 
-            <div v-if="!bom.items?.length" class="py-8 text-center text-slate-500">
+            <div v-if="!bom.items?.length" class="py-8 text-center text-slate-500 dark:text-slate-400">
               No items in this BOM
             </div>
           </Card>
@@ -632,9 +632,9 @@ const costBreakdown = computed(() => {
           <!-- Notes -->
           <Card v-if="bom.notes">
             <template #header>
-              <h2 class="font-semibold text-slate-900">Notes</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Notes</h2>
             </template>
-            <p class="text-slate-600 whitespace-pre-line">{{ bom.notes }}</p>
+            <p class="text-slate-600 dark:text-slate-400 whitespace-pre-line">{{ bom.notes }}</p>
           </Card>
         </div>
 
@@ -643,56 +643,56 @@ const costBreakdown = computed(() => {
           <!-- Cost Summary Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Cost Summary</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Cost Summary</h2>
             </template>
 
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500 flex items-center gap-2">
+                <dt class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
                   <span class="w-3 h-3 rounded bg-blue-500"></span>
                   Materials
                 </dt>
-                <dd class="font-medium text-slate-900">
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(bom.total_material_cost) }}
-                  <span v-if="costBreakdown" class="text-sm text-slate-500">
+                  <span v-if="costBreakdown" class="text-sm text-slate-500 dark:text-slate-400">
                     ({{ costBreakdown.material }}%)
                   </span>
                 </dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500 flex items-center gap-2">
+                <dt class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
                   <span class="w-3 h-3 rounded bg-purple-500"></span>
                   Labor
                 </dt>
-                <dd class="font-medium text-slate-900">
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(bom.total_labor_cost) }}
-                  <span v-if="costBreakdown" class="text-sm text-slate-500">
+                  <span v-if="costBreakdown" class="text-sm text-slate-500 dark:text-slate-400">
                     ({{ costBreakdown.labor }}%)
                   </span>
                 </dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500 flex items-center gap-2">
+                <dt class="text-slate-500 dark:text-slate-400 flex items-center gap-2">
                   <span class="w-3 h-3 rounded bg-orange-500"></span>
                   Overhead
                 </dt>
-                <dd class="font-medium text-slate-900">
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(bom.total_overhead_cost) }}
-                  <span v-if="costBreakdown" class="text-sm text-slate-500">
+                  <span v-if="costBreakdown" class="text-sm text-slate-500 dark:text-slate-400">
                     ({{ costBreakdown.overhead }}%)
                   </span>
                 </dd>
               </div>
-              <hr class="border-slate-200" />
+              <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
-                <dt class="font-semibold text-slate-900">Total Cost</dt>
-                <dd class="font-bold text-lg text-slate-900">
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">Total Cost</dt>
+                <dd class="font-bold text-lg text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(bom.total_cost) }}
                 </dd>
               </div>
               <div class="flex justify-between">
-                <dt class="font-semibold text-slate-900">Unit Cost</dt>
-                <dd class="font-bold text-lg text-orange-600">
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">Unit Cost</dt>
+                <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">
                   {{ formatCurrency(bom.unit_cost) }}
                 </dd>
               </div>
@@ -700,7 +700,7 @@ const costBreakdown = computed(() => {
 
             <!-- Cost Breakdown Bar -->
             <div v-if="costBreakdown" class="mt-4">
-              <div class="h-3 rounded-full overflow-hidden flex bg-slate-100">
+              <div class="h-3 rounded-full overflow-hidden flex bg-slate-100 dark:bg-slate-700">
                 <div
                   class="bg-blue-500"
                   :style="{ width: `${costBreakdown.material}%` }"
@@ -720,21 +720,21 @@ const costBreakdown = computed(() => {
           <!-- Activity Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Activity</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Activity</h2>
             </template>
             <ul class="space-y-3 text-sm">
               <li v-if="bom.approved_at" class="flex gap-3">
                 <div class="w-2 h-2 mt-1.5 rounded-full bg-green-500"></div>
                 <div>
-                  <p class="text-slate-900">Activated</p>
-                  <p class="text-slate-500">{{ formatDate(bom.approved_at) }}</p>
+                  <p class="text-slate-900 dark:text-slate-100">Activated</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(bom.approved_at) }}</p>
                 </div>
               </li>
               <li class="flex gap-3">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-slate-300"></div>
+                <div class="w-2 h-2 mt-1.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
                 <div>
-                  <p class="text-slate-900">Created</p>
-                  <p class="text-slate-500">{{ formatDate(bom.created_at) }}</p>
+                  <p class="text-slate-900 dark:text-slate-100">Created</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(bom.created_at) }}</p>
                 </div>
               </li>
             </ul>
@@ -745,7 +745,7 @@ const costBreakdown = computed(() => {
 
     <!-- Delete Modal -->
     <Modal :open="showDeleteModal" title="Delete BOM" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
+      <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this BOM? This action cannot be undone.
       </p>
       <template #footer>
@@ -765,7 +765,7 @@ const costBreakdown = computed(() => {
       <div class="space-y-4">
         <!-- Brand Selection -->
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Select Target Brand</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Target Brand</label>
           <div class="grid grid-cols-3 gap-2">
             <button
               v-for="brand in availableBrands"
@@ -773,8 +773,8 @@ const costBreakdown = computed(() => {
               type="button"
               class="px-3 py-2 rounded-lg border-2 text-left transition-colors"
               :class="selectedBrand === brand.code
-                ? 'border-orange-500 bg-orange-50 text-orange-700'
-                : 'border-slate-200 hover:border-slate-300'"
+                ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-600'
+                : 'border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500'"
               @click="selectedBrand = brand.code"
             >
               <div class="font-medium text-sm">{{ brand.name }}</div>
@@ -784,7 +784,7 @@ const costBreakdown = computed(() => {
 
         <!-- Preview Loading -->
         <div v-if="swapPreviewMutation.isPending.value" class="py-6 text-center">
-          <div class="flex items-center justify-center gap-2 text-slate-500">
+          <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -796,21 +796,21 @@ const costBreakdown = computed(() => {
         <!-- Preview Results -->
         <div v-else-if="swapPreview" class="space-y-4">
           <!-- Price Summary -->
-          <div class="bg-slate-50 rounded-xl p-4">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
             <div class="grid grid-cols-3 gap-3 text-center">
               <div class="min-w-0">
-                <div class="text-xs text-slate-500">Current Total</div>
-                <div class="text-base font-semibold text-slate-900 truncate">{{ formatCurrency(swapPreview.current_total) }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Current Total</div>
+                <div class="text-base font-semibold text-slate-900 dark:text-slate-100 truncate">{{ formatCurrency(swapPreview.current_total) }}</div>
               </div>
               <div class="min-w-0">
-                <div class="text-xs text-slate-500">After Swap</div>
-                <div class="text-base font-semibold text-slate-900 truncate">{{ formatCurrency(swapPreview.estimated_total) }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">After Swap</div>
+                <div class="text-base font-semibold text-slate-900 dark:text-slate-100 truncate">{{ formatCurrency(swapPreview.estimated_total) }}</div>
               </div>
               <div class="min-w-0">
-                <div class="text-xs text-slate-500">{{ swapPreview.savings >= 0 ? 'Savings' : 'Increase' }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">{{ swapPreview.savings >= 0 ? 'Savings' : 'Increase' }}</div>
                 <div
                   class="text-base font-bold truncate"
-                  :class="swapPreview.savings >= 0 ? 'text-green-600' : 'text-red-600'"
+                  :class="swapPreview.savings >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
                 >
                   {{ swapPreview.savings >= 0 ? '' : '+' }}{{ formatCurrency(Math.abs(swapPreview.savings)) }}
                 </div>
@@ -822,12 +822,12 @@ const costBreakdown = computed(() => {
           </div>
 
           <!-- Coverage Info -->
-          <div class="flex items-center gap-4 text-sm">
+          <div class="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
             <div class="flex items-center gap-2">
               <div class="w-3 h-3 rounded-full bg-green-500"></div>
               <span>{{ swapPreview.coverage.swappable }} items can be swapped</span>
             </div>
-            <div v-if="swapPreview.coverage.no_mapping > 0" class="flex items-center gap-2 text-amber-600">
+            <div v-if="swapPreview.coverage.no_mapping > 0" class="flex items-center gap-2 text-amber-600 dark:text-amber-400">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -837,34 +837,34 @@ const costBreakdown = computed(() => {
 
           <!-- Item Preview (collapsible) -->
           <details class="group">
-            <summary class="cursor-pointer text-sm font-medium text-slate-700 hover:text-slate-900">
+            <summary class="cursor-pointer text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100">
               View item details
               <span class="ml-1 text-slate-400 group-open:hidden">▶</span>
               <span class="ml-1 text-slate-400 hidden group-open:inline">▼</span>
             </summary>
-            <div class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200">
+            <div class="mt-2 max-h-48 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700">
               <table class="w-full text-sm">
-                <thead class="bg-slate-50 sticky top-0">
+                <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
                   <tr>
-                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">Item</th>
-                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">Current</th>
-                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">New</th>
-                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500">Change</th>
+                    <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Item</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Current</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">New</th>
+                    <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Change</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                  <tr v-for="(item, idx) in swapPreview.items" :key="idx" :class="!item.can_swap ? 'bg-amber-50' : ''">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+                  <tr v-for="(item, idx) in swapPreview.items" :key="idx" :class="!item.can_swap ? 'bg-amber-50 dark:bg-amber-900/20' : ''">
                     <td class="px-3 py-2">
-                      <div class="font-medium text-slate-900 truncate max-w-[200px]">{{ item.description }}</div>
+                      <div class="font-medium text-slate-900 dark:text-slate-100 truncate max-w-[200px]">{{ item.description }}</div>
                       <div v-if="item.target_sku" class="text-xs text-slate-400">→ {{ item.target_sku }}</div>
-                      <div v-else class="text-xs text-amber-600">No equivalent</div>
+                      <div v-else class="text-xs text-amber-600 dark:text-amber-400">No equivalent</div>
                     </td>
-                    <td class="px-3 py-2 text-right text-slate-600">{{ formatCurrency(item.current_total) }}</td>
-                    <td class="px-3 py-2 text-right text-slate-600">{{ formatCurrency(item.estimated_total) }}</td>
+                    <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">{{ formatCurrency(item.current_total) }}</td>
+                    <td class="px-3 py-2 text-right text-slate-600 dark:text-slate-400">{{ formatCurrency(item.estimated_total) }}</td>
                     <td class="px-3 py-2 text-right">
                       <span
                         v-if="item.cost_change !== 0"
-                        :class="item.cost_change < 0 ? 'text-green-600' : 'text-red-600'"
+                        :class="item.cost_change < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
                       >
                         {{ item.cost_change < 0 ? '' : '+' }}{{ formatCurrency(item.cost_change) }}
                       </span>
@@ -878,7 +878,7 @@ const costBreakdown = computed(() => {
         </div>
 
         <!-- No brand selected -->
-        <div v-else-if="!selectedBrand" class="py-6 text-center text-slate-500">
+        <div v-else-if="!selectedBrand" class="py-6 text-center text-slate-500 dark:text-slate-400">
           Select a brand above to see price comparison
         </div>
       </div>
@@ -907,12 +907,12 @@ const costBreakdown = computed(() => {
     <!-- Generate Variants Modal -->
     <Modal :open="showGenerateVariantsModal" title="Generate Brand Variants" @update:open="showGenerateVariantsModal = $event">
       <div class="space-y-4">
-        <p class="text-slate-600">
+        <p class="text-slate-600 dark:text-slate-400">
           Generate multiple BOM variants at once by selecting the target brands.
           All variants will be grouped together for easy comparison.
         </p>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2">Select Brands</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Select Brands</label>
           <div class="grid grid-cols-2 gap-2">
             <button
               v-for="brand in availableBrands"
@@ -920,8 +920,8 @@ const costBreakdown = computed(() => {
               type="button"
               class="px-4 py-3 rounded-lg border-2 text-left transition-colors"
               :class="selectedBrands.includes(brand.code)
-                ? 'border-orange-500 bg-orange-50 text-orange-700'
-                : 'border-slate-200 hover:border-slate-300'"
+                ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-600'
+                : 'border-slate-200 hover:border-slate-300 dark:border-slate-600 dark:hover:border-slate-500'"
               @click="toggleBrandSelection(brand.code)"
             >
               <div class="flex items-center gap-2">
@@ -929,7 +929,7 @@ const costBreakdown = computed(() => {
                   class="w-5 h-5 rounded border-2 flex items-center justify-center"
                   :class="selectedBrands.includes(brand.code)
                     ? 'bg-orange-500 border-orange-500'
-                    : 'border-slate-300'"
+                    : 'border-slate-300 dark:border-slate-500'"
                 >
                   <svg v-if="selectedBrands.includes(brand.code)" class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
@@ -941,7 +941,7 @@ const costBreakdown = computed(() => {
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Variant Group Name (Optional)</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Variant Group Name (Optional)</label>
           <Input
             v-model="variantGroupName"
             placeholder="e.g., Panel MDP Lantai 1 - Brand Options"
@@ -966,36 +966,36 @@ const costBreakdown = computed(() => {
       <div v-if="lastSwapReport" class="space-y-4">
         <!-- Summary -->
         <div class="grid grid-cols-4 gap-2">
-          <div class="bg-slate-50 rounded-lg p-3 text-center min-w-0">
-            <div class="text-xl font-bold text-slate-900">{{ lastSwapReport.total_items }}</div>
-            <div class="text-xs text-slate-500">Total</div>
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ lastSwapReport.total_items }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Total</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-3 text-center min-w-0">
-            <div class="text-xl font-bold text-green-600">{{ lastSwapReport.swapped }}</div>
-            <div class="text-xs text-green-600">Swapped</div>
+          <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-green-600 dark:text-green-400">{{ lastSwapReport.swapped }}</div>
+            <div class="text-xs text-green-600 dark:text-green-400">Swapped</div>
           </div>
-          <div class="bg-yellow-50 rounded-lg p-3 text-center min-w-0">
-            <div class="text-xl font-bold text-yellow-600">{{ lastSwapReport.partial_match }}</div>
-            <div class="text-xs text-yellow-600">Partial</div>
+          <div class="bg-yellow-50 dark:bg-yellow-900/30 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-yellow-600 dark:text-yellow-400">{{ lastSwapReport.partial_match }}</div>
+            <div class="text-xs text-yellow-600 dark:text-yellow-400">Partial</div>
           </div>
-          <div class="bg-red-50 rounded-lg p-3 text-center min-w-0">
-            <div class="text-xl font-bold text-red-600">{{ lastSwapReport.no_mapping }}</div>
-            <div class="text-xs text-red-600">No Map</div>
+          <div class="bg-red-50 dark:bg-red-900/30 rounded-lg p-3 text-center min-w-0">
+            <div class="text-xl font-bold text-red-600 dark:text-red-400">{{ lastSwapReport.no_mapping }}</div>
+            <div class="text-xs text-red-600 dark:text-red-400">No Map</div>
           </div>
         </div>
 
         <!-- Item Details -->
         <div v-if="lastSwapReport.items?.length" class="max-h-64 overflow-y-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-50 sticky top-0">
+            <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Original</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">New</th>
-                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Cost Change</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Original</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">New</th>
+                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cost Change</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
               <tr v-for="(item, index) in lastSwapReport.items" :key="index">
                 <td class="px-3 py-2">
                   <Badge
@@ -1005,12 +1005,12 @@ const costBreakdown = computed(() => {
                   </Badge>
                 </td>
                 <td class="px-3 py-2">
-                  <div class="text-slate-900">{{ item.original.description }}</div>
+                  <div class="text-slate-900 dark:text-slate-100">{{ item.original.description }}</div>
                   <div class="text-xs text-slate-400">{{ formatCurrency(item.original.unit_cost) }}</div>
                 </td>
                 <td class="px-3 py-2">
                   <template v-if="item.new">
-                    <div class="text-slate-900">{{ item.new.description }}</div>
+                    <div class="text-slate-900 dark:text-slate-100">{{ item.new.description }}</div>
                     <div class="text-xs text-slate-400">{{ item.new.brand_sku }}</div>
                   </template>
                   <span v-else class="text-slate-400">-</span>
@@ -1019,10 +1019,10 @@ const costBreakdown = computed(() => {
                   <template v-if="item.new">
                     <span
                       :class="item.new.unit_cost > item.original.unit_cost
-                        ? 'text-red-600'
+                        ? 'text-red-600 dark:text-red-400'
                         : item.new.unit_cost < item.original.unit_cost
-                          ? 'text-green-600'
-                          : 'text-slate-500'"
+                          ? 'text-green-600 dark:text-green-400'
+                          : 'text-slate-500 dark:text-slate-400'"
                     >
                       {{ item.new.unit_cost > item.original.unit_cost ? '+' : '' }}{{ formatCurrency(item.new.unit_cost - item.original.unit_cost) }}
                     </span>
@@ -1047,7 +1047,7 @@ const costBreakdown = computed(() => {
       <div class="space-y-4">
         <!-- Loading state -->
         <div v-if="isLoadingComparison" class="py-12 text-center">
-          <div class="flex items-center justify-center gap-2 text-slate-500">
+          <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
             <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -1059,31 +1059,31 @@ const costBreakdown = computed(() => {
         <!-- Comparison content -->
         <template v-else-if="brandComparison">
           <!-- Current BOM Summary -->
-          <div class="bg-slate-50 rounded-xl p-4">
+          <div class="bg-slate-50 dark:bg-slate-800 rounded-xl p-4">
             <div class="flex items-center justify-between gap-4">
               <div class="min-w-0 flex-1">
-                <div class="text-xs text-slate-500">Current BOM Total</div>
-                <div class="text-xl font-bold text-slate-900 truncate">{{ formatCurrency(brandComparison.current.total) }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Current BOM Total</div>
+                <div class="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">{{ formatCurrency(brandComparison.current.total) }}</div>
               </div>
               <div class="text-right min-w-0">
-                <div class="text-xs text-slate-500">Total Items</div>
-                <div class="text-xl font-bold text-slate-900">{{ brandComparison.current.total_items }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Total Items</div>
+                <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ brandComparison.current.total_items }}</div>
               </div>
             </div>
           </div>
 
           <!-- Recommendation -->
-          <div v-if="bestValueBrand" class="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-              <svg class="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div v-if="bestValueBrand" class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-3 flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
               </svg>
             </div>
             <div>
-              <div class="font-medium text-green-800">
+              <div class="font-medium text-green-800 dark:text-green-300">
                 Best Value: {{ bestValueBrand.brand_label }}
               </div>
-              <div class="text-sm text-green-600">
+              <div class="text-sm text-green-600 dark:text-green-400">
                 Save {{ formatCurrency(bestValueBrand.savings) }}
                 with {{ bestValueBrand.coverage_percentage }}% coverage
               </div>
@@ -1091,46 +1091,46 @@ const costBreakdown = computed(() => {
           </div>
 
           <!-- Brand Comparison Table -->
-          <div class="overflow-x-auto rounded-lg border border-slate-200">
+          <div class="overflow-x-auto rounded-lg border border-slate-200 dark:border-slate-700">
             <table class="w-full">
-              <thead class="bg-slate-50">
+              <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase">Brand</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Est. Total</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Savings</th>
-                  <th class="px-4 py-3 text-center text-xs font-medium text-slate-500 uppercase">Coverage</th>
-                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 uppercase">Action</th>
+                  <th class="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Brand</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Est. Total</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Savings</th>
+                  <th class="px-4 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Coverage</th>
+                  <th class="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Action</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                 <tr
                   v-for="(item, index) in brandComparison.brands"
                   :key="item.brand"
-                  :class="index === 0 ? 'bg-green-50/50' : ''"
+                  :class="index === 0 ? 'bg-green-50/50 dark:bg-green-900/20' : ''"
                 >
                   <td class="px-4 py-3">
                     <div class="flex items-center gap-2">
-                      <span class="font-medium text-slate-900">{{ item.brand_label }}</span>
+                      <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.brand_label }}</span>
                       <Badge v-if="index === 0" variant="success" class="text-xs">Best Value</Badge>
                     </div>
-                    <div class="text-xs text-slate-500 mt-0.5">
+                    <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       {{ item.swappable_items }} swappable, {{ item.no_mapping_items }} unmapped
                     </div>
                   </td>
                   <td class="px-4 py-3 text-right">
-                    <span class="font-semibold text-slate-900">{{ formatCurrency(item.estimated_total) }}</span>
+                    <span class="font-semibold text-slate-900 dark:text-slate-100">{{ formatCurrency(item.estimated_total) }}</span>
                   </td>
                   <td class="px-4 py-3 text-right">
                     <span
                       v-if="item.savings > 0"
-                      class="font-medium text-green-600"
+                      class="font-medium text-green-600 dark:text-green-400"
                     >
                       -{{ formatCurrency(item.savings) }}
                       <span class="text-xs">({{ item.savings_percentage }}%)</span>
                     </span>
                     <span
                       v-else-if="item.savings < 0"
-                      class="font-medium text-red-600"
+                      class="font-medium text-red-600 dark:text-red-400"
                     >
                       +{{ formatCurrency(Math.abs(item.savings)) }}
                       <span class="text-xs">({{ Math.abs(item.savings_percentage) }}%)</span>
@@ -1139,14 +1139,14 @@ const costBreakdown = computed(() => {
                   </td>
                   <td class="px-4 py-3">
                     <div class="flex items-center justify-center gap-2">
-                      <div class="w-20 h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div class="w-20 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                         <div
                           class="h-full rounded-full"
                           :class="item.coverage_percentage >= 80 ? 'bg-green-500' : item.coverage_percentage >= 50 ? 'bg-yellow-500' : 'bg-red-500'"
                           :style="{ width: `${item.coverage_percentage}%` }"
                         ></div>
                       </div>
-                      <span class="text-sm text-slate-600">{{ item.coverage_percentage }}%</span>
+                      <span class="text-sm text-slate-600 dark:text-slate-400">{{ item.coverage_percentage }}%</span>
                     </div>
                   </td>
                   <td class="px-4 py-3 text-right">
@@ -1165,13 +1165,13 @@ const costBreakdown = computed(() => {
           </div>
 
           <!-- Info Note -->
-          <p class="text-xs text-slate-500 text-center">
+          <p class="text-xs text-slate-500 dark:text-slate-400 text-center">
             Brands are sorted by potential savings. Coverage shows % of items that can be swapped to each brand.
           </p>
         </template>
 
         <!-- No data -->
-        <div v-else class="py-12 text-center text-slate-500">
+        <div v-else class="py-12 text-center text-slate-500 dark:text-slate-400">
           Unable to load brand comparison data.
         </div>
       </div>
@@ -1198,23 +1198,23 @@ const costBreakdown = computed(() => {
         <template v-else-if="costOptimization">
           <!-- Summary Cards -->
           <div class="grid grid-cols-3 gap-3">
-            <div class="bg-white rounded-xl p-4 border border-slate-200">
-              <div class="text-xs text-slate-500 mb-1">Current Total</div>
-              <div class="text-lg font-bold text-slate-900 truncate">{{ formatCurrency(costOptimization.current_total) }}</div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Current Total</div>
+              <div class="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">{{ formatCurrency(costOptimization.current_total) }}</div>
             </div>
-            <div class="bg-white rounded-xl p-4 border border-slate-200">
-              <div class="text-xs text-slate-500 mb-1">Optimized Total</div>
-              <div class="text-lg font-bold text-slate-900 truncate">{{ formatCurrency(costOptimization.optimized_total) }}</div>
+            <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+              <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Optimized Total</div>
+              <div class="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">{{ formatCurrency(costOptimization.optimized_total) }}</div>
             </div>
-            <div class="bg-green-50 rounded-xl p-4 border border-green-200">
-              <div class="text-xs text-green-600 mb-1">Potential Savings</div>
-              <div class="text-lg font-bold text-green-600 truncate">{{ formatCurrency(costOptimization.savings) }}</div>
-              <div class="text-sm text-green-500">({{ costOptimization.savings_percentage }}%)</div>
+            <div class="bg-green-50 dark:bg-green-900/30 rounded-xl p-4 border border-green-200 dark:border-green-800">
+              <div class="text-xs text-green-600 dark:text-green-400 mb-1">Potential Savings</div>
+              <div class="text-lg font-bold text-green-600 dark:text-green-400 truncate">{{ formatCurrency(costOptimization.savings) }}</div>
+              <div class="text-sm text-green-500 dark:text-green-400">({{ costOptimization.savings_percentage }}%)</div>
             </div>
           </div>
 
           <!-- Selection Controls -->
-          <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 pb-3">
             <div class="flex items-center gap-4">
               <button
                 type="button"
@@ -1351,29 +1351,29 @@ const costBreakdown = computed(() => {
       <div v-if="lastOptimizationReport" class="space-y-4">
         <!-- Summary -->
         <div class="grid grid-cols-3 gap-3">
-          <div class="bg-white rounded-lg p-4 text-center border border-slate-200 min-w-0">
-            <div class="text-xl font-bold text-slate-900 truncate">{{ lastOptimizationReport.total_items }}</div>
-            <div class="text-xs text-slate-500">Total Items</div>
+          <div class="bg-white dark:bg-slate-800 rounded-lg p-4 text-center border border-slate-200 dark:border-slate-700 min-w-0">
+            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 truncate">{{ lastOptimizationReport.total_items }}</div>
+            <div class="text-xs text-slate-500 dark:text-slate-400">Total Items</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200 min-w-0">
-            <div class="text-xl font-bold text-green-600 truncate">{{ lastOptimizationReport.optimized }}</div>
-            <div class="text-xs text-green-600">Optimized</div>
+          <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 text-center border border-green-200 dark:border-green-800 min-w-0">
+            <div class="text-xl font-bold text-green-600 dark:text-green-400 truncate">{{ lastOptimizationReport.optimized }}</div>
+            <div class="text-xs text-green-600 dark:text-green-400">Optimized</div>
           </div>
-          <div class="bg-green-50 rounded-lg p-4 text-center border border-green-200 min-w-0">
-            <div class="text-xl font-bold text-green-600 truncate" :title="formatCurrency(lastOptimizationReport.total_savings)">{{ formatCurrency(lastOptimizationReport.total_savings) }}</div>
-            <div class="text-xs text-green-600">Total Savings</div>
+          <div class="bg-green-50 dark:bg-green-900/30 rounded-lg p-4 text-center border border-green-200 dark:border-green-800 min-w-0">
+            <div class="text-xl font-bold text-green-600 dark:text-green-400 truncate" :title="formatCurrency(lastOptimizationReport.total_savings)">{{ formatCurrency(lastOptimizationReport.total_savings) }}</div>
+            <div class="text-xs text-green-600 dark:text-green-400">Total Savings</div>
           </div>
         </div>
 
         <!-- Item Details -->
         <div v-if="lastOptimizationReport.items?.length" class="max-h-64 overflow-y-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-50 sticky top-0">
+            <thead class="bg-slate-50 dark:bg-slate-800 sticky top-0">
               <tr>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Status</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Original</th>
-                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">New</th>
-                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 uppercase">Savings</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Original</th>
+                <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">New</th>
+                <th class="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Savings</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-border">
@@ -1419,15 +1419,15 @@ const costBreakdown = computed(() => {
     <Modal :open="showQuickSwapModal" title="Swap Item" size="lg" @update:open="showQuickSwapModal = $event">
       <div class="space-y-4">
         <!-- Current Item -->
-        <div v-if="quickSwapItem" class="bg-slate-50 rounded-lg p-4">
-          <div class="text-xs text-slate-500 mb-1">Current Item</div>
-          <div class="font-medium text-slate-900">{{ quickSwapItem.description }}</div>
-          <div v-if="quickSwapItem.product_sku" class="text-sm text-slate-500">{{ quickSwapItem.product_sku }}</div>
+        <div v-if="quickSwapItem" class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+          <div class="text-xs text-slate-500 dark:text-slate-400 mb-1">Current Item</div>
+          <div class="font-medium text-slate-900 dark:text-slate-100">{{ quickSwapItem.description }}</div>
+          <div v-if="quickSwapItem.product_sku" class="text-sm text-slate-500 dark:text-slate-400">{{ quickSwapItem.product_sku }}</div>
         </div>
 
         <!-- Loading State -->
         <div v-if="isLoadingAlternatives" class="py-8 text-center">
-          <div class="flex items-center justify-center gap-2 text-slate-500">
+          <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
             <Loader2 class="w-5 h-5 animate-spin" />
             <span>Loading alternatives...</span>
           </div>
@@ -1436,43 +1436,43 @@ const costBreakdown = computed(() => {
         <!-- Alternatives List -->
         <template v-else-if="itemAlternatives">
           <!-- Current Product Info -->
-          <div v-if="itemAlternatives.current" class="flex items-center gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
-            <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-              <Check class="w-4 h-4 text-orange-600" />
+          <div v-if="itemAlternatives.current" class="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-800 rounded-lg">
+            <div class="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center flex-shrink-0">
+              <Check class="w-4 h-4 text-orange-600 dark:text-orange-400" />
             </div>
             <div class="flex-1 min-w-0">
-              <div class="font-medium text-orange-800 truncate">{{ itemAlternatives.current.product_name }}</div>
-              <div class="text-sm text-orange-600">{{ itemAlternatives.current.brand_label }} • {{ formatCurrency(itemAlternatives.current.unit_cost) }}</div>
+              <div class="font-medium text-orange-800 dark:text-orange-300 truncate">{{ itemAlternatives.current.product_name }}</div>
+              <div class="text-sm text-orange-600 dark:text-orange-400">{{ itemAlternatives.current.brand_label }} • {{ formatCurrency(itemAlternatives.current.unit_cost) }}</div>
             </div>
             <Badge variant="warning">Current</Badge>
           </div>
 
           <!-- No alternatives message -->
-          <div v-if="!itemAlternatives.alternatives?.length" class="py-6 text-center text-slate-500">
+          <div v-if="!itemAlternatives.alternatives?.length" class="py-6 text-center text-slate-500 dark:text-slate-400">
             No alternative products available for this item.
           </div>
 
           <!-- Alternatives -->
           <div v-else class="space-y-2">
-            <div class="text-sm font-medium text-slate-700">Available Alternatives</div>
+            <div class="text-sm font-medium text-slate-700 dark:text-slate-300">Available Alternatives</div>
             <div class="max-h-64 overflow-y-auto space-y-2">
               <button
                 v-for="alt in itemAlternatives.alternatives"
                 :key="alt.product_id"
                 type="button"
-                class="w-full p-3 rounded-lg border-2 text-left transition-all hover:border-orange-300 hover:bg-orange-50/50"
-                :class="alt.is_preferred ? 'border-green-300 bg-green-50/50' : 'border-slate-200'"
+                class="w-full p-3 rounded-lg border-2 text-left transition-all hover:border-orange-300 dark:hover:border-orange-600 hover:bg-orange-50/50 dark:hover:bg-orange-900/20"
+                :class="alt.is_preferred ? 'border-green-300 bg-green-50/50 dark:border-green-700 dark:bg-green-900/20' : 'border-slate-200 dark:border-slate-600'"
                 :disabled="quickSwapMutation.isPending.value"
                 @click="handleQuickSwapToProduct(alt.product_id)"
               >
                 <div class="flex items-start justify-between gap-3">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
-                      <span class="font-medium text-slate-900 truncate">{{ alt.product_name }}</span>
+                      <span class="font-medium text-slate-900 dark:text-slate-100 truncate">{{ alt.product_name }}</span>
                       <Badge v-if="alt.is_preferred" variant="success" class="text-xs">Preferred</Badge>
                       <Badge v-if="alt.is_verified" variant="info" class="text-xs">Verified</Badge>
                     </div>
-                    <div class="text-sm text-slate-500 mt-0.5">
+                    <div class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
                       {{ alt.brand_label }} • {{ alt.product_sku }}
                     </div>
                     <div v-if="alt.stock !== null" class="text-xs text-slate-400 mt-1">
@@ -1480,11 +1480,11 @@ const costBreakdown = computed(() => {
                     </div>
                   </div>
                   <div class="text-right flex-shrink-0">
-                    <div class="font-semibold text-slate-900">{{ formatCurrency(alt.unit_cost) }}</div>
+                    <div class="font-semibold text-slate-900 dark:text-slate-100">{{ formatCurrency(alt.unit_cost) }}</div>
                     <div
                       v-if="alt.price_diff !== 0"
                       class="text-sm font-medium"
-                      :class="alt.price_diff < 0 ? 'text-green-600' : 'text-red-600'"
+                      :class="alt.price_diff < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
                     >
                       {{ alt.price_diff < 0 ? '' : '+' }}{{ formatCurrency(alt.price_diff) }}
                       <span class="text-xs">({{ alt.price_diff_percent > 0 ? '+' : '' }}{{ alt.price_diff_percent.toFixed(1) }}%)</span>
@@ -1497,13 +1497,13 @@ const costBreakdown = computed(() => {
           </div>
 
           <!-- No Standard Info -->
-          <div v-if="!itemAlternatives.has_standard" class="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div v-if="!itemAlternatives.has_standard" class="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
             This item has no component standard mapping. Add mapping in Component Library to enable brand alternatives.
           </div>
         </template>
 
         <!-- No data -->
-        <div v-else class="py-8 text-center text-slate-500">
+        <div v-else class="py-8 text-center text-slate-500 dark:text-slate-400">
           Unable to load alternatives.
         </div>
       </div>

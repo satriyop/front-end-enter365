@@ -60,19 +60,19 @@ async function handleDelete() {
 <template>
   <div class="max-w-4xl mx-auto">
     <div v-if="isLoading" class="text-center py-12">
-      <div class="text-slate-500">Loading bill...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading bill...</div>
     </div>
 
     <template v-else-if="bill">
       <div class="flex items-start justify-between mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ bill.bill_number }}</h1>
+            <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ bill.bill_number }}</h1>
             <Badge :variant="statusColors[bill.status] || 'default'">
               {{ bill.status }}
             </Badge>
           </div>
-          <p class="text-slate-500">{{ bill.contact?.name }}</p>
+          <p class="text-slate-500 dark:text-slate-400">{{ bill.contact?.name }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
@@ -95,51 +95,51 @@ async function handleDelete() {
         <div class="lg:col-span-2 space-y-6">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Bill Details</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Bill Details</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Vendor</dt>
-                <dd class="font-medium">{{ bill.contact?.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Vendor</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ bill.contact?.name }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Vendor Invoice #</dt>
-                <dd>{{ bill.vendor_invoice_number || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Vendor Invoice #</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ bill.vendor_invoice_number || '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Bill Date</dt>
-                <dd>{{ formatDate(bill.bill_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Bill Date</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(bill.bill_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Due Date</dt>
-                <dd>{{ formatDate(bill.due_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Due Date</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(bill.due_date) }}</dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-sm text-slate-500">Description</dt>
-                <dd>{{ bill.description || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Description</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ bill.description || '-' }}</dd>
               </div>
             </dl>
           </Card>
 
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Line Items</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Line Items</h2>
             </template>
             <table class="w-full">
-              <thead class="bg-slate-50">
+              <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-slate-500">Description</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500">Qty</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500">Price</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500">Amount</th>
+                  <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Description</th>
+                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Qty</th>
+                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Price</th>
+                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Amount</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                 <tr v-for="item in bill.items" :key="item.id">
-                  <td class="px-4 py-3">{{ item.description }}</td>
-                  <td class="px-4 py-3 text-right">{{ item.quantity }} {{ item.unit }}</td>
-                  <td class="px-4 py-3 text-right">{{ formatCurrency(item.unit_price) }}</td>
-                  <td class="px-4 py-3 text-right font-medium">{{ formatCurrency(item.line_total) }}</td>
+                  <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ item.description }}</td>
+                  <td class="px-4 py-3 text-right text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</td>
+                  <td class="px-4 py-3 text-right text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_price) }}</td>
+                  <td class="px-4 py-3 text-right font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -149,30 +149,30 @@ async function handleDelete() {
         <div class="space-y-6">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Summary</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Summary</h2>
             </template>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Subtotal</dt>
-                <dd>{{ formatCurrency(bill.subtotal) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Subtotal</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatCurrency(bill.subtotal) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Tax ({{ bill.tax_rate }}%)</dt>
-                <dd>{{ formatCurrency(bill.tax_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Tax ({{ bill.tax_rate }}%)</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatCurrency(bill.tax_amount) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Discount</dt>
-                <dd>-{{ formatCurrency(bill.discount_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Discount</dt>
+                <dd class="text-slate-900 dark:text-slate-100">-{{ formatCurrency(bill.discount_amount) }}</dd>
               </div>
-              <div class="flex justify-between border-t pt-3 text-lg font-medium">
-                <dt>Total</dt>
-                <dd>{{ formatCurrency(bill.total_amount) }}</dd>
+              <div class="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3 text-lg font-medium">
+                <dt class="text-slate-900 dark:text-slate-100">Total</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatCurrency(bill.total_amount) }}</dd>
               </div>
-              <div class="flex justify-between text-green-600">
+              <div class="flex justify-between text-green-600 dark:text-green-400">
                 <dt>Paid</dt>
                 <dd>{{ formatCurrency(bill.paid_amount) }}</dd>
               </div>
-              <div class="flex justify-between text-orange-600 font-medium">
+              <div class="flex justify-between text-orange-600 dark:text-orange-400 font-medium">
                 <dt>Outstanding</dt>
                 <dd>{{ formatCurrency(bill.outstanding_amount) }}</dd>
               </div>

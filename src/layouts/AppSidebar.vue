@@ -99,11 +99,11 @@ function isActive(path: string): boolean {
 
 <template>
   <aside
-    class="fixed inset-y-0 left-0 z-20 flex flex-col bg-white border-r border-slate-200 transition-all duration-300"
+    class="fixed inset-y-0 left-0 z-20 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300"
     :class="open ? 'w-60' : 'w-16'"
   >
     <!-- Logo -->
-    <div class="flex items-center h-16 px-4 border-b border-slate-200">
+    <div class="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-700">
       <span v-if="open" class="text-xl font-bold text-primary-600">Enter365</span>
       <span v-else class="text-xl font-bold text-primary-600">E</span>
     </div>
@@ -114,7 +114,7 @@ function isActive(path: string): boolean {
         <!-- Group Label -->
         <div
           v-if="open"
-          class="px-4 mb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider"
+          class="px-4 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
         >
           {{ group.label }}
         </div>
@@ -127,8 +127,8 @@ function isActive(path: string): boolean {
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[
             isActive(item.path)
-              ? 'bg-primary-50 text-primary-700 border-l-2 border-primary-500'
-              : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+              ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 border-l-2 border-primary-500'
+              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
           ]"
         >
           <span class="text-lg">{{ item.icon }}</span>
@@ -138,22 +138,22 @@ function isActive(path: string): boolean {
     </nav>
 
     <!-- User -->
-    <div class="border-t border-slate-200 p-4">
+    <div class="border-t border-slate-200 dark:border-slate-700 p-4">
       <div v-if="open" class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-medium text-primary-700">
+        <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-sm font-medium text-primary-700 dark:text-primary-400">
           {{ auth.user?.name?.charAt(0) ?? 'U' }}
         </div>
         <div class="flex-1 min-w-0">
-          <div class="text-sm font-medium text-slate-900 truncate">
+          <div class="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
             {{ auth.user?.name ?? 'User' }}
           </div>
-          <div class="text-xs text-slate-500 truncate">
+          <div class="text-xs text-slate-500 dark:text-slate-400 truncate">
             {{ auth.user?.roles?.[0]?.display_name ?? 'User' }}
           </div>
         </div>
       </div>
       <div v-else class="flex justify-center">
-        <div class="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-medium text-primary-700">
+        <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-sm font-medium text-primary-700 dark:text-primary-400">
           {{ auth.user?.name?.charAt(0) ?? 'U' }}
         </div>
       </div>

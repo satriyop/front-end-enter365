@@ -148,8 +148,8 @@ async function handleSubmit() {
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Stock Adjustment</h1>
-        <p class="text-slate-500">Adjust inventory levels manually</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Stock Adjustment</h1>
+        <p class="text-slate-500 dark:text-slate-400">Adjust inventory levels manually</p>
       </div>
       <Button variant="ghost" @click="router.push('/inventory')">Cancel</Button>
     </div>
@@ -158,7 +158,7 @@ async function handleSubmit() {
       <!-- Adjustment Type -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Adjustment Type</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Adjustment Type</h2>
         </template>
         <div class="flex gap-2">
           <Button
@@ -188,7 +188,7 @@ async function handleSubmit() {
       <!-- Product Selection -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Product Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Product Information</h2>
         </template>
         <div class="space-y-4">
           <FormField label="Product" required :error="errors.product_id">
@@ -207,9 +207,9 @@ async function handleSubmit() {
             />
           </FormField>
 
-          <div v-if="selectedProduct" class="p-4 bg-slate-50 rounded-lg">
-            <div class="text-sm text-slate-500">Current Stock</div>
-            <div class="text-2xl font-bold text-slate-900">
+          <div v-if="selectedProduct" class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+            <div class="text-sm text-slate-500 dark:text-slate-400">Current Stock</div>
+            <div class="text-2xl font-bold text-slate-900 dark:text-slate-100">
               {{ selectedProduct.current_stock }}
             </div>
           </div>
@@ -219,7 +219,7 @@ async function handleSubmit() {
       <!-- Quantity Input -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">
             {{ adjustmentType === 'adjust' ? 'New Quantity' : adjustmentType === 'in' ? 'Stock In Amount' : 'Stock Out Amount' }}
           </h2>
         </template>
@@ -230,7 +230,7 @@ async function handleSubmit() {
             </FormField>
             <FormField label="New Unit Cost (optional)">
               <Input v-model.number="form.unit_cost" type="number" min="0" step="1000" />
-              <p class="text-xs text-slate-500 mt-1">Leave blank to keep current average cost</p>
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Leave blank to keep current average cost</p>
             </FormField>
           </template>
 
@@ -244,9 +244,9 @@ async function handleSubmit() {
           </template>
 
           <!-- Preview -->
-          <div v-if="selectedProduct && adjustmentType !== 'adjust'" class="p-4 bg-blue-50 rounded-lg">
-            <div class="text-sm text-blue-600">After this adjustment</div>
-            <div class="text-2xl font-bold text-blue-900">
+          <div v-if="selectedProduct && adjustmentType !== 'adjust'" class="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div class="text-sm text-blue-600 dark:text-blue-400">After this adjustment</div>
+            <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">
               {{ adjustmentType === 'in'
                 ? selectedProduct.current_stock + (form.quantity || 0)
                 : selectedProduct.current_stock - (form.quantity || 0)
@@ -259,7 +259,7 @@ async function handleSubmit() {
       <!-- Notes -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Notes</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Notes</h2>
         </template>
         <FormField label="Reason for adjustment">
           <Textarea

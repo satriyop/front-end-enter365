@@ -22,7 +22,7 @@ const hasError = computed(() => !!props.error)
     <label
       v-if="label"
       :for="props.for"
-      class="block text-sm font-medium text-slate-700"
+      class="block text-sm font-medium text-slate-700 dark:text-slate-200"
     >
       {{ label }}
       <span v-if="required" class="text-red-500">*</span>
@@ -34,7 +34,7 @@ const hasError = computed(() => !!props.error)
     <!-- Error message -->
     <p
       v-if="error"
-      class="text-xs text-red-600"
+      class="text-xs text-red-600 dark:text-red-400"
       role="alert"
     >
       {{ error }}
@@ -43,7 +43,7 @@ const hasError = computed(() => !!props.error)
     <!-- Hint text -->
     <p
       v-else-if="hint"
-      class="text-xs text-slate-500"
+      class="text-xs text-slate-500 dark:text-slate-400"
     >
       {{ hint }}
     </p>

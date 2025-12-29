@@ -4,7 +4,8 @@ import { useRoute, useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
-import LineChart from '@/components/charts/LineChart.vue'
+import PaybackChart from '@/components/charts/PaybackChart.vue'
+import MonthlyBillChart from '@/components/charts/MonthlyBillChart.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
 import { formatCurrency, formatDate, formatNumber, formatPercent, formatSolarOffset } from '@/utils/format'
 import { getErrorMessage } from '@/api/client'
@@ -213,14 +214,14 @@ _Enter365 - Solar Energy Solutions_`
 // Status badge styles
 function getStatusClass(status: string) {
   const classes: Record<string, string> = {
-    draft: 'bg-slate-100 text-slate-700',
-    sent: 'bg-blue-100 text-blue-700',
-    accepted: 'bg-green-100 text-green-700',
-    rejected: 'bg-red-100 text-red-700',
-    expired: 'bg-slate-100 text-slate-500',
-    converted: 'bg-purple-100 text-purple-700',
+    draft: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+    sent: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    accepted: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    rejected: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    expired: 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400',
+    converted: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
   }
-  return classes[status] ?? 'bg-slate-100 text-slate-700'
+  return classes[status] ?? 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300'
 }
 
 // Cast financial_analysis and environmental_impact to proper types
@@ -231,46 +232,59 @@ const environmentalImpact = computed(() =>
   proposal.value?.environmental_impact as EnvironmentalImpact | undefined
 )
 
-// Chart data from proposal financial_analysis
-const savingsChartData = computed(() => {
+// Payback Chart Data - Cumulative cash flow (negative until payback, then positive)
+const paybackChartData = computed(() => {
   const projections = financialAnalysis.value?.yearly_projections || []
-  return {
-    labels: projections.map((p) => `Year ${p.year}`),
-    datasets: [
-      {
-        label: 'Annual Savings (Rp)',
-        data: projections.map((p) => p.savings),
-        borderColor: '#22c55e',
-        backgroundColor: 'rgba(34, 197, 94, 0.1)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  }
-})
+  const systemCost = proposal.value?.system_cost || 0
 
-const cumulativeSavingsChartData = computed(() => {
-  const projections = financialAnalysis.value?.yearly_projections || []
-  let cumulative = 0
-  const data = projections.map((p) => {
+  // Calculate cumulative cash flow starting from -investment
+  let cumulative = -systemCost
+  return projections.map((p) => {
     cumulative += p.savings
     return cumulative
   })
-
-  return {
-    labels: projections.map((p) => `Year ${p.year}`),
-    datasets: [
-      {
-        label: 'Cumulative Savings (Rp)',
-        data,
-        borderColor: '#f97316',
-        backgroundColor: 'rgba(249, 115, 22, 0.1)',
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  }
 })
+
+// Find the payback year (where cumulative crosses from negative to positive)
+const paybackYearIndex = computed(() => {
+  const cashFlow = paybackChartData.value
+  for (let i = 0; i < cashFlow.length; i++) {
+    const value = cashFlow[i]
+    if (value !== undefined && value >= 0) {
+      return i + 1 // Year is 1-indexed
+    }
+  }
+  return undefined // No payback within projection period
+})
+
+// Monthly Bill Chart Data
+const monthlyBillBefore = computed(() => {
+  // Monthly electricity bill before solar = consumption × rate
+  const consumption = proposal.value?.monthly_consumption_kwh || 0
+  const rate = proposal.value?.electricity_rate || 0
+  return consumption * rate
+})
+
+const monthlyBillAfter = computed(() => {
+  // After solar: only pay for what's not covered by solar
+  const consumption = proposal.value?.monthly_consumption_kwh || 0
+  const production = proposal.value?.monthly_production_kwh || 0
+  const rate = proposal.value?.electricity_rate || 0
+
+  // Remaining bill = (consumption - production) × rate, minimum 0
+  const remaining = Math.max(0, consumption - production)
+  return remaining * rate
+})
+
+// Savings = what was actually saved from the bill (billBefore - billAfter)
+// This ensures Green + Yellow = Original Bill in the chart
+const monthlySavings = computed(() => {
+  return monthlyBillBefore.value - monthlyBillAfter.value
+})
+
+// For chart: raw values
+const monthlyProductionKwh = computed(() => proposal.value?.monthly_production_kwh || 0)
+const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
 </script>
 
 <template>
@@ -288,18 +302,18 @@ const cumulativeSavingsChartData = computed(() => {
     <!-- Content -->
     <template v-else-if="proposal">
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/solar-proposals" class="hover:text-slate-700">Solar Proposals</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/solar-proposals" class="hover:text-slate-700 dark:hover:text-slate-300">Solar Proposals</RouterLink>
         <span class="mx-2">/</span>
-        <span class="text-slate-900">{{ proposal.proposal_number }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ proposal.proposal_number }}</span>
       </div>
 
       <!-- Header -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-semibold text-slate-900">
+              <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ proposal.proposal_number }}
               </h1>
               <span
@@ -309,8 +323,8 @@ const cumulativeSavingsChartData = computed(() => {
                 {{ proposal.status_label }}
               </span>
             </div>
-            <p class="text-slate-500">{{ proposal.contact?.name }} - {{ proposal.site_name }}</p>
-            <p class="text-sm text-slate-400 mt-1">
+            <p class="text-slate-500 dark:text-slate-400">{{ proposal.contact?.name }} - {{ proposal.site_name }}</p>
+            <p class="text-sm text-slate-400 dark:text-slate-500 mt-1">
               Valid until {{ formatDate(proposal.valid_until) }}
               <span v-if="proposal.is_expired" class="text-red-500 ml-2">(Expired)</span>
             </p>
@@ -435,35 +449,35 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- System Overview -->
           <Card>
             <template #header>
-              <h2 class="text-lg font-medium text-slate-900">System Overview</h2>
+              <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">System Overview</h2>
             </template>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
               <div>
-                <div class="text-sm text-slate-500">System Capacity</div>
-                <div class="text-xl font-bold text-slate-900">{{ proposal.system_capacity_kwp }} kWp</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">System Capacity</div>
+                <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ proposal.system_capacity_kwp }} kWp</div>
               </div>
               <div>
-                <div class="text-sm text-slate-500">Annual Production</div>
-                <div class="text-xl font-bold text-slate-900">{{ formatNumber(proposal.annual_production_kwh || 0) }} kWh</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Annual Production</div>
+                <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ formatNumber(proposal.annual_production_kwh || 0) }} kWh</div>
               </div>
               <div>
-                <div class="text-sm text-slate-500">Monthly Production</div>
-                <div class="text-xl font-bold text-slate-900">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">Monthly Production</div>
+                <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
               </div>
               <div>
-                <div class="text-sm text-slate-500">{{ formatSolarOffset(proposal.solar_offset_percent).label }}</div>
-                <div class="text-xl font-bold" :class="formatSolarOffset(proposal.solar_offset_percent).isSurplus ? 'text-emerald-600' : 'text-green-600'">
+                <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatSolarOffset(proposal.solar_offset_percent).label }}</div>
+                <div class="text-xl font-bold" :class="formatSolarOffset(proposal.solar_offset_percent).isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-green-600 dark:text-green-400'">
                   {{ formatSolarOffset(proposal.solar_offset_percent).value }}
                 </div>
               </div>
             </div>
 
             <!-- Investment - Featured Row -->
-            <div class="pt-4 border-t border-slate-100">
+            <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
               <div class="flex items-center justify-between">
-                <div class="text-sm text-slate-500">Total Investment</div>
-                <div class="text-2xl font-bold text-orange-600">
+                <div class="text-sm text-slate-500 dark:text-slate-400">Total Investment</div>
+                <div class="text-2xl font-bold text-orange-600 dark:text-orange-400">
                   {{ proposal.system_cost ? formatCurrency(proposal.system_cost) : 'Not set' }}
                 </div>
               </div>
@@ -473,55 +487,80 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Financial Summary -->
           <Card v-if="proposal.financial_analysis">
             <template #header>
-              <h2 class="text-lg font-medium text-slate-900">Financial Summary</h2>
+              <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">Financial Summary</h2>
             </template>
 
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6 mb-6">
-              <div class="p-4 bg-green-50 rounded-lg">
-                <div class="text-sm text-green-600">First Year Savings</div>
-                <div class="text-lg font-bold text-green-700">{{ formatCurrency(proposal.first_year_savings) }}</div>
+              <div class="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div class="text-sm text-green-600 dark:text-green-400">First Year Savings</div>
+                <div class="text-lg font-bold text-green-700 dark:text-green-300">{{ formatCurrency(proposal.first_year_savings) }}</div>
               </div>
-              <div class="p-4 bg-orange-50 rounded-lg">
-                <div class="text-sm text-orange-600">Payback Period</div>
-                <div class="text-xl font-bold text-orange-700">{{ proposal.payback_years?.toFixed(1) }} years</div>
+              <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                <div class="text-sm text-orange-600 dark:text-orange-400">Payback Period</div>
+                <div class="text-xl font-bold text-orange-700 dark:text-orange-300">{{ proposal.payback_years?.toFixed(1) }} years</div>
               </div>
-              <div class="p-4 bg-blue-50 rounded-lg">
-                <div class="text-sm text-blue-600">ROI</div>
-                <div class="text-xl font-bold text-blue-700">{{ formatPercent(proposal.roi_percent || 0) }}</div>
+              <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="text-sm text-blue-600 dark:text-blue-400">ROI</div>
+                <div class="text-xl font-bold text-blue-700 dark:text-blue-300">{{ formatPercent(proposal.roi_percent || 0) }}</div>
               </div>
-              <div class="p-4 bg-purple-50 rounded-lg">
-                <div class="text-sm text-purple-600">NPV</div>
-                <div class="text-lg font-bold text-purple-700">{{ formatCurrency(proposal.npv) }}</div>
+              <div class="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                <div class="text-sm text-purple-600 dark:text-purple-400">NPV</div>
+                <div class="text-lg font-bold text-purple-700 dark:text-purple-300">{{ formatCurrency(proposal.npv) }}</div>
               </div>
-              <div class="p-4 bg-indigo-50 rounded-lg">
-                <div class="text-sm text-indigo-600">IRR</div>
-                <div class="text-xl font-bold text-indigo-700">{{ formatPercent(proposal.irr_percent || 0) }}</div>
+              <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg">
+                <div class="text-sm text-indigo-600 dark:text-indigo-400">IRR</div>
+                <div class="text-xl font-bold text-indigo-700 dark:text-indigo-300">{{ formatPercent(proposal.irr_percent || 0) }}</div>
               </div>
-              <div class="p-4 bg-emerald-50 rounded-lg">
-                <div class="text-sm text-emerald-600">25-Year Savings</div>
-                <div class="text-lg font-bold text-emerald-700">{{ formatCurrency(proposal.total_lifetime_savings) }}</div>
+              <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                <div class="text-sm text-emerald-600 dark:text-emerald-400">25-Year Savings</div>
+                <div class="text-lg font-bold text-emerald-700 dark:text-emerald-300">{{ formatCurrency(proposal.total_lifetime_savings) }}</div>
               </div>
             </div>
 
             <!-- Charts -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t">
+            <div class="space-y-6 pt-6 border-t dark:border-slate-700">
+              <!-- Payback Period Chart -->
               <div>
-                <h4 class="text-sm font-medium text-slate-700 mb-3">Annual Savings</h4>
-                <LineChart
-                  v-if="savingsChartData.labels.length"
-                  :labels="savingsChartData.labels"
-                  :datasets="savingsChartData.datasets"
-                  :height="200"
+                <div class="flex items-center justify-between mb-3">
+                  <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">Payback Period</h4>
+                  <span v-if="paybackYearIndex" class="text-sm font-medium text-orange-600 dark:text-orange-400">
+                    Break-even: Year {{ paybackYearIndex }}
+                  </span>
+                </div>
+                <PaybackChart
+                  v-if="paybackChartData.length"
+                  :cumulative-cash-flow="paybackChartData"
+                  :payback-year="paybackYearIndex"
+                  :height="280"
                 />
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+                  <span class="inline-block w-3 h-3 rounded bg-red-500 mr-1"></span> Masa Pengembalian
+                  <span class="inline-block w-3 h-3 rounded bg-green-500 ml-3 mr-1"></span> Keuntungan Bersih
+                </p>
               </div>
+
+              <!-- Monthly Bill Comparison Chart -->
               <div>
-                <h4 class="text-sm font-medium text-slate-700 mb-3">Cumulative Savings</h4>
-                <LineChart
-                  v-if="cumulativeSavingsChartData.labels.length"
-                  :labels="cumulativeSavingsChartData.labels"
-                  :datasets="cumulativeSavingsChartData.datasets"
-                  :height="200"
+                <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Perbandingan Tagihan Bulanan</h4>
+                <MonthlyBillChart
+                  v-if="monthlyBillBefore > 0"
+                  :bill-before="monthlyBillBefore"
+                  :bill-after="monthlyBillAfter"
+                  :monthly-production-kwh="monthlyProductionKwh"
+                  :electricity-rate="electricityRate"
+                  :height="250"
                 />
+                <div class="flex justify-center gap-6 text-xs text-slate-500 dark:text-slate-400 mt-2">
+                  <span>
+                    Sebelum: <strong class="text-slate-700 dark:text-slate-300">{{ formatCurrency(monthlyBillBefore) }}/bln</strong>
+                  </span>
+                  <span>
+                    Sesudah: <strong class="text-green-600 dark:text-green-400">{{ formatCurrency(monthlyBillAfter) }}/bln</strong>
+                  </span>
+                  <span>
+                    Hemat: <strong class="text-green-600 dark:text-green-400">{{ formatCurrency(monthlySavings) }}/bln</strong>
+                  </span>
+                </div>
               </div>
             </div>
           </Card>
@@ -529,29 +568,29 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Environmental Impact -->
           <Card v-if="proposal.environmental_impact">
             <template #header>
-              <h2 class="text-lg font-medium text-slate-900">Environmental Impact</h2>
+              <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">Environmental Impact</h2>
             </template>
 
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div class="text-center p-4 bg-green-50 rounded-lg">
+              <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div class="text-3xl mb-2">🌱</div>
-                <div class="text-xl font-bold text-green-700">{{ proposal.co2_offset_tons?.toFixed(1) }}</div>
-                <div class="text-sm text-green-600">Tons CO2/Year</div>
+                <div class="text-xl font-bold text-green-700 dark:text-green-300">{{ proposal.co2_offset_tons?.toFixed(1) }}</div>
+                <div class="text-sm text-green-600 dark:text-green-400">Tons CO2/Year</div>
               </div>
-              <div class="text-center p-4 bg-emerald-50 rounded-lg">
+              <div class="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
                 <div class="text-3xl mb-2">🌳</div>
-                <div class="text-xl font-bold text-emerald-700">{{ proposal.trees_equivalent }}</div>
-                <div class="text-sm text-emerald-600">Trees Equivalent</div>
+                <div class="text-xl font-bold text-emerald-700 dark:text-emerald-300">{{ proposal.trees_equivalent }}</div>
+                <div class="text-sm text-emerald-600 dark:text-emerald-400">Trees Equivalent</div>
               </div>
-              <div class="text-center p-4 bg-teal-50 rounded-lg">
+              <div class="text-center p-4 bg-teal-50 dark:bg-teal-900/20 rounded-lg">
                 <div class="text-3xl mb-2">🚗</div>
-                <div class="text-xl font-bold text-teal-700">{{ proposal.cars_equivalent }}</div>
-                <div class="text-sm text-teal-600">Cars Off Road</div>
+                <div class="text-xl font-bold text-teal-700 dark:text-teal-300">{{ proposal.cars_equivalent }}</div>
+                <div class="text-sm text-teal-600 dark:text-teal-400">Cars Off Road</div>
               </div>
-              <div class="text-center p-4 bg-cyan-50 rounded-lg">
+              <div class="text-center p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
                 <div class="text-3xl mb-2">🌍</div>
-                <div class="text-xl font-bold text-cyan-700">{{ environmentalImpact?.co2_lifetime_tons?.toFixed(0) }}</div>
-                <div class="text-sm text-cyan-600">Lifetime Tons CO2</div>
+                <div class="text-xl font-bold text-cyan-700 dark:text-cyan-300">{{ environmentalImpact?.co2_lifetime_tons?.toFixed(0) }}</div>
+                <div class="text-sm text-cyan-600 dark:text-cyan-400">Lifetime Tons CO2</div>
               </div>
             </div>
           </Card>
@@ -562,33 +601,33 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Site Information -->
           <Card>
             <template #header>
-              <h3 class="font-medium text-slate-900">Site Information</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">Site Information</h3>
             </template>
 
             <dl class="space-y-3 text-sm">
               <div>
-                <dt class="text-slate-500">Site Name</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.site_name }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Site Name</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.site_name }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Address</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.site_address }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Address</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.site_address }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Location</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.city }}, {{ proposal.province }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Location</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.city }}, {{ proposal.province }}</dd>
               </div>
               <div v-if="proposal.roof_area_m2">
-                <dt class="text-slate-500">Roof Area</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.roof_area_m2 }} m²</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Roof Area</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.roof_area_m2 }} m²</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Roof Type</dt>
-                <dd class="font-medium text-slate-900 capitalize">{{ proposal.roof_type_label }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Roof Type</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100 capitalize">{{ proposal.roof_type_label }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Orientation</dt>
-                <dd class="font-medium text-slate-900 capitalize">{{ proposal.roof_orientation_label }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Orientation</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100 capitalize">{{ proposal.roof_orientation_label }}</dd>
               </div>
             </dl>
           </Card>
@@ -596,25 +635,25 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Electricity Profile -->
           <Card>
             <template #header>
-              <h3 class="font-medium text-slate-900">Electricity Profile</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">Electricity Profile</h3>
             </template>
 
             <dl class="space-y-3 text-sm">
               <div>
-                <dt class="text-slate-500">Monthly Consumption</dt>
-                <dd class="font-medium text-slate-900">{{ formatNumber(proposal.monthly_consumption_kwh || 0) }} kWh</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Monthly Consumption</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(proposal.monthly_consumption_kwh || 0) }} kWh</dd>
               </div>
               <div>
-                <dt class="text-slate-500">PLN Tariff</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.pln_tariff_category }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">PLN Tariff</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.pln_tariff_category }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Electricity Rate</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(proposal.electricity_rate) }}/kWh</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Electricity Rate</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(proposal.electricity_rate) }}/kWh</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Tariff Escalation</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.tariff_escalation_percent }}%/year</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Tariff Escalation</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.tariff_escalation_percent }}%/year</dd>
               </div>
             </dl>
           </Card>
@@ -622,21 +661,21 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Solar Data -->
           <Card>
             <template #header>
-              <h3 class="font-medium text-slate-900">Solar Data</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">Solar Data</h3>
             </template>
 
             <dl class="space-y-3 text-sm">
               <div>
-                <dt class="text-slate-500">Peak Sun Hours</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.peak_sun_hours }} h/day</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Peak Sun Hours</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.peak_sun_hours }} h/day</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Solar Irradiance</dt>
-                <dd class="font-medium text-slate-900">{{ proposal.solar_irradiance }} kWh/m²/day</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Solar Irradiance</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.solar_irradiance }} kWh/m²/day</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Performance Ratio</dt>
-                <dd class="font-medium text-slate-900">{{ formatPercent((proposal.performance_ratio || 0) * 100, 0) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Performance Ratio</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatPercent((proposal.performance_ratio || 0) * 100, 0) }}</dd>
               </div>
             </dl>
           </Card>
@@ -644,48 +683,48 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- BOM / System Selection -->
           <Card>
             <template #header>
-              <h3 class="font-medium text-slate-900">System Selection</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">System Selection</h3>
             </template>
 
             <dl class="space-y-3 text-sm">
               <div>
-                <dt class="text-slate-500">Variant Group</dt>
-                <dd class="font-medium text-slate-900">
+                <dt class="text-slate-500 dark:text-slate-400">Variant Group</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ proposal.variant_group?.name || 'Not selected' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-slate-500">Selected BOM</dt>
-                <dd class="font-medium text-slate-900">
+                <dt class="text-slate-500 dark:text-slate-400">Selected BOM</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ proposal.selected_bom?.name || 'Auto (lowest cost)' }}
                 </dd>
               </div>
               <div v-if="proposal.system_cost">
-                <dt class="text-slate-500">System Cost</dt>
-                <dd class="font-medium text-orange-600">{{ formatCurrency(proposal.system_cost) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">System Cost</dt>
+                <dd class="font-medium text-orange-600 dark:text-orange-400">{{ formatCurrency(proposal.system_cost) }}</dd>
               </div>
             </dl>
 
             <!-- Available BOMs from variant group -->
-            <div v-if="proposal.variant_group?.active_boms?.length" class="mt-4 pt-4 border-t border-slate-100">
-              <div class="text-xs font-medium text-slate-500 uppercase mb-2">Available Options</div>
+            <div v-if="proposal.variant_group?.active_boms?.length" class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2">Available Options</div>
               <div class="space-y-2">
                 <div
                   v-for="bom in proposal.variant_group.active_boms"
                   :key="bom.id"
                   class="flex items-center justify-between p-2 rounded-lg text-sm"
-                  :class="proposal.selected_bom_id === bom.id ? 'bg-orange-50 border border-orange-200' : 'bg-slate-50'"
+                  :class="proposal.selected_bom_id === bom.id ? 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800' : 'bg-slate-50 dark:bg-slate-800'"
                 >
                   <div>
-                    <span class="font-medium text-slate-900">{{ bom.name }}</span>
-                    <span v-if="proposal.selected_bom_id === bom.id" class="ml-2 text-xs text-orange-600">(Selected)</span>
+                    <span class="font-medium text-slate-900 dark:text-slate-100">{{ bom.name }}</span>
+                    <span v-if="proposal.selected_bom_id === bom.id" class="ml-2 text-xs text-orange-600 dark:text-orange-400">(Selected)</span>
                   </div>
-                  <span class="font-medium text-slate-700">{{ formatCurrency(bom.total_cost) }}</span>
+                  <span class="font-medium text-slate-700 dark:text-slate-300">{{ formatCurrency(bom.total_cost) }}</span>
                 </div>
               </div>
             </div>
 
-            <div v-else-if="!proposal.variant_group_id" class="text-sm text-slate-500 italic">
+            <div v-else-if="!proposal.variant_group_id" class="text-sm text-slate-500 dark:text-slate-400 italic">
               No variant group attached. Edit proposal to select one.
             </div>
           </Card>
@@ -693,11 +732,11 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Public Link (after sent) -->
           <Card v-if="proposal.public_url && proposal.status !== 'draft'">
             <template #header>
-              <h3 class="font-medium text-slate-900">Customer Link</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">Customer Link</h3>
             </template>
 
             <div class="space-y-3">
-              <p class="text-sm text-slate-600">
+              <p class="text-sm text-slate-600 dark:text-slate-400">
                 Share this link with your customer to view and respond to the proposal:
               </p>
               <div class="flex items-center gap-2">
@@ -705,7 +744,7 @@ const cumulativeSavingsChartData = computed(() => {
                   type="text"
                   :value="proposal.public_url"
                   readonly
-                  class="flex-1 px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg"
+                  class="flex-1 px-3 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-slate-900 dark:text-slate-100"
                 />
                 <Button
                   variant="secondary"
@@ -718,7 +757,7 @@ const cumulativeSavingsChartData = computed(() => {
               <a
                 :href="proposal.public_url"
                 target="_blank"
-                class="text-sm text-orange-600 hover:text-orange-700 inline-flex items-center gap-1"
+                class="text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 inline-flex items-center gap-1"
               >
                 Open in new tab →
               </a>
@@ -728,10 +767,10 @@ const cumulativeSavingsChartData = computed(() => {
           <!-- Notes -->
           <Card v-if="proposal.notes">
             <template #header>
-              <h3 class="font-medium text-slate-900">Notes</h3>
+              <h3 class="font-medium text-slate-900 dark:text-slate-100">Notes</h3>
             </template>
 
-            <p class="text-sm text-slate-600 whitespace-pre-wrap">{{ proposal.notes }}</p>
+            <p class="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{{ proposal.notes }}</p>
           </Card>
         </div>
       </div>
@@ -740,13 +779,13 @@ const cumulativeSavingsChartData = computed(() => {
     <!-- Reject Modal -->
     <Modal v-model:open="showRejectModal" title="Reject Proposal">
       <div class="space-y-4">
-        <p class="text-sm text-slate-600">
+        <p class="text-sm text-slate-600 dark:text-slate-400">
           Are you sure you want to reject this proposal? Please provide a reason.
         </p>
         <textarea
           v-model="rejectReason"
           rows="3"
-          class="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-orange-500"
+          class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-orange-500"
           placeholder="Reason for rejection..."
         />
       </div>
@@ -765,7 +804,7 @@ const cumulativeSavingsChartData = computed(() => {
 
     <!-- Delete Confirmation -->
     <Modal v-model:open="showDeleteConfirm" title="Delete Proposal">
-      <p class="text-sm text-slate-600">
+      <p class="text-sm text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this proposal? This action cannot be undone.
       </p>
 

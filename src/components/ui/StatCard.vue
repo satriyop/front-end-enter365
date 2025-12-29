@@ -21,11 +21,11 @@ const trendClasses = computed(() => {
 
   switch (props.trend.direction) {
     case 'up':
-      return 'text-green-600'
+      return 'text-green-600 dark:text-green-400'
     case 'down':
-      return 'text-red-600'
+      return 'text-red-600 dark:text-red-400'
     default:
-      return 'text-slate-500'
+      return 'text-slate-500 dark:text-slate-400'
   }
 })
 
@@ -44,21 +44,21 @@ const trendIcon = computed(() => {
 </script>
 
 <template>
-  <div class="bg-white rounded-lg border border-slate-200 p-6">
+  <div class="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-6">
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <!-- Icon -->
         <div v-if="icon" class="mb-2">
-          <component :is="icon" class="w-6 h-6 text-slate-400" />
+          <component :is="icon" class="w-6 h-6 text-slate-400 dark:text-slate-500" />
         </div>
 
         <!-- Label -->
-        <p class="text-xs font-medium text-slate-500 uppercase tracking-wide">
+        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           {{ label }}
         </p>
 
         <!-- Value -->
-        <p class="mt-1 text-3xl font-bold text-slate-900">
+        <p class="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">
           {{ value }}
         </p>
 

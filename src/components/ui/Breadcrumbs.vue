@@ -82,7 +82,7 @@ const showBreadcrumbs = computed(() => breadcrumbs.value.length > 1)
         <!-- Separator -->
         <svg
           v-if="index > 0"
-          class="w-4 h-4 text-slate-400 mx-2 flex-shrink-0"
+          class="w-4 h-4 text-slate-400 dark:text-slate-500 mx-2 flex-shrink-0"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -94,13 +94,13 @@ const showBreadcrumbs = computed(() => breadcrumbs.value.length > 1)
         <RouterLink
           v-if="item.path && !item.isLast"
           :to="item.path"
-          class="text-slate-500 hover:text-primary-600 transition-colors"
+          class="text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
         >
           {{ item.label }}
         </RouterLink>
         <span
           v-else
-          class="text-slate-900 font-medium"
+          class="text-slate-900 dark:text-slate-100 font-medium"
           :class="{ 'truncate max-w-[200px]': item.isLast }"
           :title="item.label"
         >

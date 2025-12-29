@@ -39,24 +39,24 @@ const sizeClasses: Record<InputSize, string> = {
 
 const inputClasses = computed(() =>
   cn(
-    'w-full rounded-r-sm border bg-white transition-colors duration-150 text-right tabular-nums',
-    'placeholder:text-slate-400',
+    'w-full rounded-r-sm border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-150 text-right tabular-nums',
+    'placeholder:text-slate-400 dark:placeholder:text-slate-500',
     'focus:outline-none focus:ring-1',
     sizeClasses[props.size],
     // State: default
-    !props.error && !props.disabled && 'border-slate-300 focus:border-orange-500 focus:ring-orange-500',
+    !props.error && !props.disabled && 'border-slate-300 dark:border-slate-600 focus:border-orange-500 focus:ring-orange-500',
     // State: error
     props.error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
     // State: disabled
-    props.disabled && 'bg-slate-50 cursor-not-allowed text-slate-500'
+    props.disabled && 'bg-slate-50 dark:bg-slate-900 cursor-not-allowed text-slate-500 dark:text-slate-400'
   )
 )
 
 const addonClasses = computed(() =>
   cn(
-    'inline-flex items-center border border-r-0 bg-slate-50 text-slate-500 rounded-l-sm',
+    'inline-flex items-center border border-r-0 bg-slate-50 dark:bg-slate-700 text-slate-500 dark:text-slate-400 rounded-l-sm',
     sizeClasses[props.size],
-    props.error ? 'border-red-500' : 'border-slate-300'
+    props.error ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'
   )
 )
 

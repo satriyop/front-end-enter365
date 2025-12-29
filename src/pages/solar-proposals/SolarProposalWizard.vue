@@ -8,9 +8,12 @@ import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
 import Textarea from '@/components/ui/Textarea.vue'
 import LineChart from '@/components/charts/LineChart.vue'
+import BarChart from '@/components/charts/BarChart.vue'
 import LocationMapPicker, { type LocationData, type SolarData } from '@/components/maps/LocationMapPicker.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
 import { formatCurrency, formatNumber, formatSolarOffset } from '@/utils/format'
+import CapacityCalculatorModal from '@/components/solar/CapacityCalculatorModal.vue'
+import { Calculator } from 'lucide-vue-next'
 import { useContacts, type Contact } from '@/api/useContacts'
 import { useBomVariantGroups, type BomVariantGroup } from '@/api/useComponentStandards'
 import {
@@ -82,6 +85,9 @@ const form = ref({
 })
 
 const errors = ref<Record<string, string>>({})
+
+// Capacity calculator modal
+const showCalculatorModal = ref(false)
 
 // ============================================
 // Data Fetching
@@ -209,6 +215,31 @@ const solarOffsetPercent = computed(() => {
 
 const solarOffsetFormatted = computed(() => formatSolarOffset(solarOffsetPercent.value))
 
+// ============================================
+// Recommended System Capacity (Industry Best Practice)
+// ============================================
+// Formula: kWp = Annual Consumption / Annual Yield per kWp
+// Annual Yield = PSH × 365 × Performance Ratio
+// This calculates the system size needed for 100% consumption offset
+const recommendedCapacity = computed(() => {
+  const monthlyKwh = form.value.monthly_consumption_kwh
+  const psh = form.value.peak_sun_hours
+  const pr = form.value.performance_ratio
+
+  if (!monthlyKwh || !psh || !pr) return null
+
+  // Annual consumption
+  const annualKwh = monthlyKwh * 12
+
+  // Annual yield per kWp = PSH × 365 days × Performance Ratio
+  const yieldPerKwp = psh * 365 * pr
+
+  // Recommended capacity for 100% offset
+  // Round to 0.5 kWp increments (common panel sizing)
+  const rawCapacity = annualKwh / yieldPerKwp
+  return Math.round(rawCapacity * 2) / 2  // Round to nearest 0.5
+})
+
 const firstYearSavings = computed(() => {
   if (!annualProduction.value || !form.value.electricity_rate) return 0
   return annualProduction.value * form.value.electricity_rate
@@ -242,38 +273,86 @@ const totalLifetimeSavings = computed(() =>
   yearlyProjections.value.reduce((sum, p) => sum + p.savings, 0)
 )
 
-// Chart data
-const savingsChartData = computed(() => ({
-  labels: yearlyProjections.value.map(p => `Year ${p.year}`),
-  datasets: [
-    {
-      label: 'Annual Savings (Rp)',
-      data: yearlyProjections.value.map(p => p.savings),
-      borderColor: '#22c55e',
-      backgroundColor: 'rgba(34, 197, 94, 0.1)',
-      fill: true,
-      tension: 0.4,
-    },
-  ],
-}))
+// System cost from selected BOM
+const systemCost = computed(() => {
+  return existingProposal.value?.selected_bom?.total_cost ?? 0
+})
 
-const cumulativeSavingsChartData = computed(() => {
+// Payback period calculation
+const paybackPeriod = computed(() => {
+  if (!systemCost.value || !firstYearSavings.value) return null
+
   let cumulative = 0
-  const data = yearlyProjections.value.map(p => {
+  for (let year = 1; year <= 25; year++) {
+    const projection = yearlyProjections.value[year - 1]
+    if (projection) {
+      cumulative += projection.savings
+      if (cumulative >= systemCost.value) {
+        // Interpolate for more accurate payback
+        const prevCumulative = cumulative - projection.savings
+        const fraction = (systemCost.value - prevCumulative) / projection.savings
+        return Math.round((year - 1 + fraction) * 10) / 10
+      }
+    }
+  }
+  return null // Payback > 25 years
+})
+
+// Chart data: Payback Period - Cumulative savings vs Investment
+const paybackChartData = computed(() => {
+  if (!yearlyProjections.value.length) return { labels: [], datasets: [] }
+
+  let cumulative = 0
+  const cumulativeData = yearlyProjections.value.map(p => {
     cumulative += p.savings
     return cumulative
   })
+
+  const investmentLine = yearlyProjections.value.map(() => systemCost.value)
 
   return {
     labels: yearlyProjections.value.map(p => `Year ${p.year}`),
     datasets: [
       {
         label: 'Cumulative Savings (Rp)',
-        data,
-        borderColor: '#f97316',
-        backgroundColor: 'rgba(249, 115, 22, 0.1)',
+        data: cumulativeData,
+        borderColor: '#22c55e',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
         fill: true,
-        tension: 0.4,
+        tension: 0.3,
+      },
+      {
+        label: 'Investment Cost (Rp)',
+        data: investmentLine,
+        borderColor: '#ef4444',
+        backgroundColor: 'transparent',
+        borderDash: [5, 5],
+        fill: false,
+        pointRadius: 0,
+      },
+    ],
+  }
+})
+
+// Chart data: Monthly Bill Comparison (Before vs After Solar)
+const monthlyBillChartData = computed(() => {
+  if (!form.value.monthly_consumption_kwh || !form.value.electricity_rate) {
+    return { labels: [], datasets: [] }
+  }
+
+  const monthlyBillBefore = form.value.monthly_consumption_kwh * form.value.electricity_rate
+  const monthlySolarProduction = monthlyProduction.value
+  const monthlyBillAfter = Math.max(0, (form.value.monthly_consumption_kwh - monthlySolarProduction) * form.value.electricity_rate)
+  const monthlySavings = monthlyBillBefore - monthlyBillAfter
+
+  return {
+    labels: ['Current Bill', 'After Solar', 'Monthly Savings'],
+    datasets: [
+      {
+        label: 'Amount (Rp)',
+        data: [monthlyBillBefore, monthlyBillAfter, monthlySavings],
+        backgroundColor: ['#ef4444', '#22c55e', '#3b82f6'],
+        borderRadius: 8,
       },
     ],
   }
@@ -329,6 +408,13 @@ watch(() => form.value.pln_tariff_category, (category) => {
 // Reset city when province changes
 watch(() => form.value.province, () => {
   form.value.city = ''
+})
+
+// Auto-populate system capacity when entering Step 3 (if not already set)
+watch(currentStep, (newStep, oldStep) => {
+  if (newStep === 3 && oldStep === 2 && !form.value.system_capacity_kwp && recommendedCapacity.value) {
+    form.value.system_capacity_kwp = recommendedCapacity.value
+  }
 })
 
 // ============================================
@@ -766,20 +852,20 @@ const steps = computed(() => [
           </FormField>
 
           <!-- Current Monthly Bill Info -->
-          <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="md:col-span-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h4 class="font-medium text-blue-800 mb-2">Current Electricity Cost</h4>
+          <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+            <h4 class="font-medium text-blue-800 dark:text-blue-300 mb-2">Current Electricity Cost</h4>
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
               <div>
-                <span class="text-blue-600">Monthly Bill:</span>
-                <span class="ml-1 font-medium">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</span>
+                <span class="text-blue-600 dark:text-blue-400">Monthly Bill:</span>
+                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</span>
               </div>
               <div>
-                <span class="text-blue-600">Annual Bill:</span>
-                <span class="ml-1 font-medium">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * 12) }}</span>
+                <span class="text-blue-600 dark:text-blue-400">Annual Bill:</span>
+                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * 12) }}</span>
               </div>
               <div>
-                <span class="text-blue-600">Annual Consumption:</span>
-                <span class="ml-1 font-medium">{{ formatNumber(form.monthly_consumption_kwh * 12) }} kWh</span>
+                <span class="text-blue-600 dark:text-blue-400">Annual Consumption:</span>
+                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(form.monthly_consumption_kwh * 12) }} kWh</span>
               </div>
             </div>
           </div>
@@ -799,16 +885,49 @@ const steps = computed(() => [
               label="System Capacity (kWp)"
               required
               :error="errors.system_capacity_kwp"
-              hint="Recommended based on your consumption"
             >
-              <Input
-                v-model.number="form.system_capacity_kwp"
-                type="number"
-                placeholder="e.g., 5.0"
-                min="0"
-                step="0.5"
-                :error="!!errors.system_capacity_kwp"
-              />
+              <template #default>
+                <div class="space-y-2">
+                  <div class="flex gap-2">
+                    <Input
+                      v-model.number="form.system_capacity_kwp"
+                      type="number"
+                      placeholder="e.g., 5.0"
+                      min="0"
+                      step="0.5"
+                      :error="!!errors.system_capacity_kwp"
+                      class="flex-1"
+                    />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      type="button"
+                      title="Open Capacity Calculator"
+                      @click="showCalculatorModal = true"
+                    >
+                      <Calculator class="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <!-- Recommendation Badge -->
+                  <div v-if="recommendedCapacity" class="flex items-center gap-2">
+                    <span class="text-xs text-slate-500 dark:text-slate-400">
+                      Recommended: <span class="font-semibold text-green-600 dark:text-green-400">{{ recommendedCapacity }} kWp</span>
+                      <span class="text-slate-400">(100% offset)</span>
+                    </span>
+                    <button
+                      v-if="form.system_capacity_kwp !== recommendedCapacity"
+                      type="button"
+                      class="text-xs px-2 py-0.5 bg-green-100 text-green-700 hover:bg-green-200 rounded dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors"
+                      @click="form.system_capacity_kwp = recommendedCapacity"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                  <p v-else class="text-xs text-slate-500 dark:text-slate-400">
+                    Enter consumption & location data to see recommendation
+                  </p>
+                </div>
+              </template>
             </FormField>
 
             <FormField label="Performance Ratio" hint="System efficiency factor (0.75-0.85 typical)">
@@ -832,70 +951,106 @@ const steps = computed(() => [
           </FormField>
 
           <!-- Production Estimates -->
-          <div v-if="form.system_capacity_kwp && form.peak_sun_hours" class="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-            <h4 class="font-medium text-yellow-800 mb-3">Estimated Production</h4>
+          <div v-if="form.system_capacity_kwp && form.peak_sun_hours" class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <h4 class="font-medium text-amber-800 dark:text-amber-300 mb-3">Estimated Production</h4>
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span class="text-yellow-600">Annual Production:</span>
-                <div class="font-medium text-lg">{{ formatNumber(annualProduction) }} kWh</div>
+                <span class="text-amber-600 dark:text-amber-400">Annual Production:</span>
+                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatNumber(annualProduction) }} kWh</div>
               </div>
               <div>
-                <span class="text-yellow-600">Monthly Production:</span>
-                <div class="font-medium text-lg">{{ formatNumber(monthlyProduction) }} kWh</div>
+                <span class="text-amber-600 dark:text-amber-400">Monthly Production:</span>
+                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatNumber(monthlyProduction) }} kWh</div>
               </div>
               <div>
-                <span class="text-yellow-600">{{ solarOffsetFormatted.label }}:</span>
-                <div class="font-medium text-lg" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : ''">{{ solarOffsetFormatted.value }}</div>
+                <span class="text-amber-600 dark:text-amber-400">{{ solarOffsetFormatted.label }}:</span>
+                <div class="font-medium text-lg" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">{{ solarOffsetFormatted.value }}</div>
               </div>
               <div>
-                <span class="text-yellow-600">First Year Savings:</span>
-                <div class="font-medium text-lg">{{ formatCurrency(firstYearSavings) }}</div>
+                <span class="text-amber-600 dark:text-amber-400">First Year Savings:</span>
+                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(firstYearSavings) }}</div>
               </div>
             </div>
           </div>
 
           <!-- Financial Projection Charts -->
           <div v-if="yearlyProjections.length > 0" class="space-y-6">
-            <div class="border-t pt-6">
-              <h3 class="text-lg font-medium text-slate-900 mb-4">25-Year Financial Projection</h3>
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+              <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">25-Year Financial Projection</h3>
 
               <!-- Summary Cards -->
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div class="p-4 bg-green-50 rounded-lg text-center">
-                  <div class="text-2xl font-bold text-green-700">{{ formatCurrency(totalLifetimeSavings) }}</div>
-                  <div class="text-sm text-green-600">Total 25-Year Savings</div>
+              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                <div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg text-center border border-green-200 dark:border-green-800">
+                  <div class="text-lg md:text-xl font-bold text-green-700 dark:text-green-400 truncate">{{ formatCurrency(totalLifetimeSavings) }}</div>
+                  <div class="text-xs text-green-600 dark:text-green-500">Total 25-Year Savings</div>
                 </div>
-                <div class="p-4 bg-orange-50 rounded-lg text-center">
-                  <div class="text-2xl font-bold text-orange-700">{{ formatCurrency(firstYearSavings) }}</div>
-                  <div class="text-sm text-orange-600">First Year Savings</div>
+                <div class="p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-center border border-orange-200 dark:border-orange-800">
+                  <div class="text-lg md:text-xl font-bold text-orange-700 dark:text-orange-400 truncate">{{ formatCurrency(firstYearSavings) }}</div>
+                  <div class="text-xs text-orange-600 dark:text-orange-500">First Year Savings</div>
                 </div>
-                <div class="p-4 bg-blue-50 rounded-lg text-center">
-                  <div class="text-2xl font-bold text-blue-700">{{ formatNumber(annualProduction) }}</div>
-                  <div class="text-sm text-blue-600">kWh/Year Production</div>
+                <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-center border border-blue-200 dark:border-blue-800">
+                  <div class="text-lg md:text-xl font-bold text-blue-700 dark:text-blue-400 truncate">{{ formatNumber(annualProduction) }}</div>
+                  <div class="text-xs text-blue-600 dark:text-blue-500">kWh/Year Production</div>
                 </div>
-                <div class="p-4 rounded-lg text-center" :class="solarOffsetFormatted.isSurplus ? 'bg-emerald-50' : 'bg-purple-50'">
-                  <div class="text-2xl font-bold" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-700' : 'text-purple-700'">{{ solarOffsetFormatted.value }}</div>
-                  <div class="text-sm" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : 'text-purple-600'">{{ solarOffsetFormatted.label }}</div>
+                <div
+                  class="p-3 rounded-lg text-center border"
+                  :class="solarOffsetFormatted.isSurplus
+                    ? 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800'
+                    : 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800'"
+                >
+                  <div class="text-lg md:text-xl font-bold truncate" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-700 dark:text-emerald-400' : 'text-purple-700 dark:text-purple-400'">{{ solarOffsetFormatted.value }}</div>
+                  <div class="text-xs" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-500' : 'text-purple-600 dark:text-purple-500'">{{ solarOffsetFormatted.label }}</div>
                 </div>
               </div>
 
               <!-- Charts -->
               <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div class="bg-white p-4 rounded-lg border">
-                  <h4 class="text-sm font-medium text-slate-700 mb-3">Annual Savings</h4>
+                <!-- Payback Period Chart -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <div class="flex items-center justify-between mb-3">
+                    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">Payback Period</h4>
+                    <span v-if="paybackPeriod" class="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full">
+                      {{ paybackPeriod }} years
+                    </span>
+                    <span v-else-if="systemCost" class="text-xs font-medium px-2 py-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 rounded-full">
+                      &gt; 25 years
+                    </span>
+                    <span v-else class="text-xs text-slate-500 dark:text-slate-400">
+                      Select BOM to calculate
+                    </span>
+                  </div>
                   <LineChart
-                    :labels="savingsChartData.labels"
-                    :datasets="savingsChartData.datasets"
+                    :labels="paybackChartData.labels"
+                    :datasets="paybackChartData.datasets"
                     :height="250"
                   />
+                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
+                    Green line crosses red dashed line at break-even point
+                  </p>
                 </div>
-                <div class="bg-white p-4 rounded-lg border">
-                  <h4 class="text-sm font-medium text-slate-700 mb-3">Cumulative Savings</h4>
-                  <LineChart
-                    :labels="cumulativeSavingsChartData.labels"
-                    :datasets="cumulativeSavingsChartData.datasets"
+
+                <!-- Monthly Bill Comparison Chart -->
+                <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                  <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Monthly Bill Impact</h4>
+                  <BarChart
+                    :labels="monthlyBillChartData.labels"
+                    :datasets="monthlyBillChartData.datasets"
                     :height="250"
                   />
+                  <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
+                    <div>
+                      <div class="font-medium text-red-600 dark:text-red-400">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">Current</div>
+                    </div>
+                    <div>
+                      <div class="font-medium text-green-600 dark:text-green-400">{{ formatCurrency(Math.max(0, (form.monthly_consumption_kwh - monthlyProduction) * form.electricity_rate)) }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">After Solar</div>
+                    </div>
+                    <div>
+                      <div class="font-medium text-blue-600 dark:text-blue-400">{{ formatCurrency(monthlyProduction * form.electricity_rate) }}</div>
+                      <div class="text-slate-500 dark:text-slate-400">Savings/mo</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -906,92 +1061,92 @@ const steps = computed(() => [
       <!-- Step 4: Review & Submit -->
       <Card v-show="currentStep === 4">
         <template #header>
-          <h2 class="text-lg font-medium text-slate-900">Review & Submit</h2>
+          <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">Review & Submit</h2>
         </template>
 
         <div class="space-y-6">
           <!-- Summary Sections -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Site Summary -->
-            <div class="p-4 bg-slate-50 rounded-lg">
-              <h4 class="font-medium text-slate-800 mb-3">Site Information</h4>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Site Information</h4>
               <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Site:</dt>
-                  <dd class="font-medium">{{ form.site_name }}</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Site:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.site_name }}</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Location:</dt>
-                  <dd class="font-medium">{{ form.city }}, {{ form.province }}</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Location:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.city }}, {{ form.province }}</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Roof Type:</dt>
-                  <dd class="font-medium capitalize">{{ form.roof_type }}</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Roof Type:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100 capitalize">{{ form.roof_type }}</dd>
                 </div>
                 <div v-if="form.roof_area_m2" class="flex justify-between">
-                  <dt class="text-slate-500">Roof Area:</dt>
-                  <dd class="font-medium">{{ form.roof_area_m2 }} m²</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Roof Area:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.roof_area_m2 }} m²</dd>
                 </div>
               </dl>
             </div>
 
             <!-- Electricity Summary -->
-            <div class="p-4 bg-slate-50 rounded-lg">
-              <h4 class="font-medium text-slate-800 mb-3">Electricity Profile</h4>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Electricity Profile</h4>
               <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Monthly Usage:</dt>
-                  <dd class="font-medium">{{ formatNumber(form.monthly_consumption_kwh || 0) }} kWh</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Monthly Usage:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(form.monthly_consumption_kwh || 0) }} kWh</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Tariff:</dt>
-                  <dd class="font-medium">{{ form.pln_tariff_category }}</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Tariff:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.pln_tariff_category }}</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Rate:</dt>
-                  <dd class="font-medium">{{ formatCurrency(form.electricity_rate || 0) }}/kWh</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Rate:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.electricity_rate || 0) }}/kWh</dd>
                 </div>
               </dl>
             </div>
 
             <!-- System Summary -->
-            <div class="p-4 bg-slate-50 rounded-lg">
-              <h4 class="font-medium text-slate-800 mb-3">Solar System</h4>
+            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Solar System</h4>
               <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Capacity:</dt>
-                  <dd class="font-medium">{{ form.system_capacity_kwp }} kWp</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Capacity:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.system_capacity_kwp }} kWp</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">Annual Production:</dt>
-                  <dd class="font-medium">{{ formatNumber(annualProduction) }} kWh</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">Annual Production:</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(annualProduction) }} kWh</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-slate-500">{{ solarOffsetFormatted.label }}:</dt>
-                  <dd class="font-medium" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600' : ''">{{ solarOffsetFormatted.value }}</dd>
+                  <dt class="text-slate-500 dark:text-slate-400">{{ solarOffsetFormatted.label }}:</dt>
+                  <dd class="font-medium" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">{{ solarOffsetFormatted.value }}</dd>
                 </div>
               </dl>
             </div>
 
             <!-- Financial Summary -->
-            <div class="p-4 bg-green-50 rounded-lg">
-              <h4 class="font-medium text-green-800 mb-3">Financial Summary</h4>
+            <div class="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+              <h4 class="font-medium text-green-800 dark:text-green-300 mb-3">Financial Summary</h4>
               <dl class="space-y-2 text-sm">
                 <div class="flex justify-between">
-                  <dt class="text-green-600">First Year Savings:</dt>
-                  <dd class="font-medium text-green-800">{{ formatCurrency(firstYearSavings) }}</dd>
+                  <dt class="text-green-600 dark:text-green-400">First Year Savings:</dt>
+                  <dd class="font-medium text-green-800 dark:text-green-300">{{ formatCurrency(firstYearSavings) }}</dd>
                 </div>
                 <div class="flex justify-between">
-                  <dt class="text-green-600">25-Year Savings:</dt>
-                  <dd class="font-medium text-green-800">{{ formatCurrency(totalLifetimeSavings) }}</dd>
+                  <dt class="text-green-600 dark:text-green-400">25-Year Savings:</dt>
+                  <dd class="font-medium text-green-800 dark:text-green-300">{{ formatCurrency(totalLifetimeSavings) }}</dd>
                 </div>
               </dl>
             </div>
           </div>
 
           <!-- Proposal Settings -->
-          <div class="border-t pt-6">
-            <h4 class="font-medium text-slate-800 mb-4">Proposal Settings</h4>
+          <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
+            <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-4">Proposal Settings</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField label="Valid Until" required :error="errors.valid_until">
                 <Input
@@ -1059,5 +1214,14 @@ const steps = computed(() => [
         </div>
       </div>
     </form>
+
+    <!-- Capacity Calculator Modal -->
+    <CapacityCalculatorModal
+      v-model:open="showCalculatorModal"
+      :monthly-consumption="form.monthly_consumption_kwh"
+      :peak-sun-hours="form.peak_sun_hours"
+      :performance-ratio="form.performance_ratio"
+      @apply="(capacity) => form.system_capacity_kwp = capacity"
+    />
   </div>
 </template>

@@ -143,30 +143,30 @@ const printableItems = computed(() => {
     <PageSkeleton v-if="isLoading" type="detail" />
 
     <!-- Error -->
-    <div v-else-if="error" class="text-center py-12 text-red-500">
+    <div v-else-if="error" class="text-center py-12 text-red-500 dark:text-red-400">
       {{ getErrorMessage(error, 'Failed to load quotation') }}
     </div>
 
     <!-- Content -->
     <template v-else-if="quotation">
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/quotations" class="hover:text-slate-700">Quotations</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/quotations" class="hover:text-slate-700 dark:hover:text-slate-300">Quotations</RouterLink>
         <span class="mx-2">›</span>
-        <span class="text-slate-900">{{ quotation.full_number }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ quotation.full_number }}</span>
       </div>
 
       <!-- Header -->
-      <div class="bg-white rounded-xl border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-semibold text-slate-900">
+              <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ quotation.full_number }}
               </h1>
               <Badge :status="quotation.status as any" />
             </div>
-            <p class="text-slate-500">{{ quotation.contact?.name }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ quotation.contact?.name }}</p>
           </div>
 
           <!-- Action Buttons -->
@@ -263,74 +263,74 @@ const printableItems = computed(() => {
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
           <!-- Details Card -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Details</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Details</h2>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Subject</dt>
-                <dd class="font-medium text-slate-900">{{ quotation.subject || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Subject</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.subject || '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Reference</dt>
-                <dd class="font-medium text-slate-900">{{ quotation.reference || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.reference || '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Quotation Date</dt>
-                <dd class="font-medium text-slate-900">{{ formatDate(quotation.quotation_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Quotation Date</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(quotation.quotation_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Valid Until</dt>
-                <dd class="font-medium text-slate-900">
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Valid Until</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ formatDate(quotation.valid_until) }}
-                  <span v-if="quotation.is_expired" class="text-red-500 text-sm">(Expired)</span>
+                  <span v-if="quotation.is_expired" class="text-red-500 dark:text-red-400 text-sm">(Expired)</span>
                 </dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Customer</dt>
-                <dd class="font-medium text-slate-900">{{ quotation.contact?.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Customer</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.contact?.name }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Email</dt>
-                <dd class="font-medium text-slate-900">{{ quotation.contact?.email || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Email</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.contact?.email || '-' }}</dd>
               </div>
             </dl>
           </div>
 
           <!-- Items Card -->
-          <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-200">
-              <h2 class="font-semibold text-slate-900">Line Items</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Line Items</h2>
             </div>
             <table class="w-full">
-              <thead class="bg-slate-50">
+              <thead class="bg-slate-50 dark:bg-slate-800">
                 <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Item</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Qty</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Price</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Disc</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Tax</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Item</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Disc</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tax</th>
+                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-200">
-                <tr v-for="item in quotation.items" :key="item.id">
+              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                <tr v-for="item in quotation.items" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
                   <td class="px-6 py-4">
-                    <div class="font-medium text-slate-900">{{ item.product?.name || item.description }}</div>
-                    <div v-if="item.product?.name" class="text-sm text-slate-500">{{ item.description }}</div>
+                    <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name || item.description }}</div>
+                    <div v-if="item.product?.name" class="text-sm text-slate-500 dark:text-slate-400">{{ item.description }}</div>
                   </td>
-                  <td class="px-6 py-4 text-right text-slate-900">
+                  <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                     {{ item.quantity }} {{ item.unit }}
                   </td>
-                  <td class="px-6 py-4 text-right text-slate-900">
+                  <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                     {{ formatCurrency(item.unit_price) }}
                   </td>
-                  <td class="px-6 py-4 text-right text-slate-500">
+                  <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400">
                     {{ item.discount_percent }}%
                   </td>
-                  <td class="px-6 py-4 text-right text-slate-500">
+                  <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400">
                     {{ item.tax_rate }}%
                   </td>
-                  <td class="px-6 py-4 text-right font-medium text-slate-900">
+                  <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
                     {{ formatCurrency(item.line_total) }}
                   </td>
                 </tr>
@@ -339,16 +339,16 @@ const printableItems = computed(() => {
           </div>
 
           <!-- Notes & Terms -->
-          <div v-if="quotation.notes || quotation.terms_conditions" class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Notes & Terms</h2>
+          <div v-if="quotation.notes || quotation.terms_conditions" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Notes & Terms</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div v-if="quotation.notes">
-                <h3 class="text-sm font-medium text-slate-500 mb-2">Notes</h3>
-                <p class="text-slate-900 whitespace-pre-line">{{ quotation.notes }}</p>
+                <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Notes</h3>
+                <p class="text-slate-900 dark:text-slate-100 whitespace-pre-line">{{ quotation.notes }}</p>
               </div>
               <div v-if="quotation.terms_conditions">
-                <h3 class="text-sm font-medium text-slate-500 mb-2">Terms & Conditions</h3>
-                <p class="text-slate-900 whitespace-pre-line">{{ quotation.terms_conditions }}</p>
+                <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Terms & Conditions</h3>
+                <p class="text-slate-900 dark:text-slate-100 whitespace-pre-line">{{ quotation.terms_conditions }}</p>
               </div>
             </div>
           </div>
@@ -357,52 +357,52 @@ const printableItems = computed(() => {
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Summary Card -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Summary</h2>
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Summary</h2>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Subtotal</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(quotation.subtotal) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Subtotal</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(quotation.subtotal) }}</dd>
               </div>
               <div v-if="quotation.discount_amount" class="flex justify-between">
-                <dt class="text-slate-500">Discount</dt>
-                <dd class="font-medium text-slate-900">-{{ formatCurrency(quotation.discount_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Discount</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">-{{ formatCurrency(quotation.discount_amount) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Tax</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(quotation.tax_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Tax</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(quotation.tax_amount) }}</dd>
               </div>
-              <hr class="border-slate-200" />
+              <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
-                <dt class="font-semibold text-slate-900">Total</dt>
-                <dd class="font-bold text-lg text-orange-600">{{ formatCurrency(quotation.total) }}</dd>
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
+                <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(quotation.total) }}</dd>
               </div>
             </dl>
           </div>
 
           <!-- Activity Card -->
-          <div v-if="quotation.submitted_at || quotation.approved_at" class="bg-white rounded-xl border border-slate-200 p-6">
-            <h2 class="font-semibold text-slate-900 mb-4">Activity</h2>
+          <div v-if="quotation.submitted_at || quotation.approved_at" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Activity</h2>
             <ul class="space-y-3 text-sm">
               <li v-if="quotation.approved_at" class="flex gap-3">
                 <div class="w-2 h-2 mt-1.5 rounded-full bg-green-500"></div>
                 <div>
-                  <p class="text-slate-900">Approved</p>
-                  <p class="text-slate-500">{{ formatDate(quotation.approved_at) }}</p>
+                  <p class="text-slate-900 dark:text-slate-100">Approved</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.approved_at) }}</p>
                 </div>
               </li>
               <li v-if="quotation.submitted_at" class="flex gap-3">
                 <div class="w-2 h-2 mt-1.5 rounded-full bg-amber-500"></div>
                 <div>
-                  <p class="text-slate-900">Submitted</p>
-                  <p class="text-slate-500">{{ formatDate(quotation.submitted_at) }}</p>
+                  <p class="text-slate-900 dark:text-slate-100">Submitted</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.submitted_at) }}</p>
                 </div>
               </li>
               <li class="flex gap-3">
-                <div class="w-2 h-2 mt-1.5 rounded-full bg-slate-300"></div>
+                <div class="w-2 h-2 mt-1.5 rounded-full bg-slate-300 dark:bg-slate-600"></div>
                 <div>
-                  <p class="text-slate-900">Created</p>
-                  <p class="text-slate-500">{{ formatDate(quotation.created_at) }}</p>
+                  <p class="text-slate-900 dark:text-slate-100">Created</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.created_at) }}</p>
                 </div>
               </li>
             </ul>
@@ -413,15 +413,15 @@ const printableItems = computed(() => {
 
     <!-- Reject Modal -->
     <Modal :open="showRejectModal" title="Reject Quotation" @update:open="showRejectModal = $event">
-      <p class="text-slate-600 mb-4">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
         Are you sure you want to reject this quotation? This action cannot be undone.
       </p>
       <div class="mb-4">
-        <label class="block text-sm font-medium text-slate-700 mb-1">Reason (optional)</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason (optional)</label>
         <textarea
           v-model="rejectReason"
           rows="3"
-          class="w-full px-3 py-2 border border-slate-300 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           placeholder="Enter rejection reason..."
         />
       </div>
@@ -453,11 +453,11 @@ const printableItems = computed(() => {
       size="2xl"
       @update:open="showPrintPreview = $event"
     >
-      <div class="no-print mb-4 p-3 bg-slate-50 rounded-lg text-sm text-slate-600">
+      <div class="no-print mb-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm text-slate-600 dark:text-slate-400">
         Click "Print" to open the print dialog. You can print directly or save as PDF.
       </div>
 
-      <div v-if="quotation" class="border border-slate-200 rounded-lg overflow-hidden">
+      <div v-if="quotation" class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <PrintableDocument
           type="quotation"
           :number="quotation.full_number"

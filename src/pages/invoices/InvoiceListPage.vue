@@ -100,8 +100,8 @@ const bulkActions = computed(() => [
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Invoices</h1>
-        <p class="text-slate-500">Manage sales invoices and receivables</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Invoices</h1>
+        <p class="text-slate-500 dark:text-slate-400">Manage sales invoices and receivables</p>
       </div>
       <RouterLink to="/invoices/new">
         <Button>
@@ -114,7 +114,7 @@ const bulkActions = computed(() => [
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">
       <div class="flex flex-wrap gap-4">
         <!-- Search -->
         <div class="flex-1 min-w-[200px]">
@@ -137,13 +137,13 @@ const bulkActions = computed(() => [
     </div>
 
     <!-- Error State -->
-    <div v-if="error" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
+    <div v-if="error" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
       <p class="text-red-500">Failed to load invoices</p>
     </div>
 
     <!-- Loading State -->
-    <div v-else-if="isLoading" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <div class="flex items-center justify-center gap-2 text-slate-500">
+    <div v-else-if="isLoading" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+      <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
         <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -153,7 +153,7 @@ const bulkActions = computed(() => [
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="invoices.length === 0" class="bg-white rounded-xl border border-slate-200">
+    <div v-else-if="invoices.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No invoices found"
         description="Create your first invoice to start tracking receivables"
@@ -163,78 +163,78 @@ const bulkActions = computed(() => [
     </div>
 
     <!-- Table -->
-    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <table class="w-full">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
           <tr>
             <th class="px-4 py-3 text-left">
               <input
                 type="checkbox"
-                class="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                class="rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                 :checked="isAllSelected"
                 :indeterminate="isSomeSelected"
                 @change="toggleAll"
               />
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Invoice #
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Customer
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Amount
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Outstanding
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Status
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Due Date
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
           <tr
             v-for="invoice in invoices"
             :key="invoice.id"
-            class="hover:bg-slate-50"
-            :class="{ 'bg-primary-50': isSelected(invoice) }"
+            class="hover:bg-slate-50 dark:hover:bg-slate-800"
+            :class="{ 'bg-primary-50 dark:bg-primary-900/20': isSelected(invoice) }"
           >
             <td class="px-4 py-4" @click.stop>
               <input
                 type="checkbox"
-                class="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                class="rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
                 :checked="isSelected(invoice)"
                 @change="toggleItem(invoice)"
               />
             </td>
             <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <span class="text-orange-600 hover:text-orange-700 font-medium">
+              <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
                 {{ invoice.invoice_number }}
               </span>
             </td>
             <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <div class="font-medium text-slate-900">{{ invoice.contact?.name }}</div>
-              <div class="text-sm text-slate-500">{{ invoice.description }}</div>
+              <div class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.contact?.name }}</div>
+              <div class="text-sm text-slate-500 dark:text-slate-400">{{ invoice.description }}</div>
             </td>
-            <td class="px-6 py-4 text-right font-medium text-slate-900 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
+            <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               {{ formatCurrency(invoice.total_amount) }}
             </td>
             <td class="px-6 py-4 text-right cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <span :class="invoice.outstanding_amount > 0 ? 'text-orange-600 font-medium' : 'text-slate-500'">
+              <span :class="invoice.outstanding_amount > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-500 dark:text-slate-400'">
                 {{ formatCurrency(invoice.outstanding_amount) }}
               </span>
             </td>
             <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               <Badge :status="invoice.status as any" />
             </td>
-            <td class="px-6 py-4 text-slate-500 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
               {{ formatDate(invoice.due_date) }}
             </td>
             <td class="px-6 py-4 text-right" @click.stop>
@@ -247,7 +247,7 @@ const bulkActions = computed(() => [
       </table>
 
       <!-- Pagination -->
-      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200">
+      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination
           :current-page="pagination.current_page"
           :total-pages="pagination.last_page"

@@ -99,6 +99,7 @@ const isLoadingSolarData = ref(false)
 const solarData = ref<SolarData | null>(null)
 const isDrawing = ref(false) // Track if polygon drawing is active
 const localRoofArea = ref<number | undefined>(undefined) // Local state for immediate UI updates
+const isSelectingResult = ref(false) // Flag to prevent re-search when setting display name
 
 // Geocoding
 const { isSearching, searchResults, searchAddress, reverseGeocode, clearResults } = useGeocoding()
@@ -128,6 +129,8 @@ const debouncedSearch = useDebounceFn(async (query: string) => {
 }, 300)
 
 watch(searchQuery, (newVal) => {
+  // Skip search if we're just setting the display name from a selection
+  if (isSelectingResult.value) return
   debouncedSearch(newVal)
 })
 
@@ -497,10 +500,15 @@ function selectSearchResult(result: SearchResult) {
     province: result.province || undefined,
   })
 
-  // Clear search
+  // Clear search and set display name (without triggering a new search)
+  isSelectingResult.value = true
   searchQuery.value = result.displayName.split(',')[0] ?? ''
   showSearchResults.value = false
   clearResults()
+  // Reset flag after Vue processes the change
+  nextTick(() => {
+    isSelectingResult.value = false
+  })
 
   // Fetch solar data (this also provides city/province from our database as fallback)
   fetchSolarData(result.lat, result.lng)
@@ -572,7 +580,7 @@ onUnmounted(() => {
             v-model="searchQuery"
             type="text"
             placeholder="Search address..."
-            class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            class="w-full pl-10 pr-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             :disabled="readonly"
           />
           <div
@@ -586,20 +594,20 @@ onUnmounted(() => {
         <!-- Search Results Dropdown -->
         <div
           v-if="showSearchResults && searchResults.length > 0"
-          class="absolute z-[1000] w-full mt-1 bg-white rounded-lg border border-slate-200 shadow-lg max-h-60 overflow-auto"
+          class="absolute z-[1000] w-full mt-1 bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-lg max-h-60 overflow-auto"
         >
           <button
             v-for="result in searchResults"
             :key="`${result.lat}-${result.lng}`"
             type="button"
-            class="w-full px-4 py-3 text-left hover:bg-slate-50 border-b border-slate-100 last:border-b-0"
+            class="w-full px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 last:border-b-0"
             @click="selectSearchResult(result)"
           >
             <div class="flex items-start gap-2">
-              <MapPin class="w-4 h-4 text-slate-400 mt-0.5 shrink-0" />
+              <MapPin class="w-4 h-4 text-slate-400 dark:text-slate-500 mt-0.5 shrink-0" />
               <div class="min-w-0">
-                <div class="text-sm text-slate-900 truncate">{{ result.displayName }}</div>
-                <div class="text-xs text-slate-500">{{ result.city }}, {{ result.province }}</div>
+                <div class="text-sm text-slate-900 dark:text-slate-100 truncate">{{ result.displayName }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">{{ result.city }}, {{ result.province }}</div>
               </div>
             </div>
           </button>
@@ -609,7 +617,7 @@ onUnmounted(() => {
       <!-- Layer Toggle -->
       <button
         type="button"
-        class="flex items-center gap-2 px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm hover:bg-slate-50 transition-colors"
+        class="flex items-center gap-2 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
         @click="toggleMapType"
       >
         <Layers class="w-4 h-4" />
@@ -619,7 +627,7 @@ onUnmounted(() => {
       <!-- My Location -->
       <button
         type="button"
-        class="p-2 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
+        class="p-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
         title="Go to my location"
         @click="goToMyLocation"
       >
@@ -630,86 +638,86 @@ onUnmounted(() => {
     <!-- Map Container -->
     <div
       ref="mapContainer"
-      class="w-full h-[400px] rounded-lg border border-slate-200 overflow-hidden"
+      class="w-full h-[400px] rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
     />
 
     <!-- Info Panels -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
       <!-- Coordinates & Location -->
-      <div class="bg-slate-50 rounded-lg p-4">
-        <div class="flex items-center gap-2 text-sm font-medium text-slate-700 mb-3">
+      <div class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+        <div class="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
           <MapPin class="w-4 h-4" />
           Coordinates
         </div>
 
         <div v-if="modelValue.latitude && modelValue.longitude" class="space-y-2 text-sm">
           <div class="flex justify-between">
-            <span class="text-slate-500">Latitude</span>
-            <span class="font-mono text-slate-900">{{ modelValue.latitude.toFixed(6) }}</span>
+            <span class="text-slate-500 dark:text-slate-400">Latitude</span>
+            <span class="font-mono text-slate-900 dark:text-slate-100">{{ modelValue.latitude.toFixed(6) }}</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-500">Longitude</span>
-            <span class="font-mono text-slate-900">{{ modelValue.longitude.toFixed(6) }}</span>
+            <span class="text-slate-500 dark:text-slate-400">Longitude</span>
+            <span class="font-mono text-slate-900 dark:text-slate-100">{{ modelValue.longitude.toFixed(6) }}</span>
           </div>
-          <div v-if="modelValue.province" class="flex justify-between pt-2 border-t border-slate-200">
-            <span class="text-slate-500">Province</span>
-            <span class="text-slate-900">{{ modelValue.province }}</span>
+          <div v-if="modelValue.province" class="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
+            <span class="text-slate-500 dark:text-slate-400">Province</span>
+            <span class="text-slate-900 dark:text-slate-100">{{ modelValue.province }}</span>
           </div>
           <div v-if="modelValue.city" class="flex justify-between">
-            <span class="text-slate-500">City</span>
-            <span class="text-slate-900">{{ modelValue.city }}</span>
+            <span class="text-slate-500 dark:text-slate-400">City</span>
+            <span class="text-slate-900 dark:text-slate-100">{{ modelValue.city }}</span>
           </div>
         </div>
 
-        <div v-else class="text-sm text-slate-500">
+        <div v-else class="text-sm text-slate-500 dark:text-slate-400">
           Click on the map to select a location
         </div>
       </div>
 
       <!-- Solar Data -->
-      <div class="bg-amber-50 rounded-lg p-4">
-        <div class="flex items-center gap-2 text-sm font-medium text-amber-700 mb-3">
+      <div class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4">
+        <div class="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400 mb-3">
           <span>☀️</span>
           Solar Data
         </div>
 
-        <div v-if="isLoadingSolarData" class="flex items-center gap-2 text-sm text-slate-500">
+        <div v-if="isLoadingSolarData" class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
           <div class="animate-spin rounded-full h-4 w-4 border-2 border-amber-500 border-t-transparent" />
           Loading solar data...
         </div>
 
         <div v-else-if="solarData" class="space-y-2 text-sm">
           <div class="flex justify-between">
-            <span class="text-slate-600">Peak Sun Hours</span>
-            <span class="font-medium text-slate-900">{{ solarData.peak_sun_hours }} h/day</span>
+            <span class="text-slate-600 dark:text-slate-400">Peak Sun Hours</span>
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ solarData.peak_sun_hours }} h/day</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-600">Irradiance</span>
-            <span class="font-medium text-slate-900">{{ solarData.solar_irradiance_kwh_m2_day }} kWh/m²/day</span>
+            <span class="text-slate-600 dark:text-slate-400">Irradiance</span>
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ solarData.solar_irradiance_kwh_m2_day }} kWh/m²/day</span>
           </div>
           <div class="flex justify-between">
-            <span class="text-slate-600">Optimal Tilt</span>
-            <span class="font-medium text-slate-900">{{ solarData.optimal_tilt_angle }}°</span>
+            <span class="text-slate-600 dark:text-slate-400">Optimal Tilt</span>
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ solarData.optimal_tilt_angle }}°</span>
           </div>
         </div>
 
-        <div v-else class="text-sm text-slate-500">
+        <div v-else class="text-sm text-slate-500 dark:text-slate-400">
           Select a location to see solar data
         </div>
       </div>
     </div>
 
     <!-- Roof Area Panel -->
-    <div v-if="showDrawTools" class="bg-green-50 rounded-lg p-4 mt-4">
+    <div v-if="showDrawTools" class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 mt-4">
       <div class="flex items-center justify-between mb-3">
-        <div class="flex items-center gap-2 text-sm font-medium text-green-700">
+        <div class="flex items-center gap-2 text-sm font-medium text-green-700 dark:text-green-400">
           <Pencil class="w-4 h-4" />
           Roof Area
         </div>
         <button
           v-if="drawnPolygon"
           type="button"
-          class="text-sm text-red-600 hover:text-red-700 flex items-center gap-1"
+          class="text-sm text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex items-center gap-1"
           @click="clearPolygon"
         >
           <Trash2 class="w-3.5 h-3.5" />
@@ -719,24 +727,24 @@ onUnmounted(() => {
 
       <div v-if="calculatedRoofArea" class="space-y-2 text-sm">
         <div class="flex justify-between">
-          <span class="text-slate-600">Drawn Area</span>
-          <span class="font-medium text-slate-900">{{ calculatedRoofArea.toLocaleString() }} m²</span>
+          <span class="text-slate-600 dark:text-slate-400">Drawn Area</span>
+          <span class="font-medium text-slate-900 dark:text-slate-100">{{ calculatedRoofArea.toLocaleString() }} m²</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-600">Usable Area (80%)</span>
-          <span class="font-medium text-slate-900">{{ usableArea?.toLocaleString() }} m²</span>
+          <span class="text-slate-600 dark:text-slate-400">Usable Area (80%)</span>
+          <span class="font-medium text-slate-900 dark:text-slate-100">{{ usableArea?.toLocaleString() }} m²</span>
         </div>
-        <div class="flex justify-between pt-2 border-t border-green-200">
-          <span class="text-slate-600">Est. Capacity</span>
-          <span class="font-bold text-green-700">{{ estimatedCapacity }} kWp</span>
+        <div class="flex justify-between pt-2 border-t border-green-200 dark:border-green-800">
+          <span class="text-slate-600 dark:text-slate-400">Est. Capacity</span>
+          <span class="font-bold text-green-700 dark:text-green-400">{{ estimatedCapacity }} kWp</span>
         </div>
         <div class="flex justify-between">
-          <span class="text-slate-600">Est. Panels</span>
-          <span class="font-medium text-slate-900">~{{ estimatedPanels }} panels</span>
+          <span class="text-slate-600 dark:text-slate-400">Est. Panels</span>
+          <span class="font-medium text-slate-900 dark:text-slate-100">~{{ estimatedPanels }} panels</span>
         </div>
       </div>
 
-      <div v-else class="text-sm text-slate-500">
+      <div v-else class="text-sm text-slate-500 dark:text-slate-400">
         <p>Use the polygon tool on the map to draw your roof outline.</p>
         <p class="mt-1 text-xs">Switch to Satellite view for better accuracy.</p>
       </div>

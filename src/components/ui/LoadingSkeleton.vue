@@ -27,7 +27,7 @@ const variantClasses: Record<SkeletonVariant, string> = {
 
 const baseClasses = computed(() =>
   cn(
-    'bg-slate-200',
+    'bg-slate-200 dark:bg-slate-700',
     props.animated && 'animate-pulse',
     variantClasses[props.variant]
   )

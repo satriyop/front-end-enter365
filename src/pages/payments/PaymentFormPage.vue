@@ -112,8 +112,8 @@ async function handleSubmit() {
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Record Payment</h1>
-        <p class="text-slate-500">Record a payment received or made</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Record Payment</h1>
+        <p class="text-slate-500 dark:text-slate-400">Record a payment received or made</p>
       </div>
       <Button variant="ghost" @click="router.back()">Cancel</Button>
     </div>
@@ -121,7 +121,7 @@ async function handleSubmit() {
     <form @submit.prevent="handleSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Payment Details</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Payment Details</h2>
         </template>
         <div class="space-y-4">
           <FormField label="Payment Type" required>

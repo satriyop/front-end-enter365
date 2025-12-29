@@ -27,15 +27,15 @@ const attrs = useAttrs()
 
 const textareaClasses = computed(() =>
   cn(
-    'w-full rounded-sm border bg-white px-3 py-2 text-sm transition-colors duration-150',
-    'placeholder:text-slate-400 resize-y min-h-[100px]',
+    'w-full rounded-sm border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm transition-colors duration-150',
+    'placeholder:text-slate-400 dark:placeholder:text-slate-500 resize-y min-h-[100px]',
     'focus:outline-none focus:ring-1',
     // State: default
-    !props.error && !props.disabled && 'border-slate-300 focus:border-orange-500 focus:ring-orange-500',
+    !props.error && !props.disabled && 'border-slate-300 dark:border-slate-600 focus:border-orange-500 focus:ring-orange-500',
     // State: error
     props.error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
     // State: disabled
-    props.disabled && 'bg-slate-50 cursor-not-allowed text-slate-500'
+    props.disabled && 'bg-slate-50 dark:bg-slate-900 cursor-not-allowed text-slate-500 dark:text-slate-400'
   )
 )
 
@@ -69,7 +69,7 @@ function handleInput(event: Event) {
       v-if="showCount"
       :class="[
         'mt-1 text-xs text-right',
-        maxLength && charCount >= maxLength ? 'text-red-500' : 'text-slate-500'
+        maxLength && charCount >= maxLength ? 'text-red-500' : 'text-slate-500 dark:text-slate-400'
       ]"
     >
       {{ countText }}

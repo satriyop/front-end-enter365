@@ -24,27 +24,27 @@ const emit = defineEmits<{
 
 const variantClasses: Record<AlertVariant, { bg: string; border: string; text: string; icon: string }> = {
   info: {
-    bg: 'bg-blue-50',
+    bg: 'bg-blue-50 dark:bg-blue-900/30',
     border: 'border-blue-500',
-    text: 'text-blue-700',
+    text: 'text-blue-700 dark:text-blue-300',
     icon: 'text-blue-500',
   },
   success: {
-    bg: 'bg-green-50',
+    bg: 'bg-green-50 dark:bg-green-900/30',
     border: 'border-green-500',
-    text: 'text-green-700',
+    text: 'text-green-700 dark:text-green-300',
     icon: 'text-green-500',
   },
   warning: {
-    bg: 'bg-amber-50',
+    bg: 'bg-amber-50 dark:bg-amber-900/30',
     border: 'border-amber-500',
-    text: 'text-amber-700',
+    text: 'text-amber-700 dark:text-amber-300',
     icon: 'text-amber-500',
   },
   destructive: {
-    bg: 'bg-red-50',
+    bg: 'bg-red-50 dark:bg-red-900/30',
     border: 'border-red-500',
-    text: 'text-red-700',
+    text: 'text-red-700 dark:text-red-300',
     icon: 'text-red-500',
   },
 }

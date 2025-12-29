@@ -15,26 +15,26 @@ const emit = defineEmits<{
 
 const variantStyles: Record<ToastVariant, { bg: string; border: string; icon: string; iconPath: string }> = {
   success: {
-    bg: 'bg-green-50',
-    border: 'border-green-200',
+    bg: 'bg-green-50 dark:bg-green-900/30',
+    border: 'border-green-200 dark:border-green-700',
     icon: 'text-green-500',
     iconPath: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
   },
   error: {
-    bg: 'bg-red-50',
-    border: 'border-red-200',
+    bg: 'bg-red-50 dark:bg-red-900/30',
+    border: 'border-red-200 dark:border-red-700',
     icon: 'text-red-500',
     iconPath: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
   },
   warning: {
-    bg: 'bg-amber-50',
-    border: 'border-amber-200',
+    bg: 'bg-amber-50 dark:bg-amber-900/30',
+    border: 'border-amber-200 dark:border-amber-700',
     icon: 'text-amber-500',
     iconPath: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
   },
   info: {
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
+    bg: 'bg-blue-50 dark:bg-blue-900/30',
+    border: 'border-blue-200 dark:border-blue-700',
     icon: 'text-blue-500',
     iconPath: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
   },
@@ -85,13 +85,13 @@ function handleAction() {
     <div class="flex-1 min-w-0">
       <p
         v-if="toast.title"
-        class="text-sm font-medium text-slate-900"
+        class="text-sm font-medium text-slate-900 dark:text-slate-100"
       >
         {{ toast.title }}
       </p>
       <p
         :class="[
-          'text-sm text-slate-600',
+          'text-sm text-slate-600 dark:text-slate-300',
           toast.title && 'mt-1'
         ]"
       >
@@ -112,7 +112,7 @@ function handleAction() {
     <!-- Close button -->
     <button
       type="button"
-      class="flex-shrink-0 p-1 text-slate-400 hover:text-slate-500 rounded transition-colors"
+      class="flex-shrink-0 p-1 text-slate-400 hover:text-slate-500 dark:hover:text-slate-300 rounded transition-colors"
       @click="handleClose"
     >
       <span class="sr-only">Close</span>

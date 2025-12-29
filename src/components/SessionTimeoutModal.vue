@@ -25,21 +25,21 @@ const emit = defineEmits<{
     :show-close="false"
   >
     <div class="text-center">
-      <div class="mx-auto w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-4">
-        <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class="mx-auto w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       </div>
 
-      <p class="text-slate-600 mb-2">
+      <p class="text-slate-600 dark:text-slate-400 mb-2">
         Your session will expire in
       </p>
 
-      <p class="text-3xl font-bold text-slate-900 mb-4">
+      <p class="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-4">
         {{ remainingTime }}
       </p>
 
-      <p class="text-sm text-slate-500">
+      <p class="text-sm text-slate-500 dark:text-slate-400">
         Would you like to stay logged in?
       </p>
     </div>

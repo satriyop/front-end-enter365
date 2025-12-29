@@ -127,8 +127,8 @@ async function handleSubmit() {
   <div class="max-w-3xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update product information' : 'Add a new product or service' }}
         </p>
       </div>
@@ -136,13 +136,13 @@ async function handleSubmit() {
     </div>
 
     <div v-if="isEditing && loadingProduct" class="text-center py-12">
-      <div class="text-slate-500">Loading product...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading product...</div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Basic Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="SKU" required :error="errors.sku">
@@ -165,7 +165,7 @@ async function handleSubmit() {
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Pricing</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Pricing</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Purchase Price">
@@ -179,8 +179,8 @@ async function handleSubmit() {
           </FormField>
           <div class="flex items-center gap-4 pt-6">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.is_taxable" type="checkbox" class="rounded border-slate-300" />
-              <span class="text-sm text-slate-700">Taxable</span>
+              <input v-model="form.is_taxable" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
+              <span class="text-sm text-slate-700 dark:text-slate-300">Taxable</span>
             </label>
           </div>
         </div>
@@ -188,13 +188,13 @@ async function handleSubmit() {
 
       <Card v-if="form.type === 'product'">
         <template #header>
-          <h2 class="font-medium text-slate-900">Inventory</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Inventory</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.track_inventory" type="checkbox" class="rounded border-slate-300" />
-              <span class="text-sm text-slate-700">Track Inventory</span>
+              <input v-model="form.track_inventory" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
+              <span class="text-sm text-slate-700 dark:text-slate-300">Track Inventory</span>
             </label>
           </div>
           <FormField label="Minimum Stock">
@@ -206,12 +206,12 @@ async function handleSubmit() {
       <Card>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-medium text-slate-900">Active Status</h3>
-            <p class="text-sm text-slate-500">Inactive products won't appear in lookups</p>
+            <h3 class="font-medium text-slate-900 dark:text-slate-100">Active Status</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Inactive products won't appear in lookups</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
-            <div class="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
           </label>
         </div>
       </Card>

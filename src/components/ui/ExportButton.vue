@@ -97,11 +97,11 @@ onUnmounted(() => {
     <Transition name="scale-fade">
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-1 w-40 bg-white rounded-lg shadow-lg border border-slate-200 z-50 py-1"
+        class="absolute right-0 mt-1 w-40 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 z-50 py-1"
       >
         <button
           type="button"
-          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           @click="handleExport('excel')"
         >
           <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
@@ -111,7 +111,7 @@ onUnmounted(() => {
         </button>
         <button
           type="button"
-          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+          class="w-full flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
           @click="handleExport('csv')"
         >
           <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

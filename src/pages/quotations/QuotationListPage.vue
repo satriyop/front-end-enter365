@@ -186,7 +186,7 @@ function getStatusLabel(status: string): string {
             <td class="px-6 py-4">
               <RouterLink
                 :to="`/quotations/${quotation.id}`"
-                class="text-primary hover:text-primary/80 font-medium"
+                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
               >
                 {{ quotation.quotation_number }}
               </RouterLink>

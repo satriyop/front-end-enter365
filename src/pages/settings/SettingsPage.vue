@@ -127,19 +127,19 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
 <template>
   <div class="max-w-2xl mx-auto">
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-slate-900">Settings</h1>
-      <p class="text-slate-500">Manage your account settings</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Settings</h1>
+      <p class="text-slate-500 dark:text-slate-400">Manage your account settings</p>
     </div>
 
     <!-- Tabs -->
-    <div class="flex gap-1 p-1 bg-slate-100 rounded-lg mb-6">
+    <div class="flex gap-1 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-6">
       <button
         type="button"
         @click="activeTab = 'profile'"
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors"
         :class="activeTab === 'profile'
-          ? 'bg-white text-slate-900 shadow-sm'
-          : 'text-slate-600 hover:text-slate-900'"
+          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
       >
         Profile
       </button>
@@ -148,8 +148,8 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
         @click="activeTab = 'password'"
         class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors"
         :class="activeTab === 'password'
-          ? 'bg-white text-slate-900 shadow-sm'
-          : 'text-slate-600 hover:text-slate-900'"
+          ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
       >
         Password
       </button>
@@ -159,7 +159,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     <form v-if="activeTab === 'profile'" @submit.prevent="handleProfileSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Profile Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Profile Information</h2>
         </template>
         <div class="space-y-4">
           <FormField label="Name" required :error="profileErrors.name">
@@ -174,38 +174,38 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
       <!-- Account Info (read-only) -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Account Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Account Information</h2>
         </template>
         <div class="space-y-4">
           <div>
-            <div class="text-sm font-medium text-slate-500">Roles</div>
+            <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Roles</div>
             <div class="mt-1 flex flex-wrap gap-2">
               <span
                 v-for="role in auth.user?.roles"
                 :key="role.id"
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400"
               >
                 {{ role.display_name }}
               </span>
-              <span v-if="!auth.user?.roles?.length" class="text-slate-400">No roles assigned</span>
+              <span v-if="!auth.user?.roles?.length" class="text-slate-400 dark:text-slate-500">No roles assigned</span>
             </div>
           </div>
           <div>
-            <div class="text-sm font-medium text-slate-500">Account Status</div>
+            <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Account Status</div>
             <div class="mt-1">
               <span
                 class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="auth.user?.is_active !== false
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'"
+                  ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'"
               >
                 {{ auth.user?.is_active !== false ? 'Active' : 'Inactive' }}
               </span>
             </div>
           </div>
           <div v-if="auth.user?.created_at">
-            <div class="text-sm font-medium text-slate-500">Member Since</div>
-            <div class="mt-1 text-slate-900">
+            <div class="text-sm font-medium text-slate-500 dark:text-slate-400">Member Since</div>
+            <div class="mt-1 text-slate-900 dark:text-slate-100">
               {{ new Date(auth.user.created_at).toLocaleDateString('id-ID', {
                 year: 'numeric',
                 month: 'long',
@@ -227,7 +227,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     <form v-if="activeTab === 'password'" @submit.prevent="handlePasswordSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Change Password</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Change Password</h2>
         </template>
         <div class="space-y-4">
           <FormField label="Current Password" required :error="passwordErrors.current_password">
@@ -245,7 +245,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
               placeholder="Enter new password"
               autocomplete="new-password"
             />
-            <p class="text-xs text-slate-500 mt-1">Must be at least 8 characters</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Must be at least 8 characters</p>
           </FormField>
           <FormField label="Confirm New Password" required :error="passwordErrors.password_confirmation">
             <Input

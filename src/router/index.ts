@@ -30,6 +30,12 @@ const router = createRouter({
       meta: { guest: true }
     },
     {
+      path: '/solar-calculator',
+      name: 'solar-calculator',
+      component: () => import('@/pages/public/SolarCalculatorPage.vue'),
+      meta: { guest: true }
+    },
+    {
       path: '/',
       component: () => import('@/layouts/AppLayout.vue'),
       meta: { requiresAuth: true },

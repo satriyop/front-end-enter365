@@ -240,8 +240,8 @@ function formatSpecLabel(key: string): string {
   <div class="max-w-3xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update component standard' : 'Create a new IEC component standard' }}
         </p>
       </div>
@@ -249,14 +249,14 @@ function formatSpecLabel(key: string): string {
     </div>
 
     <div v-if="isEditing && loadingStandard" class="text-center py-12">
-      <div class="text-slate-500">Loading component standard...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading component standard...</div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Basic Information -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Basic Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Code" required :error="errors.code">
@@ -291,14 +291,14 @@ function formatSpecLabel(key: string): string {
       <Card>
         <template #header>
           <div class="flex items-center justify-between">
-            <h2 class="font-medium text-slate-900">Specifications</h2>
+            <h2 class="font-medium text-slate-900 dark:text-slate-100">Specifications</h2>
             <Button type="button" variant="ghost" size="sm" @click="addSpecField">
               + Add Field
             </Button>
           </div>
         </template>
 
-        <div v-if="form.specifications.length === 0" class="py-4 text-center text-slate-500">
+        <div v-if="form.specifications.length === 0" class="py-4 text-center text-slate-500 dark:text-slate-400">
           Select a category to load specification template, or add fields manually.
         </div>
 
@@ -349,12 +349,12 @@ function formatSpecLabel(key: string): string {
       <Card>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-medium text-slate-900">Active Status</h3>
-            <p class="text-sm text-slate-500">Inactive standards won't be used in BOM swapping</p>
+            <h3 class="font-medium text-slate-900 dark:text-slate-100">Active Status</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Inactive standards won't be used in BOM swapping</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
-            <div class="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
           </label>
         </div>
       </Card>

@@ -1,12 +1,11 @@
-import { ref, watch, onMounted } from 'vue'
+import { ref, computed, watch } from 'vue'
 
 const STORAGE_KEY = 'enter365:theme'
 
 type Theme = 'light' | 'dark' | 'system'
 
-// Singleton state
-const currentTheme = ref<Theme>('system')
-const isDark = ref(false)
+// Singleton state - shared across all components
+const theme = ref<Theme>('system')
 let initialized = false
 
 /**
@@ -18,60 +17,65 @@ function getSystemPreference(): boolean {
 }
 
 /**
- * Apply theme to document
+ * Compute if dark mode should be active based on theme setting
  */
-function applyTheme(dark: boolean) {
-  if (typeof document === 'undefined') return
-
-  if (dark) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-  isDark.value = dark
+function shouldBeDark(themeValue: Theme): boolean {
+  if (themeValue === 'dark') return true
+  if (themeValue === 'light') return false
+  return getSystemPreference()
 }
 
 /**
- * Initialize theme from storage or system
+ * Apply dark class to document
  */
-function initTheme() {
-  if (initialized) return
+function updateDOM(dark: boolean) {
+  if (typeof document === 'undefined') return
+  document.documentElement.classList.toggle('dark', dark)
+}
 
+/**
+ * Initialize from localStorage
+ */
+function init() {
+  if (initialized) return
+  initialized = true
+
+  // Read stored preference
   try {
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null
     if (stored && ['light', 'dark', 'system'].includes(stored)) {
-      currentTheme.value = stored
+      theme.value = stored
     }
   } catch {
     // localStorage not available
   }
 
-  // Calculate actual dark mode based on theme
-  const shouldBeDark = currentTheme.value === 'dark' ||
-    (currentTheme.value === 'system' && getSystemPreference())
+  // Apply initial theme
+  updateDOM(shouldBeDark(theme.value))
 
-  applyTheme(shouldBeDark)
-  initialized = true
-}
-
-/**
- * Listen for system preference changes
- */
-function setupSystemListener() {
-  if (typeof window === 'undefined') return
-
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-  const handler = (e: MediaQueryListEvent) => {
-    if (currentTheme.value === 'system') {
-      applyTheme(e.matches)
-    }
+  // Listen for system preference changes
+  if (typeof window !== 'undefined') {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    mediaQuery.addEventListener('change', () => {
+      if (theme.value === 'system') {
+        updateDOM(getSystemPreference())
+      }
+    })
   }
-
-  mediaQuery.addEventListener('change', handler)
-
-  return () => mediaQuery.removeEventListener('change', handler)
 }
+
+// Computed dark state - reactive based on theme and system preference
+const isDark = computed(() => shouldBeDark(theme.value))
+
+// Watch theme changes and update DOM + storage
+watch(theme, (newTheme) => {
+  updateDOM(shouldBeDark(newTheme))
+  try {
+    localStorage.setItem(STORAGE_KEY, newTheme)
+  } catch {
+    // localStorage not available
+  }
+})
 
 /**
  * Composable for managing dark mode
@@ -80,57 +84,48 @@ function setupSystemListener() {
  * const { isDark, theme, setTheme, toggle } = useDarkMode()
  */
 export function useDarkMode() {
-  onMounted(() => {
-    initTheme()
-    setupSystemListener()
-  })
+  // Ensure initialized (idempotent)
+  init()
 
   /**
    * Set theme mode
    */
-  function setTheme(theme: Theme) {
-    currentTheme.value = theme
-
-    try {
-      localStorage.setItem(STORAGE_KEY, theme)
-    } catch {
-      // localStorage not available
-    }
-
-    const shouldBeDark = theme === 'dark' ||
-      (theme === 'system' && getSystemPreference())
-
-    applyTheme(shouldBeDark)
+  function setTheme(newTheme: Theme) {
+    theme.value = newTheme
   }
 
   /**
-   * Toggle between light and dark
+   * Toggle between light and dark (skips system)
    */
   function toggle() {
-    const newTheme = isDark.value ? 'light' : 'dark'
-    setTheme(newTheme)
+    theme.value = isDark.value ? 'light' : 'dark'
   }
 
-  // Watch for theme changes
-  watch(currentTheme, (theme) => {
-    const shouldBeDark = theme === 'dark' ||
-      (theme === 'system' && getSystemPreference())
-    applyTheme(shouldBeDark)
-  })
+  /**
+   * Cycle through: light -> dark -> system -> light
+   */
+  function cycle() {
+    const order: Theme[] = ['light', 'dark', 'system']
+    const currentIndex = order.indexOf(theme.value)
+    const nextIndex = (currentIndex + 1) % order.length
+    theme.value = order[nextIndex] as Theme
+  }
 
   return {
-    /** Current theme setting */
-    theme: currentTheme,
-    /** Whether dark mode is currently active */
+    /** Current theme setting ('light' | 'dark' | 'system') */
+    theme,
+    /** Whether dark mode is currently active (computed) */
     isDark,
     /** Set theme mode */
     setTheme,
     /** Toggle between light and dark */
     toggle,
+    /** Cycle through all themes */
+    cycle,
   }
 }
 
-// Initialize immediately if in browser
+// Initialize immediately in browser
 if (typeof window !== 'undefined') {
-  initTheme()
+  init()
 }

@@ -64,7 +64,8 @@ const sizeStyles = {
 const triggerClasses = computed(() =>
   cn(
     'flex w-full items-center justify-between gap-2 rounded-md border bg-transparent',
-    'placeholder:text-muted-foreground',
+    'text-slate-900 dark:text-slate-100',
+    'placeholder:text-slate-400 dark:placeholder:text-slate-500',
     'focus:outline-none focus:ring-2 focus:ring-ring',
     'disabled:cursor-not-allowed disabled:opacity-50',
     '[&>span]:line-clamp-1',
@@ -72,7 +73,7 @@ const triggerClasses = computed(() =>
     sizeStyles[props.size],
     props.error
       ? 'border-destructive focus:ring-destructive'
-      : 'border-input',
+      : 'border-slate-200 dark:border-slate-700',
     props.class
   )
 )
@@ -141,7 +142,7 @@ const selectedLabel = computed(() => {
 
     <SelectPortal>
       <SelectContent
-        class="z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-border bg-white text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 dark:bg-slate-900"
+        class="z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-lg data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2"
         :side-offset="4"
         position="popper"
       >

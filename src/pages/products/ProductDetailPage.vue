@@ -30,7 +30,7 @@ async function handleDelete() {
   <div class="max-w-4xl mx-auto">
     <!-- Loading -->
     <div v-if="isLoading" class="text-center py-12">
-      <div class="text-slate-500">Loading product...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading product...</div>
     </div>
 
     <template v-else-if="product">
@@ -38,12 +38,12 @@ async function handleDelete() {
       <div class="flex items-start justify-between mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ product.name }}</h1>
+            <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ product.name }}</h1>
             <Badge :variant="product.type === 'product' ? 'info' : 'warning'">
               {{ product.type_label }}
             </Badge>
           </div>
-          <p class="text-slate-500 font-mono">{{ product.sku }}</p>
+          <p class="text-slate-500 dark:text-slate-400 font-mono">{{ product.sku }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
@@ -61,60 +61,60 @@ async function handleDelete() {
         <div class="lg:col-span-2 space-y-6">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Product Information</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Product Information</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">SKU</dt>
-                <dd class="font-mono">{{ product.sku }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">SKU</dt>
+                <dd class="font-mono text-slate-900 dark:text-slate-100">{{ product.sku }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Type</dt>
-                <dd>{{ product.type_label }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Type</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.type_label }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Category</dt>
-                <dd>{{ product.category?.name ?? '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Category</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.category?.name ?? '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Unit</dt>
-                <dd>{{ product.unit }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Unit</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.unit }}</dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-sm text-slate-500">Description</dt>
-                <dd>{{ product.description || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Description</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.description || '-' }}</dd>
               </div>
             </dl>
           </Card>
 
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Pricing</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Pricing</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Purchase Price</dt>
-                <dd class="text-lg font-medium">{{ formatCurrency(product.purchase_price) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Purchase Price</dt>
+                <dd class="text-lg font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(product.purchase_price) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Selling Price</dt>
-                <dd class="text-lg font-medium">{{ formatCurrency(product.selling_price) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Selling Price</dt>
+                <dd class="text-lg font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(product.selling_price) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Tax Rate</dt>
-                <dd>{{ product.tax_rate }}%</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Tax Rate</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.tax_rate }}%</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Selling Price (incl. Tax)</dt>
-                <dd class="font-medium">{{ product.selling_price_with_tax }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Selling Price (incl. Tax)</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ product.selling_price_with_tax }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Profit Margin</dt>
-                <dd class="text-green-600">{{ product.profit_margin }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Profit Margin</dt>
+                <dd class="text-green-600 dark:text-green-400">{{ product.profit_margin }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Markup</dt>
-                <dd>{{ product.markup }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Markup</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.markup }}</dd>
               </div>
             </dl>
           </Card>
@@ -124,19 +124,19 @@ async function handleDelete() {
         <div class="space-y-6">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Inventory</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Inventory</h2>
             </template>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Total Stock</dt>
-                <dd class="font-medium">{{ product.current_stock ?? 0 }} {{ product.unit }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Total Stock</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ product.current_stock ?? 0 }} {{ product.unit }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Min Stock</dt>
-                <dd>{{ product.min_stock ?? 0 }} {{ product.unit }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Min Stock</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ product.min_stock ?? 0 }} {{ product.unit }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Track Inventory</dt>
+                <dt class="text-slate-500 dark:text-slate-400">Track Inventory</dt>
                 <dd>
                   <Badge :variant="product.track_inventory ? 'success' : 'default'">
                     {{ product.track_inventory ? 'Yes' : 'No' }}
@@ -148,11 +148,11 @@ async function handleDelete() {
 
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Status</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Status</h2>
             </template>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Active</dt>
+                <dt class="text-slate-500 dark:text-slate-400">Active</dt>
                 <dd>
                   <Badge :variant="product.is_active ? 'success' : 'destructive'">
                     {{ product.is_active ? 'Active' : 'Inactive' }}
@@ -160,7 +160,7 @@ async function handleDelete() {
                 </dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Taxable</dt>
+                <dt class="text-slate-500 dark:text-slate-400">Taxable</dt>
                 <dd>
                   <Badge :variant="product.is_taxable ? 'info' : 'default'">
                     {{ product.is_taxable ? 'Yes' : 'No' }}

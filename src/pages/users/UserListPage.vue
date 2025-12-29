@@ -299,8 +299,8 @@ function toggleRole(roleId: number) {
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Users</h1>
-        <p class="text-slate-500">Manage user accounts and roles</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Users</h1>
+        <p class="text-slate-500 dark:text-slate-400">Manage user accounts and roles</p>
       </div>
       <Button @click="openCreateModal">
         <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -311,7 +311,7 @@ function toggleRole(roleId: number) {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">
       <div class="flex flex-wrap gap-4">
         <div class="flex-1 min-w-[200px]">
           <Input
@@ -332,13 +332,13 @@ function toggleRole(roleId: number) {
     </div>
 
     <!-- Error State -->
-    <div v-if="error" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <p class="text-red-500">Failed to load users</p>
+    <div v-if="error" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+      <p class="text-red-500 dark:text-red-400">Failed to load users</p>
     </div>
 
     <!-- Loading State -->
-    <div v-else-if="isLoading" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <div class="flex items-center justify-center gap-2 text-slate-500">
+    <div v-else-if="isLoading" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+      <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
         <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -348,7 +348,7 @@ function toggleRole(roleId: number) {
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="users.length === 0" class="bg-white rounded-xl border border-slate-200">
+    <div v-else-if="users.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No users found"
         description="Create a new user to get started"
@@ -358,41 +358,41 @@ function toggleRole(roleId: number) {
     </div>
 
     <!-- Table -->
-    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <table class="w-full">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               User
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Email
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Roles
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Status
             </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Created
             </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
               Actions
             </th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
-          <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
             <td class="px-6 py-4">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-medium">
+                <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 font-medium">
                   {{ user.name.charAt(0).toUpperCase() }}
                 </div>
-                <div class="font-medium text-slate-900">{{ user.name }}</div>
+                <div class="font-medium text-slate-900 dark:text-slate-100">{{ user.name }}</div>
               </div>
             </td>
-            <td class="px-6 py-4 text-slate-600">
+            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
               {{ user.email }}
             </td>
             <td class="px-6 py-4">
@@ -400,11 +400,11 @@ function toggleRole(roleId: number) {
                 <span
                   v-for="role in user.roles"
                   :key="role.id"
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
                 >
                   {{ role.display_name }}
                 </span>
-                <span v-if="!user.roles?.length" class="text-slate-400">No roles</span>
+                <span v-if="!user.roles?.length" class="text-slate-400 dark:text-slate-500">No roles</span>
               </div>
             </td>
             <td class="px-6 py-4">
@@ -412,7 +412,7 @@ function toggleRole(roleId: number) {
                 {{ user.is_active ? 'Active' : 'Inactive' }}
               </Badge>
             </td>
-            <td class="px-6 py-4 text-slate-500">
+            <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
               {{ formatDate(user.created_at) }}
             </td>
             <td class="px-6 py-4 text-right">
@@ -447,7 +447,7 @@ function toggleRole(roleId: number) {
       </table>
 
       <!-- Pagination -->
-      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200">
+      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination
           :current-page="pagination.current_page"
           :total-pages="pagination.last_page"
@@ -485,8 +485,8 @@ function toggleRole(roleId: number) {
               type="button"
               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
               :class="form.roles.includes(role.value)
-                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
-                : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:bg-slate-200'"
+                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700'
+                : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'"
               @click="toggleRole(role.value)"
             >
               {{ role.label }}
@@ -499,9 +499,9 @@ function toggleRole(roleId: number) {
             <input
               v-model="form.is_active"
               type="checkbox"
-              class="rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+              class="rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500"
             />
-            <span class="text-sm text-slate-700">Active</span>
+            <span class="text-sm text-slate-700 dark:text-slate-300">Active</span>
           </label>
         </FormField>
       </div>
@@ -533,8 +533,8 @@ function toggleRole(roleId: number) {
               type="button"
               class="px-3 py-1.5 rounded-lg text-sm font-medium transition-colors"
               :class="form.roles.includes(role.value)
-                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300'
-                : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:bg-slate-200'"
+                ? 'bg-orange-100 text-orange-700 border-2 border-orange-300 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-700'
+                : 'bg-slate-100 text-slate-600 border-2 border-transparent hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600'"
               @click="toggleRole(role.value)"
             >
               {{ role.label }}
@@ -547,9 +547,9 @@ function toggleRole(roleId: number) {
             <input
               v-model="form.is_active"
               type="checkbox"
-              class="rounded border-slate-300 text-orange-600 focus:ring-orange-500"
+              class="rounded border-slate-300 dark:border-slate-600 text-orange-600 focus:ring-orange-500"
             />
-            <span class="text-sm text-slate-700">Active</span>
+            <span class="text-sm text-slate-700 dark:text-slate-300">Active</span>
           </label>
         </FormField>
       </div>
@@ -564,7 +564,7 @@ function toggleRole(roleId: number) {
 
     <!-- Password Modal -->
     <Modal :open="showPasswordModal" title="Change Password" size="sm" @update:open="showPasswordModal = $event">
-      <p class="text-slate-600 mb-4">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
         Change password for <strong>{{ selectedUser?.name }}</strong>
       </p>
 
@@ -588,7 +588,7 @@ function toggleRole(roleId: number) {
 
     <!-- Delete Modal -->
     <Modal :open="showDeleteModal" title="Delete User" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
+      <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete <strong>{{ selectedUser?.name }}</strong>? This action cannot be undone.
       </p>
       <template #footer>

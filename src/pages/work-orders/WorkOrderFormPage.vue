@@ -157,8 +157,8 @@ async function handleSubmit() {
   <div class="max-w-3xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update work order details' : 'Create a new work order' }}
         </p>
       </div>
@@ -166,13 +166,13 @@ async function handleSubmit() {
     </div>
 
     <div v-if="isEditing && loadingWorkOrder" class="text-center py-12">
-      <div class="text-slate-500">Loading work order...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading work order...</div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Work Order Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Work Order Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Type" required>
@@ -198,7 +198,7 @@ async function handleSubmit() {
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Quantity & Schedule</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Quantity & Schedule</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField label="Quantity Ordered" required :error="errors.quantity_ordered">
@@ -215,7 +215,7 @@ async function handleSubmit() {
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Estimated Costs</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Estimated Costs</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField label="Material Cost">
@@ -228,17 +228,17 @@ async function handleSubmit() {
             <Input v-model.number="form.estimated_overhead_cost" type="number" min="0" step="100000" />
           </FormField>
         </div>
-        <div class="mt-4 pt-4 border-t border-slate-200">
+        <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
           <div class="flex justify-between text-lg font-medium">
-            <span class="text-slate-700">Estimated Total</span>
-            <span>Rp {{ estimatedTotal.toLocaleString('id-ID') }}</span>
+            <span class="text-slate-700 dark:text-slate-300">Estimated Total</span>
+            <span class="text-slate-900 dark:text-slate-100">Rp {{ estimatedTotal.toLocaleString('id-ID') }}</span>
           </div>
         </div>
       </Card>
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Notes</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Notes</h2>
         </template>
         <FormField label="Additional Notes">
           <Textarea v-model="form.notes" :rows="3" placeholder="Any additional notes or instructions" />

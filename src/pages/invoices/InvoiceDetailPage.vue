@@ -110,22 +110,22 @@ const printableItems = computed(() => {
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12 text-slate-500">
+    <div v-if="isLoading" class="text-center py-12 text-slate-500 dark:text-slate-400">
       Loading...
     </div>
 
     <!-- Error -->
-    <div v-else-if="error" class="text-center py-12 text-red-500">
+    <div v-else-if="error" class="text-center py-12 text-red-500 dark:text-red-400">
       Failed to load invoice
     </div>
 
     <!-- Content -->
     <template v-else-if="invoice">
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/invoices" class="hover:text-slate-700">Invoices</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/invoices" class="hover:text-slate-700 dark:hover:text-slate-300">Invoices</RouterLink>
         <span class="mx-2">/</span>
-        <span class="text-slate-900">{{ invoice.invoice_number }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ invoice.invoice_number }}</span>
       </div>
 
       <!-- Header -->
@@ -133,12 +133,12 @@ const printableItems = computed(() => {
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-semibold text-slate-900">
+              <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ invoice.invoice_number }}
               </h1>
               <Badge :status="invoice.status as any" />
             </div>
-            <p class="text-slate-500">{{ invoice.contact?.name }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ invoice.contact?.name }}</p>
           </div>
 
           <!-- Action Buttons -->
@@ -210,29 +210,29 @@ const printableItems = computed(() => {
           <!-- Details Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Details</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Details</h2>
             </template>
 
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Customer</dt>
-                <dd class="font-medium text-slate-900">{{ invoice.contact?.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Customer</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.contact?.name }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Reference</dt>
-                <dd class="font-medium text-slate-900">{{ invoice.reference || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.reference || '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Invoice Date</dt>
-                <dd class="font-medium text-slate-900">{{ formatDate(invoice.invoice_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Invoice Date</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(invoice.invoice_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Due Date</dt>
-                <dd class="font-medium text-slate-900">{{ formatDate(invoice.due_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Due Date</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(invoice.due_date) }}</dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-sm text-slate-500">Description</dt>
-                <dd class="font-medium text-slate-900">{{ invoice.description || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Description</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.description || '-' }}</dd>
               </div>
             </dl>
           </Card>
@@ -240,32 +240,32 @@ const printableItems = computed(() => {
           <!-- Items Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Line Items</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Line Items</h2>
             </template>
 
             <div class="overflow-x-auto -mx-6">
               <table class="w-full">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50 dark:bg-slate-800">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Description</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Price</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Total</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Description</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
                   <tr v-for="item in invoice.items" :key="item.id">
                     <td class="px-6 py-4">
-                      <div class="font-medium text-slate-900">{{ item.description }}</div>
-                      <div v-if="item.notes" class="text-sm text-slate-500">{{ item.notes }}</div>
+                      <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</div>
+                      <div v-if="item.notes" class="text-sm text-slate-500 dark:text-slate-400">{{ item.notes }}</div>
                     </td>
-                    <td class="px-6 py-4 text-right text-slate-900">
+                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                       {{ item.quantity }} {{ item.unit }}
                     </td>
-                    <td class="px-6 py-4 text-right text-slate-900">
+                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
                       {{ formatCurrency(item.unit_price) }}
                     </td>
-                    <td class="px-6 py-4 text-right font-medium text-slate-900">
+                    <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
                       {{ formatCurrency(item.line_total) }}
                     </td>
                   </tr>
@@ -277,20 +277,20 @@ const printableItems = computed(() => {
           <!-- Payments Card -->
           <Card v-if="invoice.payments && invoice.payments.length > 0">
             <template #header>
-              <h2 class="font-semibold text-slate-900">Payments</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Payments</h2>
             </template>
 
             <div class="space-y-3">
               <div
                 v-for="payment in invoice.payments"
                 :key="payment.id"
-                class="flex items-center justify-between py-2 border-b border-slate-100 last:border-0"
+                class="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-700 last:border-0"
               >
                 <div>
-                  <p class="font-medium text-slate-900">{{ payment.payment_number }}</p>
-                  <p class="text-sm text-slate-500">{{ formatDate(payment.payment_date) }}</p>
+                  <p class="font-medium text-slate-900 dark:text-slate-100">{{ payment.payment_number }}</p>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">{{ formatDate(payment.payment_date) }}</p>
                 </div>
-                <span class="font-medium text-green-600">{{ formatCurrency(payment.amount) }}</span>
+                <span class="font-medium text-green-600 dark:text-green-400">{{ formatCurrency(payment.amount) }}</span>
               </div>
             </div>
           </Card>
@@ -301,34 +301,34 @@ const printableItems = computed(() => {
           <!-- Summary Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Summary</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Summary</h2>
             </template>
 
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Subtotal</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(invoice.subtotal) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Subtotal</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.subtotal) }}</dd>
               </div>
               <div v-if="invoice.discount_amount" class="flex justify-between">
-                <dt class="text-slate-500">Discount</dt>
-                <dd class="font-medium text-slate-900">-{{ formatCurrency(invoice.discount_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Discount</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">-{{ formatCurrency(invoice.discount_amount) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Tax ({{ invoice.tax_rate }}%)</dt>
-                <dd class="font-medium text-slate-900">{{ formatCurrency(invoice.tax_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Tax ({{ invoice.tax_rate }}%)</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.tax_amount) }}</dd>
               </div>
-              <hr class="border-slate-200" />
+              <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
-                <dt class="font-semibold text-slate-900">Total</dt>
-                <dd class="font-bold text-lg text-slate-900">{{ formatCurrency(invoice.total_amount) }}</dd>
-              </div>
-              <div class="flex justify-between">
-                <dt class="text-slate-500">Paid</dt>
-                <dd class="font-medium text-green-600">{{ formatCurrency(invoice.paid_amount) }}</dd>
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
+                <dd class="font-bold text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.total_amount) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="font-semibold text-slate-900">Outstanding</dt>
-                <dd class="font-bold text-lg text-orange-600">{{ formatCurrency(invoice.outstanding_amount) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Paid</dt>
+                <dd class="font-medium text-green-600 dark:text-green-400">{{ formatCurrency(invoice.paid_amount) }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="font-semibold text-slate-900 dark:text-slate-100">Outstanding</dt>
+                <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(invoice.outstanding_amount) }}</dd>
               </div>
             </dl>
           </Card>
@@ -336,7 +336,7 @@ const printableItems = computed(() => {
           <!-- Quick Actions -->
           <Card v-if="invoice.status === 'posted' || invoice.status === 'partial'">
             <template #header>
-              <h2 class="font-semibold text-slate-900">Quick Actions</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Quick Actions</h2>
             </template>
 
             <div class="space-y-2">
@@ -364,15 +364,15 @@ const printableItems = computed(() => {
 
     <!-- Void Modal -->
     <Modal :open="showVoidModal" title="Void Invoice" @update:open="showVoidModal = $event">
-      <p class="text-slate-600 mb-4">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
         Are you sure you want to void this invoice? This will reverse the journal entry.
       </p>
       <div class="mb-4">
-        <label class="block text-sm font-medium text-slate-700 mb-1">Reason (optional)</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason (optional)</label>
         <textarea
           v-model="voidReason"
           rows="3"
-          class="w-full px-3 py-2 border border-slate-300 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           placeholder="Enter reason for voiding..."
         />
       </div>
@@ -390,7 +390,7 @@ const printableItems = computed(() => {
 
     <!-- Delete Modal -->
     <Modal :open="showDeleteModal" title="Delete Invoice" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
+      <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this invoice? This action cannot be undone.
       </p>
       <template #footer>
@@ -412,11 +412,11 @@ const printableItems = computed(() => {
       size="2xl"
       @update:open="showPrintPreview = $event"
     >
-      <div class="no-print mb-4 p-3 bg-slate-50 rounded-lg text-sm text-slate-600">
+      <div class="no-print mb-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm text-slate-600 dark:text-slate-400">
         Click "Print" to open the print dialog. You can print directly or save as PDF.
       </div>
 
-      <div v-if="invoice" class="border border-slate-200 rounded-lg overflow-hidden">
+      <div v-if="invoice" class="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
         <PrintableDocument
           type="invoice"
           :number="invoice.invoice_number"

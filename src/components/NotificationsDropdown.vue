@@ -113,7 +113,7 @@ onUnmounted(() => {
     <!-- Trigger button -->
     <button
       type="button"
-      class="relative p-2 rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+      class="relative p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
       @click="isOpen = !isOpen"
     >
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,28 +131,28 @@ onUnmounted(() => {
     <Transition name="dropdown">
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden"
+        class="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-900 rounded-xl shadow-lg border border-slate-200 dark:border-slate-700 overflow-hidden"
       >
         <!-- Header -->
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100">
-          <h3 class="font-semibold text-slate-900">Notifications</h3>
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-700">
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Notifications</h3>
           <Badge v-if="unreadCount > 0" variant="destructive">{{ unreadCount }} new</Badge>
         </div>
 
         <!-- Notifications list -->
         <div class="max-h-[400px] overflow-y-auto">
-          <div v-if="notifications.length === 0" class="px-4 py-8 text-center text-slate-500">
+          <div v-if="notifications.length === 0" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
             <span class="text-2xl block mb-2">🎉</span>
             <span class="text-sm">No notifications</span>
           </div>
 
-          <div v-else class="divide-y divide-slate-100">
+          <div v-else class="divide-y divide-slate-100 dark:divide-slate-700">
             <button
               v-for="notification in notifications"
               :key="notification.id"
               type="button"
-              class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors"
-              :class="{ 'bg-slate-50': !notification.read }"
+              class="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              :class="{ 'bg-slate-50 dark:bg-slate-800': !notification.read }"
               @click="handleClick(notification)"
             >
               <!-- Icon -->
@@ -166,14 +166,14 @@ onUnmounted(() => {
               <!-- Content -->
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2">
-                  <span class="font-medium text-slate-900 text-sm">{{ notification.title }}</span>
+                  <span class="font-medium text-slate-900 dark:text-slate-100 text-sm">{{ notification.title }}</span>
                   <span
                     v-if="!notification.read"
                     class="w-2 h-2 bg-primary-500 rounded-full"
                   />
                 </div>
-                <p class="text-sm text-slate-500 truncate">{{ notification.message }}</p>
-                <span v-if="notification.time" class="text-xs text-slate-400">{{ notification.time }}</span>
+                <p class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ notification.message }}</p>
+                <span v-if="notification.time" class="text-xs text-slate-400 dark:text-slate-500">{{ notification.time }}</span>
               </div>
 
               <!-- Arrow for clickable items -->
@@ -191,10 +191,10 @@ onUnmounted(() => {
         </div>
 
         <!-- Footer -->
-        <div class="px-4 py-2 border-t border-slate-100 bg-slate-50">
+        <div class="px-4 py-2 border-t border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
           <button
             type="button"
-            class="w-full text-center text-sm text-primary-600 hover:text-primary-700 font-medium py-1"
+            class="w-full text-center text-sm text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium py-1"
             @click="isOpen = false"
           >
             Mark all as read

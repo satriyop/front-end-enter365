@@ -3,9 +3,9 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { formatCurrency, formatNumber, formatPercent, formatDate, formatSolarOffset } from '@/utils/format'
 import Button from '@/components/ui/Button.vue'
-import LineChart from '@/components/charts/LineChart.vue'
-import BarChart from '@/components/charts/BarChart.vue'
-import { Check, X, Sun, Leaf, TrendingUp, Calendar, AlertCircle, Zap } from 'lucide-vue-next'
+import PaybackChart from '@/components/charts/PaybackChart.vue'
+import MonthlyBillChart from '@/components/charts/MonthlyBillChart.vue'
+import { Check, X, Sun, Leaf, TrendingUp, Calendar, AlertCircle } from 'lucide-vue-next'
 
 // Types
 interface Proposal {
@@ -24,6 +24,9 @@ interface Proposal {
   city: string
   system_capacity_kwp: number
   annual_production_kwh: number
+  monthly_production_kwh: number
+  monthly_consumption_kwh: number
+  electricity_rate: number
   solar_offset_percent: number
   system_cost: number
   payback_years: number
@@ -63,39 +66,68 @@ const showRejectModal = ref(false)
 const rejectReason = ref('')
 const actionSuccess = ref<'accepted' | 'rejected' | null>(null)
 
-// Chart data computed
-const savingsChartData = computed(() => {
-  if (!proposal.value?.financial_analysis?.yearly_projections) {
+// Chart data computed - Payback Chart
+const paybackChartData = computed(() => {
+  const projections = proposal.value?.financial_analysis?.yearly_projections
+  const systemCost = proposal.value?.system_cost || 0
+
+  if (!projections || projections.length === 0) {
     // Generate default 25-year projection if not available
-    const yearlyProj = []
     const firstYearSavings = proposal.value?.first_year_savings || 0
-    let cumulative = 0
+    let cumulative = -systemCost
+    const data = []
     for (let i = 1; i <= 25; i++) {
-      const savings = firstYearSavings * (1 + (i - 1) * 0.03) // 3% yearly increase
+      const savings = firstYearSavings * Math.pow(1.03, i - 1) // 3% yearly increase
       cumulative += savings
-      yearlyProj.push({ year: i, savings, cumulative_savings: cumulative })
+      data.push(cumulative)
     }
-    return yearlyProj
+    return data
   }
-  return proposal.value.financial_analysis.yearly_projections
+
+  // Calculate cumulative cash flow starting from -investment
+  let cumulative = -systemCost
+  return projections.map((p) => {
+    cumulative += p.savings
+    return cumulative
+  })
 })
 
-const chartLabels = computed(() => savingsChartData.value.map((p) => `Tahun ${p.year}`))
+// Find the payback year
+const paybackYearIndex = computed(() => {
+  const cashFlow = paybackChartData.value
+  for (let i = 0; i < cashFlow.length; i++) {
+    const value = cashFlow[i]
+    if (value !== undefined && value >= 0) {
+      return i + 1
+    }
+  }
+  return undefined
+})
 
-const cumulativeSavingsDataset = computed(() => ({
-  label: 'Total Penghematan Kumulatif',
-  data: savingsChartData.value.map((p) => p.cumulative_savings),
-  borderColor: '#22c55e',
-  backgroundColor: 'rgba(34, 197, 94, 0.1)',
-  fill: true,
-  tension: 0.3,
-}))
+// Monthly Bill Chart Data
+const monthlyBillBefore = computed(() => {
+  const consumption = proposal.value?.monthly_consumption_kwh || 0
+  const rate = proposal.value?.electricity_rate || 0
+  return consumption * rate
+})
 
-const yearlySavingsDataset = computed(() => ({
-  label: 'Penghematan per Tahun',
-  data: savingsChartData.value.map((p) => p.savings),
-  backgroundColor: '#f97316',
-}))
+const monthlyBillAfter = computed(() => {
+  const consumption = proposal.value?.monthly_consumption_kwh || 0
+  const production = proposal.value?.monthly_production_kwh || 0
+  const rate = proposal.value?.electricity_rate || 0
+  const remaining = Math.max(0, consumption - production)
+  return remaining * rate
+})
+
+// Savings = what was actually saved from the bill (billBefore - billAfter)
+// This ensures Green + Yellow = Original Bill in the chart
+const monthlySavings = computed(() => {
+  return monthlyBillBefore.value - monthlyBillAfter.value
+})
+
+// For chart: raw values
+const monthlyProductionKwh = computed(() => proposal.value?.monthly_production_kwh || 0)
+const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
 
 const solarOffsetFormatted = computed(() => formatSolarOffset(proposal.value?.solar_offset_percent))
 
@@ -185,28 +217,28 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+  <div class="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 dark:from-slate-900 dark:to-slate-800">
     <!-- Header -->
-    <header class="bg-white border-b border-slate-200 py-4">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 py-4">
       <div class="max-w-4xl mx-auto px-4 flex items-center justify-center">
         <div class="text-center">
-          <h1 class="text-xl font-bold text-slate-900">Enter365</h1>
-          <p class="text-sm text-slate-500">Solar Proposal</p>
+          <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">Enter365</h1>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Solar Proposal</p>
         </div>
       </div>
     </header>
 
     <!-- Loading -->
     <div v-if="isLoading" class="max-w-4xl mx-auto px-4 py-16 text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4" />
-      <p class="text-slate-600">Memuat proposal...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 dark:border-orange-400 mx-auto mb-4" />
+      <p class="text-slate-600 dark:text-slate-400">Memuat proposal...</p>
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="max-w-4xl mx-auto px-4 py-16 text-center">
-      <AlertCircle class="w-16 h-16 text-red-400 mx-auto mb-4" />
-      <h2 class="text-xl font-semibold text-slate-900 mb-2">Oops!</h2>
-      <p class="text-slate-600">{{ error }}</p>
+      <AlertCircle class="w-16 h-16 text-red-400 dark:text-red-500 mx-auto mb-4" />
+      <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">Oops!</h2>
+      <p class="text-slate-600 dark:text-slate-400">{{ error }}</p>
     </div>
 
     <!-- Success Message -->
@@ -215,13 +247,13 @@ onMounted(() => {
         class="w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center"
         :class="actionSuccess === 'accepted' ? 'bg-green-100' : 'bg-red-100'"
       >
-        <Check v-if="actionSuccess === 'accepted'" class="w-10 h-10 text-green-600" />
-        <X v-else class="w-10 h-10 text-red-600" />
+        <Check v-if="actionSuccess === 'accepted'" class="w-10 h-10 text-green-600 dark:text-green-400" />
+        <X v-else class="w-10 h-10 text-red-600 dark:text-red-400" />
       </div>
-      <h2 class="text-2xl font-bold text-slate-900 mb-2">
+      <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
         {{ actionSuccess === 'accepted' ? 'Proposal Diterima!' : 'Proposal Ditolak' }}
       </h2>
-      <p class="text-slate-600 mb-8">
+      <p class="text-slate-600 dark:text-slate-400 mb-8">
         {{
           actionSuccess === 'accepted'
             ? 'Terima kasih! Tim kami akan segera menghubungi Anda untuk langkah selanjutnya.'
@@ -233,7 +265,7 @@ onMounted(() => {
     <!-- Proposal Content -->
     <main v-else-if="proposal" class="max-w-4xl mx-auto px-4 py-8">
       <!-- Proposal Header -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="text-center mb-6">
           <span
             class="inline-flex px-3 py-1 rounded-full text-sm font-medium mb-4"
@@ -246,19 +278,19 @@ onMounted(() => {
           >
             {{ proposal.status_label }}
           </span>
-          <h2 class="text-2xl font-bold text-slate-900 mb-1">{{ proposal.proposal_number }}</h2>
-          <p class="text-slate-600">Untuk {{ proposal.contact.name }}</p>
+          <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{{ proposal.proposal_number }}</h2>
+          <p class="text-slate-600 dark:text-slate-400">Untuk {{ proposal.contact.name }}</p>
         </div>
 
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="text-slate-500">Lokasi</span>
-            <p class="font-medium text-slate-900">{{ proposal.site_name }}</p>
-            <p class="text-slate-600">{{ proposal.city }}, {{ proposal.province }}</p>
+            <span class="text-slate-500 dark:text-slate-400">Lokasi</span>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ proposal.site_name }}</p>
+            <p class="text-slate-600 dark:text-slate-400">{{ proposal.city }}, {{ proposal.province }}</p>
           </div>
           <div class="text-right">
-            <span class="text-slate-500">Berlaku Hingga</span>
-            <p class="font-medium text-slate-900">{{ formatDate(proposal.valid_until) }}</p>
+            <span class="text-slate-500 dark:text-slate-400">Berlaku Hingga</span>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(proposal.valid_until) }}</p>
             <p
               v-if="proposal.days_until_expiry !== null"
               class="text-sm"
@@ -271,10 +303,10 @@ onMounted(() => {
       </div>
 
       <!-- System Overview -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-center gap-2 mb-4">
           <Sun class="w-5 h-5 text-orange-500" />
-          <h3 class="font-semibold text-slate-900">Sistem Solar</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Sistem Solar</h3>
         </div>
 
         <div class="grid grid-cols-2 gap-3 md:gap-4">
@@ -302,10 +334,10 @@ onMounted(() => {
       </div>
 
       <!-- Financial Summary -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-center gap-2 mb-4">
           <TrendingUp class="w-5 h-5 text-green-500" />
-          <h3 class="font-semibold text-slate-900">Analisis Finansial</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Analisis Finansial</h3>
         </div>
 
         <div class="grid grid-cols-2 gap-3 md:gap-4 mb-6">
@@ -331,38 +363,69 @@ onMounted(() => {
           </div>
         </div>
 
-        <!-- Cumulative Savings Chart -->
+        <!-- Payback Period Chart -->
         <div class="border-t border-slate-200 pt-6">
-          <h4 class="text-sm font-medium text-slate-700 mb-3">Proyeksi Penghematan 25 Tahun</h4>
-          <LineChart
-            :labels="chartLabels"
-            :datasets="[cumulativeSavingsDataset]"
-            :height="250"
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-medium text-slate-700">Periode Balik Modal</h4>
+            <span v-if="paybackYearIndex" class="text-sm font-medium text-orange-600">
+              Break-even: Tahun {{ paybackYearIndex }}
+            </span>
+          </div>
+          <PaybackChart
+            v-if="paybackChartData.length"
+            :cumulative-cash-flow="paybackChartData"
+            :payback-year="paybackYearIndex"
+            :height="280"
           />
+          <div class="flex justify-center gap-4 text-xs text-slate-500 mt-3">
+            <span class="flex items-center gap-1">
+              <span class="w-3 h-3 rounded bg-red-500"></span> Masa Pengembalian
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="w-3 h-3 rounded bg-green-500"></span> Keuntungan Bersih
+            </span>
+          </div>
         </div>
       </div>
 
-      <!-- Yearly Savings Chart -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+      <!-- Monthly Bill Comparison -->
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-center gap-2 mb-4">
-          <Zap class="w-5 h-5 text-orange-500" />
-          <h3 class="font-semibold text-slate-900">Penghematan per Tahun</h3>
+          <TrendingUp class="w-5 h-5 text-green-500" />
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Perbandingan Tagihan Listrik</h3>
         </div>
         <p class="text-sm text-slate-600 mb-4">
-          Estimasi penghematan tahunan dengan asumsi kenaikan tarif listrik 3% per tahun
+          Ilustrasi tagihan bulanan sebelum dan sesudah pemasangan solar
         </p>
-        <BarChart
-          :labels="chartLabels"
-          :datasets="[yearlySavingsDataset]"
-          :height="200"
+        <MonthlyBillChart
+          v-if="monthlyBillBefore > 0"
+          :bill-before="monthlyBillBefore"
+          :bill-after="monthlyBillAfter"
+          :monthly-production-kwh="monthlyProductionKwh"
+          :electricity-rate="electricityRate"
+          :height="250"
         />
+        <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs sm:text-sm">
+          <div class="p-2 bg-yellow-50 rounded-lg">
+            <div class="font-bold text-yellow-700">{{ formatCurrency(monthlyBillBefore) }}</div>
+            <div class="text-slate-500">Sebelum/bln</div>
+          </div>
+          <div class="p-2 bg-green-50 rounded-lg">
+            <div class="font-bold text-green-600">{{ formatCurrency(monthlyBillAfter) }}</div>
+            <div class="text-slate-500">Sesudah/bln</div>
+          </div>
+          <div class="p-2 bg-emerald-50 rounded-lg">
+            <div class="font-bold text-emerald-600">{{ formatCurrency(monthlySavings) }}</div>
+            <div class="text-slate-500">Hemat/bln</div>
+          </div>
+        </div>
       </div>
 
       <!-- Environmental Impact -->
-      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-6">
+      <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
         <div class="flex items-center gap-2 mb-4">
           <Leaf class="w-5 h-5 text-green-500" />
-          <h3 class="font-semibold text-slate-900">Dampak Lingkungan</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Dampak Lingkungan</h3>
         </div>
 
         <p class="text-sm text-slate-600 mb-4">
@@ -399,12 +462,12 @@ onMounted(() => {
       >
         <div class="flex items-center gap-2 mb-4">
           <Calendar class="w-5 h-5 text-slate-500" />
-          <h3 class="font-semibold text-slate-900">Keputusan Anda</h3>
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100">Keputusan Anda</h3>
         </div>
 
-        <p class="text-slate-600 mb-6">
+        <p class="text-slate-600 dark:text-slate-400 mb-6">
           Silakan tinjau proposal di atas dan berikan keputusan Anda. Proposal ini berlaku hingga
-          <strong>{{ formatDate(proposal.valid_until) }}</strong
+          <strong class="text-slate-900 dark:text-slate-100">{{ formatDate(proposal.valid_until) }}</strong
           >.
         </p>
 
@@ -431,7 +494,7 @@ onMounted(() => {
     </main>
 
     <!-- Footer -->
-    <footer class="py-8 text-center text-sm text-slate-500">
+    <footer class="py-8 text-center text-sm text-slate-500 dark:text-slate-400">
       <p>Powered by Enter365</p>
     </footer>
 
@@ -441,14 +504,14 @@ onMounted(() => {
         v-if="showRejectModal"
         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
       >
-        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-          <h3 class="text-lg font-semibold text-slate-900 mb-4">Tolak Proposal</h3>
-          <p class="text-slate-600 mb-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl max-w-md w-full p-6">
+          <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Tolak Proposal</h3>
+          <p class="text-slate-600 dark:text-slate-400 mb-4">
             Apakah Anda yakin ingin menolak proposal ini? Anda dapat memberikan alasan penolakan (opsional).
           </p>
           <textarea
             v-model="rejectReason"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 mb-4"
             rows="3"
             placeholder="Alasan penolakan (opsional)..."
           />

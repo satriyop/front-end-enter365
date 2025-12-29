@@ -78,14 +78,14 @@ async function handleDelete() {
 <template>
   <div class="max-w-5xl mx-auto">
     <div v-if="isLoading" class="text-center py-12">
-      <div class="text-slate-500">Loading project...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading project...</div>
     </div>
 
     <template v-else-if="project">
       <div class="flex items-start justify-between mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ project.project_number }}</h1>
+            <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ project.project_number }}</h1>
             <Badge :variant="statusColors[project.status] || 'default'">
               {{ project.status }}
             </Badge>
@@ -93,8 +93,8 @@ async function handleDelete() {
               {{ project.priority }}
             </Badge>
           </div>
-          <p class="text-lg text-slate-700">{{ project.name }}</p>
-          <p class="text-slate-500">{{ project.contact?.name }}</p>
+          <p class="text-lg text-slate-700 dark:text-slate-300">{{ project.name }}</p>
+          <p class="text-slate-500 dark:text-slate-400">{{ project.contact?.name }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
@@ -140,49 +140,49 @@ async function handleDelete() {
         <div class="lg:col-span-2 space-y-6">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Project Details</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Project Details</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Project Number</dt>
-                <dd class="font-mono">{{ project.project_number }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Project Number</dt>
+                <dd class="font-mono text-slate-900 dark:text-slate-100">{{ project.project_number }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Customer</dt>
-                <dd class="font-medium">{{ project.contact?.name ?? '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Customer</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ project.contact?.name ?? '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Location</dt>
-                <dd>{{ project.location || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Location</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ project.location || '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Quotation</dt>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Quotation</dt>
                 <dd v-if="project.quotation">
-                  <RouterLink :to="`/quotations/${project.quotation.id}`" class="text-primary-600 hover:underline">
+                  <RouterLink :to="`/quotations/${project.quotation.id}`" class="text-primary-600 dark:text-primary-400 hover:underline">
                     {{ project.quotation.quotation_number }}
                   </RouterLink>
                 </dd>
-                <dd v-else>-</dd>
+                <dd v-else class="text-slate-900 dark:text-slate-100">-</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Planned Start</dt>
-                <dd>{{ formatDate(project.start_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Planned Start</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(project.start_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Planned End</dt>
-                <dd>{{ formatDate(project.end_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Planned End</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(project.end_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Actual Start</dt>
-                <dd>{{ project.actual_start_date ? formatDate(project.actual_start_date) : '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Actual Start</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ project.actual_start_date ? formatDate(project.actual_start_date) : '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Actual End</dt>
-                <dd>{{ project.actual_end_date ? formatDate(project.actual_end_date) : '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Actual End</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ project.actual_end_date ? formatDate(project.actual_end_date) : '-' }}</dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-sm text-slate-500">Description</dt>
-                <dd class="whitespace-pre-wrap">{{ project.description || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Description</dt>
+                <dd class="whitespace-pre-wrap text-slate-900 dark:text-slate-100">{{ project.description || '-' }}</dd>
               </div>
             </dl>
           </Card>
@@ -190,15 +190,15 @@ async function handleDelete() {
           <!-- Progress Section -->
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Progress</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Progress</h2>
             </template>
             <div class="space-y-4">
               <div>
                 <div class="flex justify-between text-sm mb-1">
-                  <span class="text-slate-500">Completion</span>
-                  <span class="font-medium">{{ project.progress_percentage ?? 0 }}%</span>
+                  <span class="text-slate-500 dark:text-slate-400">Completion</span>
+                  <span class="font-medium text-slate-900 dark:text-slate-100">{{ project.progress_percentage ?? 0 }}%</span>
                 </div>
-                <div class="h-3 bg-slate-200 rounded-full overflow-hidden">
+                <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     class="h-full bg-primary-500 rounded-full transition-all"
                     :style="{ width: `${project.progress_percentage ?? 0}%` }"
@@ -213,34 +213,34 @@ async function handleDelete() {
           <!-- Financial Summary -->
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Financials</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Financials</h2>
             </template>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-slate-500">Contract Amount</dt>
-                <dd class="font-medium">{{ formatCurrency(Number(project.contract_amount) || 0) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Contract Amount</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(Number(project.contract_amount) || 0) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Budget</dt>
-                <dd>{{ formatCurrency(Number(project.budget_amount) || 0) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Budget</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatCurrency(Number(project.budget_amount) || 0) }}</dd>
               </div>
-              <div class="flex justify-between border-t pt-3">
-                <dt class="text-slate-500">Total Cost</dt>
-                <dd class="text-orange-600">{{ formatCurrency(Number(project.total_cost) || 0) }}</dd>
+              <div class="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3">
+                <dt class="text-slate-500 dark:text-slate-400">Total Cost</dt>
+                <dd class="text-orange-600 dark:text-orange-400">{{ formatCurrency(Number(project.total_cost) || 0) }}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-slate-500">Total Revenue</dt>
-                <dd class="text-green-600">{{ formatCurrency(Number(project.total_revenue) || 0) }}</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Total Revenue</dt>
+                <dd class="text-green-600 dark:text-green-400">{{ formatCurrency(Number(project.total_revenue) || 0) }}</dd>
               </div>
-              <div class="flex justify-between border-t pt-3 text-lg font-medium">
-                <dt>Gross Profit</dt>
-                <dd :class="Number(project.gross_profit) >= 0 ? 'text-green-600' : 'text-red-600'">
+              <div class="flex justify-between border-t border-slate-200 dark:border-slate-700 pt-3 text-lg font-medium">
+                <dt class="text-slate-900 dark:text-slate-100">Gross Profit</dt>
+                <dd :class="Number(project.gross_profit) >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
                   {{ formatCurrency(Number(project.gross_profit) || 0) }}
                 </dd>
               </div>
               <div class="flex justify-between text-sm">
-                <dt class="text-slate-500">Margin</dt>
-                <dd>{{ project.profit_margin?.toFixed(1) ?? 0 }}%</dd>
+                <dt class="text-slate-500 dark:text-slate-400">Margin</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ project.profit_margin?.toFixed(1) ?? 0 }}%</dd>
               </div>
             </dl>
           </Card>

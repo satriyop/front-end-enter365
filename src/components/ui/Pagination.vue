@@ -91,7 +91,7 @@ function handlePerPageChange(event: Event) {
     <!-- Info section -->
     <div
       v-if="showInfo && totalItems"
-      class="text-sm text-slate-500"
+      class="text-sm text-slate-500 dark:text-slate-400"
     >
       Showing {{ showingFrom }} to {{ showingTo }} of {{ totalItems }} results
     </div>
@@ -102,10 +102,10 @@ function handlePerPageChange(event: Event) {
         v-if="showPerPage"
         class="flex items-center gap-2"
       >
-        <label class="text-sm text-slate-500">Show</label>
+        <label class="text-sm text-slate-500 dark:text-slate-400">Show</label>
         <select
           :value="perPage"
-          class="h-8 rounded-sm border border-slate-300 bg-white px-2 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
+          class="h-8 rounded-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2 text-sm focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
           @change="handlePerPageChange"
         >
           <option
@@ -116,7 +116,7 @@ function handlePerPageChange(event: Event) {
             {{ option }}
           </option>
         </select>
-        <span class="text-sm text-slate-500">per page</span>
+        <span class="text-sm text-slate-500 dark:text-slate-400">per page</span>
       </div>
 
       <!-- Page navigation -->
@@ -128,7 +128,7 @@ function handlePerPageChange(event: Event) {
         <button
           type="button"
           :disabled="currentPage <= 1"
-          class="flex items-center justify-center w-8 h-8 rounded-sm border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex items-center justify-center w-8 h-8 rounded-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="goToPage(currentPage - 1)"
         >
           <span class="sr-only">Previous</span>
@@ -141,7 +141,7 @@ function handlePerPageChange(event: Event) {
         <template v-for="page in visiblePages" :key="page">
           <span
             v-if="page === 'ellipsis'"
-            class="px-2 text-slate-400"
+            class="px-2 text-slate-400 dark:text-slate-500"
           >
             ...
           </span>
@@ -152,7 +152,7 @@ function handlePerPageChange(event: Event) {
               'flex items-center justify-center w-8 h-8 rounded-sm text-sm font-medium transition-colors',
               page === currentPage
                 ? 'bg-orange-500 text-white'
-                : 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                : 'border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700'
             ]"
             @click="goToPage(page)"
           >
@@ -164,7 +164,7 @@ function handlePerPageChange(event: Event) {
         <button
           type="button"
           :disabled="currentPage >= totalPages"
-          class="flex items-center justify-center w-8 h-8 rounded-sm border border-slate-300 bg-white text-slate-500 hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="flex items-center justify-center w-8 h-8 rounded-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed"
           @click="goToPage(currentPage + 1)"
         >
           <span class="sr-only">Next</span>

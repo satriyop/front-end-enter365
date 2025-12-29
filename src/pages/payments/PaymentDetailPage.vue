@@ -28,20 +28,20 @@ async function handleVoid() {
 <template>
   <div class="max-w-3xl mx-auto">
     <div v-if="isLoading" class="text-center py-12">
-      <div class="text-slate-500">Loading payment...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading payment...</div>
     </div>
 
     <template v-else-if="payment">
       <div class="flex items-start justify-between mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
-            <h1 class="text-2xl font-semibold text-slate-900">{{ payment.payment_number }}</h1>
+            <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ payment.payment_number }}</h1>
             <Badge :variant="payment.type === 'receive' ? 'success' : 'warning'">
               {{ payment.type === 'receive' ? 'Received' : 'Paid' }}
             </Badge>
             <Badge v-if="payment.is_voided" variant="destructive">Voided</Badge>
           </div>
-          <p class="text-slate-500">{{ payment.contact?.name }}</p>
+          <p class="text-slate-500 dark:text-slate-400">{{ payment.contact?.name }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
@@ -60,40 +60,40 @@ async function handleVoid() {
         <div class="lg:col-span-2">
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Payment Details</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Payment Details</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div>
-                <dt class="text-sm text-slate-500">Payment Number</dt>
-                <dd class="font-mono">{{ payment.payment_number }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Payment Number</dt>
+                <dd class="font-mono text-slate-900 dark:text-slate-100">{{ payment.payment_number }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Type</dt>
-                <dd>{{ payment.type === 'receive' ? 'Payment Received' : 'Payment Made' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Type</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ payment.type === 'receive' ? 'Payment Received' : 'Payment Made' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Contact</dt>
-                <dd class="font-medium">{{ payment.contact?.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Contact</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ payment.contact?.name }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Payment Date</dt>
-                <dd>{{ formatDate(payment.payment_date) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Payment Date</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(payment.payment_date) }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Payment Method</dt>
-                <dd class="capitalize">{{ payment.payment_method }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Payment Method</dt>
+                <dd class="capitalize text-slate-900 dark:text-slate-100">{{ payment.payment_method }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Cash Account</dt>
-                <dd>{{ payment.cash_account?.name ?? '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Cash Account</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ payment.cash_account?.name ?? '-' }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Reference</dt>
-                <dd>{{ payment.reference || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ payment.reference || '-' }}</dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-sm text-slate-500">Notes</dt>
-                <dd>{{ payment.notes || '-' }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Notes</dt>
+                <dd class="text-slate-900 dark:text-slate-100">{{ payment.notes || '-' }}</dd>
               </div>
             </dl>
           </Card>
@@ -102,13 +102,13 @@ async function handleVoid() {
         <div>
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900">Amount</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Amount</h2>
             </template>
             <div class="text-center py-4">
-              <div class="text-3xl font-bold" :class="payment.type === 'receive' ? 'text-green-600' : 'text-orange-600'">
+              <div class="text-3xl font-bold" :class="payment.type === 'receive' ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'">
                 {{ formatCurrency(payment.amount) }}
               </div>
-              <div class="text-sm text-slate-500 mt-1">
+              <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {{ payment.type === 'receive' ? 'Received from customer' : 'Paid to vendor' }}
               </div>
             </div>

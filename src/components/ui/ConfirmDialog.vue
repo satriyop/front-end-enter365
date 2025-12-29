@@ -83,7 +83,7 @@ defineExpose({ open })
       >
         {{ variantStyles[variant].icon }}
       </div>
-      <p class="text-slate-600 pt-2">{{ message }}</p>
+      <p class="text-slate-600 dark:text-slate-300 pt-2">{{ message }}</p>
     </div>
 
     <template #footer>

@@ -250,13 +250,13 @@ defineExpose({
   <button
     type="button"
     @click="isOpen = true"
-    class="hidden lg:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+    class="hidden lg:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
   >
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
     <span>Search...</span>
-    <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-white rounded border border-slate-300">
+    <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400">
       Ctrl+K
     </kbd>
   </button>
@@ -278,9 +278,9 @@ defineExpose({
         class="fixed inset-0 z-50 flex items-start justify-center pt-[15vh]"
         @click.self="isOpen = false"
       >
-        <div class="w-full max-w-xl bg-white rounded-xl shadow-2xl overflow-hidden">
+        <div class="w-full max-w-xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden">
           <!-- Search input -->
-          <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200">
+          <div class="flex items-center gap-3 px-4 py-3 border-b border-slate-200 dark:border-slate-700">
             <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
@@ -289,17 +289,17 @@ defineExpose({
               v-model="searchQuery"
               type="text"
               placeholder="Search or type a command..."
-              class="flex-1 text-slate-900 placeholder-slate-400 bg-transparent border-none outline-none text-base"
+              class="flex-1 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 bg-transparent border-none outline-none text-base"
             />
             <div v-if="isFetching" class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-            <kbd class="px-1.5 py-0.5 text-xs font-mono text-slate-400 bg-slate-100 rounded">ESC</kbd>
+            <kbd class="px-1.5 py-0.5 text-xs font-mono text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded">ESC</kbd>
           </div>
 
           <!-- Results list -->
           <div class="max-h-[60vh] overflow-y-auto py-2">
             <template v-for="(item, index) in displayItems" :key="`${item.type}-${item.label}-${index}`">
               <!-- Group header -->
-              <div v-if="item.type === 'group'" class="px-4 py-2 text-xs font-medium text-slate-500 uppercase tracking-wider">
+              <div v-if="item.type === 'group'" class="px-4 py-2 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 {{ item.label }}
               </div>
 
@@ -310,14 +310,14 @@ defineExpose({
                 @click="item.path && navigateTo(item.path)"
                 @mouseenter="selectedIndex = selectableItems.findIndex(i => i.path === item.path)"
                 class="w-full flex items-center gap-3 px-4 py-2 text-left transition-colors"
-                :class="selectableItems[selectedIndex]?.path === item.path ? 'bg-primary-50 text-primary-900' : 'hover:bg-slate-50'"
+                :class="selectableItems[selectedIndex]?.path === item.path ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-900 dark:text-primary-100' : 'hover:bg-slate-50 dark:hover:bg-slate-800'"
               >
-                <span class="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-lg">
+                <span class="w-8 h-8 flex items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg text-lg">
                   {{ item.icon }}
                 </span>
                 <div class="flex-1 min-w-0">
-                  <div class="font-medium truncate">{{ item.label }}</div>
-                  <div v-if="item.subtitle" class="text-sm text-slate-500 truncate">{{ item.subtitle }}</div>
+                  <div class="font-medium truncate text-slate-900 dark:text-slate-100">{{ item.label }}</div>
+                  <div v-if="item.subtitle" class="text-sm text-slate-500 dark:text-slate-400 truncate">{{ item.subtitle }}</div>
                 </div>
                 <svg
                   v-if="selectableItems[selectedIndex]?.path === item.path"
@@ -334,25 +334,25 @@ defineExpose({
             <!-- No results -->
             <div
               v-if="searchQuery && selectableItems.length === 0 && !isFetching"
-              class="px-4 py-8 text-center text-slate-500"
+              class="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
             >
               No results found for "{{ searchQuery }}"
             </div>
           </div>
 
           <!-- Footer -->
-          <div class="flex items-center gap-4 px-4 py-2 border-t border-slate-200 bg-slate-50 text-xs text-slate-500">
+          <div class="flex items-center gap-4 px-4 py-2 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400">
             <span class="flex items-center gap-1">
-              <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300">↑</kbd>
-              <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300">↓</kbd>
+              <kbd class="px-1 py-0.5 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">↑</kbd>
+              <kbd class="px-1 py-0.5 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">↓</kbd>
               to navigate
             </span>
             <span class="flex items-center gap-1">
-              <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300">↵</kbd>
+              <kbd class="px-1 py-0.5 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">↵</kbd>
               to select
             </span>
             <span class="flex items-center gap-1">
-              <kbd class="px-1 py-0.5 bg-white rounded border border-slate-300">esc</kbd>
+              <kbd class="px-1 py-0.5 bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600">esc</kbd>
               to close
             </span>
           </div>

@@ -26,8 +26,8 @@ function formatAmount(amount: number): string {
   <div class="max-w-5xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Income Statement</h1>
-        <p class="text-slate-500">Laporan Laba Rugi - Revenue and expenses for the period</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Income Statement</h1>
+        <p class="text-slate-500 dark:text-slate-400">Laporan Laba Rugi - Revenue and expenses for the period</p>
       </div>
       <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
     </div>
@@ -36,11 +36,11 @@ function formatAmount(amount: number): string {
     <Card class="mb-6">
       <div class="flex flex-wrap items-end gap-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Start Date</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Start Date</label>
           <Input v-model="startDate" type="date" class="w-40" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">End Date</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
           <Input v-model="endDate" type="date" class="w-40" />
         </div>
         <div class="flex gap-2">
@@ -72,48 +72,48 @@ function formatAmount(amount: number): string {
 
     <!-- Loading -->
     <div v-if="isLoading" class="text-center py-12">
-      <div class="text-slate-500">Loading report...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading report...</div>
     </div>
 
     <!-- Error -->
     <div v-else-if="error" class="text-center py-12">
-      <div class="text-red-500">Failed to load report</div>
+      <div class="text-red-500 dark:text-red-400">Failed to load report</div>
     </div>
 
     <!-- Report Content -->
     <div v-else-if="report" class="space-y-6">
       <!-- Report Header -->
       <Card>
-        <div class="text-center border-b border-slate-200 pb-4 mb-4">
-          <h2 class="text-xl font-semibold text-slate-900">{{ report.report_name }}</h2>
-          <p class="text-slate-500">
+        <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
+          <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ report.report_name }}</h2>
+          <p class="text-slate-500 dark:text-slate-400">
             Period: {{ report.period?.start_date || startDate }} to {{ report.period?.end_date || endDate }}
           </p>
         </div>
 
         <!-- Revenue Section -->
         <div class="mb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-3 border-b border-slate-200 pb-2">Revenue</h3>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Revenue</h3>
           <template v-if="report.revenue?.length">
             <div v-for="section in report.revenue" :key="section.name" class="mb-4">
-              <div class="font-medium text-slate-700 mb-2">{{ section.name }}</div>
+              <div class="font-medium text-slate-700 dark:text-slate-300 mb-2">{{ section.name }}</div>
               <div class="space-y-1 pl-4">
                 <div
                   v-for="account in section.accounts"
                   :key="account.id"
                   class="flex justify-between text-sm"
                 >
-                  <span class="text-slate-600">{{ account.code }} - {{ account.name }}</span>
-                  <span class="font-mono">{{ formatAmount(account.balance) }}</span>
+                  <span class="text-slate-600 dark:text-slate-400">{{ account.code }} - {{ account.name }}</span>
+                  <span class="font-mono text-slate-900 dark:text-slate-100">{{ formatAmount(account.balance) }}</span>
                 </div>
-                <div class="flex justify-between font-medium border-t border-slate-100 pt-1 mt-2">
+                <div class="flex justify-between font-medium border-t border-slate-100 dark:border-slate-700 pt-1 mt-2 text-slate-900 dark:text-slate-100">
                   <span>Total {{ section.name }}</span>
                   <span class="font-mono">{{ formatAmount(section.total) }}</span>
                 </div>
               </div>
             </div>
           </template>
-          <div class="flex justify-between text-lg font-semibold text-green-700 bg-green-50 px-4 py-2 rounded">
+          <div class="flex justify-between text-lg font-semibold text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 px-4 py-2 rounded">
             <span>Total Revenue</span>
             <span class="font-mono">{{ formatAmount(report.total_revenue) }}</span>
           </div>
@@ -121,37 +121,37 @@ function formatAmount(amount: number): string {
 
         <!-- Expenses Section -->
         <div class="mb-6">
-          <h3 class="text-lg font-medium text-slate-900 mb-3 border-b border-slate-200 pb-2">Expenses</h3>
+          <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2">Expenses</h3>
           <template v-if="report.expenses?.length">
             <div v-for="section in report.expenses" :key="section.name" class="mb-4">
-              <div class="font-medium text-slate-700 mb-2">{{ section.name }}</div>
+              <div class="font-medium text-slate-700 dark:text-slate-300 mb-2">{{ section.name }}</div>
               <div class="space-y-1 pl-4">
                 <div
                   v-for="account in section.accounts"
                   :key="account.id"
                   class="flex justify-between text-sm"
                 >
-                  <span class="text-slate-600">{{ account.code }} - {{ account.name }}</span>
-                  <span class="font-mono">{{ formatAmount(account.balance) }}</span>
+                  <span class="text-slate-600 dark:text-slate-400">{{ account.code }} - {{ account.name }}</span>
+                  <span class="font-mono text-slate-900 dark:text-slate-100">{{ formatAmount(account.balance) }}</span>
                 </div>
-                <div class="flex justify-between font-medium border-t border-slate-100 pt-1 mt-2">
+                <div class="flex justify-between font-medium border-t border-slate-100 dark:border-slate-700 pt-1 mt-2 text-slate-900 dark:text-slate-100">
                   <span>Total {{ section.name }}</span>
                   <span class="font-mono">{{ formatAmount(section.total) }}</span>
                 </div>
               </div>
             </div>
           </template>
-          <div class="flex justify-between text-lg font-semibold text-red-700 bg-red-50 px-4 py-2 rounded">
+          <div class="flex justify-between text-lg font-semibold text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/30 px-4 py-2 rounded">
             <span>Total Expenses</span>
             <span class="font-mono">{{ formatAmount(report.total_expenses) }}</span>
           </div>
         </div>
 
         <!-- Net Income -->
-        <div class="border-t-2 border-slate-300 pt-4">
+        <div class="border-t-2 border-slate-300 dark:border-slate-600 pt-4">
           <div
             class="flex justify-between text-xl font-bold px-4 py-3 rounded"
-            :class="report.net_income >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+            :class="report.net_income >= 0 ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400' : 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400'"
           >
             <span>Net Income</span>
             <span class="font-mono">{{ formatAmount(report.net_income) }}</span>

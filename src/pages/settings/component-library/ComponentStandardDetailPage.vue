@@ -162,33 +162,33 @@ function formatSpecs(specs: Record<string, unknown>): Array<{ key: string; value
 
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    circuit_breaker: 'bg-blue-50 text-blue-700',
-    contactor: 'bg-purple-50 text-purple-700',
-    cable: 'bg-green-50 text-green-700',
-    busbar: 'bg-orange-50 text-orange-700',
-    enclosure: 'bg-slate-100 text-slate-700',
-    relay: 'bg-pink-50 text-pink-700',
-    terminal: 'bg-cyan-50 text-cyan-700',
+    circuit_breaker: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    contactor: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+    cable: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+    busbar: 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+    enclosure: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+    relay: 'bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400',
+    terminal: 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
   }
-  return colors[category] || 'bg-slate-100 text-slate-700'
+  return colors[category] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 }
 </script>
 
 <template>
   <div>
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12 text-slate-500">Loading...</div>
+    <div v-if="isLoading" class="text-center py-12 text-slate-500 dark:text-slate-400">Loading...</div>
 
     <!-- Error -->
-    <div v-else-if="error" class="text-center py-12 text-red-500">Failed to load component standard</div>
+    <div v-else-if="error" class="text-center py-12 text-red-500 dark:text-red-400">Failed to load component standard</div>
 
     <!-- Content -->
     <template v-else-if="standard">
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/settings/component-library" class="hover:text-slate-700">Component Library</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/settings/component-library" class="hover:text-slate-700 dark:hover:text-slate-300">Component Library</RouterLink>
         <span class="mx-2">/</span>
-        <span class="text-slate-900">{{ standard.code }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ standard.code }}</span>
       </div>
 
       <!-- Header -->
@@ -196,7 +196,7 @@ function getCategoryColor(category: string): string {
         <div class="flex items-start justify-between">
           <div>
             <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-2xl font-semibold text-slate-900">{{ standard.code }}</h1>
+              <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ standard.code }}</h1>
               <span
                 class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
                 :class="getCategoryColor(standard.category)"
@@ -207,8 +207,8 @@ function getCategoryColor(category: string): string {
                 {{ standard.is_active ? 'Active' : 'Inactive' }}
               </Badge>
             </div>
-            <p class="text-slate-500">{{ standard.name }}</p>
-            <p v-if="standard.standard" class="text-sm text-slate-400 mt-1">{{ standard.standard }}</p>
+            <p class="text-slate-500 dark:text-slate-400">{{ standard.name }}</p>
+            <p v-if="standard.standard" class="text-sm text-slate-400 dark:text-slate-500 mt-1">{{ standard.standard }}</p>
           </div>
 
           <!-- Action Buttons -->
@@ -235,16 +235,16 @@ function getCategoryColor(category: string): string {
           <!-- Specifications Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Specifications</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Specifications</h2>
             </template>
             <dl class="grid grid-cols-2 gap-4">
               <div v-for="spec in formatSpecs(standard.specifications)" :key="spec.key">
-                <dt class="text-sm text-slate-500">{{ spec.key }}</dt>
-                <dd class="font-medium text-slate-900">{{ spec.value }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">{{ spec.key }}</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ spec.value }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Unit</dt>
-                <dd class="font-medium text-slate-900">{{ standard.unit }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Unit</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ standard.unit }}</dd>
               </div>
             </dl>
           </Card>
@@ -253,40 +253,40 @@ function getCategoryColor(category: string): string {
           <Card>
             <template #header>
               <div class="flex items-center justify-between">
-                <h2 class="font-semibold text-slate-900">Brand Mappings</h2>
+                <h2 class="font-semibold text-slate-900 dark:text-slate-100">Brand Mappings</h2>
                 <Button variant="secondary" size="sm" @click="showAddMappingModal = true">
                   Add Mapping
                 </Button>
               </div>
             </template>
 
-            <div v-if="!standard.brand_mappings?.length" class="py-8 text-center text-slate-500">
+            <div v-if="!standard.brand_mappings?.length" class="py-8 text-center text-slate-500 dark:text-slate-400">
               No brand mappings yet. Add mappings to enable cross-brand swapping.
             </div>
 
             <div v-else class="overflow-x-auto -mx-6">
               <table class="w-full">
-                <thead class="bg-slate-50">
+                <thead class="bg-slate-50 dark:bg-slate-800">
                   <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Brand</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Product</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Brand SKU</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Price</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase">Actions</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Brand</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Product</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Brand SKU</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Actions</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-200">
-                  <tr v-for="mapping in standard.brand_mappings" :key="mapping.id" class="hover:bg-slate-50">
+                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                  <tr v-for="mapping in standard.brand_mappings" :key="mapping.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
                     <td class="px-6 py-4">
-                      <span class="font-medium text-slate-900">{{ mapping.brand_label }}</span>
+                      <span class="font-medium text-slate-900 dark:text-slate-100">{{ mapping.brand_label }}</span>
                     </td>
                     <td class="px-6 py-4">
-                      <div v-if="mapping.product" class="text-slate-900">
+                      <div v-if="mapping.product" class="text-slate-900 dark:text-slate-100">
                         {{ mapping.product.name }}
-                        <div class="text-sm text-slate-400">{{ mapping.product.sku }}</div>
+                        <div class="text-sm text-slate-400 dark:text-slate-500">{{ mapping.product.sku }}</div>
                       </div>
-                      <span v-else class="text-slate-400">-</span>
+                      <span v-else class="text-slate-400 dark:text-slate-500">-</span>
                     </td>
                     <td class="px-6 py-4">
                       <span class="font-mono text-sm">{{ mapping.brand_sku }}</span>
@@ -294,7 +294,7 @@ function getCategoryColor(category: string): string {
                     <td class="px-6 py-4 text-right">
                       <span v-if="mapping.product">{{ formatCurrency(mapping.product.selling_price) }}</span>
                       <span v-else>-</span>
-                      <div v-if="mapping.price_factor !== 1" class="text-xs text-slate-400">
+                      <div v-if="mapping.price_factor !== 1" class="text-xs text-slate-400 dark:text-slate-500">
                         x{{ mapping.price_factor }}
                       </div>
                     </td>
@@ -346,28 +346,28 @@ function getCategoryColor(category: string): string {
           <!-- Info Card -->
           <Card>
             <template #header>
-              <h2 class="font-semibold text-slate-900">Information</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Information</h2>
             </template>
             <dl class="space-y-3">
               <div>
-                <dt class="text-sm text-slate-500">Category</dt>
-                <dd class="font-medium text-slate-900">{{ standard.category_label }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Category</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ standard.category_label }}</dd>
               </div>
               <div v-if="standard.subcategory">
-                <dt class="text-sm text-slate-500">Subcategory</dt>
-                <dd class="font-medium text-slate-900">{{ standard.subcategory }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Subcategory</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ standard.subcategory }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Brand Mappings</dt>
-                <dd class="font-medium text-slate-900">{{ standard.brand_mappings?.length ?? 0 }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Brand Mappings</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ standard.brand_mappings?.length ?? 0 }}</dd>
               </div>
               <div v-if="standard.creator">
-                <dt class="text-sm text-slate-500">Created By</dt>
-                <dd class="font-medium text-slate-900">{{ standard.creator.name }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Created By</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ standard.creator.name }}</dd>
               </div>
               <div>
-                <dt class="text-sm text-slate-500">Created At</dt>
-                <dd class="font-medium text-slate-900">{{ formatDate(standard.created_at) }}</dd>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Created At</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(standard.created_at) }}</dd>
               </div>
             </dl>
           </Card>
@@ -375,13 +375,13 @@ function getCategoryColor(category: string): string {
           <!-- Available Brands -->
           <Card v-if="standard.available_brands?.length">
             <template #header>
-              <h2 class="font-semibold text-slate-900">Available Brands</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Available Brands</h2>
             </template>
             <div class="flex flex-wrap gap-2">
               <span
                 v-for="brand in standard.available_brands"
                 :key="brand"
-                class="px-2 py-1 bg-slate-100 rounded text-sm text-slate-700"
+                class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-sm text-slate-700 dark:text-slate-300"
               >
                 {{ brand }}
               </span>
@@ -393,7 +393,7 @@ function getCategoryColor(category: string): string {
 
     <!-- Delete Standard Modal -->
     <Modal :open="showDeleteModal" title="Delete Component Standard" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
+      <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this component standard? This will also remove all brand mappings.
       </p>
       <template #footer>
@@ -404,8 +404,8 @@ function getCategoryColor(category: string): string {
 
     <!-- Delete Mapping Modal -->
     <Modal :open="showDeleteMappingModal" title="Delete Brand Mapping" size="sm" @update:open="showDeleteMappingModal = $event">
-      <p class="text-slate-600">
-        Are you sure you want to delete the <strong>{{ mappingToDelete?.brand }}</strong> mapping?
+      <p class="text-slate-600 dark:text-slate-400">
+        Are you sure you want to delete the <strong class="text-slate-900 dark:text-slate-100">{{ mappingToDelete?.brand }}</strong> mapping?
       </p>
       <template #footer>
         <Button variant="ghost" @click="showDeleteMappingModal = false">Cancel</Button>
@@ -417,42 +417,42 @@ function getCategoryColor(category: string): string {
     <Modal :open="showAddMappingModal" title="Add Brand Mapping" @update:open="showAddMappingModal = $event">
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Brand *</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Brand *</label>
           <Select v-model="newMapping.brand" :options="brandOptions" placeholder="Select brand" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Product *</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Product *</label>
           <Input v-model="productSearch" placeholder="Search product..." />
-          <div v-if="products.length && productSearch" class="mt-2 border rounded-lg max-h-40 overflow-y-auto">
+          <div v-if="products.length && productSearch" class="mt-2 border dark:border-slate-700 rounded-lg max-h-40 overflow-y-auto">
             <button
               v-for="product in products"
               :key="product.id"
               type="button"
-              class="w-full px-3 py-2 text-left hover:bg-slate-50 border-b last:border-b-0"
+              class="w-full px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 border-b dark:border-slate-700 last:border-b-0"
               @click="selectProduct(product.id, product.name)"
             >
-              <div class="font-medium">{{ product.name }}</div>
-              <div class="text-sm text-slate-500">{{ product.sku }} - {{ formatCurrency(product.selling_price) }}</div>
+              <div class="font-medium text-slate-900 dark:text-slate-100">{{ product.name }}</div>
+              <div class="text-sm text-slate-500 dark:text-slate-400">{{ product.sku }} - {{ formatCurrency(product.selling_price) }}</div>
             </button>
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Brand SKU *</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Brand SKU *</label>
           <Input v-model="newMapping.brand_sku" placeholder="e.g., A9F74116" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Price Factor</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Price Factor</label>
           <Input v-model.number="newMapping.price_factor" type="number" step="0.01" min="0.1" max="10" />
-          <p class="text-xs text-slate-500 mt-1">Multiplier for price calculation (default: 1.0)</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Multiplier for price calculation (default: 1.0)</p>
         </div>
         <div>
           <label class="flex items-center gap-2">
             <input v-model="newMapping.is_preferred" type="checkbox" class="rounded" />
-            <span class="text-sm text-slate-700">Set as preferred for this brand</span>
+            <span class="text-sm text-slate-700 dark:text-slate-300">Set as preferred for this brand</span>
           </label>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1">Notes</label>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes</label>
           <Input v-model="newMapping.notes" placeholder="Optional notes..." />
         </div>
       </div>

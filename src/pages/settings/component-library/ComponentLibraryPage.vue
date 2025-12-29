@@ -9,11 +9,16 @@ import {
   useImportMappings,
   useImportStats,
   downloadMappingTemplate,
+  useUnmappedProducts,
+  useBatchMappingSuggestions,
+  useBulkAcceptMappingSuggestions,
   type ComponentStandardFilters,
   type ImportValidationResult,
+  type ProductMappingSuggestion,
+  type BulkMappingInput,
 } from '@/api/useComponentStandards'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
-import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, AlertTriangle } from 'lucide-vue-next'
+import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, AlertTriangle, Wand2, Loader2, Check } from 'lucide-vue-next'
 
 const toast = useToast()
 
@@ -175,6 +180,117 @@ async function downloadTemplate() {
   }
 }
 
+// ============================================
+// Auto-Mapping handling
+// ============================================
+const showAutoMapModal = ref(false)
+const autoMapStep = ref<'loading' | 'suggestions' | 'result'>('loading')
+const suggestions = ref<ProductMappingSuggestion[]>([])
+const selectedMappings = ref<Map<number, number>>(new Map()) // productId -> standardId
+
+const { data: unmappedProductsData, refetch: refetchUnmapped } = useUnmappedProducts(ref(undefined), ref(50))
+const batchSuggestionsMutation = useBatchMappingSuggestions()
+const bulkAcceptMutation = useBulkAcceptMappingSuggestions()
+
+const unmappedProducts = computed(() => unmappedProductsData.value?.data ?? [])
+
+async function openAutoMapModal() {
+  showAutoMapModal.value = true
+  autoMapStep.value = 'loading'
+  selectedMappings.value = new Map()
+  suggestions.value = []
+
+  await refetchUnmapped()
+
+  if (unmappedProducts.value.length === 0) {
+    toast.info('No unmapped products found')
+    showAutoMapModal.value = false
+    return
+  }
+
+  try {
+    const productIds = unmappedProducts.value.map(p => p.id)
+    const result = await batchSuggestionsMutation.mutateAsync(productIds)
+    suggestions.value = result
+
+    // Auto-select best suggestions (score >= 80)
+    for (const suggestion of result) {
+      const topMatch = suggestion.suggestions?.[0]
+      if (suggestion.has_suggestions && topMatch && topMatch.match_score >= 80) {
+        selectedMappings.value.set(suggestion.product_id, topMatch.component_standard_id)
+      }
+    }
+
+    autoMapStep.value = 'suggestions'
+  } catch (err: unknown) {
+    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to get suggestions'
+    toast.error(message)
+    showAutoMapModal.value = false
+  }
+}
+
+function toggleSuggestionSelection(productId: number, standardId: number) {
+  if (selectedMappings.value.get(productId) === standardId) {
+    selectedMappings.value.delete(productId)
+  } else {
+    selectedMappings.value.set(productId, standardId)
+  }
+  // Force reactivity
+  selectedMappings.value = new Map(selectedMappings.value)
+}
+
+function selectAllHighConfidence() {
+  for (const suggestion of suggestions.value) {
+    const topMatch = suggestion.suggestions?.[0]
+    if (suggestion.has_suggestions && topMatch && topMatch.match_score >= 70) {
+      selectedMappings.value.set(suggestion.product_id, topMatch.component_standard_id)
+    }
+  }
+  selectedMappings.value = new Map(selectedMappings.value)
+}
+
+function clearAllSelections() {
+  selectedMappings.value = new Map()
+}
+
+const selectedCount = computed(() => selectedMappings.value.size)
+
+async function applySelectedMappings() {
+  if (selectedMappings.value.size === 0) {
+    toast.info('No mappings selected')
+    return
+  }
+
+  const mappings: BulkMappingInput[] = []
+  for (const [productId, standardId] of selectedMappings.value) {
+    mappings.push({ product_id: productId, component_standard_id: standardId })
+  }
+
+  try {
+    const result = await bulkAcceptMutation.mutateAsync(mappings)
+    autoMapStep.value = 'result'
+    toast.success(`Created ${result.data.created} mappings`)
+  } catch (err: unknown) {
+    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to apply mappings'
+    toast.error(message)
+  }
+}
+
+function closeAutoMapModal() {
+  showAutoMapModal.value = false
+  setTimeout(() => {
+    autoMapStep.value = 'loading'
+    suggestions.value = []
+    selectedMappings.value = new Map()
+  }, 300)
+}
+
+function getMatchScoreColor(score: number): string {
+  if (score >= 90) return 'text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30'
+  if (score >= 70) return 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30'
+  return 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800'
+}
+
 // Format specs for display
 function formatSpecs(specs: Record<string, unknown>): string {
   const parts: string[] = []
@@ -190,15 +306,15 @@ function formatSpecs(specs: Record<string, unknown>): string {
 
 function getCategoryColor(category: string): string {
   const colors: Record<string, string> = {
-    circuit_breaker: 'bg-blue-50 text-blue-700',
-    contactor: 'bg-purple-50 text-purple-700',
-    cable: 'bg-green-50 text-green-700',
-    busbar: 'bg-orange-50 text-orange-700',
-    enclosure: 'bg-slate-100 text-slate-700',
-    relay: 'bg-pink-50 text-pink-700',
-    terminal: 'bg-cyan-50 text-cyan-700',
+    circuit_breaker: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+    contactor: 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400',
+    cable: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+    busbar: 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400',
+    enclosure: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300',
+    relay: 'bg-pink-50 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400',
+    terminal: 'bg-cyan-50 dark:bg-cyan-900/30 text-cyan-700 dark:text-cyan-400',
   }
-  return colors[category] || 'bg-slate-100 text-slate-700'
+  return colors[category] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 }
 </script>
 
@@ -207,10 +323,14 @@ function getCategoryColor(category: string): string {
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">Component Library</h1>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Component Library</h1>
         <p class="text-muted-foreground">Manage IEC component standards and brand mappings</p>
       </div>
       <div class="flex items-center gap-3">
+        <Button variant="outline" @click="openAutoMapModal">
+          <Wand2 class="w-4 h-4 mr-2" />
+          Auto-Map
+        </Button>
         <Button variant="outline" @click="openImportModal">
           <Upload class="w-4 h-4 mr-2" />
           Import
@@ -253,7 +373,7 @@ function getCategoryColor(category: string): string {
     </div>
 
     <!-- Filters -->
-    <div class="bg-white rounded-xl border border-slate-200 p-4 mb-6">
+    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">
       <div class="flex flex-wrap gap-4">
         <div class="flex-1 min-w-[200px]">
           <Input
@@ -287,13 +407,13 @@ function getCategoryColor(category: string): string {
     </div>
 
     <!-- Error State -->
-    <div v-if="error" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <p class="text-red-500">Failed to load component standards</p>
+    <div v-if="error" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+      <p class="text-red-500 dark:text-red-400">Failed to load component standards</p>
     </div>
 
     <!-- Loading State -->
-    <div v-else-if="isLoading" class="bg-white rounded-xl border border-slate-200 p-8 text-center">
-      <div class="flex items-center justify-center gap-2 text-slate-500">
+    <div v-else-if="isLoading" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
+      <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
         <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -303,7 +423,7 @@ function getCategoryColor(category: string): string {
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="standards.length === 0" class="bg-white rounded-xl border border-slate-200">
+    <div v-else-if="standards.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No component standards found"
         description="Create component standards to enable cross-brand BOM swapping"
@@ -313,32 +433,32 @@ function getCategoryColor(category: string): string {
     </div>
 
     <!-- Data Table -->
-    <div v-else class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <table class="w-full">
-        <thead class="bg-slate-50 border-b border-slate-200">
+        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Code</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Category</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Specifications</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Brands</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Specifications</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Brands</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-slate-200">
-          <tr v-for="standard in standards" :key="standard.id" class="hover:bg-slate-50">
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+          <tr v-for="standard in standards" :key="standard.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
             <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600">{{ standard.code }}</span>
+              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ standard.code }}</span>
             </td>
             <td class="px-6 py-4">
               <RouterLink
                 :to="`/settings/component-library/${standard.id}`"
-                class="text-orange-600 hover:text-orange-700 font-medium"
+                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
               >
                 {{ standard.name }}
               </RouterLink>
-              <div v-if="standard.standard" class="text-xs text-slate-400">
+              <div v-if="standard.standard" class="text-xs text-slate-400 dark:text-slate-500">
                 {{ standard.standard }}
               </div>
             </td>
@@ -349,15 +469,15 @@ function getCategoryColor(category: string): string {
               >
                 {{ standard.category_label }}
               </span>
-              <div v-if="standard.subcategory" class="text-xs text-slate-400 mt-1">
+              <div v-if="standard.subcategory" class="text-xs text-slate-400 dark:text-slate-500 mt-1">
                 {{ standard.subcategory }}
               </div>
             </td>
-            <td class="px-6 py-4 text-sm text-slate-600">
+            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
               {{ formatSpecs(standard.specifications) }}
             </td>
             <td class="px-6 py-4 text-center">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 text-sm font-medium">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
                 {{ standard.brand_mappings_count ?? standard.brand_mappings?.length ?? 0 }}
               </span>
             </td>
@@ -389,7 +509,7 @@ function getCategoryColor(category: string): string {
       </table>
 
       <!-- Pagination -->
-      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200">
+      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination
           :current-page="pagination.current_page"
           :total-pages="pagination.last_page"
@@ -402,8 +522,8 @@ function getCategoryColor(category: string): string {
 
     <!-- Delete Modal -->
     <Modal :open="showDeleteModal" title="Delete Component Standard" size="sm" @update:open="showDeleteModal = $event">
-      <p class="text-slate-600">
-        Are you sure you want to delete <strong>{{ standardToDelete?.name }}</strong>?
+      <p class="text-slate-600 dark:text-slate-400">
+        Are you sure you want to delete <strong class="text-slate-900 dark:text-slate-100">{{ standardToDelete?.name }}</strong>?
         This will also remove all brand mappings.
       </p>
       <template #footer>
@@ -422,12 +542,12 @@ function getCategoryColor(category: string): string {
       <!-- Step 1: Upload -->
       <div v-if="importStep === 'upload'" class="space-y-6">
         <!-- Template Download -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div class="flex items-start gap-3">
-            <FileSpreadsheet class="w-5 h-5 text-blue-600 mt-0.5" />
+            <FileSpreadsheet class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5" />
             <div class="flex-1">
-              <h4 class="font-medium text-blue-900">Download Template</h4>
-              <p class="text-sm text-blue-700 mt-1">
+              <h4 class="font-medium text-blue-900 dark:text-blue-100">Download Template</h4>
+              <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
                 Download the Excel template with all required columns, example data, and reference sheets for products, categories, and brands.
               </p>
               <Button variant="outline" size="sm" class="mt-3" :loading="isDownloading" @click="downloadTemplate">
@@ -441,7 +561,7 @@ function getCategoryColor(category: string): string {
         <!-- File Upload Area -->
         <div
           class="border-2 border-dashed rounded-lg p-8 text-center transition-colors"
-          :class="selectedFile ? 'border-green-300 bg-green-50' : 'border-border hover:border-primary/50'"
+          :class="selectedFile ? 'border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/30' : 'border-border hover:border-primary/50'"
           @dragover.prevent
           @drop="handleFileDrop"
         >
@@ -454,9 +574,9 @@ function getCategoryColor(category: string): string {
           />
 
           <div v-if="selectedFile" class="space-y-3">
-            <CheckCircle2 class="w-12 h-12 mx-auto text-green-500" />
+            <CheckCircle2 class="w-12 h-12 mx-auto text-green-500 dark:text-green-400" />
             <div>
-              <p class="font-medium">{{ selectedFile.name }}</p>
+              <p class="font-medium text-slate-900 dark:text-slate-100">{{ selectedFile.name }}</p>
               <p class="text-sm text-muted-foreground">{{ (selectedFile.size / 1024).toFixed(1) }} KB</p>
             </div>
             <Button variant="ghost" size="sm" @click="selectedFile = null">
@@ -467,7 +587,7 @@ function getCategoryColor(category: string): string {
           <div v-else class="space-y-3">
             <Upload class="w-12 h-12 mx-auto text-muted-foreground" />
             <div>
-              <p class="font-medium">Drop your file here or click to browse</p>
+              <p class="font-medium text-slate-900 dark:text-slate-100">Drop your file here or click to browse</p>
               <p class="text-sm text-muted-foreground">Supports Excel (.xlsx, .xls) and CSV files</p>
             </div>
             <Button variant="outline" @click="fileInputRef?.click()">
@@ -481,17 +601,17 @@ function getCategoryColor(category: string): string {
       <div v-else-if="importStep === 'preview' && validationResult" class="space-y-6">
         <!-- Summary Cards -->
         <div class="grid grid-cols-3 gap-4">
-          <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-green-700">{{ validationResult.valid_count }}</div>
-            <div class="text-sm text-green-600">Valid Rows</div>
+          <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-700 dark:text-green-400">{{ validationResult.valid_count }}</div>
+            <div class="text-sm text-green-600 dark:text-green-500">Valid Rows</div>
           </div>
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-amber-700">{{ validationResult.warning_count }}</div>
-            <div class="text-sm text-amber-600">Warnings</div>
+          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-amber-700 dark:text-amber-400">{{ validationResult.warning_count }}</div>
+            <div class="text-sm text-amber-600 dark:text-amber-500">Warnings</div>
           </div>
-          <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <div class="text-2xl font-bold text-red-700">{{ validationResult.error_count }}</div>
-            <div class="text-sm text-red-600">Errors</div>
+          <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-700 dark:text-red-400">{{ validationResult.error_count }}</div>
+            <div class="text-sm text-red-600 dark:text-red-500">Errors</div>
           </div>
         </div>
 
@@ -506,12 +626,12 @@ function getCategoryColor(category: string): string {
 
         <!-- Errors -->
         <div v-if="validationResult.errors.length > 0" class="space-y-2">
-          <h4 class="font-medium text-red-700 flex items-center gap-2">
+          <h4 class="font-medium text-red-700 dark:text-red-400 flex items-center gap-2">
             <AlertCircle class="w-4 h-4" />
             Errors (will be skipped)
           </h4>
-          <div class="bg-red-50 border border-red-200 rounded-lg p-3 max-h-40 overflow-y-auto">
-            <ul class="text-sm text-red-700 space-y-1">
+          <div class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
               <li v-for="error in validationResult.errors" :key="`error-${error.row}`">
                 <span class="font-medium">Row {{ error.row }}:</span> {{ error.message }}
               </li>
@@ -521,12 +641,12 @@ function getCategoryColor(category: string): string {
 
         <!-- Warnings -->
         <div v-if="validationResult.warnings.length > 0" class="space-y-2">
-          <h4 class="font-medium text-amber-700 flex items-center gap-2">
+          <h4 class="font-medium text-amber-700 dark:text-amber-400 flex items-center gap-2">
             <AlertTriangle class="w-4 h-4" />
             Warnings
           </h4>
-          <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 max-h-40 overflow-y-auto">
-            <ul class="text-sm text-amber-700 space-y-1">
+          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3 max-h-40 overflow-y-auto">
+            <ul class="text-sm text-amber-700 dark:text-amber-300 space-y-1">
               <li v-for="warning in validationResult.warnings" :key="`warning-${warning.row}`">
                 <span class="font-medium">Row {{ warning.row }}:</span> {{ warning.message }}
               </li>
@@ -535,16 +655,16 @@ function getCategoryColor(category: string): string {
         </div>
 
         <!-- Cannot Import Message -->
-        <div v-if="!validationResult.can_import" class="bg-red-100 border border-red-300 rounded-lg p-4">
-          <p class="text-red-700 font-medium">Cannot import: No valid rows found in the file.</p>
+        <div v-if="!validationResult.can_import" class="bg-red-100 dark:bg-red-900/40 border border-red-300 dark:border-red-800 rounded-lg p-4">
+          <p class="text-red-700 dark:text-red-300 font-medium">Cannot import: No valid rows found in the file.</p>
         </div>
       </div>
 
       <!-- Step 3: Result -->
       <div v-else-if="importStep === 'result' && importMutation.data.value" class="space-y-6">
         <div class="text-center py-4">
-          <CheckCircle2 class="w-16 h-16 mx-auto text-green-500 mb-4" />
-          <h3 class="text-xl font-semibold text-green-700">Import Successful!</h3>
+          <CheckCircle2 class="w-16 h-16 mx-auto text-green-500 dark:text-green-400 mb-4" />
+          <h3 class="text-xl font-semibold text-green-700 dark:text-green-400">Import Successful!</h3>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
@@ -595,6 +715,159 @@ function getCategoryColor(category: string): string {
         <!-- Step 3 Footer -->
         <template v-else>
           <Button @click="closeImportModal">Done</Button>
+        </template>
+      </template>
+    </Modal>
+
+    <!-- Auto-Mapping Modal -->
+    <Modal
+      :open="showAutoMapModal"
+      :title="autoMapStep === 'loading' ? 'Analyzing Products...' : autoMapStep === 'suggestions' ? 'Auto-Map Suggestions' : 'Mapping Complete'"
+      size="xl"
+      @update:open="closeAutoMapModal"
+    >
+      <!-- Loading State -->
+      <div v-if="autoMapStep === 'loading'" class="py-12 text-center">
+        <Loader2 class="w-12 h-12 mx-auto text-orange-500 dark:text-orange-400 animate-spin mb-4" />
+        <p class="text-lg font-medium text-slate-900 dark:text-slate-100">Analyzing unmapped products...</p>
+        <p class="text-muted-foreground mt-1">Finding matching component standards</p>
+      </div>
+
+      <!-- Suggestions State -->
+      <div v-else-if="autoMapStep === 'suggestions'" class="space-y-4">
+        <!-- Quick Actions -->
+        <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+          <div class="text-sm text-slate-600 dark:text-slate-400">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ suggestions.length }}</span> products analyzed,
+            <span class="font-medium text-green-600 dark:text-green-400">{{ selectedCount }}</span> selected for mapping
+          </div>
+          <div class="flex gap-2">
+            <Button variant="ghost" size="sm" @click="clearAllSelections">
+              Clear All
+            </Button>
+            <Button variant="outline" size="sm" @click="selectAllHighConfidence">
+              Select High Confidence (70%+)
+            </Button>
+          </div>
+        </div>
+
+        <!-- Suggestions List -->
+        <div class="max-h-[400px] overflow-y-auto space-y-3">
+          <div
+            v-for="suggestion in suggestions"
+            :key="suggestion.product_id"
+            class="border border-slate-200 dark:border-slate-700 rounded-lg p-4"
+          >
+            <!-- Product Info -->
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <h4 class="font-medium text-slate-900 dark:text-slate-100">{{ suggestion.product_name }}</h4>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  <span v-if="suggestion.product_sku">SKU: {{ suggestion.product_sku }}</span>
+                  <span v-if="suggestion.product_brand" class="ml-2">• {{ suggestion.product_brand }}</span>
+                </div>
+              </div>
+              <div v-if="suggestion.parsed_specs.category" class="text-right">
+                <Badge variant="info">{{ suggestion.parsed_specs.category }}</Badge>
+                <div v-if="suggestion.parsed_specs.subcategory" class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                  {{ suggestion.parsed_specs.subcategory }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Parsed Specs Preview -->
+            <div v-if="Object.keys(suggestion.parsed_specs.specs).length > 0" class="text-xs text-slate-500 dark:text-slate-400 mb-3">
+              Detected: {{ formatSpecs(suggestion.parsed_specs.specs) }}
+            </div>
+
+            <!-- Suggestions or No Match -->
+            <div v-if="suggestion.has_suggestions" class="space-y-2">
+              <button
+                v-for="match in suggestion.suggestions.slice(0, 3)"
+                :key="match.component_standard_id"
+                type="button"
+                class="w-full flex items-center gap-3 p-2 rounded-lg border-2 transition-all text-left"
+                :class="selectedMappings.get(suggestion.product_id) === match.component_standard_id
+                  ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30'
+                  : 'border-slate-100 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'"
+                @click="toggleSuggestionSelection(suggestion.product_id, match.component_standard_id)"
+              >
+                <div
+                  class="w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0"
+                  :class="selectedMappings.get(suggestion.product_id) === match.component_standard_id
+                    ? 'bg-orange-500 text-white'
+                    : 'bg-slate-100 dark:bg-slate-700'"
+                >
+                  <Check v-if="selectedMappings.get(suggestion.product_id) === match.component_standard_id" class="w-4 h-4" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-sm truncate text-slate-900 dark:text-slate-100">{{ match.name }}</div>
+                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ match.code }}</div>
+                </div>
+                <div
+                  class="px-2 py-1 rounded text-xs font-medium"
+                  :class="getMatchScoreColor(match.match_score)"
+                >
+                  {{ match.match_score }}%
+                </div>
+                <div v-if="match.existing_brands.length" class="text-xs text-slate-400 dark:text-slate-500">
+                  {{ match.existing_brands.length }} brand(s)
+                </div>
+              </button>
+            </div>
+
+            <div v-else class="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30 rounded-lg p-2">
+              <AlertTriangle class="w-4 h-4" />
+              No matching standard found. Consider creating a new standard or importing via Excel.
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div v-if="suggestions.length === 0" class="py-8 text-center text-slate-500 dark:text-slate-400">
+          No unmapped products with potential matches found.
+        </div>
+      </div>
+
+      <!-- Result State -->
+      <div v-else-if="autoMapStep === 'result' && bulkAcceptMutation.data.value" class="space-y-6">
+        <div class="text-center py-4">
+          <CheckCircle2 class="w-16 h-16 mx-auto text-green-500 dark:text-green-400 mb-4" />
+          <h3 class="text-xl font-semibold text-green-700 dark:text-green-400">Mappings Created!</h3>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-green-700 dark:text-green-400">{{ bulkAcceptMutation.data.value.data.created }}</div>
+            <div class="text-sm text-green-600 dark:text-green-500">Created</div>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-slate-700 dark:text-slate-300">{{ bulkAcceptMutation.data.value.data.skipped }}</div>
+            <div class="text-sm text-slate-600 dark:text-slate-400">Skipped</div>
+          </div>
+          <div v-if="bulkAcceptMutation.data.value.data.errors.length" class="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-4 text-center">
+            <div class="text-2xl font-bold text-red-700 dark:text-red-400">{{ bulkAcceptMutation.data.value.data.errors.length }}</div>
+            <div class="text-sm text-red-600 dark:text-red-500">Errors</div>
+          </div>
+        </div>
+      </div>
+
+      <template #footer>
+        <!-- Suggestions Footer -->
+        <template v-if="autoMapStep === 'suggestions'">
+          <Button variant="ghost" @click="closeAutoMapModal">Cancel</Button>
+          <Button
+            :disabled="selectedCount === 0"
+            :loading="bulkAcceptMutation.isPending.value"
+            @click="applySelectedMappings"
+          >
+            Apply {{ selectedCount }} Mapping{{ selectedCount !== 1 ? 's' : '' }}
+          </Button>
+        </template>
+
+        <!-- Result Footer -->
+        <template v-else-if="autoMapStep === 'result'">
+          <Button @click="closeAutoMapModal">Done</Button>
         </template>
       </template>
     </Modal>

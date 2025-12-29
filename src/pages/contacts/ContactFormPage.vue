@@ -149,13 +149,13 @@ useFormShortcuts({
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update contact information' : 'Add a new customer or supplier' }}
         </p>
       </div>
       <div class="flex items-center gap-2">
-        <kbd class="hidden sm:inline-flex px-2 py-1 text-xs text-slate-400 bg-slate-100 rounded border">
+        <kbd class="hidden sm:inline-flex px-2 py-1 text-xs text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 rounded border border-slate-300 dark:border-slate-600">
           Ctrl+S to save
         </kbd>
         <Button variant="ghost" @click="router.back()">
@@ -172,7 +172,7 @@ useFormShortcuts({
       <!-- Basic Information -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Basic Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -225,7 +225,7 @@ useFormShortcuts({
       <!-- Address -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Address</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Address</h2>
         </template>
 
         <div class="space-y-4">
@@ -257,7 +257,7 @@ useFormShortcuts({
       <!-- Tax & Payment -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Tax & Payment Terms</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Tax & Payment Terms</h2>
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -304,8 +304,8 @@ useFormShortcuts({
       <Card>
         <div class="flex items-center justify-between">
           <div>
-            <h3 class="font-medium text-slate-900">Active Status</h3>
-            <p class="text-sm text-slate-500">Inactive contacts won't appear in lookups</p>
+            <h3 class="font-medium text-slate-900 dark:text-slate-100">Active Status</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Inactive contacts won't appear in lookups</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input
@@ -313,13 +313,13 @@ useFormShortcuts({
               type="checkbox"
               class="sr-only peer"
             />
-            <div class="w-11 h-6 bg-slate-200 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+            <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
           </label>
         </div>
       </Card>
 
       <!-- Form Status Indicator -->
-      <div v-if="meta.dirty" class="text-sm text-amber-600">
+      <div v-if="meta.dirty" class="text-sm text-amber-600 dark:text-amber-500">
         You have unsaved changes
       </div>
 

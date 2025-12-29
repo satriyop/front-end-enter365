@@ -197,31 +197,31 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
 <template>
   <div class="max-w-4xl mx-auto">
     <!-- Loading -->
-    <div v-if="isEditing && loadingBom" class="text-center py-12 text-slate-500">
+    <div v-if="isEditing && loadingBom" class="text-center py-12 text-slate-500 dark:text-slate-400">
       Loading...
     </div>
 
     <template v-else>
       <!-- Breadcrumb -->
-      <div class="text-sm text-slate-500 mb-4">
-        <RouterLink to="/boms" class="hover:text-slate-700">Bill of Materials</RouterLink>
+      <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+        <RouterLink to="/boms" class="hover:text-slate-700 dark:hover:text-slate-300">Bill of Materials</RouterLink>
         <span class="mx-2">/</span>
-        <span class="text-slate-900">{{ isEditing ? 'Edit BOM' : 'New BOM' }}</span>
+        <span class="text-slate-900 dark:text-slate-100">{{ isEditing ? 'Edit BOM' : 'New BOM' }}</span>
       </div>
 
       <!-- Header -->
       <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-slate-900">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
           {{ isEditing ? 'Edit BOM' : 'Create New BOM' }}
         </h1>
-        <p class="text-slate-500">Define materials, labor, and overhead costs for production</p>
+        <p class="text-slate-500 dark:text-slate-400">Define materials, labor, and overhead costs for production</p>
       </div>
 
       <form @submit.prevent="handleSubmit" class="space-y-6">
         <!-- Basic Info -->
         <Card>
           <template #header>
-            <h2 class="font-semibold text-slate-900">Basic Information</h2>
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">Basic Information</h2>
           </template>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -256,18 +256,18 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
         <Card>
           <template #header>
             <div class="flex items-center justify-between">
-              <h2 class="font-semibold text-slate-900">BOM Items</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">BOM Items</h2>
               <Button type="button" variant="secondary" size="sm" @click="addItem">
                 Add Item
               </Button>
             </div>
           </template>
 
-          <div v-if="errors.items" class="mb-4 p-3 bg-red-50 text-red-600 rounded-lg text-sm">
+          <div v-if="errors.items" class="mb-4 p-3 bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg text-sm">
             {{ errors.items }}
           </div>
 
-          <div v-if="items.length === 0" class="py-8 text-center text-slate-500">
+          <div v-if="items.length === 0" class="py-8 text-center text-slate-500 dark:text-slate-400">
             No items added yet. Click "Add Item" to start.
           </div>
 
@@ -275,7 +275,7 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
             <div
               v-for="(item, index) in items"
               :key="item._key"
-              class="p-4 border border-slate-200 rounded-lg"
+              class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
             >
               <div class="flex items-start gap-4">
                 <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
@@ -314,7 +314,7 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
 
                 <button
                   type="button"
-                  class="mt-6 p-2 text-slate-400 hover:text-red-500 transition-colors"
+                  class="mt-6 p-2 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
                   @click="removeItem(index)"
                 >
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,11 +324,11 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
               </div>
 
               <!-- Item total -->
-              <div class="mt-3 pt-3 border-t border-slate-100 flex justify-between text-sm">
-                <span class="text-slate-500">
+              <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between text-sm">
+                <span class="text-slate-500 dark:text-slate-400">
                   {{ item.quantity }} x {{ formatCurrency(item.unit_cost) }}
                 </span>
-                <span class="font-medium text-slate-900">
+                <span class="font-medium text-slate-900 dark:text-slate-100">
                   = {{ formatCurrency(item.quantity * item.unit_cost) }}
                 </span>
               </div>
@@ -339,32 +339,32 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
         <!-- Cost Summary -->
         <Card>
           <template #header>
-            <h2 class="font-semibold text-slate-900">Cost Summary</h2>
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">Cost Summary</h2>
           </template>
 
           <dl class="space-y-3">
             <div class="flex justify-between">
-              <dt class="text-slate-500">Materials</dt>
-              <dd class="font-medium text-blue-600">{{ formatCurrency(totals.material) }}</dd>
+              <dt class="text-slate-500 dark:text-slate-400">Materials</dt>
+              <dd class="font-medium text-blue-600 dark:text-blue-400">{{ formatCurrency(totals.material) }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-500">Labor</dt>
-              <dd class="font-medium text-purple-600">{{ formatCurrency(totals.labor) }}</dd>
+              <dt class="text-slate-500 dark:text-slate-400">Labor</dt>
+              <dd class="font-medium text-purple-600 dark:text-purple-400">{{ formatCurrency(totals.labor) }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="text-slate-500">Overhead</dt>
-              <dd class="font-medium text-orange-600">{{ formatCurrency(totals.overhead) }}</dd>
+              <dt class="text-slate-500 dark:text-slate-400">Overhead</dt>
+              <dd class="font-medium text-orange-600 dark:text-orange-400">{{ formatCurrency(totals.overhead) }}</dd>
             </div>
-            <hr class="border-slate-200" />
+            <hr class="border-slate-200 dark:border-slate-700" />
             <div class="flex justify-between">
-              <dt class="font-semibold text-slate-900">Total Cost</dt>
-              <dd class="font-bold text-lg text-slate-900">{{ formatCurrency(totals.total) }}</dd>
+              <dt class="font-semibold text-slate-900 dark:text-slate-100">Total Cost</dt>
+              <dd class="font-bold text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(totals.total) }}</dd>
             </div>
             <div class="flex justify-between">
-              <dt class="font-semibold text-slate-900">
+              <dt class="font-semibold text-slate-900 dark:text-slate-100">
                 Unit Cost (per {{ form.output_quantity }} {{ form.output_unit }})
               </dt>
-              <dd class="font-bold text-lg text-orange-600">{{ formatCurrency(totals.unitCost) }}</dd>
+              <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(totals.unitCost) }}</dd>
             </div>
           </dl>
         </Card>
@@ -372,12 +372,12 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
         <!-- Notes -->
         <Card>
           <template #header>
-            <h2 class="font-semibold text-slate-900">Notes</h2>
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100">Notes</h2>
           </template>
           <textarea
             v-model="form.notes"
             rows="3"
-            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             placeholder="Additional notes..."
           />
         </Card>

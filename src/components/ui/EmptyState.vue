@@ -25,11 +25,11 @@ const defaultIconPath = 'M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1
       <component
         v-if="icon"
         :is="icon"
-        class="w-12 h-12 text-slate-400"
+        class="w-12 h-12 text-slate-400 dark:text-slate-500"
       />
       <svg
         v-else
-        class="w-12 h-12 text-slate-400"
+        class="w-12 h-12 text-slate-400 dark:text-slate-500"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"
@@ -44,14 +44,14 @@ const defaultIconPath = 'M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1
     </div>
 
     <!-- Title -->
-    <h3 class="text-lg font-medium text-slate-900 mb-1">
+    <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">
       {{ title }}
     </h3>
 
     <!-- Description -->
     <p
       v-if="description"
-      class="text-sm text-slate-500 max-w-sm mb-6"
+      class="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6"
     >
       {{ description }}
     </p>

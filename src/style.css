@@ -71,56 +71,58 @@
     --chart-5: 27 87% 67%;
   }
 
-  .dark {
-    /* ═══════════════════════════════════════════════════════════════════════
-     * ENTER365 DESIGN SYSTEM - Dark Mode
-     * ═══════════════════════════════════════════════════════════════════════ */
+}
 
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+/* Dark mode - outside @layer for higher specificity */
+html.dark {
+  /* ═══════════════════════════════════════════════════════════════════════
+   * ENTER365 DESIGN SYSTEM - Dark Mode
+   * ═══════════════════════════════════════════════════════════════════════ */
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
 
-    /* Primary - Slightly lighter orange for dark mode */
-    --primary: 24.6 95% 53.1%;
-    --primary-foreground: 0 0% 100%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+  /* Primary - Slightly lighter orange for dark mode */
+  --primary: 24.6 95% 53.1%;
+  --primary-foreground: 0 0% 100%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
 
-    --destructive: 0 62.8% 50.6%;
-    --destructive-foreground: 0 0% 100%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
 
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 50.6%;
+  --destructive-foreground: 0 0% 100%;
 
-    --warning: 38 92% 50%;
-    --warning-foreground: 0 0% 100%;
+  --success: 142.1 70.6% 45.3%;
+  --success-foreground: 0 0% 100%;
 
-    --info: 217.2 91.2% 59.8%;
-    --info-foreground: 0 0% 100%;
+  --warning: 38 92% 50%;
+  --warning-foreground: 0 0% 100%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
+  --info: 217.2 91.2% 59.8%;
+  --info-foreground: 0 0% 100%;
 
-    --ring: 24.6 95% 53.1%;
+  --border: 217.2 32.6% 25%;
+  --input: 217.2 32.6% 30%;
 
-    --chart-1: 24.6 95% 60%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
+  --ring: 24.6 95% 53.1%;
+
+  --chart-1: 24.6 95% 60%;
+  --chart-2: 160 60% 45%;
+  --chart-3: 30 80% 55%;
+  --chart-4: 280 65% 60%;
+  --chart-5: 340 75% 55%;
 }
 
 @layer base {

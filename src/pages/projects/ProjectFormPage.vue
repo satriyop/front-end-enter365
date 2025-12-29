@@ -116,8 +116,8 @@ async function handleSubmit() {
   <div class="max-w-3xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update project details' : 'Create a new EPC project' }}
         </p>
       </div>
@@ -125,13 +125,13 @@ async function handleSubmit() {
     </div>
 
     <div v-if="isEditing && loadingProject" class="text-center py-12">
-      <div class="text-slate-500">Loading project...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading project...</div>
     </div>
 
     <form v-else @submit.prevent="handleSubmit" class="space-y-6">
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Project Information</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Project Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Project Name" required :error="errors.name" class="md:col-span-2">
@@ -154,7 +154,7 @@ async function handleSubmit() {
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Timeline</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Timeline</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Start Date" required :error="errors.start_date">
@@ -168,7 +168,7 @@ async function handleSubmit() {
 
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Budget & Contract</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Budget & Contract</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Contract Amount">

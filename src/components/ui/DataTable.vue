@@ -97,7 +97,7 @@ const someSelected = computed(() =>
   <div class="w-full overflow-x-auto">
     <table class="w-full text-sm">
       <!-- Header -->
-      <thead class="bg-slate-50 border-b border-slate-200">
+      <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <tr>
           <!-- Checkbox column -->
           <th
@@ -108,7 +108,7 @@ const someSelected = computed(() =>
               type="checkbox"
               :checked="allSelected"
               :indeterminate="someSelected"
-              class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
+              class="rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
               @change="toggleAll"
             />
           </th>
@@ -118,9 +118,9 @@ const someSelected = computed(() =>
             v-for="column in columns"
             :key="String(column.key)"
             :class="[
-              'px-4 py-3 font-medium text-slate-600',
+              'px-4 py-3 font-medium text-slate-600 dark:text-slate-300',
               alignClasses[column.align ?? 'left'],
-              column.sortable && 'cursor-pointer select-none hover:bg-slate-100',
+              column.sortable && 'cursor-pointer select-none hover:bg-slate-100 dark:hover:bg-slate-700',
               column.class,
             ]"
             :style="column.width ? { width: column.width } : undefined"
@@ -168,12 +168,12 @@ const someSelected = computed(() =>
       </thead>
 
       <!-- Body -->
-      <tbody class="divide-y divide-slate-200">
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
         <!-- Loading state -->
         <tr v-if="loading">
           <td
             :colspan="columns.length + (selectable ? 1 : 0) + ($slots.actions ? 1 : 0)"
-            class="px-4 py-8 text-center text-slate-500"
+            class="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
           >
             <div class="flex items-center justify-center gap-2">
               <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@ const someSelected = computed(() =>
             class="px-4 py-8"
           >
             <slot name="empty">
-              <div class="text-center text-slate-500">
+              <div class="text-center text-slate-500 dark:text-slate-400">
                 No data available
               </div>
             </slot>
@@ -205,10 +205,10 @@ const someSelected = computed(() =>
           v-for="(row, index) in data"
           :key="rowKey ? String(row[rowKey]) : index"
           :class="[
-            'bg-white',
-            hoverable && 'hover:bg-slate-50',
-            striped && index % 2 === 1 && 'bg-slate-50',
-            isSelected(row) && 'bg-orange-50',
+            'bg-white dark:bg-slate-900',
+            hoverable && 'hover:bg-slate-50 dark:hover:bg-slate-800',
+            striped && index % 2 === 1 && 'bg-slate-50 dark:bg-slate-800/50',
+            isSelected(row) && 'bg-orange-50 dark:bg-orange-900/20',
           ]"
           @click="handleRowClick(row, index)"
         >
@@ -221,7 +221,7 @@ const someSelected = computed(() =>
             <input
               type="checkbox"
               :checked="isSelected(row)"
-              class="rounded border-slate-300 text-orange-500 focus:ring-orange-500"
+              class="rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
               @change="toggleRow(row)"
             />
           </td>
@@ -231,7 +231,7 @@ const someSelected = computed(() =>
             v-for="column in columns"
             :key="String(column.key)"
             :class="[
-              'px-4 py-3 text-slate-900',
+              'px-4 py-3 text-slate-900 dark:text-slate-100',
               alignClasses[column.align ?? 'left'],
               column.class,
             ]"

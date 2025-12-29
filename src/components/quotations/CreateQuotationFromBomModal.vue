@@ -243,24 +243,24 @@ function handleClose() {
       <!-- BOM Cost Preview -->
       <div
         v-if="selectedBom"
-        class="bg-slate-50 rounded-lg p-4 border border-slate-200"
+        class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 border border-slate-200 dark:border-slate-700"
       >
         <div class="grid grid-cols-2 gap-4 text-sm">
           <div>
-            <span class="text-slate-500">BOM Name</span>
-            <p class="font-medium text-slate-900">{{ selectedBom.name }}</p>
+            <span class="text-slate-500 dark:text-slate-400">BOM Name</span>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ selectedBom.name }}</p>
           </div>
           <div>
-            <span class="text-slate-500">Total Cost</span>
-            <p class="font-medium text-slate-900">{{ formatCurrency(bomTotalCost) }}</p>
+            <span class="text-slate-500 dark:text-slate-400">Total Cost</span>
+            <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(bomTotalCost) }}</p>
           </div>
           <div>
-            <span class="text-slate-500">Material Cost</span>
-            <p class="text-slate-700">{{ formatCurrency(selectedBom.total_material_cost) }}</p>
+            <span class="text-slate-500 dark:text-slate-400">Material Cost</span>
+            <p class="text-slate-700 dark:text-slate-300">{{ formatCurrency(selectedBom.total_material_cost) }}</p>
           </div>
           <div>
-            <span class="text-slate-500">Labor + Overhead</span>
-            <p class="text-slate-700">
+            <span class="text-slate-500 dark:text-slate-400">Labor + Overhead</span>
+            <p class="text-slate-700 dark:text-slate-300">
               {{ formatCurrency(selectedBom.total_labor_cost + selectedBom.total_overhead_cost) }}
             </p>
           </div>
@@ -287,20 +287,20 @@ function handleClose() {
       <!-- Pricing Section -->
       <div class="space-y-4">
         <div class="flex items-center justify-between">
-          <label class="block text-sm font-medium text-slate-700">Pricing Method</label>
-          <div class="flex rounded-lg overflow-hidden border border-slate-300">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Pricing Method</label>
+          <div class="flex rounded-lg overflow-hidden border border-slate-300 dark:border-slate-600">
             <button
               type="button"
               class="px-3 py-1.5 text-sm transition-colors"
-              :class="pricingMode === 'margin' ? 'bg-orange-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
+              :class="pricingMode === 'margin' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
               @click="pricingMode = 'margin'"
             >
               Margin %
             </button>
             <button
               type="button"
-              class="px-3 py-1.5 text-sm transition-colors border-l border-slate-300"
-              :class="pricingMode === 'price' ? 'bg-orange-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'"
+              class="px-3 py-1.5 text-sm transition-colors border-l border-slate-300 dark:border-slate-600"
+              :class="pricingMode === 'price' ? 'bg-orange-500 text-white' : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700'"
               @click="pricingMode = 'price'"
             >
               Fixed Price
@@ -311,8 +311,8 @@ function handleClose() {
         <!-- Margin Slider -->
         <div v-if="pricingMode === 'margin'" class="space-y-2">
           <div class="flex items-center justify-between">
-            <span class="text-sm text-slate-600">Margin Percentage</span>
-            <span class="text-sm font-medium text-orange-600">{{ formatPercent(marginPercent, 0) }}</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">Margin Percentage</span>
+            <span class="text-sm font-medium text-orange-600 dark:text-orange-400">{{ formatPercent(marginPercent, 0) }}</span>
           </div>
           <input
             v-model.number="marginPercent"
@@ -320,16 +320,16 @@ function handleClose() {
             min="0"
             max="100"
             step="5"
-            class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-orange-500"
+            class="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-orange-500"
           />
-          <div class="flex justify-between text-xs text-slate-400">
+          <div class="flex justify-between text-xs text-slate-400 dark:text-slate-500">
             <span>0%</span>
             <span>25%</span>
             <span>50%</span>
             <span>75%</span>
             <span>100%</span>
           </div>
-          <p v-if="errors.margin" class="text-xs text-red-600">{{ errors.margin }}</p>
+          <p v-if="errors.margin" class="text-xs text-red-600 dark:text-red-400">{{ errors.margin }}</p>
         </div>
 
         <!-- Fixed Price Input -->
@@ -344,20 +344,20 @@ function handleClose() {
         <!-- Price Preview -->
         <div
           v-if="selectedBom"
-          class="bg-green-50 rounded-lg p-4 border border-green-200"
+          class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-800"
         >
           <div class="grid grid-cols-3 gap-4 text-sm">
             <div>
-              <span class="text-green-700">Cost</span>
-              <p class="font-medium text-slate-900">{{ formatCurrency(bomTotalCost) }}</p>
+              <span class="text-green-700 dark:text-green-400">Cost</span>
+              <p class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(bomTotalCost) }}</p>
             </div>
             <div>
-              <span class="text-green-700">Selling Price</span>
-              <p class="font-medium text-green-700 text-lg">{{ formatCurrency(calculatedPrice) }}</p>
+              <span class="text-green-700 dark:text-green-400">Selling Price</span>
+              <p class="font-medium text-green-700 dark:text-green-400 text-lg">{{ formatCurrency(calculatedPrice) }}</p>
             </div>
             <div>
-              <span class="text-green-700">Profit ({{ formatPercent(calculatedMargin, 1) }})</span>
-              <p class="font-medium text-green-700">{{ formatCurrency(profit) }}</p>
+              <span class="text-green-700 dark:text-green-400">Profit ({{ formatPercent(calculatedMargin, 1) }})</span>
+              <p class="font-medium text-green-700 dark:text-green-400">{{ formatCurrency(profit) }}</p>
             </div>
           </div>
         </div>
@@ -365,7 +365,7 @@ function handleClose() {
 
       <!-- Item Format -->
       <div class="space-y-2">
-        <label class="block text-sm font-medium text-slate-700">Line Items Format</label>
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Line Items Format</label>
         <div class="flex gap-4">
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -374,7 +374,7 @@ function handleClose() {
               :value="false"
               class="text-orange-500 focus:ring-orange-500"
             />
-            <span class="text-sm text-slate-600">Single line (product only)</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">Single line (product only)</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input
@@ -383,10 +383,10 @@ function handleClose() {
               :value="true"
               class="text-orange-500 focus:ring-orange-500"
             />
-            <span class="text-sm text-slate-600">Expand all BOM items</span>
+            <span class="text-sm text-slate-600 dark:text-slate-400">Expand all BOM items</span>
           </label>
         </div>
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-slate-500 dark:text-slate-400">
           {{ expandItems
             ? 'Each BOM component will be shown as a separate line item with individual pricing'
             : 'Quotation will show a single line for the finished product'
@@ -397,7 +397,7 @@ function handleClose() {
       <!-- Advanced Options Toggle -->
       <button
         type="button"
-        class="flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800"
+        class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
         @click="showAdvanced = !showAdvanced"
       >
         <svg
@@ -413,7 +413,7 @@ function handleClose() {
       </button>
 
       <!-- Advanced Options -->
-      <div v-if="showAdvanced" class="space-y-4 pl-6 border-l-2 border-slate-200">
+      <div v-if="showAdvanced" class="space-y-4 pl-6 border-l-2 border-slate-200 dark:border-slate-700">
         <FormField label="Custom Subject">
           <Input
             v-model="subject"
@@ -451,7 +451,7 @@ function handleClose() {
           <textarea
             v-model="notes"
             rows="3"
-            class="w-full px-3 py-2 rounded-sm border border-slate-300 focus:outline-none focus:ring-1 focus:border-orange-500 focus:ring-orange-500 text-sm"
+            class="w-full px-3 py-2 rounded-sm border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-1 focus:border-orange-500 focus:ring-orange-500 text-sm"
             placeholder="Additional notes for this quotation..."
           />
         </FormField>

@@ -214,8 +214,8 @@ const contactOptions = computed(() => {
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-        <p class="text-slate-500">
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">
           {{ isEditing ? 'Update invoice details' : 'Create a new sales invoice' }}
         </p>
       </div>
@@ -226,7 +226,7 @@ const contactOptions = computed(() => {
 
     <!-- Loading state for edit mode -->
     <div v-if="isEditing && loadingInvoice" class="text-center py-12">
-      <div class="text-slate-500">Loading invoice...</div>
+      <div class="text-slate-500 dark:text-slate-400">Loading invoice...</div>
     </div>
 
     <!-- Form -->
@@ -234,7 +234,7 @@ const contactOptions = computed(() => {
       <!-- Header Info Card -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900">Invoice Details</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Invoice Details</h2>
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -278,7 +278,7 @@ const contactOptions = computed(() => {
       <Card>
         <template #header>
           <div class="flex items-center justify-between">
-            <h2 class="font-medium text-slate-900">Line Items</h2>
+            <h2 class="font-medium text-slate-900 dark:text-slate-100">Line Items</h2>
             <Button type="button" variant="ghost" size="sm" @click="addItem">
               + Add Item
             </Button>
@@ -291,7 +291,7 @@ const contactOptions = computed(() => {
 
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-50 text-slate-600">
+            <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               <tr>
                 <th class="px-3 py-2 text-left">Description</th>
                 <th class="px-3 py-2 text-right w-24">Qty</th>
@@ -301,14 +301,14 @@ const contactOptions = computed(() => {
                 <th class="px-3 py-2 w-10"></th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-200">
+            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
               <tr v-for="(item, index) in items" :key="item.id" class="align-top">
                 <td class="px-3 py-2">
                   <input
                     v-model="item.description"
                     type="text"
                     placeholder="Item description"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -317,7 +317,7 @@ const contactOptions = computed(() => {
                     type="number"
                     min="1"
                     step="1"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -325,7 +325,7 @@ const contactOptions = computed(() => {
                     v-model="item.unit"
                     type="text"
                     placeholder="pcs"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -334,10 +334,10 @@ const contactOptions = computed(() => {
                     type="number"
                     min="0"
                     step="1000"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
-                <td class="px-3 py-2 text-right font-medium">
+                <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(calculateItemTotal(item)) }}
                 </td>
                 <td class="px-3 py-2">
@@ -345,7 +345,7 @@ const contactOptions = computed(() => {
                     type="button"
                     @click="removeItem(index)"
                     :disabled="items.length === 1"
-                    class="text-slate-400 hover:text-red-500 disabled:opacity-30 disabled:cursor-not-allowed"
+                    class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -358,46 +358,46 @@ const contactOptions = computed(() => {
         </div>
 
         <!-- Totals -->
-        <div class="mt-6 border-t border-slate-200 pt-4">
+        <div class="mt-6 border-t border-slate-200 dark:border-slate-700 pt-4">
           <div class="flex justify-end">
             <div class="w-80 space-y-2">
               <div class="flex justify-between text-sm">
-                <span class="text-slate-600">Subtotal</span>
-                <span class="font-medium">{{ formatCurrency(subtotal) }}</span>
+                <span class="text-slate-600 dark:text-slate-400">Subtotal</span>
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(subtotal) }}</span>
               </div>
 
               <!-- Discount -->
               <div class="flex items-center gap-2">
-                <span class="text-slate-600 text-sm w-20">Discount</span>
+                <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Discount</span>
                 <input
                   v-model.number="form.discount_amount"
                   type="number"
                   min="0"
-                  class="w-32 px-2 py-1 rounded border border-slate-300 text-sm text-right"
+                  class="w-32 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
                 />
-                <span class="text-slate-500 text-sm ml-auto">
+                <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
                   -{{ formatCurrency(form.discount_amount) }}
                 </span>
               </div>
 
               <!-- Tax Rate -->
               <div class="flex items-center gap-2">
-                <span class="text-slate-600 text-sm w-20">Tax (%)</span>
+                <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Tax (%)</span>
                 <input
                   v-model.number="form.tax_rate"
                   type="number"
                   min="0"
                   max="100"
-                  class="w-20 px-2 py-1 rounded border border-slate-300 text-sm text-right"
+                  class="w-20 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
                 />
-                <span class="text-slate-500 text-sm ml-auto">
+                <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
                   {{ formatCurrency(taxAmount) }}
                 </span>
               </div>
 
-              <div class="flex justify-between text-lg font-semibold border-t border-slate-200 pt-2">
-                <span>Total</span>
-                <span class="text-orange-600">{{ formatCurrency(grandTotal) }}</span>
+              <div class="flex justify-between text-lg font-semibold border-t border-slate-200 dark:border-slate-700 pt-2">
+                <span class="text-slate-900 dark:text-slate-100">Total</span>
+                <span class="text-orange-600 dark:text-orange-500">{{ formatCurrency(grandTotal) }}</span>
               </div>
             </div>
           </div>

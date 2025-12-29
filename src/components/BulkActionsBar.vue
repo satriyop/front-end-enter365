@@ -21,13 +21,13 @@ defineEmits<{
   <Transition name="slide-up">
     <div
       v-if="selectedCount > 0"
-      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white rounded-xl shadow-2xl px-4 py-3 flex items-center gap-4"
+      class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 dark:bg-slate-800 text-white rounded-xl shadow-2xl px-4 py-3 flex items-center gap-4"
     >
       <div class="text-sm font-medium">
         {{ selectedCount }} selected
       </div>
 
-      <div class="w-px h-6 bg-slate-700" />
+      <div class="w-px h-6 bg-slate-700 dark:bg-slate-600" />
 
       <div class="flex items-center gap-2">
         <Button
@@ -45,7 +45,7 @@ defineEmits<{
 
       <button
         type="button"
-        class="ml-2 p-1 rounded hover:bg-slate-700 transition-colors"
+        class="ml-2 p-1 rounded hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors"
         @click="$emit('clear')"
       >
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
