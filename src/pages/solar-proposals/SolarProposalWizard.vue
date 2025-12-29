@@ -13,7 +13,26 @@ import LocationMapPicker, { type LocationData, type SolarData } from '@/componen
 import { useToast } from '@/components/ui/Toast/useToast'
 import { formatCurrency, formatNumber, formatSolarOffset } from '@/utils/format'
 import CapacityCalculatorModal from '@/components/solar/CapacityCalculatorModal.vue'
-import { Calculator } from 'lucide-vue-next'
+import WizardStepIndicator from '@/components/solar/WizardStepIndicator.vue'
+import StatsCard from '@/components/solar/StatsCard.vue'
+import {
+  Calculator,
+  Sun,
+  Zap,
+  TrendingUp,
+  Leaf,
+  DollarSign,
+  Calendar,
+  Building2,
+  MapPin,
+  Gauge,
+  Battery,
+  ArrowRight,
+  ChevronLeft,
+  Save,
+  Send,
+  Sparkles,
+} from 'lucide-vue-next'
 import { useContacts, type Contact } from '@/api/useContacts'
 import { useBomVariantGroups, type BomVariantGroup } from '@/api/useComponentStandards'
 import {
@@ -274,8 +293,31 @@ const totalLifetimeSavings = computed(() =>
 )
 
 // System cost from selected BOM
+// Priority: 1) existing proposal's selected_bom, 2) frontend variant group's BOM
 const systemCost = computed(() => {
-  return existingProposal.value?.selected_bom?.total_cost ?? 0
+  // First check if we have the cost from existing proposal (edit mode)
+  if (existingProposal.value?.selected_bom?.total_cost) {
+    return existingProposal.value.selected_bom.total_cost
+  }
+
+  // Otherwise, try to get from the selected variant group in frontend data
+  if (form.value.variant_group_id) {
+    const selectedGroup = variantGroups.value.find(
+      (vg: BomVariantGroup) => vg.id === form.value.variant_group_id
+    )
+    if (selectedGroup?.boms?.length) {
+      // If a specific BOM is selected, use its cost
+      if (form.value.selected_bom_id) {
+        const selectedBom = selectedGroup.boms.find(b => b.id === form.value.selected_bom_id)
+        if (selectedBom) return selectedBom.total_cost
+      }
+      // Otherwise use the primary BOM's cost
+      const primaryBom = selectedGroup.boms.find(b => b.is_primary_variant) || selectedGroup.boms[0]
+      if (primaryBom) return primaryBom.total_cost
+    }
+  }
+
+  return 0
 })
 
 // Payback period calculation
@@ -598,82 +640,52 @@ const steps = computed(() => [
 </script>
 
 <template>
-  <div class="max-w-5xl mx-auto">
-    <!-- Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-slate-900">{{ pageTitle }}</h1>
-      <p class="mt-1 text-sm text-slate-500">
-        Create a solar proposal with financial projections for your customer
-      </p>
+  <div class="max-w-6xl mx-auto">
+    <!-- Premium Header -->
+    <div class="relative mb-8 overflow-hidden">
+      <!-- Background decoration -->
+      <div class="absolute inset-0 bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-yellow-500/5 dark:from-orange-500/10 dark:via-amber-500/10 dark:to-yellow-500/10 rounded-2xl" />
+      <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-orange-400/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+      <div class="relative px-6 py-8 sm:px-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-3 mb-2">
+              <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 shadow-lg shadow-orange-500/30">
+                <Sun class="w-5 h-5 text-white" />
+              </div>
+              <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
+                {{ pageTitle }}
+              </h1>
+            </div>
+            <p class="text-slate-600 dark:text-slate-400 max-w-xl">
+              Design a comprehensive solar investment proposal with detailed financial projections
+            </p>
+          </div>
+
+          <!-- Quick Stats Preview (shows when data available) -->
+          <div v-if="form.system_capacity_kwp && firstYearSavings" class="flex items-center gap-3">
+            <div class="hidden sm:block text-right">
+              <div class="text-xs text-slate-500 dark:text-slate-400">Est. Annual Savings</div>
+              <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(firstYearSavings) }}</div>
+            </div>
+            <div class="w-px h-10 bg-slate-200 dark:bg-slate-700 hidden sm:block" />
+            <div class="hidden sm:block text-right">
+              <div class="text-xs text-slate-500 dark:text-slate-400">System Size</div>
+              <div class="text-lg font-bold text-orange-600 dark:text-orange-400">{{ form.system_capacity_kwp }} kWp</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Step Indicator -->
-    <div class="mb-8">
-      <nav aria-label="Progress">
-        <ol class="flex items-center">
-          <li
-            v-for="(step, index) in steps"
-            :key="step.number"
-            :class="[
-              'relative',
-              index !== steps.length - 1 ? 'pr-8 sm:pr-20 flex-1' : ''
-            ]"
-          >
-            <!-- Step connector line -->
-            <div
-              v-if="index !== steps.length - 1"
-              class="absolute top-4 left-7 -ml-px mt-0.5 h-0.5 w-full bg-slate-200"
-              :class="{ 'bg-orange-500': currentStep > step.number }"
-            />
-
-            <!-- Step circle and label -->
-            <button
-              type="button"
-              class="group relative flex items-start"
-              @click="goToStep(step.number)"
-              :disabled="step.number > currentStep"
-            >
-              <span class="flex h-9 items-center">
-                <span
-                  :class="[
-                    'relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium',
-                    currentStep === step.number
-                      ? 'bg-orange-500 text-white'
-                      : currentStep > step.number
-                        ? 'bg-orange-500 text-white'
-                        : 'bg-slate-200 text-slate-500'
-                  ]"
-                >
-                  <svg
-                    v-if="currentStep > step.number"
-                    class="h-5 w-5"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                  <span v-else>{{ step.number }}</span>
-                </span>
-              </span>
-              <span class="ml-3 hidden sm:block min-w-0">
-                <span
-                  :class="[
-                    'text-sm font-medium',
-                    currentStep >= step.number ? 'text-slate-900' : 'text-slate-500'
-                  ]"
-                >
-                  {{ step.title }}
-                </span>
-                <span class="block text-xs text-slate-500">{{ step.description }}</span>
-              </span>
-            </button>
-          </li>
-        </ol>
-      </nav>
+    <!-- Premium Step Indicator -->
+    <div class="mb-10 px-4">
+      <WizardStepIndicator
+        :steps="steps"
+        :current-step="currentStep"
+        @go-to-step="goToStep"
+      />
     </div>
 
     <!-- Loading state -->
@@ -685,219 +697,303 @@ const steps = computed(() => [
     <!-- Step Content -->
     <form v-else @submit.prevent="handleSubmit">
       <!-- Step 1: Site & Customer Information -->
-      <Card v-show="currentStep === 1">
-        <template #header>
-          <h2 class="text-lg font-medium text-slate-900">Site & Customer Information</h2>
-        </template>
+      <div v-show="currentStep === 1" class="space-y-6">
+        <!-- Customer Selection Card -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                <Building2 class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Customer Information</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Select the client for this proposal</p>
+              </div>
+            </div>
+          </template>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Customer Selection -->
-          <FormField label="Customer" required :error="errors.contact_id" class="md:col-span-2">
-            <Select
-              v-model="form.contact_id"
-              :options="contactOptions"
-              placeholder="Select a customer..."
-              :error="!!errors.contact_id"
-            />
-          </FormField>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Customer" required :error="errors.contact_id" class="md:col-span-2">
+              <Select
+                v-model="form.contact_id"
+                :options="contactOptions"
+                placeholder="Select a customer..."
+                :error="!!errors.contact_id"
+              />
+            </FormField>
 
-          <!-- Site Name -->
-          <FormField label="Site Name" required :error="errors.site_name">
-            <Input
-              v-model="form.site_name"
-              placeholder="e.g., Main Office Building"
-              :error="!!errors.site_name"
-            />
-          </FormField>
+            <FormField label="Site Name" required :error="errors.site_name">
+              <Input
+                v-model="form.site_name"
+                placeholder="e.g., Main Office Building"
+                :error="!!errors.site_name"
+              />
+            </FormField>
 
-          <!-- Site Address -->
-          <FormField label="Site Address" :error="errors.site_address">
-            <Input
-              v-model="form.site_address"
-              placeholder="Full address (optional - use map below)"
-              :error="!!errors.site_address"
-            />
-          </FormField>
+            <FormField label="Site Address" :error="errors.site_address">
+              <Input
+                v-model="form.site_address"
+                placeholder="Full address (optional)"
+                :error="!!errors.site_address"
+              />
+            </FormField>
+          </div>
+        </Card>
 
-          <!-- Interactive Location Map -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-slate-700 mb-2">
-              Site Location <span class="text-red-500">*</span>
-            </label>
-            <p class="text-sm text-slate-500 mb-3">
-              Click on the map or search to select the installation site. Switch to Satellite view and draw the roof outline for accurate area calculation.
-            </p>
+        <!-- Location Map Card -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                <MapPin class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Installation Location</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Pin the site and draw roof boundaries for solar data</p>
+              </div>
+            </div>
+          </template>
+
+          <div class="space-y-4">
             <LocationMapPicker
               v-model="locationData"
               :show-draw-tools="true"
               @solar-data-loaded="onSolarDataLoaded"
             />
-            <div v-if="errors.province || errors.city" class="mt-2 text-sm text-red-600">
+            <div v-if="errors.province || errors.city" class="text-sm text-red-600 dark:text-red-400">
               Please select a location on the map
             </div>
-          </div>
 
-          <!-- Manual Roof Area (fallback if not drawn) -->
-          <FormField
-            v-if="!form.roof_polygon"
-            label="Roof Area (m²)"
-            hint="Or draw on the map for accurate measurement"
-          >
-            <Input
-              v-model.number="form.roof_area_m2"
-              type="number"
-              placeholder="e.g., 100"
-              min="0"
-            />
-          </FormField>
-
-          <!-- Roof Type -->
-          <FormField label="Roof Type">
-            <Select
-              v-model="form.roof_type"
-              :options="roofTypeOptions"
-            />
-          </FormField>
-
-          <!-- Roof Orientation -->
-          <FormField label="Roof Orientation">
-            <Select
-              v-model="form.roof_orientation"
-              :options="orientationOptions"
-            />
-          </FormField>
-
-          <!-- Roof Tilt -->
-          <FormField label="Roof Tilt (degrees)">
-            <Input
-              v-model.number="form.roof_tilt_degrees"
-              type="number"
-              min="0"
-              max="90"
-            />
-          </FormField>
-
-          <!-- Shading -->
-          <FormField label="Shading (%)" hint="Percentage of roof affected by shadows">
-            <Input
-              v-model.number="form.shading_percentage"
-              type="number"
-              min="0"
-              max="100"
-            />
-          </FormField>
-        </div>
-      </Card>
-
-      <!-- Step 2: Electricity Profile -->
-      <Card v-show="currentStep === 2">
-        <template #header>
-          <h2 class="text-lg font-medium text-slate-900">Electricity Profile</h2>
-        </template>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Monthly Consumption -->
-          <FormField
-            label="Monthly Electricity Consumption (kWh)"
-            required
-            :error="errors.monthly_consumption_kwh"
-            hint="Check your PLN bill for this value"
-          >
-            <Input
-              v-model.number="form.monthly_consumption_kwh"
-              type="number"
-              placeholder="e.g., 1500"
-              min="0"
-              :error="!!errors.monthly_consumption_kwh"
-            />
-          </FormField>
-
-          <!-- PLN Tariff Category -->
-          <FormField label="PLN Tariff Category" required :error="errors.pln_tariff_category">
-            <Select
-              v-model="form.pln_tariff_category"
-              :options="tariffOptions"
-              placeholder="Select tariff..."
-              :error="!!errors.pln_tariff_category"
-            />
-          </FormField>
-
-          <!-- Electricity Rate -->
-          <FormField
-            label="Electricity Rate (Rp/kWh)"
-            required
-            :error="errors.electricity_rate"
-            hint="Auto-filled from tariff selection"
-          >
-            <Input
-              v-model.number="form.electricity_rate"
-              type="number"
-              placeholder="e.g., 1444"
-              min="0"
-              :error="!!errors.electricity_rate"
-            />
-          </FormField>
-
-          <!-- Tariff Escalation -->
-          <FormField
-            label="Annual Tariff Escalation (%)"
-            hint="Expected annual increase in electricity rates"
-          >
-            <Input
-              v-model.number="form.tariff_escalation_percent"
-              type="number"
-              min="0"
-              max="20"
-            />
-          </FormField>
-
-          <!-- Current Monthly Bill Info -->
-          <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="md:col-span-2 p-4 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
-            <h4 class="font-medium text-blue-800 dark:text-blue-300 mb-2">Current Electricity Cost</h4>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-              <div>
-                <span class="text-blue-600 dark:text-blue-400">Monthly Bill:</span>
-                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</span>
+            <!-- Solar Data Preview -->
+            <div v-if="solarData" class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl border border-amber-200 dark:border-amber-800">
+              <div class="text-center">
+                <Sun class="w-5 h-5 mx-auto text-amber-500 mb-1" />
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ solarData.peak_sun_hours }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Peak Sun Hours</div>
               </div>
-              <div>
-                <span class="text-blue-600 dark:text-blue-400">Annual Bill:</span>
-                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * 12) }}</span>
+              <div class="text-center">
+                <Zap class="w-5 h-5 mx-auto text-amber-500 mb-1" />
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ solarData.solar_irradiance_kwh_m2_day }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">kWh/m²/day</div>
               </div>
-              <div>
-                <span class="text-blue-600 dark:text-blue-400">Annual Consumption:</span>
-                <span class="ml-1 font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(form.monthly_consumption_kwh * 12) }} kWh</span>
+              <div class="text-center">
+                <Gauge class="w-5 h-5 mx-auto text-amber-500 mb-1" />
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ solarData.optimal_tilt_angle }}°</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Optimal Tilt</div>
+              </div>
+              <div class="text-center">
+                <MapPin class="w-5 h-5 mx-auto text-amber-500 mb-1" />
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100 truncate">{{ form.city }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">Location</div>
               </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
 
-      <!-- Step 3: System Selection -->
-      <Card v-show="currentStep === 3">
-        <template #header>
-          <h2 class="text-lg font-medium text-slate-900">Solar System Selection</h2>
-        </template>
+        <!-- Roof Configuration Card -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50">
+                <Building2 class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Roof Configuration</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Specify roof characteristics for accurate calculations</p>
+              </div>
+            </div>
+          </template>
 
-        <div class="space-y-6">
-          <!-- System Capacity Input -->
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <FormField v-if="!form.roof_polygon" label="Roof Area (m²)" hint="Or draw on map">
+              <Input
+                v-model.number="form.roof_area_m2"
+                type="number"
+                placeholder="e.g., 100"
+                min="0"
+              />
+            </FormField>
+            <div v-else class="p-3 bg-emerald-50 dark:bg-emerald-900/30 rounded-lg border border-emerald-200 dark:border-emerald-800">
+              <div class="text-xs text-emerald-600 dark:text-emerald-400 mb-1">Measured Area</div>
+              <div class="text-xl font-bold text-emerald-700 dark:text-emerald-300">{{ form.roof_area_m2?.toFixed(1) }} m²</div>
+            </div>
+
+            <FormField label="Roof Type">
+              <Select v-model="form.roof_type" :options="roofTypeOptions" />
+            </FormField>
+
+            <FormField label="Orientation">
+              <Select v-model="form.roof_orientation" :options="orientationOptions" />
+            </FormField>
+
+            <FormField label="Tilt (degrees)">
+              <Input v-model.number="form.roof_tilt_degrees" type="number" min="0" max="90" />
+            </FormField>
+
+            <FormField label="Shading (%)" hint="Shadow impact">
+              <Input v-model.number="form.shading_percentage" type="number" min="0" max="100" />
+            </FormField>
+          </div>
+        </Card>
+      </div>
+
+      <!-- Step 2: Electricity Profile -->
+      <div v-show="currentStep === 2" class="space-y-6">
+        <!-- Consumption Input Card -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/50">
+                <Zap class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Electricity Consumption</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Enter current electricity usage from PLN bill</p>
+              </div>
+            </div>
+          </template>
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
-              label="System Capacity (kWp)"
+              label="Monthly Consumption"
               required
-              :error="errors.system_capacity_kwp"
+              :error="errors.monthly_consumption_kwh"
+              hint="Check your PLN bill for kWh usage"
             >
-              <template #default>
-                <div class="space-y-2">
+              <div class="relative">
+                <Input
+                  v-model.number="form.monthly_consumption_kwh"
+                  type="number"
+                  placeholder="e.g., 1500"
+                  min="0"
+                  :error="!!errors.monthly_consumption_kwh"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">kWh/mo</span>
+              </div>
+            </FormField>
+
+            <FormField label="PLN Tariff Category" required :error="errors.pln_tariff_category">
+              <Select
+                v-model="form.pln_tariff_category"
+                :options="tariffOptions"
+                placeholder="Select tariff..."
+                :error="!!errors.pln_tariff_category"
+              />
+            </FormField>
+
+            <FormField
+              label="Electricity Rate"
+              required
+              :error="errors.electricity_rate"
+              hint="Auto-filled from tariff"
+            >
+              <div class="relative">
+                <Input
+                  v-model.number="form.electricity_rate"
+                  type="number"
+                  placeholder="e.g., 1444"
+                  min="0"
+                  :error="!!errors.electricity_rate"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">Rp/kWh</span>
+              </div>
+            </FormField>
+
+            <FormField
+              label="Annual Rate Escalation"
+              hint="Expected yearly increase"
+            >
+              <div class="relative">
+                <Input
+                  v-model.number="form.tariff_escalation_percent"
+                  type="number"
+                  min="0"
+                  max="20"
+                />
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">%/year</span>
+              </div>
+            </FormField>
+          </div>
+        </Card>
+
+        <!-- Current Bill Analysis -->
+        <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatsCard
+            label="Current Monthly Bill"
+            :value="formatCurrency(form.monthly_consumption_kwh * form.electricity_rate)"
+            sub-value="Before solar installation"
+            variant="warning"
+            :icon="DollarSign"
+          />
+          <StatsCard
+            label="Annual Electricity Cost"
+            :value="formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * 12)"
+            sub-value="Total yearly expense"
+            variant="warning"
+            :icon="Calendar"
+          />
+          <StatsCard
+            label="Annual Consumption"
+            :value="`${formatNumber(form.monthly_consumption_kwh * 12)} kWh`"
+            sub-value="Total yearly usage"
+            variant="info"
+            :icon="Zap"
+          />
+        </div>
+
+        <!-- Bill Projection Notice -->
+        <div v-if="form.monthly_consumption_kwh && form.electricity_rate && form.tariff_escalation_percent" class="p-4 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl border border-red-200 dark:border-red-800">
+          <div class="flex items-start gap-3">
+            <div class="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex-shrink-0">
+              <TrendingUp class="w-5 h-5 text-red-500" />
+            </div>
+            <div>
+              <h4 class="font-semibold text-red-800 dark:text-red-300">Without Solar: Rising Costs</h4>
+              <p class="text-sm text-red-600 dark:text-red-400 mt-1">
+                With {{ form.tariff_escalation_percent }}% annual rate increase, your electricity bill will be
+                <span class="font-bold">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * Math.pow(1 + form.tariff_escalation_percent / 100, 5)) }}/month</span>
+                in 5 years and
+                <span class="font-bold">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate * Math.pow(1 + form.tariff_escalation_percent / 100, 10)) }}/month</span>
+                in 10 years.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: System Selection - Investment Dashboard -->
+      <div v-show="currentStep === 3" class="space-y-6">
+        <!-- System Configuration Card -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50">
+                <Sun class="w-4 h-4 text-orange-600 dark:text-orange-400" />
+              </div>
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Solar System Configuration</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Define system capacity and select equipment package</p>
+              </div>
+            </div>
+          </template>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Capacity Input with Calculator -->
+            <div class="lg:col-span-2 space-y-4">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField label="System Capacity" required :error="errors.system_capacity_kwp">
                   <div class="flex gap-2">
-                    <Input
-                      v-model.number="form.system_capacity_kwp"
-                      type="number"
-                      placeholder="e.g., 5.0"
-                      min="0"
-                      step="0.5"
-                      :error="!!errors.system_capacity_kwp"
-                      class="flex-1"
-                    />
+                    <div class="relative flex-1">
+                      <Input
+                        v-model.number="form.system_capacity_kwp"
+                        type="number"
+                        placeholder="e.g., 50.0"
+                        min="0"
+                        step="0.5"
+                        :error="!!errors.system_capacity_kwp"
+                      />
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">kWp</span>
+                    </div>
                     <Button
                       variant="outline"
                       size="icon"
@@ -908,309 +1004,591 @@ const steps = computed(() => [
                       <Calculator class="w-4 h-4" />
                     </Button>
                   </div>
-                  <!-- Recommendation Badge -->
-                  <div v-if="recommendedCapacity" class="flex items-center gap-2">
-                    <span class="text-xs text-slate-500 dark:text-slate-400">
-                      Recommended: <span class="font-semibold text-green-600 dark:text-green-400">{{ recommendedCapacity }} kWp</span>
-                      <span class="text-slate-400">(100% offset)</span>
+                </FormField>
+
+                <FormField label="Performance Ratio" hint="Typical: 0.75-0.85">
+                  <Input
+                    v-model.number="form.performance_ratio"
+                    type="number"
+                    min="0.5"
+                    max="1"
+                    step="0.01"
+                  />
+                </FormField>
+              </div>
+
+              <!-- Recommended Capacity Banner -->
+              <div v-if="recommendedCapacity" class="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                <div class="flex items-center gap-3">
+                  <Sparkles class="w-5 h-5 text-emerald-500" />
+                  <div>
+                    <span class="text-sm text-emerald-700 dark:text-emerald-300">
+                      AI Recommended: <span class="font-bold">{{ recommendedCapacity }} kWp</span>
                     </span>
-                    <button
-                      v-if="form.system_capacity_kwp !== recommendedCapacity"
-                      type="button"
-                      class="text-xs px-2 py-0.5 bg-green-100 text-green-700 hover:bg-green-200 rounded dark:bg-green-900/30 dark:text-green-400 dark:hover:bg-green-900/50 transition-colors"
-                      @click="form.system_capacity_kwp = recommendedCapacity"
-                    >
-                      Apply
-                    </button>
+                    <span class="text-xs text-emerald-600 dark:text-emerald-400 ml-2">(100% consumption offset)</span>
                   </div>
-                  <p v-else class="text-xs text-slate-500 dark:text-slate-400">
-                    Enter consumption & location data to see recommendation
-                  </p>
                 </div>
-              </template>
-            </FormField>
+                <Button
+                  v-if="form.system_capacity_kwp !== recommendedCapacity"
+                  variant="success"
+                  size="sm"
+                  type="button"
+                  @click="form.system_capacity_kwp = recommendedCapacity"
+                >
+                  Apply
+                </Button>
+              </div>
 
-            <FormField label="Performance Ratio" hint="System efficiency factor (0.75-0.85 typical)">
-              <Input
-                v-model.number="form.performance_ratio"
-                type="number"
-                min="0.5"
-                max="1"
-                step="0.01"
-              />
-            </FormField>
+              <!-- BOM Package Selection -->
+              <FormField label="Equipment Package" hint="Select pre-configured system components">
+                <Select
+                  v-model="form.variant_group_id"
+                  :options="variantGroupOptions"
+                  placeholder="Select equipment package..."
+                />
+              </FormField>
+            </div>
+
+            <!-- System Preview Card -->
+            <div v-if="form.system_capacity_kwp" class="p-4 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+              <div class="text-center mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 shadow-lg shadow-orange-500/30 mb-3">
+                  <Battery class="w-8 h-8 text-white" />
+                </div>
+                <div class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ form.system_capacity_kwp }} kWp</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">System Capacity</div>
+              </div>
+              <div class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">Est. Panels</span>
+                  <span class="font-medium text-slate-900 dark:text-slate-100">~{{ Math.ceil((form.system_capacity_kwp || 0) / 0.55) }} units</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500 dark:text-slate-400">Roof Area Needed</span>
+                  <span class="font-medium text-slate-900 dark:text-slate-100">~{{ Math.ceil((form.system_capacity_kwp || 0) * 6) }} m²</span>
+                </div>
+                <div v-if="systemCost" class="pt-2 mt-2 border-t border-slate-200 dark:border-slate-700">
+                  <div class="flex justify-between">
+                    <span class="text-slate-500 dark:text-slate-400">Investment</span>
+                    <span class="font-bold text-orange-600 dark:text-orange-400">{{ formatCurrency(systemCost) }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </Card>
 
-          <!-- Variant Group Selection (Optional) -->
-          <FormField label="BOM Variant Group (Optional)" hint="Select pre-configured system packages">
-            <Select
-              v-model="form.variant_group_id"
-              :options="variantGroupOptions"
-              placeholder="Select variant group..."
-            />
-          </FormField>
+        <!-- Production Metrics -->
+        <div v-if="form.system_capacity_kwp && form.peak_sun_hours" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatsCard
+            label="Annual Production"
+            :value="`${formatNumber(annualProduction)} kWh`"
+            sub-value="Estimated yearly output"
+            variant="warning"
+            :icon="Sun"
+          />
+          <StatsCard
+            label="Monthly Production"
+            :value="`${formatNumber(monthlyProduction)} kWh`"
+            sub-value="Average per month"
+            variant="info"
+            :icon="Zap"
+          />
+          <StatsCard
+            :label="solarOffsetFormatted.label"
+            :value="solarOffsetFormatted.value"
+            :sub-value="solarOffsetFormatted.isSurplus ? 'Energy surplus!' : 'Of consumption'"
+            :variant="solarOffsetFormatted.isSurplus ? 'success' : 'default'"
+            :icon="Gauge"
+          />
+          <StatsCard
+            label="First Year Savings"
+            :value="formatCurrency(firstYearSavings)"
+            sub-value="Year 1 estimate"
+            variant="success"
+            :icon="TrendingUp"
+          />
+        </div>
 
-          <!-- Production Estimates -->
-          <div v-if="form.system_capacity_kwp && form.peak_sun_hours" class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <h4 class="font-medium text-amber-800 dark:text-amber-300 mb-3">Estimated Production</h4>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-              <div>
-                <span class="text-amber-600 dark:text-amber-400">Annual Production:</span>
-                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatNumber(annualProduction) }} kWh</div>
+        <!-- Investment Dashboard -->
+        <div v-if="yearlyProjections.length > 0" class="space-y-6">
+          <!-- Dashboard Header -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-emerald-500/30">
+                <TrendingUp class="w-5 h-5 text-white" />
               </div>
               <div>
-                <span class="text-amber-600 dark:text-amber-400">Monthly Production:</span>
-                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatNumber(monthlyProduction) }} kWh</div>
-              </div>
-              <div>
-                <span class="text-amber-600 dark:text-amber-400">{{ solarOffsetFormatted.label }}:</span>
-                <div class="font-medium text-lg" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">{{ solarOffsetFormatted.value }}</div>
-              </div>
-              <div>
-                <span class="text-amber-600 dark:text-amber-400">First Year Savings:</span>
-                <div class="font-medium text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(firstYearSavings) }}</div>
+                <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Investment Analysis</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">25-year financial projection</p>
               </div>
             </div>
           </div>
 
-          <!-- Financial Projection Charts -->
-          <div v-if="yearlyProjections.length > 0" class="space-y-6">
-            <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
-              <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">25-Year Financial Projection</h3>
+          <!-- Key Investment Metrics -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
+              label="Total 25-Year Savings"
+              :value="formatCurrency(totalLifetimeSavings)"
+              sub-value="Lifetime value"
+              variant="highlight"
+              size="lg"
+              :icon="DollarSign"
+            />
+            <StatsCard
+              label="Payback Period"
+              :value="paybackPeriod ? `${paybackPeriod} years` : (systemCost ? '> 25 years' : 'Select BOM')"
+              :sub-value="paybackPeriod ? 'Return on investment' : 'Configure system'"
+              :variant="paybackPeriod && paybackPeriod <= 5 ? 'success' : 'default'"
+              size="lg"
+              :icon="Calendar"
+            />
+            <StatsCard
+              v-if="systemCost && totalLifetimeSavings"
+              label="ROI"
+              :value="`${Math.round((totalLifetimeSavings - systemCost) / systemCost * 100)}%`"
+              sub-value="25-year return"
+              variant="success"
+              size="lg"
+              :icon="TrendingUp"
+            />
+            <StatsCard
+              label="Environmental Impact"
+              :value="`${formatNumber(annualProduction * 0.0007 * 25)} tons`"
+              sub-value="CO₂ offset (25 years)"
+              variant="success"
+              size="lg"
+              :icon="Leaf"
+            />
+          </div>
 
-              <!-- Summary Cards -->
-              <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <div class="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg text-center border border-green-200 dark:border-green-800">
-                  <div class="text-lg md:text-xl font-bold text-green-700 dark:text-green-400 truncate">{{ formatCurrency(totalLifetimeSavings) }}</div>
-                  <div class="text-xs text-green-600 dark:text-green-500">Total 25-Year Savings</div>
+          <!-- Charts Grid -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Payback Period Chart -->
+            <Card>
+              <template #header>
+                <div class="flex items-center justify-between">
+                  <h4 class="font-semibold text-slate-900 dark:text-slate-100">Break-Even Analysis</h4>
+                  <span v-if="paybackPeriod" class="text-xs font-medium px-3 py-1 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 rounded-full">
+                    {{ paybackPeriod }} years payback
+                  </span>
                 </div>
-                <div class="p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg text-center border border-orange-200 dark:border-orange-800">
-                  <div class="text-lg md:text-xl font-bold text-orange-700 dark:text-orange-400 truncate">{{ formatCurrency(firstYearSavings) }}</div>
-                  <div class="text-xs text-orange-600 dark:text-orange-500">First Year Savings</div>
+              </template>
+              <LineChart
+                :labels="paybackChartData.labels"
+                :datasets="paybackChartData.datasets"
+                :height="280"
+              />
+              <p class="text-xs text-slate-500 dark:text-slate-400 mt-3 text-center">
+                Green area: cumulative savings · Red line: investment cost
+              </p>
+            </Card>
+
+            <!-- Monthly Bill Impact Chart -->
+            <Card>
+              <template #header>
+                <h4 class="font-semibold text-slate-900 dark:text-slate-100">Monthly Bill Transformation</h4>
+              </template>
+              <BarChart
+                :labels="monthlyBillChartData.labels"
+                :datasets="monthlyBillChartData.datasets"
+                :height="280"
+              />
+              <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="mt-4 grid grid-cols-3 gap-3">
+                <div class="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div class="text-lg font-bold text-red-600 dark:text-red-400">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</div>
+                  <div class="text-xs text-red-500 dark:text-red-400">Current Bill</div>
                 </div>
-                <div class="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg text-center border border-blue-200 dark:border-blue-800">
-                  <div class="text-lg md:text-xl font-bold text-blue-700 dark:text-blue-400 truncate">{{ formatNumber(annualProduction) }}</div>
-                  <div class="text-xs text-blue-600 dark:text-blue-500">kWh/Year Production</div>
+                <div class="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
+                  <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(Math.max(0, (form.monthly_consumption_kwh - monthlyProduction) * form.electricity_rate)) }}</div>
+                  <div class="text-xs text-emerald-500 dark:text-emerald-400">After Solar</div>
                 </div>
-                <div
-                  class="p-3 rounded-lg text-center border"
-                  :class="solarOffsetFormatted.isSurplus
-                    ? 'bg-emerald-50 dark:bg-emerald-900/30 border-emerald-200 dark:border-emerald-800'
-                    : 'bg-purple-50 dark:bg-purple-900/30 border-purple-200 dark:border-purple-800'"
-                >
-                  <div class="text-lg md:text-xl font-bold truncate" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-700 dark:text-emerald-400' : 'text-purple-700 dark:text-purple-400'">{{ solarOffsetFormatted.value }}</div>
-                  <div class="text-xs" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-500' : 'text-purple-600 dark:text-purple-500'">{{ solarOffsetFormatted.label }}</div>
+                <div class="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div class="text-lg font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(monthlyProduction * form.electricity_rate) }}</div>
+                  <div class="text-xs text-blue-500 dark:text-blue-400">Monthly Savings</div>
                 </div>
               </div>
+            </Card>
+          </div>
+        </div>
+      </div>
 
-              <!-- Charts -->
-              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Payback Period Chart -->
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                  <div class="flex items-center justify-between mb-3">
-                    <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300">Payback Period</h4>
-                    <span v-if="paybackPeriod" class="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-400 rounded-full">
-                      {{ paybackPeriod }} years
-                    </span>
-                    <span v-else-if="systemCost" class="text-xs font-medium px-2 py-1 bg-amber-100 dark:bg-amber-900/50 text-amber-700 dark:text-amber-400 rounded-full">
-                      &gt; 25 years
-                    </span>
-                    <span v-else class="text-xs text-slate-500 dark:text-slate-400">
-                      Select BOM to calculate
-                    </span>
-                  </div>
-                  <LineChart
-                    :labels="paybackChartData.labels"
-                    :datasets="paybackChartData.datasets"
-                    :height="250"
-                  />
-                  <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
-                    Green line crosses red dashed line at break-even point
-                  </p>
-                </div>
+      <!-- Step 4: Review & Submit - Executive Summary -->
+      <div v-show="currentStep === 4" class="space-y-6">
+        <!-- Success Header Banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 p-6 text-white">
+          <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
 
-                <!-- Monthly Bill Comparison Chart -->
-                <div class="bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
-                  <h4 class="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Monthly Bill Impact</h4>
-                  <BarChart
-                    :labels="monthlyBillChartData.labels"
-                    :datasets="monthlyBillChartData.datasets"
-                    :height="250"
-                  />
-                  <div v-if="form.monthly_consumption_kwh && form.electricity_rate" class="mt-3 grid grid-cols-3 gap-2 text-center text-xs">
-                    <div>
-                      <div class="font-medium text-red-600 dark:text-red-400">{{ formatCurrency(form.monthly_consumption_kwh * form.electricity_rate) }}</div>
-                      <div class="text-slate-500 dark:text-slate-400">Current</div>
-                    </div>
-                    <div>
-                      <div class="font-medium text-green-600 dark:text-green-400">{{ formatCurrency(Math.max(0, (form.monthly_consumption_kwh - monthlyProduction) * form.electricity_rate)) }}</div>
-                      <div class="text-slate-500 dark:text-slate-400">After Solar</div>
-                    </div>
-                    <div>
-                      <div class="font-medium text-blue-600 dark:text-blue-400">{{ formatCurrency(monthlyProduction * form.electricity_rate) }}</div>
-                      <div class="text-slate-500 dark:text-slate-400">Savings/mo</div>
-                    </div>
-                  </div>
-                </div>
+          <div class="relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="flex items-center justify-center w-14 h-14 rounded-xl bg-white/20 backdrop-blur-sm">
+                <Sparkles class="w-7 h-7" />
+              </div>
+              <div>
+                <h2 class="text-2xl font-bold">Proposal Ready for Review</h2>
+                <p class="text-emerald-100 mt-1">All calculations complete. Review details before submission.</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+              <div class="text-right">
+                <div class="text-emerald-100 text-xs uppercase tracking-wider">Total Investment</div>
+                <div class="text-2xl font-bold">{{ systemCost ? formatCurrency(systemCost) : 'Not configured' }}</div>
+              </div>
+              <div class="w-px h-12 bg-white/30" />
+              <div class="text-right">
+                <div class="text-emerald-100 text-xs uppercase tracking-wider">25-Year Return</div>
+                <div class="text-2xl font-bold">{{ formatCurrency(totalLifetimeSavings) }}</div>
               </div>
             </div>
           </div>
         </div>
-      </Card>
 
-      <!-- Step 4: Review & Submit -->
-      <Card v-show="currentStep === 4">
-        <template #header>
-          <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100">Review & Submit</h2>
-        </template>
+        <!-- Key Metrics Highlights -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatsCard
+            label="System Capacity"
+            :value="`${form.system_capacity_kwp || 0} kWp`"
+            sub-value="Solar installation size"
+            variant="warning"
+            :icon="Sun"
+          />
+          <StatsCard
+            label="Annual Production"
+            :value="`${formatNumber(annualProduction)} kWh`"
+            sub-value="Yearly energy output"
+            variant="info"
+            :icon="Zap"
+          />
+          <StatsCard
+            label="Payback Period"
+            :value="paybackPeriod ? `${paybackPeriod} years` : 'N/A'"
+            sub-value="Investment recovery"
+            :variant="paybackPeriod && paybackPeriod <= 5 ? 'success' : 'default'"
+            :icon="Calendar"
+          />
+          <StatsCard
+            label="First Year Savings"
+            :value="formatCurrency(firstYearSavings)"
+            sub-value="Year 1 estimate"
+            variant="success"
+            :icon="TrendingUp"
+          />
+        </div>
 
-        <div class="space-y-6">
-          <!-- Summary Sections -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Site Summary -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Site Information</h4>
-              <dl class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Site:</dt>
-                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.site_name }}</dd>
+        <!-- Detailed Summary Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Customer & Site Card -->
+          <Card>
+            <template #header>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50">
+                  <Building2 class="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Location:</dt>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Customer & Site</h3>
+              </div>
+            </template>
+
+            <div class="space-y-4">
+              <!-- Customer Info -->
+              <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
+                  {{ contacts.find((c: Contact) => c.id === form.contact_id)?.name?.charAt(0) || '?' }}
+                </div>
+                <div>
+                  <div class="font-medium text-slate-900 dark:text-slate-100">
+                    {{ contacts.find((c: Contact) => c.id === form.contact_id)?.name || 'No customer selected' }}
+                  </div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">
+                    {{ contacts.find((c: Contact) => c.id === form.contact_id)?.code || '' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Site Details -->
+              <dl class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Site Name</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.site_name || '-' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Location</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.city }}, {{ form.province }}</dd>
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Roof Type:</dt>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Roof Type</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100 capitalize">{{ form.roof_type }}</dd>
                 </div>
-                <div v-if="form.roof_area_m2" class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Roof Area:</dt>
-                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.roof_area_m2 }} m²</dd>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Roof Area</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.roof_area_m2 ? `${form.roof_area_m2} m²` : '-' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Orientation</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100 capitalize">{{ form.roof_orientation }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Tilt Angle</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.roof_tilt_degrees }}°</dd>
                 </div>
               </dl>
             </div>
+          </Card>
 
-            <!-- Electricity Summary -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Electricity Profile</h4>
-              <dl class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Monthly Usage:</dt>
+          <!-- Electricity Profile Card -->
+          <Card>
+            <template #header>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-yellow-100 dark:bg-yellow-900/50">
+                  <Zap class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                </div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Electricity Profile</h3>
+              </div>
+            </template>
+
+            <div class="space-y-4">
+              <dl class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Monthly Consumption</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(form.monthly_consumption_kwh || 0) }} kWh</dd>
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Tariff:</dt>
-                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.pln_tariff_category }}</dd>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Annual Consumption</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber((form.monthly_consumption_kwh || 0) * 12) }} kWh</dd>
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Rate:</dt>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">PLN Tariff</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.pln_tariff_category || '-' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Electricity Rate</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(form.electricity_rate || 0) }}/kWh</dd>
                 </div>
               </dl>
-            </div>
 
-            <!-- System Summary -->
-            <div class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
-              <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-3">Solar System</h4>
-              <dl class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Capacity:</dt>
+              <!-- Current vs After Solar Comparison -->
+              <div class="mt-4 p-4 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 rounded-xl">
+                <div class="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-3">Monthly Bill Comparison</div>
+                <div class="flex items-center justify-between gap-4">
+                  <div class="text-center flex-1">
+                    <div class="text-lg font-bold text-red-600 dark:text-red-400">
+                      {{ formatCurrency((form.monthly_consumption_kwh || 0) * (form.electricity_rate || 0)) }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">Before Solar</div>
+                  </div>
+                  <ArrowRight class="w-5 h-5 text-slate-400 flex-shrink-0" />
+                  <div class="text-center flex-1">
+                    <div class="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                      {{ formatCurrency(Math.max(0, ((form.monthly_consumption_kwh || 0) - monthlyProduction) * (form.electricity_rate || 0))) }}
+                    </div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400">After Solar</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <!-- Solar System Card -->
+          <Card>
+            <template #header>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50">
+                  <Sun class="w-4 h-4 text-orange-600 dark:text-orange-400" />
+                </div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Solar System</h3>
+              </div>
+            </template>
+
+            <div class="space-y-4">
+              <dl class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">System Capacity</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.system_capacity_kwp }} kWp</dd>
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">Annual Production:</dt>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Est. Panel Count</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">~{{ Math.ceil((form.system_capacity_kwp || 0) / 0.55) }} units</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Annual Production</dt>
                   <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(annualProduction) }} kWh</dd>
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-slate-500 dark:text-slate-400">{{ solarOffsetFormatted.label }}:</dt>
-                  <dd class="font-medium" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">{{ solarOffsetFormatted.value }}</dd>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Monthly Production</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatNumber(monthlyProduction) }} kWh</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Peak Sun Hours</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ form.peak_sun_hours }} hrs/day</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Performance Ratio</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ (form.performance_ratio * 100).toFixed(0) }}%</dd>
                 </div>
               </dl>
-            </div>
 
-            <!-- Financial Summary -->
-            <div class="p-4 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
-              <h4 class="font-medium text-green-800 dark:text-green-300 mb-3">Financial Summary</h4>
-              <dl class="space-y-2 text-sm">
-                <div class="flex justify-between">
-                  <dt class="text-green-600 dark:text-green-400">First Year Savings:</dt>
-                  <dd class="font-medium text-green-800 dark:text-green-300">{{ formatCurrency(firstYearSavings) }}</dd>
+              <!-- Solar Offset Badge -->
+              <div class="p-4 rounded-xl" :class="solarOffsetFormatted.isSurplus ? 'bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/30 dark:to-green-900/30' : 'bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30'">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-sm" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'">{{ solarOffsetFormatted.label }}</div>
+                    <div class="text-2xl font-bold" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-700 dark:text-emerald-300' : 'text-blue-700 dark:text-blue-300'">{{ solarOffsetFormatted.value }}</div>
+                  </div>
+                  <Gauge class="w-8 h-8" :class="solarOffsetFormatted.isSurplus ? 'text-emerald-500' : 'text-blue-500'" />
                 </div>
-                <div class="flex justify-between">
-                  <dt class="text-green-600 dark:text-green-400">25-Year Savings:</dt>
-                  <dd class="font-medium text-green-800 dark:text-green-300">{{ formatCurrency(totalLifetimeSavings) }}</dd>
+              </div>
+            </div>
+          </Card>
+
+          <!-- Financial Summary Card -->
+          <Card>
+            <template #header>
+              <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900/50">
+                  <DollarSign class="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Financial Summary</h3>
+              </div>
+            </template>
+
+            <div class="space-y-4">
+              <dl class="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Investment</dt>
+                  <dd class="font-medium text-slate-900 dark:text-slate-100">{{ systemCost ? formatCurrency(systemCost) : 'Not set' }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">Payback Period</dt>
+                  <dd class="font-medium" :class="paybackPeriod && paybackPeriod <= 5 ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-slate-100'">
+                    {{ paybackPeriod ? `${paybackPeriod} years` : 'N/A' }}
+                  </dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">First Year Savings</dt>
+                  <dd class="font-medium text-emerald-600 dark:text-emerald-400">{{ formatCurrency(firstYearSavings) }}</dd>
+                </div>
+                <div>
+                  <dt class="text-slate-500 dark:text-slate-400">25-Year Savings</dt>
+                  <dd class="font-medium text-emerald-600 dark:text-emerald-400">{{ formatCurrency(totalLifetimeSavings) }}</dd>
                 </div>
               </dl>
-            </div>
-          </div>
 
-          <!-- Proposal Settings -->
-          <div class="border-t border-slate-200 dark:border-slate-700 pt-6">
-            <h4 class="font-medium text-slate-800 dark:text-slate-200 mb-4">Proposal Settings</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FormField label="Valid Until" required :error="errors.valid_until">
-                <Input
-                  v-model="form.valid_until"
-                  type="date"
-                  :error="!!errors.valid_until"
-                />
-              </FormField>
+              <!-- ROI Highlight -->
+              <div v-if="systemCost && totalLifetimeSavings" class="p-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl text-white">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <div class="text-emerald-100 text-xs uppercase tracking-wider">25-Year Return on Investment</div>
+                    <div class="text-3xl font-bold">{{ Math.round((totalLifetimeSavings - systemCost) / systemCost * 100) }}%</div>
+                  </div>
+                  <TrendingUp class="w-10 h-10 text-white/50" />
+                </div>
+              </div>
 
-              <FormField label="Notes">
-                <Textarea
-                  v-model="form.notes"
-                  placeholder="Additional notes for this proposal..."
-                  :rows="3"
-                />
-              </FormField>
+              <!-- Environmental Impact -->
+              <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                <div class="flex items-center gap-3">
+                  <Leaf class="w-6 h-6 text-green-500" />
+                  <div>
+                    <div class="text-sm text-green-700 dark:text-green-300 font-medium">Environmental Impact</div>
+                    <div class="text-xs text-green-600 dark:text-green-400">
+                      {{ formatNumber(annualProduction * 0.0007 * 25) }} tons CO₂ offset over 25 years
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          </Card>
         </div>
-      </Card>
+
+        <!-- Proposal Settings -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50">
+                <Calendar class="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              </div>
+              <div>
+                <h3 class="font-semibold text-slate-900 dark:text-slate-100">Proposal Settings</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Set validity and add notes</p>
+              </div>
+            </div>
+          </template>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField label="Proposal Valid Until" required :error="errors.valid_until">
+              <Input
+                v-model="form.valid_until"
+                type="date"
+                :error="!!errors.valid_until"
+              />
+            </FormField>
+
+            <FormField label="Additional Notes" hint="Optional comments for this proposal">
+              <Textarea
+                v-model="form.notes"
+                placeholder="Add any special terms, conditions, or notes for the customer..."
+                :rows="3"
+              />
+            </FormField>
+          </div>
+        </Card>
+      </div>
 
       <!-- Navigation Buttons -->
-      <div class="mt-6 flex items-center justify-between">
-        <div>
-          <Button
-            v-if="currentStep > 1"
-            variant="secondary"
-            @click="prevStep"
-          >
-            Previous
-          </Button>
-          <Button
-            v-else
-            variant="ghost"
-            @click="router.push('/solar-proposals')"
-          >
-            Cancel
-          </Button>
-        </div>
+      <div class="mt-8 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <!-- Left Side: Back/Cancel -->
+          <div>
+            <Button
+              v-if="currentStep > 1"
+              variant="outline"
+              @click="prevStep"
+              class="gap-2"
+            >
+              <ChevronLeft class="w-4 h-4" />
+              Previous Step
+            </Button>
+            <Button
+              v-else
+              variant="ghost"
+              @click="router.push('/solar-proposals')"
+            >
+              Cancel
+            </Button>
+          </div>
 
-        <div class="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            @click="handleSaveAsDraft"
-            :loading="isSubmitting"
-          >
-            Save as Draft
-          </Button>
+          <!-- Right Side: Save Draft + Next/Submit -->
+          <div class="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              @click="handleSaveAsDraft"
+              :loading="isSubmitting"
+              class="gap-2"
+            >
+              <Save class="w-4 h-4" />
+              <span class="hidden sm:inline">Save as Draft</span>
+              <span class="sm:hidden">Draft</span>
+            </Button>
 
-          <Button
-            v-if="currentStep < totalSteps"
-           
-            @click="nextStep"
-          >
-            Next
-          </Button>
-          <Button
-            v-else
-           
-            type="submit"
-            :loading="isSubmitting"
-          >
-            {{ isEditMode ? 'Update Proposal' : 'Create Proposal' }}
-          </Button>
+            <Button
+              v-if="currentStep < totalSteps"
+              @click="nextStep"
+              class="gap-2 min-w-[140px]"
+            >
+              Continue
+              <ArrowRight class="w-4 h-4" />
+            </Button>
+            <Button
+              v-else
+              type="submit"
+              :loading="isSubmitting"
+              class="gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 shadow-lg shadow-emerald-500/30"
+            >
+              <Send class="w-4 h-4" />
+              {{ isEditMode ? 'Update Proposal' : 'Create Proposal' }}
+            </Button>
+          </div>
         </div>
       </div>
     </form>

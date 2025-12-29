@@ -69,6 +69,7 @@ const navigation: NavGroup[] = [
   {
     label: 'Settings',
     items: [
+      { name: 'Company Profiles', path: '/company-profiles', icon: '🏢', permission: 'company_profiles.view' },
       { name: 'Component Library', path: '/settings/component-library', icon: '🔌', permission: 'products.view' },
     ]
   },

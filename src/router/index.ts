@@ -36,6 +36,12 @@ const router = createRouter({
       meta: { guest: true }
     },
     {
+      path: '/profile/:slug',
+      name: 'public-profile',
+      component: () => import('@/pages/public/PublicCompanyProfilePage.vue'),
+      meta: { guest: true }
+    },
+    {
       path: '/',
       component: () => import('@/layouts/AppLayout.vue'),
       meta: { requiresAuth: true },
@@ -340,6 +346,56 @@ const router = createRouter({
           component: () => import('@/pages/settings/component-library/ComponentStandardFormPage.vue'),
           meta: { breadcrumb: 'Edit Component' }
         },
+        // Validation Rule Sets routes (under settings)
+        {
+          path: 'settings/rule-sets',
+          name: 'rule-sets',
+          component: () => import('@/pages/settings/rule-sets/RuleSetsListPage.vue'),
+          meta: { breadcrumb: 'Validation Rule Sets' }
+        },
+        {
+          path: 'settings/rule-sets/new',
+          name: 'rule-set-new',
+          component: () => import('@/pages/settings/rule-sets/RuleSetFormPage.vue'),
+          meta: { breadcrumb: 'New Rule Set' }
+        },
+        {
+          path: 'settings/rule-sets/:id',
+          name: 'rule-set-detail',
+          component: () => import('@/pages/settings/rule-sets/RuleSetDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Rule Set #${route.params.id}` }
+        },
+        {
+          path: 'settings/rule-sets/:id/edit',
+          name: 'rule-set-edit',
+          component: () => import('@/pages/settings/rule-sets/RuleSetFormPage.vue'),
+          meta: { breadcrumb: 'Edit Rule Set' }
+        },
+        // BOM Templates routes (under settings)
+        {
+          path: 'settings/bom-templates',
+          name: 'bom-templates',
+          component: () => import('@/pages/settings/bom-templates/BomTemplatesListPage.vue'),
+          meta: { breadcrumb: 'BOM Templates' }
+        },
+        {
+          path: 'settings/bom-templates/new',
+          name: 'bom-template-new',
+          component: () => import('@/pages/settings/bom-templates/BomTemplateFormPage.vue'),
+          meta: { breadcrumb: 'New Template' }
+        },
+        {
+          path: 'settings/bom-templates/:id',
+          name: 'bom-template-detail',
+          component: () => import('@/pages/settings/bom-templates/BomTemplateDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Template #${route.params.id}` }
+        },
+        {
+          path: 'settings/bom-templates/:id/edit',
+          name: 'bom-template-edit',
+          component: () => import('@/pages/settings/bom-templates/BomTemplateFormPage.vue'),
+          meta: { breadcrumb: 'Edit Template' }
+        },
         // BOM routes
         {
           path: 'boms',
@@ -352,6 +408,12 @@ const router = createRouter({
           name: 'bom-new',
           component: () => import('@/pages/boms/BomFormPage.vue'),
           meta: { breadcrumb: 'New BOM' }
+        },
+        {
+          path: 'boms/from-template',
+          name: 'bom-from-template',
+          component: () => import('@/pages/boms/CreateBomFromTemplatePage.vue'),
+          meta: { breadcrumb: 'Create from Template' }
         },
         {
           path: 'boms/variant-groups',
@@ -402,6 +464,25 @@ const router = createRouter({
           name: 'users',
           component: () => import('@/pages/users/UserListPage.vue'),
           meta: { breadcrumb: 'Users' }
+        },
+        // Company Profile routes
+        {
+          path: 'company-profiles',
+          name: 'company-profiles',
+          component: () => import('@/pages/company-profiles/CompanyProfileListPage.vue'),
+          meta: { breadcrumb: 'Company Profiles' }
+        },
+        {
+          path: 'company-profiles/new',
+          name: 'company-profile-new',
+          component: () => import('@/pages/company-profiles/CompanyProfileFormPage.vue'),
+          meta: { breadcrumb: 'New Profile' }
+        },
+        {
+          path: 'company-profiles/:id/edit',
+          name: 'company-profile-edit',
+          component: () => import('@/pages/company-profiles/CompanyProfileFormPage.vue'),
+          meta: { breadcrumb: 'Edit Profile' }
         },
       ]
     },

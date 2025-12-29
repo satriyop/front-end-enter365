@@ -55,6 +55,8 @@ const inputClasses = computed(() =>
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'transition-colors',
+    // Hide number input spinners
+    '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
     // Size
     sizeStyles[props.size],
     // States
