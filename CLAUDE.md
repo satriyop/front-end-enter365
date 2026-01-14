@@ -1,5 +1,24 @@
 # Enter365 Frontend - Development Guidelines
 
+## Documentation
+
+**Comprehensive documentation is available in the `docs/` folder:**
+
+| Documentation | Path | Description |
+|--------------|------|-------------|
+| **Quick Start** | `docs/getting-started/README.md` | 5-minute setup guide |
+| **Architecture** | `docs/architecture/README.md` | System design overview |
+| **ADRs** | `docs/architecture/adr/` | Architecture decisions |
+| **API Patterns** | `docs/api/HOOKS-PATTERN.md` | TanStack Query patterns |
+| **Components** | `docs/components/README.md` | UI component catalog |
+| **Domain** | `docs/domain/README.md` | Business logic (solar, quotations) |
+| **Testing** | `docs/testing/README.md` | Testing strategy |
+| **Troubleshooting** | `docs/troubleshooting/README.md` | Common issues and fixes |
+
+For detailed information on any topic, refer to the `docs/` folder first.
+
+---
+
 ## Project Type
 
 **This is a Vue 3 SPA (Single Page Application)** - NOT Livewire/Volt.
