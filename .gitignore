@@ -38,3 +38,8 @@ logs
 .DS_Store
 Thumbs.db
 
+#agents
+.claude
+CLAUDE.md
+
+
