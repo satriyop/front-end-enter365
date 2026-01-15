@@ -2,6 +2,19 @@
 
 > Vue 3 SPA for Solar ERP - Sales, Inventory, Projects, and Solar Proposal Management
 
+---
+
+## Start Here
+
+| You are... | Start with |
+|------------|------------|
+| **AI Agent (Claude, GPT, etc.)** | [AGENT.md](AGENT.md) - Essential rules and patterns |
+| **New Developer** | [Getting Started](getting-started/README.md) - 5-minute setup |
+| **Working Developer** | [Quick Reference](QUICK-REFERENCE.md) - Daily cheat sheet |
+| **Debugging an Issue** | [Runbook](troubleshooting/RUNBOOK.md) - Diagnostic procedures |
+
+---
+
 ## Quick Reference
 
 | I want to... | Go to |
@@ -12,6 +25,8 @@
 | Add an API hook | [API Hooks Pattern](api/HOOKS-PATTERN.md) |
 | Understand solar calculations | [Solar Proposals](domain/SOLAR-PROPOSALS.md) |
 | Fix a bug | [Troubleshooting](troubleshooting/README.md) |
+| Find which module owns a feature | [Module Registry](reference/MODULE-REGISTRY.md) |
+| Contribute code | [Contributing](reference/CONTRIBUTING.md) |
 | See module status | [Current State](reference/CURRENT-STATE.md) |
 
 ---
@@ -141,6 +156,10 @@ See [UI-COMPONENTS.md](components/UI-COMPONENTS.md) for all components.
 
 ## Documentation Index
 
+### Quick Access (NEW)
+- [AGENT.md](AGENT.md) - AI Agent onboarding (Claude, GPT)
+- [QUICK-REFERENCE.md](QUICK-REFERENCE.md) - Developer cheat sheet
+
 ### Getting Started
 - [README.md](getting-started/README.md) - 5-minute quickstart
 - [ONBOARDING.md](getting-started/ONBOARDING.md) - Full developer onboarding
@@ -179,7 +198,12 @@ See [UI-COMPONENTS.md](components/UI-COMPONENTS.md) for all components.
 - [Testing](testing/README.md) - Testing strategy
 - [Deployment](deployment/README.md) - Build + CI/CD
 
+### Troubleshooting
+- [README.md](troubleshooting/README.md) - Quick diagnostic
+- [RUNBOOK.md](troubleshooting/RUNBOOK.md) - Operational debugging procedures
+
 ### Reference
+- [MODULE-REGISTRY.md](reference/MODULE-REGISTRY.md) - Module ownership map
 - [FILE-STRUCTURE.md](reference/FILE-STRUCTURE.md) - Complete file tree
 - [CURRENT-STATE.md](reference/CURRENT-STATE.md) - Module status
 - [CONTRIBUTING.md](reference/CONTRIBUTING.md) - Contribution guide

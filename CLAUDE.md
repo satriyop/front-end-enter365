@@ -1,19 +1,26 @@
 # Enter365 Frontend - Development Guidelines
 
+## For AI Agents
+
+**Start here:** Read `docs/AGENT.md` for essential rules, patterns, and common task templates optimized for AI agents.
+
 ## Documentation
 
 **Comprehensive documentation is available in the `docs/` folder:**
 
 | Documentation | Path | Description |
 |--------------|------|-------------|
+| **AI Agent Guide** | `docs/AGENT.md` | Essential rules for AI agents |
+| **Quick Reference** | `docs/QUICK-REFERENCE.md` | Developer cheat sheet |
 | **Quick Start** | `docs/getting-started/README.md` | 5-minute setup guide |
 | **Architecture** | `docs/architecture/README.md` | System design overview |
-| **ADRs** | `docs/architecture/adr/` | Architecture decisions |
+| **ADR Summary** | `docs/architecture/DECISIONS-SUMMARY.md` | All architecture decisions |
 | **API Patterns** | `docs/api/HOOKS-PATTERN.md` | TanStack Query patterns |
 | **Components** | `docs/components/README.md` | UI component catalog |
 | **Domain** | `docs/domain/README.md` | Business logic (solar, quotations) |
-| **Testing** | `docs/testing/README.md` | Testing strategy |
-| **Troubleshooting** | `docs/troubleshooting/README.md` | Common issues and fixes |
+| **Module Registry** | `docs/reference/MODULE-REGISTRY.md` | Module ownership map |
+| **Runbook** | `docs/troubleshooting/RUNBOOK.md` | Debugging procedures |
+| **Contributing** | `docs/reference/CONTRIBUTING.md` | Contribution workflow |
 
 For detailed information on any topic, refer to the `docs/` folder first.
 
