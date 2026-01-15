@@ -441,6 +441,12 @@ const router = createRouter({
           meta: { breadcrumb: 'Solar Proposals' }
         },
         {
+          path: 'solar-proposals/analytics',
+          name: 'solar-proposal-analytics',
+          component: () => import('@/pages/solar-proposals/SolarProposalAnalyticsPage.vue'),
+          meta: { breadcrumb: 'Analytics' }
+        },
+        {
           path: 'solar-proposals/new',
           name: 'solar-proposal-new',
           component: () => import('@/pages/solar-proposals/SolarProposalWizard.vue'),

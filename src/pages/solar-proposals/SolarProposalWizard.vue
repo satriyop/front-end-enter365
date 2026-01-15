@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Card from '@/components/ui/Card.vue'
 import Button from '@/components/ui/Button.vue'
+import Modal from '@/components/ui/Modal.vue'
 import FormField from '@/components/ui/FormField.vue'
 import Input from '@/components/ui/Input.vue'
 import Select from '@/components/ui/Select.vue'
@@ -15,6 +16,17 @@ import { formatCurrency, formatNumber, formatSolarOffset } from '@/utils/format'
 import CapacityCalculatorModal from '@/components/solar/CapacityCalculatorModal.vue'
 import WizardStepIndicator from '@/components/solar/WizardStepIndicator.vue'
 import StatsCard from '@/components/solar/StatsCard.vue'
+import FinancingCalculator from '@/components/solar/FinancingCalculator.vue'
+import WhatIfScenarios from '@/components/solar/WhatIfScenarios.vue'
+import BatteryConfigurator from '@/components/solar/BatteryConfigurator.vue'
+import SolarSettingsPanel from '@/components/solar/SolarSettingsPanel.vue'
+import {
+  useSolarSettings,
+  extractBatterySettings,
+  extractFinancingSettings,
+  extractScenarioSettings,
+  type SolarSettings,
+} from '@/composables/useSolarSettings'
 import {
   Calculator,
   Sun,
@@ -32,6 +44,7 @@ import {
   Save,
   Send,
   Sparkles,
+  Settings2,
 } from 'lucide-vue-next'
 import { useContacts, type Contact } from '@/api/useContacts'
 import { useBomVariantGroups, type BomVariantGroup } from '@/api/useComponentStandards'
@@ -107,6 +120,37 @@ const errors = ref<Record<string, string>>({})
 
 // Capacity calculator modal
 const showCalculatorModal = ref(false)
+
+// Settings modal visibility
+const showSettingsModal = ref(false)
+
+// ============================================
+// Calculation Settings
+// ============================================
+
+// Per-proposal settings overrides (not persisted)
+const settingsOverrides = ref<Partial<SolarSettings>>({})
+
+// Use the settings composable with overrides
+const {
+  globalSettings: calculationSettings,
+  mergedSettings,
+  saveGlobalSettings,
+  resetAllToDefaults: resetSettingsToDefaults,
+} = useSolarSettings(settingsOverrides)
+
+// Save settings as global defaults
+function handleSaveSettings() {
+  saveGlobalSettings(calculationSettings.value)
+  toast.success('Settings saved as defaults')
+}
+
+// Reset settings to factory defaults
+function handleResetSettings() {
+  resetSettingsToDefaults()
+  settingsOverrides.value = {}
+  toast.info('Settings reset to defaults')
+}
 
 // ============================================
 // Data Fetching
@@ -264,17 +308,21 @@ const firstYearSavings = computed(() => {
   return annualProduction.value * form.value.electricity_rate
 })
 
-// 25-year projection for chart
+// 25-year projection for chart (using settings for degradation and lifetime)
 const yearlyProjections = computed(() => {
   if (!annualProduction.value || !form.value.electricity_rate) return []
+
+  const settings = mergedSettings.value
+  const systemLifetime = settings.core.systemLifetimeYears
+  const panelDegradation = settings.core.panelDegradationRate
 
   const projections = []
   let rate = form.value.electricity_rate
   let production = annualProduction.value
   const escalation = 1 + (form.value.tariff_escalation_percent / 100)
-  const degradation = 0.995 // 0.5% annual degradation
+  const degradation = 1 - (panelDegradation / 100) // Convert % to factor
 
-  for (let year = 1; year <= 25; year++) {
+  for (let year = 1; year <= systemLifetime; year++) {
     projections.push({
       year,
       rate: Math.round(rate),
@@ -291,6 +339,34 @@ const yearlyProjections = computed(() => {
 const totalLifetimeSavings = computed(() =>
   yearlyProjections.value.reduce((sum, p) => sum + p.savings, 0)
 )
+
+// ============================================
+// Carbon Credit Calculations
+// ============================================
+// Values now come from settings
+
+const carbonCreditMetrics = computed(() => {
+  if (!annualProduction.value) {
+    return { annualCO2Tons: 0, lifetimeCO2Tons: 0, annualCreditValue: 0, lifetimeCreditValue: 0 }
+  }
+
+  const settings = mergedSettings.value
+  const co2EmissionFactor = settings.carbon.co2EmissionFactor
+  const carbonCreditPrice = settings.carbon.carbonCreditPriceIdr
+  const systemLifetime = settings.core.systemLifetimeYears
+
+  const annualCO2Tons = annualProduction.value * co2EmissionFactor
+  const lifetimeCO2Tons = annualCO2Tons * systemLifetime
+  const annualCreditValue = annualCO2Tons * carbonCreditPrice
+  const lifetimeCreditValue = lifetimeCO2Tons * carbonCreditPrice
+
+  return {
+    annualCO2Tons,
+    lifetimeCO2Tons,
+    annualCreditValue,
+    lifetimeCreditValue,
+  }
+})
 
 // System cost from selected BOM
 // Priority: 1) existing proposal's selected_bom, 2) frontend variant group's BOM
@@ -320,12 +396,13 @@ const systemCost = computed(() => {
   return 0
 })
 
-// Payback period calculation
+// Payback period calculation (using settings for system lifetime)
 const paybackPeriod = computed(() => {
   if (!systemCost.value || !firstYearSavings.value) return null
 
+  const systemLifetime = mergedSettings.value.core.systemLifetimeYears
   let cumulative = 0
-  for (let year = 1; year <= 25; year++) {
+  for (let year = 1; year <= systemLifetime; year++) {
     const projection = yearlyProjections.value[year - 1]
     if (projection) {
       cumulative += projection.savings
@@ -337,7 +414,7 @@ const paybackPeriod = computed(() => {
       }
     }
   }
-  return null // Payback > 25 years
+  return null // Payback > system lifetime
 })
 
 // Chart data: Payback Period - Cumulative savings vs Investment
@@ -399,6 +476,30 @@ const monthlyBillChartData = computed(() => {
     ],
   }
 })
+
+// ============================================
+// Refs for Advanced Calculation Components
+// ============================================
+// These computed refs are passed to child components that expect Ref<T>
+
+const systemCostRef = computed(() => systemCost.value)
+const annualProductionRef = computed(() => annualProduction.value)
+const monthlyConsumptionRef = computed(() => form.value.monthly_consumption_kwh || 0)
+const electricityRateRef = computed(() => form.value.electricity_rate || 0)
+const tariffEscalationRef = computed(() => form.value.tariff_escalation_percent || 3)
+const yearlyProjectionsRef = computed(() => yearlyProjections.value)
+const paybackPeriodRef = computed(() => paybackPeriod.value)
+
+// Settings refs for child components
+const batterySettings = computed(() => extractBatterySettings(mergedSettings.value))
+const financingSettings = computed(() => ({
+  ...extractFinancingSettings(mergedSettings.value),
+  systemLifetimeYears: mergedSettings.value.core.systemLifetimeYears,
+}))
+const scenarioSettings = computed(() => extractScenarioSettings(mergedSettings.value))
+
+// Computed for display in UI
+const systemLifetimeYears = computed(() => mergedSettings.value.core.systemLifetimeYears)
 
 // ============================================
 // Watchers
@@ -516,8 +617,9 @@ function prevStep() {
 }
 
 function goToStep(step: number) {
-  // Only allow going to previous steps or current step
-  if (step <= currentStep.value) {
+  // In edit mode, allow jumping to any step
+  // Otherwise, only allow going to previous steps or current step
+  if (isEditMode.value || step <= currentStep.value) {
     currentStep.value = step
   }
 }
@@ -684,6 +786,7 @@ const steps = computed(() => [
       <WizardStepIndicator
         :steps="steps"
         :current-step="currentStep"
+        :allow-jump-to-any="isEditMode"
         @go-to-step="goToStep"
       />
     </div>
@@ -966,14 +1069,26 @@ const steps = computed(() => [
         <!-- System Configuration Card -->
         <Card>
           <template #header>
-            <div class="flex items-center gap-3">
-              <div class="flex items-center justify-center w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/50">
-                <Sun class="w-4 h-4 text-orange-600 dark:text-orange-400" />
+            <div class="flex items-center justify-between gap-4">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-orange-400 to-amber-500 shadow-lg shadow-orange-500/20">
+                  <Sun class="w-5 h-5 text-white" />
+                </div>
+                <div class="min-w-0">
+                  <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Solar System Configuration</h2>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 truncate">Define system capacity and select equipment package</p>
+                </div>
               </div>
-              <div>
-                <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Solar System Configuration</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Define system capacity and select equipment package</p>
-              </div>
+              <!-- Settings Button -->
+              <button
+                type="button"
+                class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-600 transition-all duration-200 group"
+                title="Calculation Settings"
+                @click="showSettingsModal = true"
+              >
+                <Settings2 class="w-4 h-4 text-slate-500 group-hover:text-slate-700 dark:text-slate-400 dark:group-hover:text-slate-200 transition-colors" />
+                <span class="text-sm font-medium text-slate-600 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-white transition-colors hidden sm:inline">Settings</span>
+              </button>
             </div>
           </template>
 
@@ -1120,7 +1235,7 @@ const steps = computed(() => [
               </div>
               <div>
                 <h3 class="text-xl font-bold text-slate-900 dark:text-slate-100">Investment Analysis</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">25-year financial projection</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">{{ systemLifetimeYears }}-year financial projection</p>
               </div>
             </div>
           </div>
@@ -1128,7 +1243,7 @@ const steps = computed(() => [
           <!-- Key Investment Metrics -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
-              label="Total 25-Year Savings"
+              :label="`Total ${systemLifetimeYears}-Year Savings`"
               :value="formatCurrency(totalLifetimeSavings)"
               sub-value="Lifetime value"
               variant="highlight"
@@ -1137,7 +1252,7 @@ const steps = computed(() => [
             />
             <StatsCard
               label="Payback Period"
-              :value="paybackPeriod ? `${paybackPeriod} years` : (systemCost ? '> 25 years' : 'Select BOM')"
+              :value="paybackPeriod ? `${paybackPeriod} years` : (systemCost ? `> ${systemLifetimeYears} years` : 'Select BOM')"
               :sub-value="paybackPeriod ? 'Return on investment' : 'Configure system'"
               :variant="paybackPeriod && paybackPeriod <= 5 ? 'success' : 'default'"
               size="lg"
@@ -1147,18 +1262,26 @@ const steps = computed(() => [
               v-if="systemCost && totalLifetimeSavings"
               label="ROI"
               :value="`${Math.round((totalLifetimeSavings - systemCost) / systemCost * 100)}%`"
-              sub-value="25-year return"
+              :sub-value="`${systemLifetimeYears}-year return`"
               variant="success"
               size="lg"
               :icon="TrendingUp"
             />
             <StatsCard
-              label="Environmental Impact"
-              :value="`${formatNumber(annualProduction * 0.0007 * 25)} tons`"
-              sub-value="CO₂ offset (25 years)"
+              label="CO₂ Offset"
+              :value="`${formatNumber(carbonCreditMetrics.lifetimeCO2Tons)} tons`"
+              :sub-value="`${systemLifetimeYears}-year environmental impact`"
               variant="success"
               size="lg"
               :icon="Leaf"
+            />
+            <StatsCard
+              label="Carbon Credit Value"
+              :value="formatCurrency(carbonCreditMetrics.lifetimeCreditValue)"
+              :sub-value="`${formatCurrency(carbonCreditMetrics.annualCreditValue)}/year`"
+              variant="info"
+              size="lg"
+              :icon="DollarSign"
             />
           </div>
 
@@ -1210,6 +1333,41 @@ const steps = computed(() => [
               </div>
             </Card>
           </div>
+
+          <!-- Advanced Calculations Section -->
+          <div class="space-y-4">
+            <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <Calculator class="w-5 h-5 text-purple-500" />
+              Advanced Analysis
+            </h3>
+
+            <!-- Battery Storage -->
+            <BatteryConfigurator
+              :system-cost="systemCostRef"
+              :annual-production="annualProductionRef"
+              :monthly-consumption="monthlyConsumptionRef"
+              :electricity-rate="electricityRateRef"
+              :yearly-projections="yearlyProjectionsRef"
+              :payback-period="paybackPeriodRef"
+              :settings="batterySettings"
+            />
+
+            <!-- Financing Calculator -->
+            <FinancingCalculator
+              :system-cost="systemCostRef"
+              :yearly-projections="yearlyProjectionsRef"
+              :settings="financingSettings"
+            />
+
+            <!-- What-If Scenarios -->
+            <WhatIfScenarios
+              :annual-production="annualProductionRef"
+              :electricity-rate="electricityRateRef"
+              :tariff-escalation="tariffEscalationRef"
+              :system-cost="systemCostRef"
+              :settings="scenarioSettings"
+            />
+          </div>
         </div>
       </div>
 
@@ -1238,7 +1396,7 @@ const steps = computed(() => [
               </div>
               <div class="w-px h-12 bg-white/30" />
               <div class="text-right">
-                <div class="text-emerald-100 text-xs uppercase tracking-wider">25-Year Return</div>
+                <div class="text-emerald-100 text-xs uppercase tracking-wider">{{ systemLifetimeYears }}-Year Return</div>
                 <div class="text-2xl font-bold">{{ formatCurrency(totalLifetimeSavings) }}</div>
               </div>
             </div>
@@ -1469,7 +1627,7 @@ const steps = computed(() => [
                   <dd class="font-medium text-emerald-600 dark:text-emerald-400">{{ formatCurrency(firstYearSavings) }}</dd>
                 </div>
                 <div>
-                  <dt class="text-slate-500 dark:text-slate-400">25-Year Savings</dt>
+                  <dt class="text-slate-500 dark:text-slate-400">{{ systemLifetimeYears }}-Year Savings</dt>
                   <dd class="font-medium text-emerald-600 dark:text-emerald-400">{{ formatCurrency(totalLifetimeSavings) }}</dd>
                 </div>
               </dl>
@@ -1478,21 +1636,34 @@ const steps = computed(() => [
               <div v-if="systemCost && totalLifetimeSavings" class="p-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl text-white">
                 <div class="flex items-center justify-between">
                   <div>
-                    <div class="text-emerald-100 text-xs uppercase tracking-wider">25-Year Return on Investment</div>
+                    <div class="text-emerald-100 text-xs uppercase tracking-wider">{{ systemLifetimeYears }}-Year Return on Investment</div>
                     <div class="text-3xl font-bold">{{ Math.round((totalLifetimeSavings - systemCost) / systemCost * 100) }}%</div>
                   </div>
                   <TrendingUp class="w-10 h-10 text-white/50" />
                 </div>
               </div>
 
-              <!-- Environmental Impact -->
-              <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
-                <div class="flex items-center gap-3">
-                  <Leaf class="w-6 h-6 text-green-500" />
-                  <div>
-                    <div class="text-sm text-green-700 dark:text-green-300 font-medium">Environmental Impact</div>
-                    <div class="text-xs text-green-600 dark:text-green-400">
-                      {{ formatNumber(annualProduction * 0.0007 * 25) }} tons CO₂ offset over 25 years
+              <!-- Environmental Impact & Carbon Credits -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                  <div class="flex items-center gap-3">
+                    <Leaf class="w-6 h-6 text-green-500" />
+                    <div>
+                      <div class="text-sm text-green-700 dark:text-green-300 font-medium">CO₂ Offset</div>
+                      <div class="text-xs text-green-600 dark:text-green-400">
+                        {{ formatNumber(carbonCreditMetrics.lifetimeCO2Tons) }} tons over {{ systemLifetimeYears }} years
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <div class="flex items-center gap-3">
+                    <DollarSign class="w-6 h-6 text-blue-500" />
+                    <div>
+                      <div class="text-sm text-blue-700 dark:text-blue-300 font-medium">Carbon Credit Value</div>
+                      <div class="text-xs text-blue-600 dark:text-blue-400">
+                        {{ formatCurrency(carbonCreditMetrics.lifetimeCreditValue) }} ({{ systemLifetimeYears }} years)
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1601,5 +1772,19 @@ const steps = computed(() => [
       :performance-ratio="form.performance_ratio"
       @apply="(capacity) => form.system_capacity_kwp = capacity"
     />
+
+    <!-- Calculation Settings Modal -->
+    <Modal
+      v-model:open="showSettingsModal"
+      title="Calculation Settings"
+      size="xl"
+    >
+      <SolarSettingsPanel
+        v-model="calculationSettings"
+        mode="compact"
+        @save="handleSaveSettings"
+        @reset="handleResetSettings"
+      />
+    </Modal>
   </div>
 </template>

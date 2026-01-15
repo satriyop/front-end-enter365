@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useSolarProposals, useSolarProposalStatistics, type SolarProposalFilters } from '@/api/useSolarProposals'
 import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/format'
 import { Button, Input, Select } from '@/components/ui'
-import { Plus, Eye, Pencil } from 'lucide-vue-next'
+import { Plus, Eye, Pencil, BarChart3 } from 'lucide-vue-next'
 
 // Filters state
 const filters = ref<SolarProposalFilters>({
@@ -66,10 +66,16 @@ const statusOptions = [
         <p class="text-slate-500 dark:text-slate-400">Manage solar energy proposals and projections</p>
       </div>
 
-      <Button as="router-link" to="/solar-proposals/new">
-        <Plus class="w-4 h-4" />
-        New Proposal
-      </Button>
+      <div class="flex items-center gap-2">
+        <Button as="router-link" to="/solar-proposals/analytics" variant="outline">
+          <BarChart3 class="w-4 h-4" />
+          Analytics
+        </Button>
+        <Button as="router-link" to="/solar-proposals/new">
+          <Plus class="w-4 h-4" />
+          New Proposal
+        </Button>
+      </div>
     </div>
 
     <!-- Statistics Cards -->

@@ -11,9 +11,12 @@ interface Step {
 interface Props {
   steps: Step[]
   currentStep: number
+  allowJumpToAny?: boolean
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  allowJumpToAny: false,
+})
 const emit = defineEmits<{
   'go-to-step': [step: number]
 }>()
@@ -45,9 +48,9 @@ const progressPercent = computed(() => {
         :key="step.number"
         type="button"
         class="group flex flex-col items-center focus:outline-none"
-        :class="step.number <= currentStep ? 'cursor-pointer' : 'cursor-not-allowed'"
-        :disabled="step.number > currentStep"
-        @click="step.number <= currentStep && emit('go-to-step', step.number)"
+        :class="(allowJumpToAny || step.number <= currentStep) ? 'cursor-pointer' : 'cursor-not-allowed'"
+        :disabled="!allowJumpToAny && step.number > currentStep"
+        @click="(allowJumpToAny || step.number <= currentStep) && emit('go-to-step', step.number)"
       >
         <!-- Step circle -->
         <div class="relative">

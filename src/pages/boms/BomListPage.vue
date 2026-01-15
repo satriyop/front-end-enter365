@@ -2,7 +2,9 @@
 import { ref, computed } from 'vue'
 import { useBoms, type BomFilters } from '@/api/useBoms'
 import { formatCurrency } from '@/utils/format'
+import { RouterLink } from 'vue-router'
 import { Button, Input, Select, Badge, Pagination, EmptyState } from '@/components/ui'
+import { FileStack } from 'lucide-vue-next'
 
 const filters = ref<BomFilters>({
   page: 1,
@@ -50,14 +52,22 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Bill of Materials</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage product BOMs and production costs</p>
       </div>
-      <RouterLink to="/boms/new">
-        <Button>
-          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New BOM
-        </Button>
-      </RouterLink>
+      <div class="flex items-center gap-2">
+        <RouterLink to="/boms/from-template">
+          <Button variant="outline">
+            <FileStack class="w-4 h-4 mr-2" />
+            From Template
+          </Button>
+        </RouterLink>
+        <RouterLink to="/boms/new">
+          <Button>
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New BOM
+          </Button>
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Filters -->

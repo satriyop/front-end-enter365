@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
-import { useVirtualizer } from '@tanstack/vue-virtual'
+// import { useVirtualizer } from '@tanstack/vue-virtual' // Temporarily disabled
 import {
   useActiveTemplates,
   useBomTemplate,
@@ -28,6 +28,10 @@ import {
   RefreshCw,
   Info,
   Plus,
+  Search,
+  Keyboard,
+  PieChart,
+  Filter,
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -38,13 +42,15 @@ const toast = useToast()
 // Constants
 // ============================================
 const STORAGE_KEY = 'bom-wizard-draft'
+const LAST_TEMPLATE_KEY = 'bom-wizard-last-template'
 const DEBOUNCE_DELAY = 500
 const STORAGE_DEBOUNCE_DELAY = 2000 // Debounce localStorage saves
 const LOW_COVERAGE_THRESHOLD = 30
 const MAX_QUANTITY = 99999
 const MIN_QUANTITY = 0.01
-const VIRTUAL_ITEM_HEIGHT = 88 // Approximate height of each item row
-const VIRTUAL_SCROLL_THRESHOLD = 20 // Use virtual scroll when items > 20
+// Virtual scroll temporarily disabled
+// const VIRTUAL_ITEM_HEIGHT = 88
+// const VIRTUAL_SCROLL_THRESHOLD = 20
 
 // ============================================
 // Wizard State
@@ -68,6 +74,10 @@ const previewReport = ref<{
 const quantityOverrides = ref<Record<number, number>>({})
 const previewError = ref<string | null>(null)
 
+// Search & Filter for Step 2
+const itemSearch = ref('')
+const itemStatusFilter = ref<string>('')
+
 // Step 3: BOM Details
 const bomName = ref('')
 const bomNotes = ref('')
@@ -80,13 +90,19 @@ const createdBomId = ref<number | null>(null)
 
 // Modal States
 const showUnmappedWarningModal = ref(false)
+const showKeyboardShortcutsModal = ref(false)
 
 // Debounce timers
 let debounceTimer: ReturnType<typeof setTimeout> | null = null
 let storageDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
-// Virtual scroll container ref
-const itemsContainerRef = ref<HTMLElement | null>(null)
+// Input refs for auto-focus
+const templateSelectRef = ref<{ focus?: () => void } | null>(null)
+const bomNameInputRef = ref<{ focus?: () => void } | null>(null)
+
+// Draft save indicator
+const isSavingDraft = ref(false)
+const showSaveIndicator = ref(false)
 
 // ============================================
 // Data Fetching
@@ -108,20 +124,10 @@ const products = computed(() => productsData.value?.data ?? [])
 const previewMutation = usePreviewCreateBom()
 const createMutation = useCreateBomFromTemplate()
 
-// ============================================
-// Virtual Scrolling (P1)
-// ============================================
-const useVirtualScroll = computed(() => previewItems.value.length > VIRTUAL_SCROLL_THRESHOLD)
-
-const virtualizer = useVirtualizer({
-  count: computed(() => previewItems.value.length),
-  getScrollElement: () => itemsContainerRef.value,
-  estimateSize: () => VIRTUAL_ITEM_HEIGHT,
-  overscan: 5,
-})
-
-const virtualItems = computed(() => virtualizer.value.getVirtualItems())
-const totalVirtualHeight = computed(() => virtualizer.value.getTotalSize())
+// Virtual Scrolling (P1) - TEMPORARILY DISABLED
+// TODO: Re-enable virtual scrolling once issue is identified
+// const useVirtualScroll = computed(() => previewItems.value.length > VIRTUAL_SCROLL_THRESHOLD)
+// See: https://tanstack.com/virtual/latest/docs/framework/vue/vue-virtual
 
 // ============================================
 // Unsaved Changes Guard (P0)
@@ -195,10 +201,39 @@ const canProceedStep3 = computed(() =>
   outputQuantity.value <= MAX_QUANTITY
 )
 
+// Real-time validation state
+const validation = computed(() => ({
+  bomName: {
+    touched: bomName.value.length > 0,
+    valid: bomName.value.trim().length >= 3,
+    error: bomName.value.trim().length > 0 && bomName.value.trim().length < 3
+      ? 'Name must be at least 3 characters'
+      : undefined,
+    success: bomName.value.trim().length >= 3,
+  },
+  outputQuantity: {
+    touched: true,
+    valid: outputQuantity.value >= MIN_QUANTITY && outputQuantity.value <= MAX_QUANTITY,
+    error: outputQuantity.value < MIN_QUANTITY || outputQuantity.value > MAX_QUANTITY
+      ? `Must be between ${MIN_QUANTITY} and ${MAX_QUANTITY}`
+      : undefined,
+    success: outputQuantity.value >= MIN_QUANTITY && outputQuantity.value <= MAX_QUANTITY,
+  },
+  outputProduct: {
+    touched: outputProductId.value !== null,
+    valid: outputProductId.value !== null,
+    error: undefined,
+    success: outputProductId.value !== null,
+  },
+}))
+
 const estimatedTotalCost = computed(() => {
+  if (!previewItems.value?.length) return 0
   return previewItems.value.reduce((sum, item) => {
-    const qty = quantityOverrides.value[item.template_item_id] ?? item.quantity
-    return sum + (item.unit_cost * qty)
+    if (!item) return sum
+    const qty = Number(quantityOverrides.value[item.template_item_id] ?? item.quantity) || 0
+    const cost = (Number(item.unit_cost) || 0) * qty
+    return sum + (isNaN(cost) ? 0 : cost)
   }, 0)
 })
 
@@ -215,6 +250,70 @@ const resolutionStats = computed(() => {
 })
 
 const hasUnmappedItems = computed(() => (resolutionStats.value?.noMapping ?? 0) > 0)
+
+// Filtered preview items based on search and status filter
+const filteredPreviewItems = computed(() => {
+  if (!previewItems.value?.length) return []
+
+  let items = previewItems.value
+
+  // Apply status filter
+  if (itemStatusFilter.value) {
+    items = items.filter(item => item.status === itemStatusFilter.value)
+  }
+
+  // Apply search filter
+  if (itemSearch.value.trim()) {
+    const searchLower = itemSearch.value.toLowerCase().trim()
+    items = items.filter(item =>
+      item.description?.toLowerCase().includes(searchLower) ||
+      item.product?.name?.toLowerCase().includes(searchLower) ||
+      item.product?.sku?.toLowerCase().includes(searchLower) ||
+      item.component_standard?.code?.toLowerCase().includes(searchLower)
+    )
+  }
+
+  return items
+})
+
+// Status filter options
+const statusFilterOptions = computed(() => [
+  { value: '', label: 'All Status' },
+  { value: 'resolved', label: `Resolved (${previewReport.value?.resolved ?? 0})` },
+  { value: 'using_product', label: `Direct Product (${previewReport.value?.using_product ?? 0})` },
+  { value: 'no_mapping', label: `No Mapping (${previewReport.value?.no_mapping ?? 0})` },
+])
+
+// Cost breakdown by status for chart
+const costBreakdown = computed(() => {
+  const breakdown = {
+    resolved: { count: 0, cost: 0, label: 'Resolved', color: '#22c55e' },
+    using_product: { count: 0, cost: 0, label: 'Direct Product', color: '#3b82f6' },
+    no_mapping: { count: 0, cost: 0, label: 'No Mapping', color: '#f59e0b' },
+  }
+
+  if (!previewItems.value?.length) return breakdown
+
+  for (const item of previewItems.value) {
+    if (!item) continue
+    const qty = Number(quantityOverrides.value[item.template_item_id] ?? item.quantity ?? 0) || 0
+    const cost = (Number(item.unit_cost) || 0) * qty
+    const status = item.status as keyof typeof breakdown
+    if (breakdown[status] && !isNaN(cost)) {
+      breakdown[status].count++
+      breakdown[status].cost += cost
+    }
+  }
+
+  return breakdown
+})
+
+// Total cost for percentage calculation
+const totalCostForChart = computed(() => {
+  const values = Object.values(costBreakdown.value)
+  if (!values.length) return 0
+  return values.reduce((sum, b) => sum + (Number(b?.cost) || 0), 0)
+})
 
 // Progress bar value for accessibility
 const progressPercent = computed(() => Math.round(((currentStep.value - 1) / (totalSteps - 1)) * 100))
@@ -240,8 +339,15 @@ function saveDraft() {
 
 function debouncedSaveDraft() {
   if (storageDebounceTimer) clearTimeout(storageDebounceTimer)
+  isSavingDraft.value = true
+  showSaveIndicator.value = true
   storageDebounceTimer = setTimeout(() => {
     saveDraft()
+    isSavingDraft.value = false
+    // Hide indicator after a brief moment
+    setTimeout(() => {
+      showSaveIndicator.value = false
+    }, 1500)
   }, STORAGE_DEBOUNCE_DELAY)
 }
 
@@ -278,17 +384,34 @@ function clearDraft() {
   localStorage.removeItem(STORAGE_KEY)
 }
 
+function saveLastTemplate(templateId: number) {
+  localStorage.setItem(LAST_TEMPLATE_KEY, String(templateId))
+}
+
+function loadLastTemplate(): number | null {
+  try {
+    const saved = localStorage.getItem(LAST_TEMPLATE_KEY)
+    return saved ? Number(saved) : null
+  } catch {
+    return null
+  }
+}
+
 // ============================================
 // Watchers
 // ============================================
 
-// Initialize from URL query param or draft
+// Initialize from URL query param, draft, or last used template
 onMounted(() => {
   const templateParam = route.query.template
   if (templateParam) {
     selectedTemplateId.value = Number(templateParam)
-  } else {
-    loadDraft()
+  } else if (!loadDraft()) {
+    // No draft found, try to load last used template
+    const lastTemplate = loadLastTemplate()
+    if (lastTemplate) {
+      selectedTemplateId.value = lastTemplate
+    }
   }
 })
 
@@ -311,6 +434,17 @@ watch(selectedTemplateId, () => {
   previewReport.value = null
   previewError.value = null
   quantityOverrides.value = {}
+})
+
+// Auto-focus appropriate input when step changes
+watch(currentStep, (step) => {
+  nextTick(() => {
+    if (step === 1) {
+      templateSelectRef.value?.focus?.()
+    } else if (step === 3) {
+      bomNameInputRef.value?.focus?.()
+    }
+  })
 })
 
 // Debounced auto-refresh when quantities change (P1)
@@ -336,7 +470,17 @@ onUnmounted(() => {
 // Keyboard Navigation (P2)
 // ============================================
 function handleKeydown(e: KeyboardEvent) {
-  // Ignore if typing in input
+  // Show keyboard shortcuts on ?
+  if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+    const target = e.target as HTMLElement
+    if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+      e.preventDefault()
+      showKeyboardShortcutsModal.value = true
+      return
+    }
+  }
+
+  // Ignore other shortcuts if typing in input
   if ((e.target as HTMLElement).tagName === 'INPUT' ||
       (e.target as HTMLElement).tagName === 'TEXTAREA') {
     return
@@ -348,7 +492,9 @@ function handleKeydown(e: KeyboardEvent) {
     else if (currentStep.value === 2 && canProceedStep2.value) nextStep()
     else if (currentStep.value === 3 && canProceedStep3.value) handleCreateClick()
   } else if (e.key === 'Escape') {
-    if (showUnmappedWarningModal.value) {
+    if (showKeyboardShortcutsModal.value) {
+      showKeyboardShortcutsModal.value = false
+    } else if (showUnmappedWarningModal.value) {
       showUnmappedWarningModal.value = false
     } else if (currentStep.value > 1 && currentStep.value < 4) {
       prevStep()
@@ -358,6 +504,11 @@ function handleKeydown(e: KeyboardEvent) {
   } else if (e.key === 'ArrowRight') {
     if (currentStep.value === 1 && canProceedStep1.value) nextStep()
     else if (currentStep.value === 2 && canProceedStep2.value) nextStep()
+  } else if (e.key === '/' && currentStep.value === 2) {
+    // Focus search on /
+    e.preventDefault()
+    const searchInput = document.querySelector('[data-search-input]') as HTMLInputElement
+    searchInput?.focus()
   }
 }
 
@@ -461,6 +612,9 @@ async function createBom() {
     createdBomId.value = result.data.bom.id
     markAsSaved() // Clear unsaved changes guard
     clearDraft() // Clear localStorage draft
+    if (selectedTemplateId.value) {
+      saveLastTemplate(selectedTemplateId.value) // Remember this template for next time
+    }
     currentStep.value = 4
     toast.success(result.message)
   } catch (err: unknown) {
@@ -535,12 +689,13 @@ function getStatusTooltip(status: string): string {
 }
 
 function formatCurrency(value: number): string {
+  const safeValue = Number(value) || 0
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(safeValue)
 }
 
 function getStepAriaLabel(step: number): string {
@@ -548,6 +703,13 @@ function getStepAriaLabel(step: number): string {
   if (step === currentStep.value) return `Step ${step}: ${label} (current step)`
   if (step < currentStep.value) return `Step ${step}: ${label} (completed)`
   return `Step ${step}: ${label} (not started)`
+}
+
+// Safe percentage calculation
+function getPercentage(value: number, total: number): number {
+  if (!total || total <= 0 || isNaN(total)) return 0
+  if (isNaN(value)) return 0
+  return Math.round((value / total) * 100)
 }
 </script>
 
@@ -561,12 +723,28 @@ function getStepAriaLabel(step: number): string {
           Back
         </Button>
       </RouterLink>
-      <div>
+      <div class="flex-1">
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Create BOM from Template</h1>
         <p class="text-sm text-slate-500 dark:text-slate-400">
           Use a template to quickly create a new Bill of Materials
         </p>
       </div>
+      <!-- Draft Save Indicator -->
+      <Transition
+        enter-active-class="transition-opacity duration-300"
+        leave-active-class="transition-opacity duration-300"
+        enter-from-class="opacity-0"
+        leave-to-class="opacity-0"
+      >
+        <div
+          v-if="showSaveIndicator"
+          class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500"
+        >
+          <Loader2 v-if="isSavingDraft" class="w-3 h-3 animate-spin" />
+          <CheckCircle2 v-else class="w-3 h-3 text-green-500" />
+          <span>{{ isSavingDraft ? 'Saving...' : 'Draft saved' }}</span>
+        </div>
+      </Transition>
     </div>
 
     <!-- Progress Steps with Step Indicator and Accessibility (P0) -->
@@ -632,7 +810,14 @@ function getStepAriaLabel(step: number): string {
     </div>
 
     <!-- Step 1: Template & Brand Selection -->
-    <div v-if="currentStep === 1" class="space-y-6">
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-150 ease-in"
+      enter-from-class="opacity-0 translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+    <div v-if="currentStep === 1" key="step1" class="space-y-6">
       <Card>
         <template #header>
           <div class="flex items-center gap-2">
@@ -661,6 +846,7 @@ function getStepAriaLabel(step: number): string {
           <template v-else>
             <FormField label="BOM Template" required>
               <Select
+                ref="templateSelectRef"
                 :model-value="selectedTemplateId ? String(selectedTemplateId) : ''"
                 :options="[{ value: '', label: '-- Select a template --' }, ...templateOptions]"
                 :loading="isLoadingTemplates"
@@ -668,8 +854,22 @@ function getStepAriaLabel(step: number): string {
               />
             </FormField>
 
+            <!-- Template Info Skeleton -->
+            <div v-if="selectedTemplateId && isLoadingTemplate" class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4 animate-pulse">
+              <div class="flex items-start gap-4">
+                <div class="flex-1">
+                  <div class="h-5 w-48 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+                  <div class="h-4 w-32 bg-slate-300 dark:bg-slate-600 rounded" />
+                </div>
+                <div class="text-right">
+                  <div class="h-6 w-20 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+                  <div class="h-4 w-16 bg-slate-300 dark:bg-slate-600 rounded ml-auto" />
+                </div>
+              </div>
+            </div>
+
             <!-- Selected Template Info -->
-            <div v-if="selectedTemplate && !isLoadingTemplate" class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+            <div v-else-if="selectedTemplate" class="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
               <div class="flex items-start gap-4">
                 <div class="flex-1">
                   <h3 class="font-medium text-slate-900 dark:text-slate-100">{{ selectedTemplate.name }}</h3>
@@ -754,13 +954,57 @@ function getStepAriaLabel(step: number): string {
         </Button>
       </div>
     </div>
+    </Transition>
 
     <!-- Step 2: Preview Items -->
-    <div v-if="currentStep === 2" class="space-y-6">
-      <!-- Loading with live region (P0) -->
-      <div v-if="previewMutation.isPending.value" class="text-center py-12" aria-live="polite">
-        <Loader2 class="w-8 h-8 mx-auto text-orange-500 animate-spin mb-4" />
-        <p class="text-slate-600 dark:text-slate-400">Loading preview...</p>
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-150 ease-in"
+      enter-from-class="opacity-0 translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+    <div v-if="currentStep === 2" key="step2" class="space-y-6">
+      <!-- Loading Skeleton (P0 UX) -->
+      <div v-if="previewMutation.isPending.value" class="space-y-6" aria-live="polite" aria-busy="true">
+        <!-- Stats Skeleton -->
+        <Card>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div v-for="i in 4" :key="i" class="text-center">
+              <div class="h-8 w-16 mx-auto bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+              <div class="h-4 w-20 mx-auto bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+            </div>
+          </div>
+        </Card>
+
+        <!-- Items List Skeleton -->
+        <Card>
+          <template #header>
+            <div class="flex items-center gap-2">
+              <div class="w-5 h-5 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+              <div class="h-5 w-32 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+            </div>
+          </template>
+          <div class="divide-y divide-slate-100 dark:divide-slate-800">
+            <div v-for="i in 5" :key="i" class="py-4">
+              <div class="flex items-start gap-4">
+                <div class="flex-1">
+                  <div class="h-5 w-48 bg-slate-200 dark:bg-slate-700 rounded animate-pulse mb-2" />
+                  <div class="h-4 w-32 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
+                </div>
+                <div class="w-24 text-right">
+                  <div class="h-8 w-full bg-slate-100 dark:bg-slate-800 rounded animate-pulse mb-2" />
+                  <div class="h-4 w-16 ml-auto bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+
+        <p class="text-center text-sm text-slate-500 dark:text-slate-400">
+          <Loader2 class="w-4 h-4 inline animate-spin mr-2" />
+          Loading preview...
+        </p>
       </div>
 
       <!-- Error State with Recovery (P0) -->
@@ -830,6 +1074,41 @@ function getStepAriaLabel(step: number): string {
               </p>
             </div>
           </div>
+
+          <!-- Cost Breakdown Chart -->
+          <div v-if="totalCostForChart > 0" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+            <div class="flex items-center gap-2 mb-3">
+              <PieChart class="w-4 h-4 text-slate-500" />
+              <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Cost Breakdown</span>
+            </div>
+            <!-- Horizontal Bar Chart -->
+            <div class="space-y-2">
+              <div
+                v-for="(data, status) in costBreakdown"
+                :key="status"
+                class="flex items-center gap-3"
+              >
+                <span class="w-28 text-xs text-slate-600 dark:text-slate-400 truncate">
+                  {{ data?.label ?? status }}
+                </span>
+                <div class="flex-1 h-4 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                  <div
+                    class="h-full rounded-full transition-all duration-300"
+                    :style="{
+                      width: `${getPercentage(data?.cost ?? 0, totalCostForChart)}%`,
+                      backgroundColor: data?.color ?? '#94a3b8',
+                    }"
+                  />
+                </div>
+                <span class="w-24 text-xs text-right text-slate-600 dark:text-slate-400 tabular-nums">
+                  {{ formatCurrency(data?.cost ?? 0) }}
+                </span>
+                <span class="w-12 text-xs text-right text-slate-400 tabular-nums">
+                  {{ getPercentage(data?.cost ?? 0, totalCostForChart) }}%
+                </span>
+              </div>
+            </div>
+          </div>
         </Card>
 
         <!-- Items List -->
@@ -839,14 +1118,49 @@ function getStepAriaLabel(step: number): string {
               <div class="flex items-center gap-2">
                 <Eye class="w-5 h-5 text-blue-500" />
                 <h2 class="font-medium text-slate-900 dark:text-slate-100">Preview Items</h2>
-                <span v-if="useVirtualScroll" class="text-xs text-slate-400">(scrollable list)</span>
+                <Badge v-if="filteredPreviewItems.length !== previewItems.length" variant="info" size="sm">
+                  {{ filteredPreviewItems.length }} of {{ previewItems.length }}
+                </Badge>
               </div>
-              <Button variant="outline" size="sm" :loading="previewMutation.isPending.value" @click="refreshPreview">
-                <RefreshCw class="w-4 h-4 mr-2" />
-                Refresh
-              </Button>
+              <div class="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  title="Keyboard shortcuts (?)"
+                  class="hidden md:flex"
+                  @click="showKeyboardShortcutsModal = true"
+                >
+                  <Keyboard class="w-4 h-4" />
+                </Button>
+                <Button variant="outline" size="sm" :loading="previewMutation.isPending.value" @click="refreshPreview">
+                  <RefreshCw class="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
             </div>
           </template>
+
+          <!-- Search & Filter Bar -->
+          <div v-if="previewItems.length > 0" class="flex flex-col sm:flex-row gap-3 mb-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div class="relative flex-1">
+              <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <input
+                v-model="itemSearch"
+                type="text"
+                data-search-input
+                placeholder="Search items... (press /)"
+                class="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              />
+            </div>
+            <div class="flex items-center gap-2">
+              <Filter class="w-4 h-4 text-slate-400" />
+              <Select
+                v-model="itemStatusFilter"
+                :options="statusFilterOptions"
+                class="w-44"
+              />
+            </div>
+          </div>
 
           <!-- Empty Items State -->
           <div v-if="previewItems.length === 0" class="text-center py-8">
@@ -854,86 +1168,21 @@ function getStepAriaLabel(step: number): string {
             <p class="text-slate-500 dark:text-slate-400">No items in this template</p>
           </div>
 
-          <!-- Virtual Scrolling for Large Lists (P1) -->
-          <template v-else-if="useVirtualScroll">
-            <div
-              ref="itemsContainerRef"
-              class="max-h-96 overflow-auto"
-              role="list"
-              aria-label="Preview items"
-            >
-              <div :style="{ height: `${totalVirtualHeight}px`, position: 'relative' }">
-                <div
-                  v-for="virtualRow in virtualItems"
-                  :key="virtualRow.key"
-                  :style="{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    transform: `translateY(${virtualRow.start}px)`,
-                  }"
-                  role="listitem"
-                >
-                  <div class="py-4 border-b border-slate-100 dark:border-slate-800 last:border-b-0">
-                    <div class="flex items-start gap-4">
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1 flex-wrap">
-                          <span class="font-medium text-slate-900 dark:text-slate-100">
-                            {{ previewItems[virtualRow.index].description }}
-                          </span>
-                          <span
-                            class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium cursor-help"
-                            :class="getStatusColor(previewItems[virtualRow.index].status)"
-                            :title="getStatusTooltip(previewItems[virtualRow.index].status)"
-                          >
-                            {{ getStatusLabel(previewItems[virtualRow.index].status) }}
-                            <Info class="w-3 h-3 opacity-60" />
-                          </span>
-                          <Badge v-if="previewItems[virtualRow.index].is_required" variant="info" size="sm">Required</Badge>
-                        </div>
-                        <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                          <span v-if="previewItems[virtualRow.index].product">
-                            <Package class="w-3 h-3 inline mr-1" />
-                            {{ previewItems[virtualRow.index].product?.name }}
-                          </span>
-                          <span v-else-if="previewItems[virtualRow.index].component_standard" class="font-mono text-xs">
-                            {{ previewItems[virtualRow.index].component_standard?.code }}
-                          </span>
-                          <span>{{ formatCurrency(previewItems[virtualRow.index].unit_cost) }}/{{ previewItems[virtualRow.index].unit }}</span>
-                        </div>
-                      </div>
-                      <div class="w-32 text-right flex-shrink-0">
-                        <div v-if="previewItems[virtualRow.index].is_quantity_variable" class="mb-1">
-                          <Input
-                            :model-value="quantityOverrides[previewItems[virtualRow.index].template_item_id] ?? previewItems[virtualRow.index].quantity"
-                            type="number"
-                            :min="MIN_QUANTITY"
-                            :max="MAX_QUANTITY"
-                            step="0.01"
-                            class="text-right text-sm"
-                            :aria-label="`Quantity for ${previewItems[virtualRow.index].description}`"
-                            @update:model-value="(v: string | number) => handleQuantityChange(previewItems[virtualRow.index].template_item_id, v)"
-                          />
-                        </div>
-                        <div v-else class="text-slate-900 dark:text-slate-100">
-                          {{ previewItems[virtualRow.index].quantity }} {{ previewItems[virtualRow.index].unit }}
-                        </div>
-                        <div class="text-sm font-medium text-slate-600 dark:text-slate-400">
-                          {{ formatCurrency((quantityOverrides[previewItems[virtualRow.index].template_item_id] ?? previewItems[virtualRow.index].quantity) * previewItems[virtualRow.index].unit_cost) }}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </template>
+          <!-- Virtual Scrolling temporarily disabled -->
+
+          <!-- No Results from Filter -->
+          <div v-else-if="filteredPreviewItems.length === 0" class="text-center py-8">
+            <Search class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-4" />
+            <p class="text-slate-500 dark:text-slate-400 mb-2">No items match your search</p>
+            <Button variant="ghost" size="sm" @click="itemSearch = ''; itemStatusFilter = ''">
+              Clear Filters
+            </Button>
+          </div>
 
           <!-- Regular List for Small Items Count -->
           <div v-else class="divide-y divide-slate-100 dark:divide-slate-800" role="list" aria-label="Preview items">
             <div
-              v-for="item in previewItems"
+              v-for="item in filteredPreviewItems"
               :key="item.template_item_id"
               class="py-4 first:pt-0 last:pb-0"
               role="listitem"
@@ -976,21 +1225,21 @@ function getStepAriaLabel(step: number): string {
                   <!-- Variable Quantity with Validation (P1) -->
                   <div v-if="item.is_quantity_variable" class="mb-1">
                     <Input
-                      :model-value="quantityOverrides[item.template_item_id] ?? item.quantity"
+                      :model-value="quantityOverrides[item.template_item_id] ?? item.quantity ?? 0"
                       type="number"
                       :min="MIN_QUANTITY"
                       :max="MAX_QUANTITY"
                       step="0.01"
                       class="text-right text-sm"
-                      :aria-label="`Quantity for ${item.description}`"
+                      :aria-label="`Quantity for ${item.description ?? 'item'}`"
                       @update:model-value="(v: string | number) => handleQuantityChange(item.template_item_id, v)"
                     />
                   </div>
                   <div v-else class="text-slate-900 dark:text-slate-100">
-                    {{ item.quantity }} {{ item.unit }}
+                    {{ item.quantity ?? 0 }} {{ item.unit ?? 'unit' }}
                   </div>
                   <div class="text-sm font-medium text-slate-600 dark:text-slate-400">
-                    {{ formatCurrency((quantityOverrides[item.template_item_id] ?? item.quantity) * item.unit_cost) }}
+                    {{ formatCurrency((Number(quantityOverrides[item.template_item_id] ?? item.quantity) || 0) * (Number(item.unit_cost) || 0)) }}
                   </div>
                 </div>
               </div>
@@ -1017,9 +1266,17 @@ function getStepAriaLabel(step: number): string {
         </div>
       </template>
     </div>
+    </Transition>
 
     <!-- Step 3: BOM Details -->
-    <div v-if="currentStep === 3" class="space-y-6">
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-150 ease-in"
+      enter-from-class="opacity-0 translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+    <div v-if="currentStep === 3" key="step3" class="space-y-6">
       <Card>
         <template #header>
           <div class="flex items-center gap-2">
@@ -1049,35 +1306,63 @@ function getStepAriaLabel(step: number): string {
           </div>
 
           <FormField label="Output Product" required hint="The product this BOM produces">
-            <Select
-              :model-value="outputProductId ? String(outputProductId) : ''"
-              :options="productOptions"
-              :loading="isLoadingProducts"
-              :disabled="!hasProducts"
-              @update:model-value="(v: string | number | null) => outputProductId = v ? Number(v) : null"
-            />
+            <div class="relative">
+              <Select
+                :model-value="outputProductId ? String(outputProductId) : ''"
+                :options="productOptions"
+                :loading="isLoadingProducts"
+                :disabled="!hasProducts"
+                @update:model-value="(v: string | number | null) => outputProductId = v ? Number(v) : null"
+              />
+              <CheckCircle2
+                v-if="validation.outputProduct.success"
+                class="absolute right-10 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500"
+              />
+            </div>
           </FormField>
 
           <FormField
             label="BOM Name"
             required
-            :error="bomName.trim().length > 0 && bomName.trim().length < 3 ? 'Name must be at least 3 characters' : undefined"
+            :error="validation.bomName.error"
           >
-            <Input v-model="bomName" placeholder="e.g., Panel 100A - Schneider" maxlength="100" />
+            <div class="relative">
+              <Input
+                ref="bomNameInputRef"
+                v-model="bomName"
+                placeholder="e.g., Panel 100A - Schneider"
+                maxlength="100"
+                :class="validation.bomName.success ? 'border-green-500 focus:ring-green-500' : ''"
+              />
+              <CheckCircle2
+                v-if="validation.bomName.success"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500"
+              />
+            </div>
+            <p v-if="validation.bomName.success" class="text-xs text-green-600 dark:text-green-400 mt-1">
+              Looks good!
+            </p>
           </FormField>
 
           <div class="grid grid-cols-2 gap-4">
             <FormField
               label="Output Quantity"
-              :error="outputQuantity < MIN_QUANTITY || outputQuantity > MAX_QUANTITY ? `Must be between ${MIN_QUANTITY} and ${MAX_QUANTITY}` : undefined"
+              :error="validation.outputQuantity.error"
             >
-              <Input
-                v-model.number="outputQuantity"
-                type="number"
-                :min="MIN_QUANTITY"
-                :max="MAX_QUANTITY"
-                step="1"
-              />
+              <div class="relative">
+                <Input
+                  v-model.number="outputQuantity"
+                  type="number"
+                  :min="MIN_QUANTITY"
+                  :max="MAX_QUANTITY"
+                  step="1"
+                  :class="validation.outputQuantity.success ? 'border-green-500 focus:ring-green-500' : ''"
+                />
+                <CheckCircle2
+                  v-if="validation.outputQuantity.success"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500"
+                />
+              </div>
             </FormField>
             <FormField label="Output Unit">
               <Input :model-value="selectedTemplate?.default_output_unit ?? 'unit'" disabled />
@@ -1144,9 +1429,17 @@ function getStepAriaLabel(step: number): string {
         </Button>
       </div>
     </div>
+    </Transition>
 
     <!-- Step 4: Complete -->
-    <div v-if="currentStep === 4" class="space-y-6">
+    <Transition
+      mode="out-in"
+      enter-active-class="transition-all duration-200 ease-out"
+      leave-active-class="transition-all duration-150 ease-in"
+      enter-from-class="opacity-0 translate-y-2"
+      leave-to-class="opacity-0 -translate-y-2"
+    >
+    <div v-if="currentStep === 4" key="step4" class="space-y-6">
       <Card class="text-center py-8">
         <CheckCircle2 class="w-16 h-16 mx-auto text-green-500 mb-4" />
         <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
@@ -1170,6 +1463,7 @@ function getStepAriaLabel(step: number): string {
         </div>
       </Card>
     </div>
+    </Transition>
 
     <!-- Unmapped Items Warning Modal (P0) -->
     <Modal
@@ -1198,6 +1492,51 @@ function getStepAriaLabel(step: number): string {
         </Button>
         <Button @click="createBom">
           Create Anyway
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <Modal
+      :open="showKeyboardShortcutsModal"
+      title="Keyboard Shortcuts"
+      size="sm"
+      @update:open="showKeyboardShortcutsModal = $event"
+    >
+      <div class="space-y-4">
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">Enter</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Next step</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">Esc</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Previous step</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">←</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Previous step</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">→</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Next step</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">/</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Focus search (Step 2)</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <kbd class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono">?</kbd>
+            <span class="text-slate-600 dark:text-slate-400">Show this help</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 dark:text-slate-500 text-center pt-2 border-t border-slate-100 dark:border-slate-800">
+          Shortcuts work when not typing in a text field
+        </p>
+      </div>
+      <template #footer>
+        <Button @click="showKeyboardShortcutsModal = false">
+          Got it
         </Button>
       </template>
     </Modal>
