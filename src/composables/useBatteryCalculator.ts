@@ -1,4 +1,9 @@
 import { computed, ref, type Ref, type ComputedRef } from 'vue'
+import {
+  calculateSelfConsumption,
+  calculateBackupCapability,
+  getRecommendedBatteryCapacity,
+} from '@/utils/calculations'
 
 export interface BatteryConfig {
   enabled: boolean
@@ -113,20 +118,17 @@ export function useBatteryCalculator(
     // Daily production
     const dailyProduction = annualProd / 365
 
-    // Self-consumption calculation (simplified model)
-    // Without battery: baseline self-consumption from settings
-    const selfConsumptionWithoutBattery = s.batterySelfConsumptionBase
-
-    // With battery: increases based on battery size relative to daily production
-    const captureableExcess = dailyProduction * (1 - selfConsumptionWithoutBattery)
-    const batteryCapture = Math.min(batteryKwh * s.batteryRoundTripEfficiency, captureableExcess)
-    const additionalSelfConsumption = dailyProduction > 0 ? batteryCapture / dailyProduction : 0
-    const selfConsumptionWithBattery = Math.min(
-      s.batterySelfConsumptionMax,
-      selfConsumptionWithoutBattery + additionalSelfConsumption
+    // Self-consumption calculation using pure function
+    const selfConsumption = calculateSelfConsumption(
+      dailyProduction,
+      batteryKwh,
+      s.batteryRoundTripEfficiency,
+      s.batterySelfConsumptionBase,
+      s.batterySelfConsumptionMax
     )
-
-    const selfConsumptionIncrease = selfConsumptionWithBattery - selfConsumptionWithoutBattery
+    const selfConsumptionWithoutBattery = selfConsumption.without
+    const selfConsumptionWithBattery = selfConsumption.with
+    const selfConsumptionIncrease = selfConsumption.increase
 
     // Additional savings from increased self-consumption
     const additionalAnnualSavings = annualProd * selfConsumptionIncrease * rate
@@ -134,14 +136,16 @@ export function useBatteryCalculator(
     const lifetimeDegradationFactor = 1 - (s.batteryDegradationRate / 100 * s.systemLifetimeYears / 2)
     const additionalLifetimeSavings = additionalAnnualSavings * s.systemLifetimeYears * lifetimeDegradationFactor
 
-    // Backup capability
-    // Average hourly consumption (assuming 10-hour daytime usage)
+    // Backup capability using pure function
     const dailyConsumption = monthlyConsumption * 12 / 365
-    const avgHourlyConsumption = dailyConsumption / 10 // Assume 10 active hours
-    const backupHours = avgHourlyConsumption > 0
-      ? (batteryKwh * s.batteryRoundTripEfficiency) / avgHourlyConsumption
-      : 0
-    const backupDays = backupHours / 24
+    const backup = calculateBackupCapability(
+      batteryKwh,
+      s.batteryRoundTripEfficiency,
+      dailyConsumption,
+      10 // 10 active hours per day
+    )
+    const backupHours = backup.hours
+    const backupDays = backup.days
 
     // ROI calculations with battery
     const baseLifetimeSavings = inputs.yearlyProjections.value.reduce((sum, p) => sum + p.savings, 0)
@@ -197,16 +201,15 @@ export function useBatteryCalculator(
     }
   })
 
-  // Recommendation based on system size
+  // Recommendation based on system size using pure function
   const recommendation = computed(() => {
     const s = getSettings()
     const dailyProduction = (inputs.annualProduction.value || 0) / 365
-    const recommendedKwh = Math.round(dailyProduction * s.batteryRecommendedRatio)
-
-    if (recommendedKwh <= 5) return 5
-    if (recommendedKwh <= 10) return 10
-    if (recommendedKwh <= 15) return 15
-    return 20
+    return getRecommendedBatteryCapacity(
+      dailyProduction,
+      s.batteryRecommendedRatio,
+      [5, 10, 15, 20]
+    )
   })
 
   return {

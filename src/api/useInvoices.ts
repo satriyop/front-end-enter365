@@ -1,10 +1,14 @@
+/**
+ * Invoices API hooks
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { api } from './client'
+import { createCrudHooks } from './factory'
 import type { components } from './types'
 
 // ============================================
-// Types from OpenAPI spec
+// Types
 // ============================================
 
 export type Invoice = components['schemas']['InvoiceResource']
@@ -41,44 +45,24 @@ export interface CreateInvoiceItem {
 }
 
 // ============================================
-// Query Hooks
+// CRUD Hooks (via factory)
 // ============================================
 
-/**
- * Fetch paginated list of invoices
- */
-export function useInvoices(filters: Ref<InvoiceFilters>) {
-  return useQuery({
-    queryKey: computed(() => ['invoices', filters.value]),
-    queryFn: async () => {
-      const cleanParams = Object.fromEntries(
-        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
-      )
-      const response = await api.get<PaginatedResponse<Invoice>>('/invoices', {
-        params: cleanParams
-      })
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<Invoice, InvoiceFilters, CreateInvoiceData>({
+  resourceName: 'invoices',
+  singularName: 'invoice',
+})
 
-/**
- * Fetch single invoice by ID
- */
-export function useInvoice(id: Ref<number>) {
-  return useQuery({
-    queryKey: computed(() => ['invoice', id.value]),
-    queryFn: async () => {
-      const response = await api.get<{ data: Invoice }>(`/invoices/${id.value}`)
-      return response.data.data
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
+export const useInvoices = hooks.useList
+export const useInvoice = hooks.useSingle
+export const useCreateInvoice = hooks.useCreate
+export const useUpdateInvoice = hooks.useUpdate
+export const useDeleteInvoice = hooks.useDelete
 
-/**
- * Fetch invoice statistics
- */
+// ============================================
+// Statistics Hook
+// ============================================
+
 export function useInvoiceStatistics() {
   return useQuery({
     queryKey: ['invoices', 'statistics'],
@@ -90,68 +74,11 @@ export function useInvoiceStatistics() {
 }
 
 // ============================================
-// Mutation Hooks
+// Custom Action Hooks
 // ============================================
 
-/**
- * Create new invoice
- */
-export function useCreateInvoice() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: CreateInvoiceData) => {
-      const response = await api.post<{ data: Invoice }>('/invoices', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-    },
-  })
-}
-
-/**
- * Update invoice (draft only)
- */
-export function useUpdateInvoice() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<CreateInvoiceData> }) => {
-      const response = await api.put<{ data: Invoice }>(`/invoices/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.setQueryData(['invoice', data.id], data)
-    },
-  })
-}
-
-/**
- * Delete invoice (draft only)
- */
-export function useDeleteInvoice() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/invoices/${id}`)
-      return id
-    },
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.removeQueries({ queryKey: ['invoice', id] })
-    },
-  })
-}
-
-/**
- * Post invoice (creates journal entry)
- */
 export function usePostInvoice() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/post`)
@@ -164,17 +91,11 @@ export function usePostInvoice() {
   })
 }
 
-/**
- * Void invoice
- */
 export function useVoidInvoice() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
-      const response = await api.post<{ data: Invoice }>(`/invoices/${id}/void`, {
-        reason,
-      })
+      const response = await api.post<{ data: Invoice }>(`/invoices/${id}/void`, { reason })
       return response.data.data
     },
     onSuccess: (data) => {
@@ -184,12 +105,8 @@ export function useVoidInvoice() {
   })
 }
 
-/**
- * Duplicate invoice
- */
 export function useDuplicateInvoice() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/duplicate`)
@@ -201,17 +118,11 @@ export function useDuplicateInvoice() {
   })
 }
 
-/**
- * Send invoice email
- */
 export function useSendInvoice() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, email }: { id: number; email?: string }) => {
-      const response = await api.post<{ data: Invoice }>(`/invoices/${id}/send`, {
-        email,
-      })
+      const response = await api.post<{ data: Invoice }>(`/invoices/${id}/send`, { email })
       return response.data.data
     },
     onSuccess: (data) => {

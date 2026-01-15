@@ -1,4 +1,9 @@
 import { computed, ref, type Ref, type ComputedRef } from 'vue'
+import {
+  generateProjections,
+  calculatePaybackPeriod,
+  sumProjectionSavings,
+} from '@/utils/calculations'
 
 export interface ScenarioParams {
   electricityRateChange: number // -20 to +30 (percentage)
@@ -83,53 +88,6 @@ export function useScenarioCalculator(
     systemDegradation: s.defaultDegradation,
   })
 
-  // Calculate projections with given parameters
-  function calculateProjections(
-    production: number,
-    rate: number,
-    escalation: number,
-    degradation: number,
-    years: number
-  ): Array<{ year: number; savings: number }> {
-    const projections = []
-    let currentRate = rate
-    let currentProduction = production
-    const escalationFactor = 1 + escalation / 100
-    const degradationFactor = 1 - degradation / 100
-
-    for (let year = 1; year <= years; year++) {
-      projections.push({
-        year,
-        savings: Math.round(currentProduction * currentRate),
-      })
-      currentRate *= escalationFactor
-      currentProduction *= degradationFactor
-    }
-
-    return projections
-  }
-
-  // Calculate payback period from projections
-  function calculatePayback(
-    projections: Array<{ savings: number }>,
-    cost: number
-  ): number | null {
-    if (cost <= 0) return 0
-
-    let cumulative = 0
-    for (let i = 0; i < projections.length; i++) {
-      const projection = projections[i]
-      if (!projection) continue
-      cumulative += projection.savings
-      if (cumulative >= cost) {
-        const prevCumulative = cumulative - projection.savings
-        const fraction = projection.savings > 0 ? (cost - prevCumulative) / projection.savings : 0
-        return Math.round((i + fraction) * 10) / 10
-      }
-    }
-    return null
-  }
-
   // Base case results
   const baseResult = computed<ScenarioResult>(() => {
     const st = getSettings()
@@ -138,15 +96,15 @@ export function useScenarioCalculator(
     const escalation = baseInputs.tariffEscalation.value || 3
     const cost = baseInputs.systemCost.value || 0
 
-    const projections = calculateProjections(
+    const projections = generateProjections(
       production,
       rate,
       escalation,
       st.defaultDegradation,
       st.systemLifetimeYears
     )
-    const totalSavings = projections.reduce((sum, p) => sum + p.savings, 0)
-    const payback = calculatePayback(projections, cost)
+    const totalSavings = sumProjectionSavings(projections)
+    const payback = calculatePaybackPeriod(projections, cost)
     const roi = cost > 0 ? ((totalSavings - cost) / cost) * 100 : 0
 
     return {
@@ -170,15 +128,15 @@ export function useScenarioCalculator(
     const adjustedProduction = production * (1 + params.value.consumptionChange / 100)
     const degradation = params.value.systemDegradation
 
-    const projections = calculateProjections(
+    const projections = generateProjections(
       adjustedProduction,
       adjustedRate,
       escalation,
       degradation,
       st.systemLifetimeYears
     )
-    const totalSavings = projections.reduce((sum, p) => sum + p.savings, 0)
-    const payback = calculatePayback(projections, cost)
+    const totalSavings = sumProjectionSavings(projections)
+    const payback = calculatePaybackPeriod(projections, cost)
     const roi = cost > 0 ? ((totalSavings - cost) / cost) * 100 : 0
 
     return {

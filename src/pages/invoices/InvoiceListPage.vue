@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { watch, computed } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from '@/api/client'
-import { useInvoices, type InvoiceFilters } from '@/api/useInvoices'
+import { useInvoices, type Invoice, type InvoiceFilters } from '@/api/useInvoices'
+import { useResourceList } from '@/composables/useResourceList'
 import { useBulkSelection } from '@/composables/useBulkSelection'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Badge, Button, Input, Select, Pagination, EmptyState, useToast } from '@/components/ui'
@@ -11,19 +12,25 @@ import BulkActionsBar from '@/components/BulkActionsBar.vue'
 const toast = useToast()
 const queryClient = useQueryClient()
 
-// Filters state
-const filters = ref<InvoiceFilters>({
-  page: 1,
-  per_page: 10,
-  status: undefined,
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: invoices,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+} = useResourceList<Invoice, InvoiceFilters>({
+  useListHook: useInvoices,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    status: undefined,
+    search: '',
+  },
 })
-
-// Fetch invoices
-const { data, isLoading, error } = useInvoices(filters)
-
-const invoices = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 // Bulk selection
 const {
@@ -55,15 +62,6 @@ const statusOptions = [
   { value: 'overdue', label: 'Overdue' },
   { value: 'void', label: 'Void' },
 ]
-
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
 
 // Bulk delete mutation
 const bulkDeleteMutation = useMutation({
@@ -121,7 +119,7 @@ const bulkActions = computed(() => [
           <Input
             :model-value="filters.search"
             placeholder="Search invoices..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
 
@@ -153,7 +151,7 @@ const bulkActions = computed(() => [
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="invoices.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No invoices found"
         description="Create your first invoice to start tracking receivables"
@@ -253,7 +251,7 @@ const bulkActions = computed(() => [
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>

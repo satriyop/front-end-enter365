@@ -1,14 +1,16 @@
 /**
  * Work Orders API hooks
- * Level 2 Pattern: Types + Queries + Mutations in one file
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
-import type { Ref } from 'vue'
+import { createCrudHooks } from './factory'
 import type { components } from './types'
 
-// Types from OpenAPI
+// ============================================
+// Types
+// ============================================
+
 export type WorkOrder = components['schemas']['WorkOrderResource']
 
 export interface WorkOrderFilters {
@@ -20,87 +22,27 @@ export interface WorkOrderFilters {
   project_id?: number | string
 }
 
-interface PaginatedResponse<T> {
-  data: T[]
-  meta: {
-    current_page: number
-    last_page: number
-    per_page: number
-    total: number
-  }
-}
+export type CreateWorkOrderData = Partial<WorkOrder>
 
-// Queries
-export function useWorkOrders(filters: Ref<WorkOrderFilters>) {
-  return useQuery({
-    queryKey: ['work-orders', filters],
-    queryFn: async () => {
-      const params = new URLSearchParams()
-      const f = filters.value
-      if (f.page) params.set('page', String(f.page))
-      if (f.per_page) params.set('per_page', String(f.per_page))
-      if (f.status) params.set('status', f.status)
-      if (f.type) params.set('type', f.type)
-      if (f.search) params.set('search', f.search)
-      if (f.project_id) params.set('project_id', String(f.project_id))
+// ============================================
+// CRUD Hooks (via factory)
+// ============================================
 
-      const response = await api.get<PaginatedResponse<WorkOrder>>(`/work-orders?${params}`)
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<WorkOrder, WorkOrderFilters, CreateWorkOrderData>({
+  resourceName: 'work-orders',
+  singularName: 'work-order',
+})
 
-export function useWorkOrder(id: Ref<number | string>) {
-  return useQuery({
-    queryKey: ['work-orders', id],
-    queryFn: async () => {
-      const response = await api.get<{ data: WorkOrder }>(`/work-orders/${id.value}`)
-      return response.data.data
-    },
-    enabled: () => !!id.value,
-  })
-}
+export const useWorkOrders = hooks.useList
+export const useWorkOrder = hooks.useSingle
+export const useCreateWorkOrder = hooks.useCreate
+export const useUpdateWorkOrder = hooks.useUpdate
+export const useDeleteWorkOrder = hooks.useDelete
 
-// Mutations
-export function useCreateWorkOrder() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (data: Partial<WorkOrder>) => {
-      const response = await api.post<{ data: WorkOrder }>('/work-orders', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
-    },
-  })
-}
+// ============================================
+// Custom Action Hooks
+// ============================================
 
-export function useUpdateWorkOrder() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number | string; data: Partial<WorkOrder> }) => {
-      const response = await api.put<{ data: WorkOrder }>(`/work-orders/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
-    },
-  })
-}
-
-export function useDeleteWorkOrder() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (id: number | string) => {
-      await api.delete(`/work-orders/${id}`)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
-    },
-  })
-}
-
-// Work Order Actions
 export function useConfirmWorkOrder() {
   const queryClient = useQueryClient()
   return useMutation({

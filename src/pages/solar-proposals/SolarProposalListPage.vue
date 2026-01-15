@@ -1,24 +1,30 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useSolarProposals, useSolarProposalStatistics, type SolarProposalFilters } from '@/api/useSolarProposals'
+import { useSolarProposals, useSolarProposalStatistics, type SolarProposal, type SolarProposalFilters } from '@/api/useSolarProposals'
+import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/format'
 import { Button, Input, Select } from '@/components/ui'
 import { Plus, Eye, Pencil, BarChart3 } from 'lucide-vue-next'
 
-// Filters state
-const filters = ref<SolarProposalFilters>({
-  page: 1,
-  per_page: 10,
-  status: '',
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: proposals,
+  pagination,
+  isLoading,
+  error,
+  filters,
+  updateFilter,
+} = useResourceList<SolarProposal, SolarProposalFilters>({
+  useListHook: useSolarProposals,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    status: '',
+    search: '',
+  },
 })
 
-// Fetch proposals
-const { data, isLoading, error } = useSolarProposals(filters)
+// Fetch statistics (separate from list)
 const { data: statistics } = useSolarProposalStatistics()
-
-const proposals = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 // Status badge styles
 function getStatusClass(status: string) {
@@ -112,9 +118,10 @@ const statusOptions = [
         <!-- Search -->
         <div class="flex-1 min-w-[200px]">
           <Input
-            v-model="filters.search"
+            :model-value="filters.search"
             type="text"
             placeholder="Search proposals..."
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
 

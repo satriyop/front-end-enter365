@@ -1,22 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useBoms, type BomFilters } from '@/api/useBoms'
+import { useBoms, type BomFilters, type Bom } from '@/api/useBoms'
+import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency } from '@/utils/format'
-import { RouterLink } from 'vue-router'
 import { Button, Input, Select, Badge, Pagination, EmptyState } from '@/components/ui'
 import { FileStack } from 'lucide-vue-next'
 
-const filters = ref<BomFilters>({
-  page: 1,
-  per_page: 15,
-  status: undefined,
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: boms,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+} = useResourceList<Bom, BomFilters>({
+  useListHook: useBoms,
+  initialFilters: {
+    page: 1,
+    per_page: 15,
+    status: undefined,
+    search: '',
+  },
 })
-
-const { data, isLoading, error } = useBoms(filters)
-
-const boms = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const statusOptions = [
   { value: '', label: 'All Status' },
@@ -24,15 +31,6 @@ const statusOptions = [
   { value: 'active', label: 'Active' },
   { value: 'inactive', label: 'Inactive' },
 ]
-
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
 
 function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'destructive' {
   const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
@@ -46,7 +44,6 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
 
 <template>
   <div>
-    <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Bill of Materials</h1>
@@ -70,32 +67,25 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
       </div>
     </div>
 
-    <!-- Filters -->
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">
       <div class="flex flex-wrap gap-4">
         <div class="flex-1 min-w-[200px]">
           <Input
             :model-value="filters.search"
             placeholder="Search BOMs..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-48">
-          <Select
-            v-model="filters.status"
-            :options="statusOptions"
-            placeholder="All Status"
-          />
+          <Select v-model="filters.status" :options="statusOptions" placeholder="All Status" />
         </div>
       </div>
     </div>
 
-    <!-- Error State -->
     <div v-if="error" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
       <p class="text-red-500">Failed to load BOMs</p>
     </div>
 
-    <!-- Loading State -->
     <div v-else-if="isLoading" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
       <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
         <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -106,8 +96,7 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
       </div>
     </div>
 
-    <!-- Empty State -->
-    <div v-else-if="boms.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No BOMs found"
         description="Create your first Bill of Materials to define production costs"
@@ -116,32 +105,17 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
       />
     </div>
 
-    <!-- Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
       <table class="w-full">
         <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              BOM #
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Product
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Output
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Unit Cost
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Total Cost
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Actions
-            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">BOM #</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Product</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Output</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unit Cost</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Cost</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
@@ -186,14 +160,13 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
         </tbody>
       </table>
 
-      <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination
           :current-page="pagination.current_page"
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>

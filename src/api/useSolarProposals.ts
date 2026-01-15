@@ -1,10 +1,15 @@
+/**
+ * Solar Proposals API hooks
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { api } from './client'
+import { createCrudHooks } from './factory'
 import type { components } from './types'
 
 // ============================================
-// Types from OpenAPI spec
+// Types
 // ============================================
 
 export type SolarProposal = components['schemas']['SolarProposalResource']
@@ -26,7 +31,6 @@ export interface SolarProposalFilters {
 
 export interface CreateSolarProposalData {
   contact_id: number
-  // Site Information
   site_name?: string
   site_address?: string
   province?: string
@@ -38,20 +42,16 @@ export interface CreateSolarProposalData {
   roof_orientation?: 'north' | 'south' | 'east' | 'west'
   roof_tilt_degrees?: number | null
   shading_percentage?: number | null
-  // Electricity Profile
   monthly_consumption_kwh?: number | null
   pln_tariff_category?: string
   electricity_rate?: number | null
   tariff_escalation_percent?: number | null
-  // Solar Data
   peak_sun_hours?: number | null
   solar_irradiance?: number | null
   performance_ratio?: number | null
-  // System Selection
   variant_group_id?: number | null
   selected_bom_id?: number | null
   system_capacity_kwp?: number | null
-  // Proposal Settings
   valid_until?: string
   notes?: string
 }
@@ -71,44 +71,24 @@ export interface SolarProposalStatistics {
 }
 
 // ============================================
-// Query Hooks
+// CRUD Hooks (via factory)
 // ============================================
 
-/**
- * Fetch paginated list of solar proposals
- */
-export function useSolarProposals(filters: Ref<SolarProposalFilters>) {
-  return useQuery({
-    queryKey: computed(() => ['solar-proposals', filters.value]),
-    queryFn: async () => {
-      const cleanParams = Object.fromEntries(
-        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
-      )
-      const response = await api.get<PaginatedResponse<SolarProposalList>>('/solar-proposals', {
-        params: cleanParams
-      })
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<SolarProposal, SolarProposalFilters, CreateSolarProposalData>({
+  resourceName: 'solar-proposals',
+  singularName: 'solar-proposal',
+})
 
-/**
- * Fetch single solar proposal by ID
- */
-export function useSolarProposal(id: Ref<number>) {
-  return useQuery({
-    queryKey: computed(() => ['solar-proposal', id.value]),
-    queryFn: async () => {
-      const response = await api.get<{ data: SolarProposal }>(`/solar-proposals/${id.value}`)
-      return response.data.data
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
+export const useSolarProposals = hooks.useList
+export const useSolarProposal = hooks.useSingle
+export const useCreateSolarProposal = hooks.useCreate
+export const useUpdateSolarProposal = hooks.useUpdate
+export const useDeleteSolarProposal = hooks.useDelete
 
-/**
- * Fetch solar proposal statistics
- */
+// ============================================
+// Statistics Hook
+// ============================================
+
 export function useSolarProposalStatistics() {
   return useQuery({
     queryKey: ['solar-proposals', 'statistics'],
@@ -123,9 +103,6 @@ export function useSolarProposalStatistics() {
 // Solar Data Lookup Hooks
 // ============================================
 
-/**
- * Lookup solar data by location (province + city or coordinates)
- */
 export function useSolarDataLookup(params: Ref<{ province?: string; city?: string; latitude?: number; longitude?: number }>) {
   return useQuery({
     queryKey: computed(() => ['solar-data', 'lookup', params.value]),
@@ -142,9 +119,6 @@ export function useSolarDataLookup(params: Ref<{ province?: string; city?: strin
   })
 }
 
-/**
- * Get list of provinces with solar data
- */
 export function useSolarProvinces() {
   return useQuery({
     queryKey: ['solar-data', 'provinces'],
@@ -152,13 +126,10 @@ export function useSolarProvinces() {
       const response = await api.get<{ data: string[] }>('/solar-data/provinces')
       return response.data.data
     },
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour (static data)
+    staleTime: 1000 * 60 * 60,
   })
 }
 
-/**
- * Get list of cities in a province
- */
 export function useSolarCities(province: Ref<string | undefined>) {
   return useQuery({
     queryKey: computed(() => ['solar-data', 'cities', province.value]),
@@ -169,13 +140,10 @@ export function useSolarCities(province: Ref<string | undefined>) {
       return response.data.data
     },
     enabled: computed(() => !!province.value),
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+    staleTime: 1000 * 60 * 60,
   })
 }
 
-/**
- * Get all solar data locations
- */
 export function useSolarLocations() {
   return useQuery({
     queryKey: ['solar-data', 'locations'],
@@ -191,9 +159,6 @@ export function useSolarLocations() {
 // PLN Tariff Hooks
 // ============================================
 
-/**
- * Get all PLN tariffs
- */
 export function usePlnTariffs() {
   return useQuery({
     queryKey: ['pln-tariffs'],
@@ -201,13 +166,10 @@ export function usePlnTariffs() {
       const response = await api.get<{ data: PlnTariff[] }>('/pln-tariffs')
       return response.data.data
     },
-    staleTime: 1000 * 60 * 60, // Cache for 1 hour (rarely changes)
+    staleTime: 1000 * 60 * 60,
   })
 }
 
-/**
- * Get single PLN tariff by category
- */
 export function usePlnTariff(category: Ref<string | undefined>) {
   return useQuery({
     queryKey: computed(() => ['pln-tariff', category.value]),
@@ -220,68 +182,11 @@ export function usePlnTariff(category: Ref<string | undefined>) {
 }
 
 // ============================================
-// Mutation Hooks
+// Custom Action Hooks
 // ============================================
 
-/**
- * Create new solar proposal
- */
-export function useCreateSolarProposal() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: CreateSolarProposalData) => {
-      const response = await api.post<{ data: SolarProposal }>('/solar-proposals', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['solar-proposals'] })
-    },
-  })
-}
-
-/**
- * Update solar proposal (draft only)
- */
-export function useUpdateSolarProposal() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: UpdateSolarProposalData }) => {
-      const response = await api.put<{ data: SolarProposal }>(`/solar-proposals/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['solar-proposals'] })
-      queryClient.setQueryData(['solar-proposal', data.id], data)
-    },
-  })
-}
-
-/**
- * Delete solar proposal (draft only)
- */
-export function useDeleteSolarProposal() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/solar-proposals/${id}`)
-      return id
-    },
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ['solar-proposals'] })
-      queryClient.removeQueries({ queryKey: ['solar-proposal', id] })
-    },
-  })
-}
-
-/**
- * Calculate/recalculate all proposal values
- */
 export function useCalculateSolarProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/calculate`)
@@ -293,12 +198,8 @@ export function useCalculateSolarProposal() {
   })
 }
 
-/**
- * Attach a BOM variant group to the proposal
- */
 export function useAttachSolarVariants() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, variant_group_id }: { id: number; variant_group_id: number }) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/attach-variants`, {
@@ -312,12 +213,8 @@ export function useAttachSolarVariants() {
   })
 }
 
-/**
- * Select a specific BOM from the variant group
- */
 export function useSelectSolarBom() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, bom_id }: { id: number; bom_id: number }) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/select-bom`, {
@@ -331,12 +228,8 @@ export function useSelectSolarBom() {
   })
 }
 
-/**
- * Send proposal to customer
- */
 export function useSendSolarProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/send`)
@@ -349,12 +242,8 @@ export function useSendSolarProposal() {
   })
 }
 
-/**
- * Customer accepts proposal
- */
 export function useAcceptSolarProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, selected_bom_id }: { id: number; selected_bom_id?: number }) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/accept`, {
@@ -369,12 +258,8 @@ export function useAcceptSolarProposal() {
   })
 }
 
-/**
- * Customer rejects proposal
- */
 export function useRejectSolarProposal() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
       const response = await api.post<{ data: SolarProposal }>(`/solar-proposals/${id}/reject`, {
@@ -389,12 +274,8 @@ export function useRejectSolarProposal() {
   })
 }
 
-/**
- * Convert accepted proposal to quotation
- */
 export function useConvertSolarToQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{
@@ -415,15 +296,15 @@ export function useConvertSolarToQuotation() {
   })
 }
 
-/**
- * Download proposal PDF
- */
+// ============================================
+// Download Functions
+// ============================================
+
 export async function downloadSolarProposalPdf(id: number, filename?: string) {
   const response = await api.get(`/solar-proposals/${id}/pdf`, {
     responseType: 'blob'
   })
 
-  // Create download link
   const url = window.URL.createObjectURL(new Blob([response.data]))
   const link = document.createElement('a')
   link.href = url
@@ -434,15 +315,11 @@ export async function downloadSolarProposalPdf(id: number, filename?: string) {
   window.URL.revokeObjectURL(url)
 }
 
-/**
- * Download proposal Excel
- */
 export async function downloadSolarProposalExcel(id: number, filename?: string) {
   const response = await api.get(`/solar-proposals/${id}/excel`, {
     responseType: 'blob'
   })
 
-  // Create download link
   const url = window.URL.createObjectURL(new Blob([response.data]))
   const link = document.createElement('a')
   link.href = url

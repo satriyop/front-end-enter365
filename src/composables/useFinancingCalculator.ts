@@ -1,4 +1,9 @@
 import { computed, ref, type Ref, type ComputedRef } from 'vue'
+import {
+  calculateLoanPayment,
+  calculateLeasePayment,
+  type LeaseResult,
+} from '@/utils/calculations'
 
 export interface FinancingInputs {
   systemCost: number
@@ -16,12 +21,7 @@ export interface FinancingResult {
   totalCost: number
 }
 
-export interface LeaseResult {
-  monthlyLease: number
-  totalLeasePayments: number
-  buyoutPrice: number
-  totalCost: number
-}
+export type { LeaseResult }
 
 export interface FinancingCalculatorSettings {
   defaultDownPayment: number
@@ -48,48 +48,6 @@ const DEFAULT_FINANCING_SETTINGS: FinancingCalculatorSettings = {
   downPaymentOptions: [0, 10, 20, 30],
   interestRateOptions: [8, 10, 12, 15],
   systemLifetimeYears: 25,
-}
-
-/**
- * Calculate loan amortization using standard formula
- * Monthly Payment = P × [r(1+r)^n] / [(1+r)^n - 1]
- */
-function calculateLoanPayment(principal: number, annualRate: number, years: number): number {
-  if (principal <= 0) return 0
-  if (annualRate <= 0) return principal / (years * 12)
-
-  const monthlyRate = annualRate / 100 / 12
-  const numPayments = years * 12
-
-  const payment =
-    (principal * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
-    (Math.pow(1 + monthlyRate, numPayments) - 1)
-
-  return payment
-}
-
-/**
- * Calculate lease payments (simplified model)
- * Based on residual value and money factor
- */
-function calculateLeasePayment(
-  systemCost: number,
-  leaseTerm: number,
-  residualPercent: number,
-  moneyFactor: number
-): LeaseResult {
-  const residualValue = systemCost * (residualPercent / 100)
-  const depreciation = (systemCost - residualValue) / (leaseTerm * 12)
-  const financeCharge = (systemCost + residualValue) * moneyFactor
-  const monthlyLease = depreciation + financeCharge
-  const totalLeasePayments = monthlyLease * leaseTerm * 12
-
-  return {
-    monthlyLease: Math.round(monthlyLease),
-    totalLeasePayments: Math.round(totalLeasePayments),
-    buyoutPrice: Math.round(residualValue),
-    totalCost: Math.round(totalLeasePayments + residualValue),
-  }
 }
 
 export function useFinancingCalculator(

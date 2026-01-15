@@ -1,22 +1,31 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useProducts, useDeleteProduct, type ProductFilters } from '@/api/useProducts'
+import { useProducts, useDeleteProduct, type ProductFilters, type Product } from '@/api/useProducts'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const toast = useToast()
 
-const filters = ref<ProductFilters>({
-  page: 1,
-  per_page: 10,
-  type: undefined,
-  search: '',
+// Resource list with filters, pagination, and delete confirmation
+const {
+  items: products,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+  deleteConfirmation,
+} = useResourceList<Product, ProductFilters>({
+  useListHook: useProducts,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    type: undefined,
+    search: '',
+  },
 })
-
-const { data, isLoading, error } = useProducts(filters)
-
-const products = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const typeOptions = [
   { value: '', label: 'All Types' },
@@ -24,31 +33,15 @@ const typeOptions = [
   { value: 'service', label: 'Services' },
 ]
 
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
-
 // Delete handling
 const deleteMutation = useDeleteProduct()
-const showDeleteModal = ref(false)
-const productToDelete = ref<number | null>(null)
-
-function confirmDelete(id: number) {
-  productToDelete.value = id
-  showDeleteModal.value = true
-}
 
 async function handleDelete() {
-  if (!productToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (!id) return
+
   try {
-    await deleteMutation.mutateAsync(productToDelete.value)
-    showDeleteModal.value = false
-    productToDelete.value = null
+    await deleteMutation.mutateAsync(id as number)
     toast.success('Product deleted')
   } catch {
     toast.error('Failed to delete product')
@@ -79,7 +72,7 @@ async function handleDelete() {
           <Input
             :model-value="filters.search"
             placeholder="Search by name, SKU..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
@@ -102,7 +95,7 @@ async function handleDelete() {
       </div>
     </div>
 
-    <div v-else-if="products.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No products found"
         description="Add products to manage your inventory"
@@ -149,7 +142,7 @@ async function handleDelete() {
                 <RouterLink :to="`/products/${product.id}/edit`">
                   <Button variant="ghost" size="xs">Edit</Button>
                 </RouterLink>
-                <Button variant="ghost" size="xs" class="text-red-500 hover:text-red-600" @click="confirmDelete(product.id)">
+                <Button variant="ghost" size="xs" class="text-red-500 hover:text-red-600" @click="deleteConfirmation.confirmDelete(product.id)">
                   Delete
                 </Button>
               </div>
@@ -164,15 +157,15 @@ async function handleDelete() {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>
 
-    <Modal :open="showDeleteModal" title="Delete Product" size="sm" @update:open="showDeleteModal = $event">
+    <Modal :open="deleteConfirmation.showModal.value" title="Delete Product" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
       <p class="text-slate-600 dark:text-slate-400">Are you sure you want to delete this product?</p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.cancelDelete()">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>

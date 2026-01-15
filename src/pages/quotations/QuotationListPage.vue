@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useQuotations, type QuotationFilters } from '@/api/useQuotations'
+import { ref } from 'vue'
+import { useQuotations, type Quotation, type QuotationFilters } from '@/api/useQuotations'
+import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Plus, ChevronDown, FileText, Package, MoreVertical } from 'lucide-vue-next'
 import {
@@ -21,19 +22,23 @@ import FilterBar from '@/components/ui/FilterBar.vue'
 import FilterGroup from '@/components/ui/FilterGroup.vue'
 import CreateQuotationFromBomModal from '@/components/quotations/CreateQuotationFromBomModal.vue'
 
-// Filters state
-const filters = ref<QuotationFilters>({
-  page: 1,
-  per_page: 10,
-  status: '',
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: quotations,
+  pagination,
+  isLoading,
+  error,
+  filters,
+  updateFilter,
+} = useResourceList<Quotation, QuotationFilters>({
+  useListHook: useQuotations,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    status: '',
+    search: '',
+  },
 })
-
-// Fetch quotations
-const { data, isLoading, error } = useQuotations(filters)
-
-const quotations = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 // Dropdown and modal state
 const showNewDropdown = ref(false)
@@ -120,8 +125,9 @@ function getStatusLabel(status: string): string {
     <FilterBar class="mb-6">
       <FilterGroup grow>
         <Input
-          v-model="filters.search"
+          :model-value="filters.search"
           placeholder="Search quotations..."
+          @update:model-value="(v) => updateFilter('search', String(v))"
         />
       </FilterGroup>
 

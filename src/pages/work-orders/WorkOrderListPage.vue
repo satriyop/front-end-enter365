@@ -1,22 +1,31 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useWorkOrders, useDeleteWorkOrder, type WorkOrderFilters } from '@/api/useWorkOrders'
+import { useWorkOrders, useDeleteWorkOrder, type WorkOrderFilters, type WorkOrder } from '@/api/useWorkOrders'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
 import { formatDate } from '@/utils/format'
 
 const toast = useToast()
 
-const filters = ref<WorkOrderFilters>({
-  page: 1,
-  per_page: 10,
-  status: undefined,
-  search: '',
+// Resource list with filters, pagination, and delete confirmation
+const {
+  items: workOrders,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+  deleteConfirmation,
+} = useResourceList<WorkOrder, WorkOrderFilters>({
+  useListHook: useWorkOrders,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    status: undefined,
+    search: '',
+  },
 })
-
-const { data, isLoading, error } = useWorkOrders(filters)
-
-const workOrders = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const statusOptions = [
   { value: '', label: 'All Status' },
@@ -35,31 +44,15 @@ const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 
   cancelled: 'destructive',
 }
 
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
-
 // Delete handling
 const deleteMutation = useDeleteWorkOrder()
-const showDeleteModal = ref(false)
-const woToDelete = ref<string | null>(null)
-
-function confirmDelete(id: string) {
-  woToDelete.value = id
-  showDeleteModal.value = true
-}
 
 async function handleDelete() {
-  if (!woToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (!id) return
+
   try {
-    await deleteMutation.mutateAsync(woToDelete.value)
-    showDeleteModal.value = false
-    woToDelete.value = null
+    await deleteMutation.mutateAsync(id as string)
     toast.success('Work order deleted')
   } catch {
     toast.error('Failed to delete work order')
@@ -90,7 +83,7 @@ async function handleDelete() {
           <Input
             :model-value="filters.search"
             placeholder="Search work orders..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
@@ -113,7 +106,7 @@ async function handleDelete() {
       </div>
     </div>
 
-    <div v-else-if="workOrders.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No work orders found"
         description="Create work orders to track manufacturing tasks"
@@ -177,7 +170,7 @@ async function handleDelete() {
                   variant="ghost"
                   size="xs"
                   class="text-red-500 hover:text-red-600"
-                  @click="confirmDelete(wo.id)"
+                  @click="deleteConfirmation.confirmDelete(wo.id)"
                 >
                   Delete
                 </Button>
@@ -193,15 +186,15 @@ async function handleDelete() {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>
 
-    <Modal :open="showDeleteModal" title="Delete Work Order" size="sm" @update:open="showDeleteModal = $event">
+    <Modal :open="deleteConfirmation.showModal.value" title="Delete Work Order" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
       <p class="text-slate-600 dark:text-slate-400">Are you sure you want to delete this work order?</p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.cancelDelete()">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>

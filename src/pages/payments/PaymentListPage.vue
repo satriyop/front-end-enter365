@@ -1,35 +1,34 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { usePayments, type PaymentFilters } from '@/api/usePayments'
+import { usePayments, type PaymentFilters, type Payment } from '@/api/usePayments'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Badge } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
-const filters = ref<PaymentFilters>({
-  page: 1,
-  per_page: 10,
-  type: undefined,
-  search: '',
+// Resource list with filters and pagination (no delete for payments)
+const {
+  items: payments,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+} = useResourceList<Payment, PaymentFilters>({
+  useListHook: usePayments,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    type: undefined,
+    search: '',
+  },
 })
-
-const { data, isLoading, error } = usePayments(filters)
-
-const payments = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const typeOptions = [
   { value: '', label: 'All Types' },
   { value: 'receive', label: 'Received' },
   { value: 'pay', label: 'Paid' },
 ]
-
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
 </script>
 
 <template>
@@ -55,7 +54,7 @@ function handleSearch(value: string | number) {
           <Input
             :model-value="filters.search"
             placeholder="Search payments..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
@@ -78,7 +77,7 @@ function handleSearch(value: string | number) {
       </div>
     </div>
 
-    <div v-else-if="payments.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No payments found"
         description="Record payments for invoices and bills"
@@ -139,7 +138,7 @@ function handleSearch(value: string | number) {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { api } from './client'
+import { createCrudHooks } from './factory'
 
 // ============================================
 // Types
@@ -101,121 +101,28 @@ export interface BomInput {
 }
 
 // ============================================
-// Query Hooks
+// CRUD Hooks (via factory)
 // ============================================
 
-/**
- * Fetch paginated list of BOMs
- */
-export function useBoms(filters: Ref<BomFilters>) {
-  return useQuery({
-    queryKey: computed(() => ['boms', filters.value]),
-    queryFn: async () => {
-      const cleanParams = Object.fromEntries(
-        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
-      )
-      const response = await api.get<PaginatedResponse<Bom>>('/boms', {
-        params: cleanParams
-      })
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<Bom, BomFilters, BomInput>({
+  resourceName: 'boms',
+  singularName: 'bom',
+  lookupParams: { status: 'active' },
+})
 
-/**
- * Fetch single BOM by ID
- */
-export function useBom(id: Ref<number>) {
-  return useQuery({
-    queryKey: computed(() => ['bom', id.value]),
-    queryFn: async () => {
-      const response = await api.get<{ data: Bom }>(`/boms/${id.value}`)
-      return response.data.data
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
-
-/**
- * Fetch active BOMs for dropdown/select (lightweight)
- */
-export function useActiveBoms() {
-  return useQuery({
-    queryKey: ['boms', 'active'],
-    queryFn: async () => {
-      const response = await api.get<PaginatedResponse<Bom>>('/boms', {
-        params: {
-          per_page: 100,
-          status: 'active',
-        }
-      })
-      return response.data.data
-    },
-    staleTime: 5 * 60 * 1000,
-  })
-}
+export const useBoms = hooks.useList
+export const useBom = hooks.useSingle
+export const useActiveBoms = hooks.useLookup
+export const useCreateBom = hooks.useCreate
+export const useUpdateBom = hooks.useUpdate
+export const useDeleteBom = hooks.useDelete
 
 // ============================================
-// Mutation Hooks
+// Custom Action Hooks
 // ============================================
 
-/**
- * Create a new BOM
- */
-export function useCreateBom() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: BomInput) => {
-      const response = await api.post<{ data: Bom }>('/boms', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boms'] })
-    },
-  })
-}
-
-/**
- * Update an existing BOM
- */
-export function useUpdateBom() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<BomInput> }) => {
-      const response = await api.put<{ data: Bom }>(`/boms/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['boms'] })
-      queryClient.invalidateQueries({ queryKey: ['bom', variables.id] })
-    },
-  })
-}
-
-/**
- * Delete a BOM
- */
-export function useDeleteBom() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/boms/${id}`)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['boms'] })
-    },
-  })
-}
-
-/**
- * Activate a BOM
- */
 export function useActivateBom() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Bom }>(`/boms/${id}/activate`)
@@ -228,12 +135,8 @@ export function useActivateBom() {
   })
 }
 
-/**
- * Deactivate a BOM
- */
 export function useDeactivateBom() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Bom }>(`/boms/${id}/deactivate`)
@@ -246,12 +149,8 @@ export function useDeactivateBom() {
   })
 }
 
-/**
- * Duplicate a BOM
- */
 export function useDuplicateBom() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Bom }>(`/boms/${id}/duplicate`)
@@ -263,9 +162,6 @@ export function useDuplicateBom() {
   })
 }
 
-/**
- * Calculate production cost for a BOM
- */
 export function useCalculateBomCost() {
   return useMutation({
     mutationFn: async ({ bomId, quantity }: { bomId: number; quantity: number }) => {

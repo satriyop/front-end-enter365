@@ -7,26 +7,37 @@ import {
   useDeleteBomTemplate,
   useDuplicateBomTemplate,
   useToggleTemplateActive,
+  type BomTemplate,
   type BomTemplateFilters,
 } from '@/api/useBomTemplates'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
 import { Copy, Trash2, Eye, Pencil, Power, FileStack } from 'lucide-vue-next'
 
 const toast = useToast()
 
-const filters = ref<BomTemplateFilters>({
-  page: 1,
-  per_page: 15,
-  category: undefined,
-  is_active: undefined,
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: templates,
+  pagination,
+  isLoading,
+  error,
+  filters,
+  updateFilter,
+  goToPage,
+  deleteConfirmation,
+} = useResourceList<BomTemplate, BomTemplateFilters>({
+  useListHook: useBomTemplates,
+  initialFilters: {
+    page: 1,
+    per_page: 15,
+    category: undefined,
+    is_active: undefined,
+    search: '',
+  },
 })
 
-const { data, isLoading, error } = useBomTemplates(filters)
 const { data: metadata } = useBomTemplateMetadata()
-
-const templates = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const categoryOptions = computed(() => {
   if (!metadata.value?.categories) return [{ value: '', label: 'All Categories' }]
@@ -45,36 +56,26 @@ const statusOptions = [
   { value: 'false', label: 'Inactive' },
 ]
 
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
-
 function handleStatusChange(value: string | number | null) {
   const strValue = String(value ?? '')
-  filters.value.is_active = strValue === '' ? undefined : strValue === 'true'
-  filters.value.page = 1
+  const boolValue = strValue === '' ? undefined : strValue === 'true'
+  updateFilter('is_active', boolValue)
 }
 
 // Delete handling
 const deleteMutation = useDeleteBomTemplate()
-const showDeleteModal = ref(false)
 const templateToDelete = ref<{ id: number; name: string } | null>(null)
 
 function confirmDelete(id: number, name: string) {
   templateToDelete.value = { id, name }
-  showDeleteModal.value = true
+  deleteConfirmation.confirmDelete(id)
 }
 
 async function handleDelete() {
-  if (!templateToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (id === null) return
   try {
-    await deleteMutation.mutateAsync(templateToDelete.value.id)
-    showDeleteModal.value = false
+    await deleteMutation.mutateAsync(id as number)
     templateToDelete.value = null
     toast.success('Template deleted')
   } catch (err: unknown) {
@@ -159,7 +160,7 @@ function getCategoryColor(category: string): string {
           <Input
             :model-value="filters.search"
             placeholder="Search by code, name..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-48">
@@ -309,19 +310,19 @@ function getCategoryColor(category: string): string {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>
 
     <!-- Delete Modal -->
-    <Modal :open="showDeleteModal" title="Delete Template" size="sm" @update:open="showDeleteModal = $event">
+    <Modal :open="deleteConfirmation.showModal.value" title="Delete Template" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
       <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete <strong class="text-slate-900 dark:text-slate-100">{{ templateToDelete?.name }}</strong>?
         This will also remove all template items.
       </p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.showModal.value = false">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>

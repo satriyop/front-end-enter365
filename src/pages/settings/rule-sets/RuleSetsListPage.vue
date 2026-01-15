@@ -1,28 +1,38 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import {
   useSpecRuleSets,
   useDeleteRuleSet,
   useSetDefaultRuleSet,
+  type SpecValidationRuleSet,
   type RuleSetFilters,
 } from '@/api/useSpecRuleSets'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
 import { Star, StarOff, Trash2, Eye, Pencil } from 'lucide-vue-next'
 
 const toast = useToast()
 
-const filters = ref<RuleSetFilters>({
-  page: 1,
-  per_page: 15,
-  is_active: undefined,
-  search: '',
+// Resource list with filters and pagination
+const {
+  items: ruleSets,
+  pagination,
+  isLoading,
+  error,
+  filters,
+  updateFilter,
+  goToPage,
+  deleteConfirmation,
+} = useResourceList<SpecValidationRuleSet, RuleSetFilters>({
+  useListHook: useSpecRuleSets,
+  initialFilters: {
+    page: 1,
+    per_page: 15,
+    is_active: undefined,
+    search: '',
+  },
 })
-
-const { data, isLoading, error } = useSpecRuleSets(filters)
-
-const ruleSets = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 const statusOptions = [
   { value: '', label: 'All Status' },
@@ -30,36 +40,26 @@ const statusOptions = [
   { value: 'false', label: 'Inactive' },
 ]
 
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
-
 function handleStatusChange(value: string | number | null) {
   const strValue = String(value ?? '')
-  filters.value.is_active = strValue === '' ? undefined : strValue === 'true'
-  filters.value.page = 1
+  const boolValue = strValue === '' ? undefined : strValue === 'true'
+  updateFilter('is_active', boolValue)
 }
 
 // Delete handling
 const deleteMutation = useDeleteRuleSet()
-const showDeleteModal = ref(false)
 const ruleSetToDelete = ref<{ id: number; name: string } | null>(null)
 
 function confirmDelete(id: number, name: string) {
   ruleSetToDelete.value = { id, name }
-  showDeleteModal.value = true
+  deleteConfirmation.confirmDelete(id)
 }
 
 async function handleDelete() {
-  if (!ruleSetToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (id === null) return
   try {
-    await deleteMutation.mutateAsync(ruleSetToDelete.value.id)
-    showDeleteModal.value = false
+    await deleteMutation.mutateAsync(id as number)
     ruleSetToDelete.value = null
     toast.success('Rule set deleted')
   } catch (err: unknown) {
@@ -123,7 +123,7 @@ async function handleSetDefault(id: number) {
           <Input
             :model-value="filters.search"
             placeholder="Search by code, name..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
@@ -260,19 +260,19 @@ async function handleSetDefault(id: number) {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>
 
     <!-- Delete Modal -->
-    <Modal :open="showDeleteModal" title="Delete Rule Set" size="sm" @update:open="showDeleteModal = $event">
+    <Modal :open="deleteConfirmation.showModal.value" title="Delete Rule Set" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
       <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete <strong class="text-slate-900 dark:text-slate-100">{{ ruleSetToDelete?.name }}</strong>?
         This will also remove all rules in this set.
       </p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.showModal.value = false">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>
       </template>
     </Modal>

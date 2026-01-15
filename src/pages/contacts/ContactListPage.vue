@@ -1,24 +1,31 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useContacts, useDeleteContact, type ContactFilters } from '@/api/useContacts'
+import { useContacts, useDeleteContact, type ContactFilters, type Contact } from '@/api/useContacts'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, useToast } from '@/components/ui'
 
 const toast = useToast()
 
-// Filters state
-const filters = ref<ContactFilters>({
-  page: 1,
-  per_page: 10,
-  type: undefined,
-  search: '',
-  is_active: undefined,
+// Resource list with filters, pagination, and delete confirmation
+const {
+  items: contacts,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+  deleteConfirmation,
+} = useResourceList<Contact, ContactFilters>({
+  useListHook: useContacts,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    type: undefined,
+    search: '',
+    is_active: undefined,
+  },
 })
-
-// Fetch contacts
-const { data, isLoading, error } = useContacts(filters)
-
-const contacts = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
 
 // Type options
 const typeOptions = [
@@ -35,43 +42,25 @@ const statusOptions = [
   { value: 'false', label: 'Inactive' },
 ]
 
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
-
 function handleStatusChange(value: string | number | null) {
   if (value === 'true') {
-    filters.value.is_active = true
+    updateFilter('is_active', true)
   } else if (value === 'false') {
-    filters.value.is_active = false
+    updateFilter('is_active', false)
   } else {
-    filters.value.is_active = undefined
+    updateFilter('is_active', undefined)
   }
-  filters.value.page = 1
 }
 
 // Delete handling
 const deleteMutation = useDeleteContact()
-const showDeleteModal = ref(false)
-const contactToDelete = ref<number | null>(null)
-
-function confirmDelete(id: number) {
-  contactToDelete.value = id
-  showDeleteModal.value = true
-}
 
 async function handleDelete() {
-  if (!contactToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (!id) return
 
   try {
-    await deleteMutation.mutateAsync(contactToDelete.value)
-    showDeleteModal.value = false
-    contactToDelete.value = null
+    await deleteMutation.mutateAsync(id as number)
     toast.success('Contact deleted')
   } catch {
     toast.error('Failed to delete contact')
@@ -105,7 +94,7 @@ async function handleDelete() {
           <Input
             :model-value="filters.search"
             placeholder="Search by name, email, phone..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
 
@@ -147,7 +136,7 @@ async function handleDelete() {
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="contacts.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No contacts found"
         description="Add customers and suppliers to manage your business relationships"
@@ -232,7 +221,7 @@ async function handleDelete() {
                   variant="ghost"
                   size="xs"
                   class="text-red-500 hover:text-red-600"
-                  @click="confirmDelete(contact.id)"
+                  @click="deleteConfirmation.confirmDelete(contact.id)"
                 >
                   Delete
                 </Button>
@@ -249,18 +238,18 @@ async function handleDelete() {
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>
 
     <!-- Delete Confirmation Modal -->
-    <Modal :open="showDeleteModal" title="Delete Contact" size="sm" @update:open="showDeleteModal = $event">
+    <Modal :open="deleteConfirmation.showModal.value" title="Delete Contact" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
       <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this contact? This action cannot be undone.
       </p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.cancelDelete()">Cancel</Button>
         <Button
           variant="destructive"
           :loading="deleteMutation.isPending.value"

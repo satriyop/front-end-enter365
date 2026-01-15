@@ -1,48 +1,41 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import {
   useCompanyProfiles,
   useDeleteCompanyProfile,
+  type CompanyProfile,
   type CompanyProfileFilters,
 } from '@/api/useCompanyProfiles'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Modal, useToast, EmptyState } from '@/components/ui'
 
 const toast = useToast()
 
-// Filters state
-const filters = ref<CompanyProfileFilters>({
-  page: 1,
-  per_page: 25,
-  search: '',
+// Resource list with filters
+const {
+  items: profiles,
+  isLoading,
+  error,
+  filters,
+  updateFilter,
+  deleteConfirmation,
+} = useResourceList<CompanyProfile, CompanyProfileFilters>({
+  useListHook: useCompanyProfiles,
+  initialFilters: {
+    page: 1,
+    per_page: 25,
+    search: '',
+  },
 })
-
-// Fetch profiles
-const { data, isLoading, error } = useCompanyProfiles(filters)
-
-const profiles = computed(() => data.value?.data ?? [])
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
 
 // Delete handling
 const deleteMutation = useDeleteCompanyProfile()
-const showDeleteModal = ref(false)
-const profileToDelete = ref<number | null>(null)
-
-function confirmDelete(id: number) {
-  profileToDelete.value = id
-  showDeleteModal.value = true
-}
 
 async function handleDelete() {
-  if (!profileToDelete.value) return
+  const id = deleteConfirmation.executeDelete()
+  if (id === null) return
 
   try {
-    await deleteMutation.mutateAsync(profileToDelete.value)
-    showDeleteModal.value = false
-    profileToDelete.value = null
+    await deleteMutation.mutateAsync(id as number)
     toast.success('Company profile deleted')
   } catch {
     toast.error('Failed to delete company profile')
@@ -91,7 +84,7 @@ async function copyPublicUrl(url: string) {
           <Input
             :model-value="filters.search"
             placeholder="Search by name, tagline..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
       </div>
@@ -252,7 +245,7 @@ async function copyPublicUrl(url: string) {
               variant="ghost"
               size="sm"
               class="text-red-500 hover:text-red-600"
-              @click="confirmDelete(profile.id)"
+              @click="deleteConfirmation.confirmDelete(profile.id)"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path
@@ -270,16 +263,16 @@ async function copyPublicUrl(url: string) {
 
     <!-- Delete Confirmation Modal -->
     <Modal
-      :open="showDeleteModal"
+      :open="deleteConfirmation.showModal.value"
       title="Delete Company Profile"
       size="sm"
-      @update:open="showDeleteModal = $event"
+      @update:open="deleteConfirmation.showModal.value = $event"
     >
       <p class="text-slate-600 dark:text-slate-400">
         Are you sure you want to delete this company profile? This action cannot be undone.
       </p>
       <template #footer>
-        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button variant="ghost" @click="deleteConfirmation.showModal.value = false">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">
           Delete
         </Button>

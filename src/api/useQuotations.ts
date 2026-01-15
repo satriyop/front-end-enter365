@@ -1,10 +1,14 @@
+/**
+ * Quotations API hooks
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { api } from './client'
+import { createCrudHooks } from './factory'
 import type { components } from './types'
 
 // ============================================
-// Types from OpenAPI spec
+// Types
 // ============================================
 
 export type Quotation = components['schemas']['QuotationResource']
@@ -46,45 +50,24 @@ export interface CreateQuotationItem {
 }
 
 // ============================================
-// Query Hooks
+// CRUD Hooks (via factory)
 // ============================================
 
-/**
- * Fetch paginated list of quotations
- */
-export function useQuotations(filters: Ref<QuotationFilters>) {
-  return useQuery({
-    queryKey: computed(() => ['quotations', filters.value]),
-    queryFn: async () => {
-      // Filter out empty/undefined values to avoid sending empty params
-      const cleanParams = Object.fromEntries(
-        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
-      )
-      const response = await api.get<PaginatedResponse<Quotation>>('/quotations', {
-        params: cleanParams
-      })
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<Quotation, QuotationFilters, CreateQuotationData>({
+  resourceName: 'quotations',
+  singularName: 'quotation',
+})
 
-/**
- * Fetch single quotation by ID
- */
-export function useQuotation(id: Ref<number>) {
-  return useQuery({
-    queryKey: computed(() => ['quotation', id.value]),
-    queryFn: async () => {
-      const response = await api.get<{ data: Quotation }>(`/quotations/${id.value}`)
-      return response.data.data
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
+export const useQuotations = hooks.useList
+export const useQuotation = hooks.useSingle
+export const useCreateQuotation = hooks.useCreate
+export const useUpdateQuotation = hooks.useUpdate
+export const useDeleteQuotation = hooks.useDelete
 
-/**
- * Fetch quotation statistics
- */
+// ============================================
+// Statistics Hook
+// ============================================
+
 export function useQuotationStatistics() {
   return useQuery({
     queryKey: ['quotations', 'statistics'],
@@ -96,68 +79,11 @@ export function useQuotationStatistics() {
 }
 
 // ============================================
-// Mutation Hooks
+// Custom Action Hooks
 // ============================================
 
-/**
- * Create new quotation
- */
-export function useCreateQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: CreateQuotationData) => {
-      const response = await api.post<{ data: Quotation }>('/quotations', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quotations'] })
-    },
-  })
-}
-
-/**
- * Update quotation (draft only)
- */
-export function useUpdateQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<CreateQuotationData> }) => {
-      const response = await api.put<{ data: Quotation }>(`/quotations/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['quotations'] })
-      queryClient.setQueryData(['quotation', data.id], data)
-    },
-  })
-}
-
-/**
- * Delete quotation (draft only)
- */
-export function useDeleteQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/quotations/${id}`)
-      return id
-    },
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ['quotations'] })
-      queryClient.removeQueries({ queryKey: ['quotation', id] })
-    },
-  })
-}
-
-/**
- * Submit quotation for approval
- */
 export function useSubmitQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Quotation }>(`/quotations/${id}/submit`)
@@ -170,12 +96,8 @@ export function useSubmitQuotation() {
   })
 }
 
-/**
- * Approve quotation
- */
 export function useApproveQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Quotation }>(`/quotations/${id}/approve`)
@@ -188,12 +110,8 @@ export function useApproveQuotation() {
   })
 }
 
-/**
- * Reject quotation
- */
 export function useRejectQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
       const response = await api.post<{ data: Quotation }>(`/quotations/${id}/reject`, {
@@ -208,13 +126,8 @@ export function useRejectQuotation() {
   })
 }
 
-/**
- * Convert quotation to invoice
- * Backend returns: { message, invoice: InvoiceResource, quotation: QuotationResource }
- */
 export function useConvertToInvoice() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{
@@ -222,7 +135,6 @@ export function useConvertToInvoice() {
         invoice: { id: number }
         quotation: Quotation
       }>(`/quotations/${id}/convert-to-invoice`)
-      // Return normalized shape for easier consumption
       return {
         invoice_id: response.data.invoice.id,
         quotation: response.data.quotation,
@@ -236,12 +148,8 @@ export function useConvertToInvoice() {
   })
 }
 
-/**
- * Duplicate quotation
- */
 export function useDuplicateQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Quotation }>(`/quotations/${id}/duplicate`)
@@ -253,12 +161,8 @@ export function useDuplicateQuotation() {
   })
 }
 
-/**
- * Create revision of quotation
- */
 export function useReviseQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (id: number) => {
       const response = await api.post<{ data: Quotation }>(`/quotations/${id}/revise`)
@@ -288,12 +192,8 @@ export interface CreateQuotationFromBomData {
   terms_conditions?: string
 }
 
-/**
- * Create quotation from BOM (single variant)
- */
 export function useCreateQuotationFromBom() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (data: CreateQuotationFromBomData) => {
       const response = await api.post<{ data: Quotation }>('/quotations/from-bom', data)

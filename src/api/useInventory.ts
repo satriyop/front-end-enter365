@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { api } from './client'
+import { api, type PaginatedResponse } from './client'
 import type { Ref, ComputedRef } from 'vue'
 import { computed } from 'vue'
 
@@ -104,6 +104,13 @@ export interface MovementFilters {
   end_date?: string
 }
 
+export interface InventoryFilters {
+  page?: number
+  per_page?: number
+  search?: string
+  warehouse_id?: number
+}
+
 export interface StockAdjustmentData {
   product_id: number
   warehouse_id?: number
@@ -130,6 +137,29 @@ export interface StockOutData {
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
+
+/**
+ * Fetch paginated stock levels for the inventory list page
+ */
+export function useStockLevels(filters: Ref<InventoryFilters>) {
+  return useQuery({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    queryKey: computed(() => ['inventory', 'stock-levels', filters.value]) as any,
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      const f = filters.value
+      if (f.page) params.set('page', String(f.page))
+      if (f.per_page) params.set('per_page', String(f.per_page))
+      if (f.search) params.set('search', f.search)
+      if (f.warehouse_id) params.set('warehouse_id', String(f.warehouse_id))
+
+      const response = await api.get<PaginatedResponse<ProductStock>>(
+        `/inventory/stock-levels?${params}`
+      )
+      return response.data
+    },
+  })
+}
 
 export function useInventoryMovements(filters: Ref<MovementFilters> | ComputedRef<MovementFilters>) {
   return useQuery({

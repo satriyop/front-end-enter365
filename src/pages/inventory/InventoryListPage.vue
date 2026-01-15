@@ -1,71 +1,27 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { api } from '@/api/client'
+import { useStockLevels, type ProductStock, type InventoryFilters } from '@/api/useInventory'
+import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Pagination, EmptyState, Badge } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
-interface ProductStock {
-  id: number
-  product_id: number
-  product?: {
-    id: number
-    sku: string
-    name: string
-    unit: string
-  }
-  warehouse_id: number
-  warehouse?: {
-    id: number
-    name: string
-  }
-  quantity: number
-  average_cost: number
-  total_value: number
-}
-
-interface Filters {
-  page: number
-  per_page: number
-  search: string
-  warehouse_id?: number
-}
-
-const filters = ref<Filters>({
-  page: 1,
-  per_page: 10,
-  search: '',
-})
-
-const { data, isLoading, error } = useQuery({
-  queryKey: ['inventory', filters],
-  queryFn: async () => {
-    const params = new URLSearchParams()
-    const f = filters.value
-    if (f.page) params.set('page', String(f.page))
-    if (f.per_page) params.set('per_page', String(f.per_page))
-    if (f.search) params.set('search', f.search)
-    if (f.warehouse_id) params.set('warehouse_id', String(f.warehouse_id))
-
-    const response = await api.get<{
-      data: ProductStock[]
-      meta: { current_page: number; last_page: number; per_page: number; total: number }
-    }>(`/inventory/stock-levels?${params}`)
-    return response.data
+// Resource list with filters and pagination
+const {
+  items: stocks,
+  pagination,
+  isLoading,
+  error,
+  isEmpty,
+  filters,
+  updateFilter,
+  goToPage,
+} = useResourceList<ProductStock, InventoryFilters>({
+  useListHook: useStockLevels,
+  initialFilters: {
+    page: 1,
+    per_page: 10,
+    search: '',
   },
 })
-
-const stocks = computed(() => data.value?.data ?? [])
-const pagination = computed(() => data.value?.meta)
-
-function handlePageChange(page: number) {
-  filters.value.page = page
-}
-
-function handleSearch(value: string | number) {
-  filters.value.search = String(value)
-  filters.value.page = 1
-}
 
 function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' {
   if (quantity <= 0) return 'destructive'
@@ -97,7 +53,7 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' 
           <Input
             :model-value="filters.search"
             placeholder="Search by product name, SKU..."
-            @update:model-value="handleSearch"
+            @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
       </div>
@@ -117,7 +73,7 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' 
       </div>
     </div>
 
-    <div v-else-if="stocks.length === 0" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No stock data"
         description="Stock will appear here when products are added to inventory"
@@ -174,7 +130,7 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' 
           :total-pages="pagination.last_page"
           :total="pagination.total"
           :per-page="pagination.per_page"
-          @page-change="handlePageChange"
+          @page-change="goToPage"
         />
       </div>
     </div>

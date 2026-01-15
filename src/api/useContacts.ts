@@ -1,10 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { createCrudHooks } from './factory'
 import type { components } from './types'
 
 // ============================================
-// Types from OpenAPI spec
+// Types
 // ============================================
 
 export type Contact = components['schemas']['ContactResource']
@@ -35,114 +33,24 @@ export interface CreateContactData {
 }
 
 // ============================================
-// Query Hooks
+// CRUD Hooks (via factory)
 // ============================================
 
-/**
- * Fetch paginated list of contacts
- */
-export function useContacts(filters: Ref<ContactFilters>) {
-  return useQuery({
-    queryKey: computed(() => ['contacts', filters.value]),
-    queryFn: async () => {
-      const cleanParams = Object.fromEntries(
-        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
-      )
-      const response = await api.get<PaginatedResponse<Contact>>('/contacts', {
-        params: cleanParams
-      })
-      return response.data
-    },
-  })
-}
+const hooks = createCrudHooks<Contact, ContactFilters, CreateContactData>({
+  resourceName: 'contacts',
+  lookupParams: { is_active: true },
+})
 
-/**
- * Fetch single contact by ID
- */
-export function useContact(id: Ref<number>) {
-  return useQuery({
-    queryKey: computed(() => ['contact', id.value]),
-    queryFn: async () => {
-      const response = await api.get<{ data: Contact }>(`/contacts/${id.value}`)
-      return response.data.data
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
+export const useContacts = hooks.useList
+export const useContact = hooks.useSingle
+export const useCreateContact = hooks.useCreate
+export const useUpdateContact = hooks.useUpdate
+export const useDeleteContact = hooks.useDelete
 
 /**
  * Fetch contacts for dropdown/select (lightweight)
+ * @param type Optional filter by contact type
  */
 export function useContactsLookup(type?: 'customer' | 'supplier') {
-  return useQuery({
-    queryKey: ['contacts', 'lookup', type],
-    queryFn: async () => {
-      const response = await api.get<PaginatedResponse<Contact>>('/contacts', {
-        params: {
-          per_page: 100,
-          is_active: true,
-          type: type,
-        }
-      })
-      return response.data.data
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-  })
-}
-
-// ============================================
-// Mutation Hooks
-// ============================================
-
-/**
- * Create new contact
- */
-export function useCreateContact() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (data: CreateContactData) => {
-      const response = await api.post<{ data: Contact }>('/contacts', data)
-      return response.data.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] })
-    },
-  })
-}
-
-/**
- * Update contact
- */
-export function useUpdateContact() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<CreateContactData> }) => {
-      const response = await api.put<{ data: Contact }>(`/contacts/${id}`, data)
-      return response.data.data
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      queryClient.setQueryData(['contact', data.id], data)
-    },
-  })
-}
-
-/**
- * Delete contact
- */
-export function useDeleteContact() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/contacts/${id}`)
-      return id
-    },
-    onSuccess: (id) => {
-      queryClient.invalidateQueries({ queryKey: ['contacts'] })
-      queryClient.removeQueries({ queryKey: ['contact', id] })
-    },
-  })
+  return hooks.useLookup({ type })
 }
