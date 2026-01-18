@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useBill, useCreateBill, useUpdateBill } from '@/api/useBills'
 import { useContactsLookup } from '@/api/useContacts'
+import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
 
 const route = useRoute()
@@ -26,112 +30,134 @@ const contactOptions = computed(() =>
   (contacts.value ?? []).map(c => ({ value: c.id, label: c.name }))
 )
 
-interface LineItem {
-  id?: number
-  description: string
-  quantity: number
-  unit: string
-  unit_price: number
-  discount_percent: number
-  tax_rate: number
+function createEmptyItem(): BillItemFormData {
+  return {
+    description: '',
+    quantity: 1,
+    unit: 'pcs',
+    unit_price: 0,
+    discount_percent: 0,
+    tax_rate: 11,
+  }
 }
 
-interface FormState {
-  contact_id: number | null
-  vendor_invoice_number: string
-  bill_date: string
-  due_date: string
-  description: string
-  items: LineItem[]
-}
+const today = new Date().toISOString().split('T')[0]!
 
-const today = new Date().toISOString().split('T')[0] as string
-const form = ref<FormState>({
-  contact_id: null,
-  vendor_invoice_number: '',
-  bill_date: today,
-  due_date: today,
-  description: '',
-  items: [{ description: '', quantity: 1, unit: 'pcs', unit_price: 0, discount_percent: 0, tax_rate: 11 }],
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<BillFormData>({
+  validationSchema: toTypedSchema(billSchema),
+  initialValues: {
+    contact_id: undefined as unknown as number,
+    vendor_invoice_number: '',
+    bill_date: today,
+    due_date: today,
+    description: '',
+    items: [createEmptyItem()],
+  },
 })
 
+// Field array for line items
+const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<BillItemFormData>('items')
+
+// Populate form when editing
 watch(existingBill, (bill) => {
   if (bill) {
-    form.value = {
+    setValues({
       contact_id: bill.contact_id,
       vendor_invoice_number: bill.vendor_invoice_number || '',
-      bill_date: bill.bill_date || today,
-      due_date: bill.due_date || today,
+      bill_date: bill.bill_date?.split('T')[0] || today,
+      due_date: bill.due_date?.split('T')[0] || today,
       description: bill.description || '',
-      items: bill.items?.map(item => ({
-        id: item.id,
-        description: item.description,
-        quantity: item.quantity,
-        unit: item.unit,
-        unit_price: item.unit_price,
-        discount_percent: item.discount_percent,
-        tax_rate: item.tax_rate,
-      })) ?? [],
-    }
+      items: bill.items && bill.items.length > 0
+        ? bill.items.map(item => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: item.unit_price,
+            discount_percent: item.discount_percent ?? 0,
+            tax_rate: item.tax_rate ?? 11,
+          }))
+        : [createEmptyItem()],
+    })
   }
 }, { immediate: true })
 
+// Item management
 function addItem() {
-  form.value.items.push({ description: '', quantity: 1, unit: 'pcs', unit_price: 0, discount_percent: 0, tax_rate: 11 })
+  pushItem(createEmptyItem())
 }
 
-function removeItem(index: number) {
-  if (form.value.items.length > 1) {
-    form.value.items.splice(index, 1)
+function handleRemoveItem(index: number) {
+  if (itemFields.value.length > 1) {
+    removeItem(index)
   }
 }
 
+// Calculations
 const subtotal = computed(() =>
-  form.value.items.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0)
+  (form.items || []).reduce((sum, item) => sum + ((item.quantity || 0) * (item.unit_price || 0)), 0)
 )
 
 const taxAmount = computed(() =>
-  form.value.items.reduce((sum, item) => {
-    const lineTotal = item.quantity * item.unit_price
-    return sum + (lineTotal * item.tax_rate / 100)
+  (form.items || []).reduce((sum, item) => {
+    const lineTotal = (item.quantity || 0) * (item.unit_price || 0)
+    return sum + (lineTotal * (item.tax_rate || 0) / 100)
   }, 0)
 )
 
 const total = computed(() => subtotal.value + taxAmount.value)
 
+// Mutations
 const createMutation = useCreateBill()
 const updateMutation = useUpdateBill()
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-const errors = ref<Record<string, string>>({})
+const onSubmit = handleSubmit(async (formValues) => {
+  const itemsPayload = (formValues.items || [])
+    .filter(item => item.description)
+    .map(item => ({
+      description: item.description,
+      quantity: item.quantity,
+      unit: item.unit,
+      unit_price: item.unit_price,
+      discount_percent: item.discount_percent,
+      tax_rate: item.tax_rate,
+    }))
 
-async function handleSubmit() {
-  errors.value = {}
-
-  if (!form.value.contact_id) {
-    errors.value.contact_id = 'Vendor is required'
+  const payload = {
+    contact_id: formValues.contact_id!,
+    vendor_invoice_number: formValues.vendor_invoice_number || undefined,
+    bill_date: formValues.bill_date,
+    due_date: formValues.due_date,
+    description: formValues.description || undefined,
+    items: itemsPayload,
   }
-  if (form.value.items.length === 0) {
-    errors.value.items = 'At least one item is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) return
 
   try {
     if (isEditing.value && billId.value) {
-      await updateMutation.mutateAsync({ id: billId.value, data: form.value as any })
+      await updateMutation.mutateAsync({ id: billId.value, data: payload as any })
       toast.success('Bill updated')
       router.push(`/bills/${billId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(form.value as any)
+      const result = await createMutation.mutateAsync(payload as any)
       toast.success('Bill created')
       router.push(`/bills/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save bill')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save bill')
   }
-}
+})
 </script>
 
 <template>
@@ -148,26 +174,31 @@ async function handleSubmit() {
       <div class="text-slate-500 dark:text-slate-400">Loading bill...</div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Bill Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Vendor" required :error="errors.contact_id">
-            <Select v-model="form.contact_id" :options="contactOptions" placeholder="Select vendor" />
+            <Select
+              v-model="form.contact_id"
+              :options="contactOptions"
+              placeholder="Select vendor"
+              @update:model-value="validateField('contact_id')"
+            />
           </FormField>
           <FormField label="Vendor Invoice #">
-            <Input v-model="form.vendor_invoice_number" placeholder="Vendor's invoice number" />
+            <Input :model-value="form.vendor_invoice_number ?? ''" @update:model-value="(v) => form.vendor_invoice_number = String(v)" placeholder="Vendor's invoice number" />
           </FormField>
-          <FormField label="Bill Date" required>
-            <Input v-model="form.bill_date" type="date" />
+          <FormField label="Bill Date" required :error="errors.bill_date">
+            <Input v-model="form.bill_date" type="date" @blur="validateField('bill_date')" />
           </FormField>
-          <FormField label="Due Date" required>
-            <Input v-model="form.due_date" type="date" />
+          <FormField label="Due Date" required :error="errors.due_date">
+            <Input v-model="form.due_date" type="date" @blur="validateField('due_date')" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea v-model="form.description" :rows="2" placeholder="Bill description" />
+            <Textarea :model-value="form.description ?? ''" @update:model-value="(v: string) => form.description = v" :rows="2" placeholder="Bill description" />
           </FormField>
         </div>
       </Card>
@@ -181,25 +212,25 @@ async function handleSubmit() {
         </template>
 
         <div class="space-y-4">
-          <div v-for="(item, index) in form.items" :key="index" class="grid grid-cols-12 gap-2 items-end">
+          <div v-for="(field, index) in itemFields" :key="field.key" class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-4">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
-              <Input v-model="item.description" placeholder="Item description" />
+              <Input v-model="field.value.description" placeholder="Item description" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Qty</label>
-              <Input v-model.number="item.quantity" type="number" min="1" />
+              <Input v-model.number="field.value.quantity" type="number" min="1" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Unit Price</label>
-              <Input v-model.number="item.unit_price" type="number" min="0" step="1000" />
+              <Input v-model.number="field.value.unit_price" type="number" min="0" step="1000" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
-              <Input v-model.number="item.tax_rate" type="number" min="0" max="100" />
+              <Input v-model.number="field.value.tax_rate" type="number" min="0" max="100" />
             </div>
             <div class="col-span-2 flex justify-end">
-              <Button type="button" variant="ghost" size="sm" @click="removeItem(index)" :disabled="form.items.length === 1">
+              <Button type="button" variant="ghost" size="sm" @click="handleRemoveItem(index)" :disabled="itemFields.length === 1">
                 Remove
               </Button>
             </div>

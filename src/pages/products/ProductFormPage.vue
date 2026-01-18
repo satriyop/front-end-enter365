@@ -1,7 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useProduct, useCreateProduct, useUpdateProduct } from '@/api/useProducts'
+import { productSchema, type ProductFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
 
 const route = useRoute()
@@ -20,34 +24,30 @@ const pageTitle = computed(() => isEditing.value ? 'Edit Product' : 'New Product
 const productIdRef = computed(() => productId.value ?? 0)
 const { data: existingProduct, isLoading: loadingProduct } = useProduct(productIdRef)
 
-interface FormState {
-  sku: string
-  name: string
-  description: string
-  type: 'product' | 'service'
-  unit: string
-  purchase_price: number
-  selling_price: number
-  tax_rate: number
-  is_taxable: boolean
-  is_active: boolean
-  track_inventory: boolean
-  min_stock: number
-}
-
-const form = ref<FormState>({
-  sku: '',
-  name: '',
-  description: '',
-  type: 'product',
-  unit: 'pcs',
-  purchase_price: 0,
-  selling_price: 0,
-  tax_rate: 11,
-  is_taxable: true,
-  is_active: true,
-  track_inventory: true,
-  min_stock: 0,
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<ProductFormData>({
+  validationSchema: toTypedSchema(productSchema),
+  initialValues: {
+    sku: '',
+    name: '',
+    description: '',
+    type: 'product',
+    unit: 'pcs',
+    purchase_price: 0,
+    selling_price: 0,
+    tax_rate: 11,
+    is_taxable: true,
+    is_active: true,
+    track_inventory: true,
+    min_stock: 0,
+  },
 })
 
 const typeOptions = [
@@ -67,7 +67,7 @@ const unitOptions = [
 // Populate form when editing
 watch(existingProduct, (product) => {
   if (product) {
-    form.value = {
+    setValues({
       sku: product.sku,
       name: product.name,
       description: product.description || '',
@@ -80,7 +80,7 @@ watch(existingProduct, (product) => {
       is_active: product.is_active,
       track_inventory: product.track_inventory ?? true,
       min_stock: product.min_stock ?? 0,
-    }
+    })
   }
 }, { immediate: true })
 
@@ -92,35 +92,25 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  if (!form.value.sku.trim()) {
-    errors.value.sku = 'SKU is required'
-  }
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) return
-
+const onSubmit = handleSubmit(async (formValues) => {
   try {
     if (isEditing.value && productId.value) {
-      await updateMutation.mutateAsync({ id: productId.value, data: form.value })
+      await updateMutation.mutateAsync({ id: productId.value, data: formValues })
       toast.success('Product updated successfully')
       router.push(`/products/${productId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(form.value)
+      const result = await createMutation.mutateAsync(formValues)
       toast.success('Product created successfully')
       router.push(`/products/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save product')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save product')
   }
-}
+})
 </script>
 
 <template>
@@ -139,23 +129,23 @@ async function handleSubmit() {
       <div class="text-slate-500 dark:text-slate-400">Loading product...</div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="SKU" required :error="errors.sku">
-            <Input v-model="form.sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" />
+            <Input v-model="form.sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" @blur="validateField('sku')" />
           </FormField>
-          <FormField label="Type" required>
-            <Select v-model="form.type" :options="typeOptions" />
+          <FormField label="Type" required :error="errors.type">
+            <Select v-model="form.type" :options="typeOptions" @update:model-value="validateField('type')" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="Product name" />
+            <Input v-model="form.name" placeholder="Product name" @blur="validateField('name')" />
           </FormField>
-          <FormField label="Unit" required>
-            <Select v-model="form.unit" :options="unitOptions" />
+          <FormField label="Unit" required :error="errors.unit">
+            <Select v-model="form.unit" :options="unitOptions" @update:model-value="validateField('unit')" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
             <Textarea v-model="form.description" :rows="3" placeholder="Product description" />

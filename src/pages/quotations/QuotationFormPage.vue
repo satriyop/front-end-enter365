@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useQuotation,
   useCreateQuotation,
@@ -9,6 +11,8 @@ import {
 } from '@/api/useQuotations'
 import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
+import { quotationSchema, type QuotationFormData, type QuotationItemFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency } from '@/utils/format'
 import {
   Button,
@@ -42,38 +46,36 @@ const { data: existingQuotation, isLoading: loadingQuotation } = useQuotation(qu
 const { data: contacts, isLoading: loadingContacts } = useContactsLookup('customer')
 const { data: products } = useProductsLookup()
 
-// Form state
-const form = ref({
-  contact_id: null as number | null,
-  quotation_date: new Date().toISOString().split('T')[0],
-  valid_until: '',
-  subject: '',
-  reference: '',
-  discount_type: 'percentage' as 'percentage' | 'fixed',
-  discount_value: 0,
-  tax_rate: 11, // Default PPN 11%
-  notes: '',
-  terms_conditions: '',
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<QuotationFormData>({
+  validationSchema: toTypedSchema(quotationSchema),
+  initialValues: {
+    contact_id: undefined as unknown as number,
+    quotation_date: new Date().toISOString().split('T')[0]!,
+    valid_until: '',
+    subject: '',
+    reference: '',
+    discount_type: 'percentage',
+    discount_value: 0,
+    tax_rate: 11,
+    notes: '',
+    terms_conditions: '',
+    items: [createEmptyItem()],
+  },
 })
 
-// Line items
-interface LineItem {
-  id: string // temp ID for tracking
-  product_id: number | null
-  description: string
-  quantity: number
-  unit: string
-  unit_price: number
-  discount_percent: number
-  tax_rate: number
-  notes: string
-}
+// Field array for line items
+const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<QuotationItemFormData>('items')
 
-const items = ref<LineItem[]>([createEmptyItem()])
-
-function createEmptyItem(): LineItem {
+function createEmptyItem(): QuotationItemFormData {
   return {
-    id: crypto.randomUUID(),
     product_id: null,
     description: '',
     quantity: 1,
@@ -88,9 +90,9 @@ function createEmptyItem(): LineItem {
 // Populate form when editing
 watch(existingQuotation, (quotation) => {
   if (quotation) {
-    form.value = {
+    setValues({
       contact_id: quotation.contact_id,
-      quotation_date: quotation.quotation_date.split('T')[0],
+      quotation_date: quotation.quotation_date.split('T')[0]!,
       valid_until: quotation.valid_until?.split('T')[0] ?? '',
       subject: quotation.subject ?? '',
       reference: quotation.reference ?? '',
@@ -99,56 +101,54 @@ watch(existingQuotation, (quotation) => {
       tax_rate: quotation.tax_rate ?? 11,
       notes: quotation.notes ?? '',
       terms_conditions: quotation.terms_conditions ?? '',
-    }
-
-    if (quotation.items && quotation.items.length > 0) {
-      items.value = quotation.items.map(item => ({
-        id: crypto.randomUUID(),
-        product_id: item.product_id,
-        description: item.description,
-        quantity: item.quantity,
-        unit: item.unit,
-        unit_price: item.unit_price,
-        discount_percent: item.discount_percent,
-        tax_rate: item.tax_rate,
-        notes: item.notes ?? '',
-      }))
-    }
+      items: quotation.items && quotation.items.length > 0
+        ? quotation.items.map(item => ({
+            product_id: item.product_id,
+            description: item.description,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: item.unit_price,
+            discount_percent: item.discount_percent,
+            tax_rate: item.tax_rate,
+            notes: item.notes ?? '',
+          }))
+        : [createEmptyItem()],
+    })
   }
 }, { immediate: true })
 
 // Calculations
-function calculateItemTotal(item: LineItem): number {
-  const gross = item.quantity * item.unit_price
-  const discountAmount = gross * (item.discount_percent / 100)
+function calculateItemTotal(item: QuotationItemFormData): number {
+  const gross = (item.quantity || 0) * (item.unit_price || 0)
+  const discountAmount = gross * ((item.discount_percent || 0) / 100)
   const afterDiscount = gross - discountAmount
-  const taxAmount = afterDiscount * (item.tax_rate / 100)
+  const taxAmount = afterDiscount * ((item.tax_rate || 0) / 100)
   return afterDiscount + taxAmount
 }
 
 const subtotal = computed(() => {
-  return items.value.reduce((sum, item) => {
-    const gross = item.quantity * item.unit_price
-    const discountAmount = gross * (item.discount_percent / 100)
+  return (form.items || []).reduce((sum, item) => {
+    const gross = (item.quantity || 0) * (item.unit_price || 0)
+    const discountAmount = gross * ((item.discount_percent || 0) / 100)
     return sum + (gross - discountAmount)
   }, 0)
 })
 
 const discountAmount = computed(() => {
-  if (form.value.discount_type === 'percentage') {
-    return subtotal.value * (form.value.discount_value / 100)
+  if (form.discount_type === 'percentage') {
+    return subtotal.value * ((form.discount_value || 0) / 100)
   }
-  return form.value.discount_value
+  return form.discount_value || 0
 })
 
 const afterDiscount = computed(() => subtotal.value - discountAmount.value)
 
 const taxAmount = computed(() => {
-  return items.value.reduce((sum, item) => {
-    const gross = item.quantity * item.unit_price
-    const itemDiscount = gross * (item.discount_percent / 100)
+  return (form.items || []).reduce((sum, item) => {
+    const gross = (item.quantity || 0) * (item.unit_price || 0)
+    const itemDiscount = gross * ((item.discount_percent || 0) / 100)
     const afterItemDiscount = gross - itemDiscount
-    return sum + (afterItemDiscount * (item.tax_rate / 100))
+    return sum + (afterItemDiscount * ((item.tax_rate || 0) / 100))
   }, 0)
 })
 
@@ -156,23 +156,23 @@ const grandTotal = computed(() => afterDiscount.value + taxAmount.value)
 
 // Item management
 function addItem() {
-  items.value.push(createEmptyItem())
+  pushItem(createEmptyItem())
 }
 
-function removeItem(index: number) {
-  if (items.value.length > 1) {
-    items.value.splice(index, 1)
+function handleRemoveItem(index: number) {
+  if (itemFields.value.length > 1) {
+    removeItem(index)
   }
 }
 
-function onProductSelect(item: LineItem, productId: number | null) {
+function onProductSelect(index: number, productId: number | null) {
   if (productId && products.value) {
     const product = products.value.find(p => p.id === productId)
-    if (product) {
-      item.description = product.name
-      item.unit = product.unit
-      item.unit_price = product.selling_price
-      item.tax_rate = product.tax_rate
+    if (product && form.items?.[index]) {
+      form.items[index].description = product.name
+      form.items[index].unit = product.unit
+      form.items[index].unit_price = product.selling_price
+      form.items[index].tax_rate = product.tax_rate
     }
   }
 }
@@ -185,27 +185,8 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  // Basic validation
-  if (!form.value.contact_id) {
-    errors.value.contact_id = 'Customer is required'
-  }
-  if (!form.value.quotation_date) {
-    errors.value.quotation_date = 'Date is required'
-  }
-  if (items.value.length === 0 || !items.value.some(i => i.description)) {
-    errors.value.items = 'At least one item is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) {
-    return
-  }
-
-  const itemsPayload: CreateQuotationItem[] = items.value
+const onSubmit = handleSubmit(async (formValues) => {
+  const itemsPayload: CreateQuotationItem[] = (formValues.items || [])
     .filter(item => item.description)
     .map(item => ({
       product_id: item.product_id,
@@ -219,16 +200,16 @@ async function handleSubmit() {
     }))
 
   const payload: Parameters<typeof createMutation.mutateAsync>[0] = {
-    contact_id: form.value.contact_id!,
-    quotation_date: form.value.quotation_date || new Date().toISOString().split('T')[0]!,
-    valid_until: form.value.valid_until || new Date().toISOString().split('T')[0]!,
-    subject: form.value.subject || undefined,
-    reference: form.value.reference || undefined,
-    discount_type: form.value.discount_type,
-    discount_value: form.value.discount_value || undefined,
-    tax_rate: form.value.tax_rate,
-    notes: form.value.notes || undefined,
-    terms_conditions: form.value.terms_conditions || undefined,
+    contact_id: formValues.contact_id!,
+    quotation_date: formValues.quotation_date || new Date().toISOString().split('T')[0]!,
+    valid_until: formValues.valid_until || new Date().toISOString().split('T')[0]!,
+    subject: formValues.subject || undefined,
+    reference: formValues.reference || undefined,
+    discount_type: formValues.discount_type,
+    discount_value: formValues.discount_value || undefined,
+    tax_rate: formValues.tax_rate,
+    notes: formValues.notes || undefined,
+    terms_conditions: formValues.terms_conditions || undefined,
     items: itemsPayload,
   }
 
@@ -242,18 +223,21 @@ async function handleSubmit() {
       toast.success('Quotation created successfully')
       router.push(`/quotations/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save quotation')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save quotation')
   }
-}
+})
 
 // Set default valid_until to 30 days from quotation_date
 onMounted(() => {
   if (!isEditing.value) {
     const date = new Date()
     date.setDate(date.getDate() + 30)
-    form.value.valid_until = date.toISOString().split('T')[0] ?? ''
+    setValues({ valid_until: date.toISOString().split('T')[0] ?? '' })
   }
 })
 
@@ -288,7 +272,7 @@ const contactOptions = computed(() => {
     </div>
 
     <!-- Form -->
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <!-- Header Info Card -->
       <Card>
         <template #header>
@@ -303,6 +287,7 @@ const contactOptions = computed(() => {
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
+              @update:model-value="validateField('contact_id')"
             />
           </FormField>
 
@@ -318,7 +303,7 @@ const contactOptions = computed(() => {
 
           <!-- Quotation Date -->
           <FormField label="Quotation Date" required :error="errors.quotation_date">
-            <Input v-model="form.quotation_date" type="date" />
+            <Input v-model="form.quotation_date" type="date" @blur="validateField('quotation_date')" />
           </FormField>
 
           <!-- Valid Until -->
@@ -359,14 +344,14 @@ const contactOptions = computed(() => {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-              <tr v-for="(item, index) in items" :key="item.id" class="align-top">
+              <tr v-for="(field, index) in itemFields" :key="field.key" class="align-top">
                 <td class="px-3 py-2">
                   <select
-                    :value="item.product_id ?? ''"
+                    :value="field.value.product_id ?? ''"
                     @change="(e) => {
                       const val = (e.target as HTMLSelectElement).value
-                      item.product_id = val ? Number(val) : null
-                      onProductSelect(item, item.product_id)
+                      field.value.product_id = val ? Number(val) : null
+                      onProductSelect(index, field.value.product_id)
                     }"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   >
@@ -382,7 +367,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model="item.description"
+                    v-model="field.value.description"
                     type="text"
                     placeholder="Item description"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -390,7 +375,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.quantity"
+                    v-model.number="field.value.quantity"
                     type="number"
                     min="1"
                     step="1"
@@ -399,7 +384,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model="item.unit"
+                    v-model="field.value.unit"
                     type="text"
                     placeholder="pcs"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -407,7 +392,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.unit_price"
+                    v-model.number="field.value.unit_price"
                     type="number"
                     min="0"
                     step="1000"
@@ -416,7 +401,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.discount_percent"
+                    v-model.number="field.value.discount_percent"
                     type="number"
                     min="0"
                     max="100"
@@ -426,7 +411,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.tax_rate"
+                    v-model.number="field.value.tax_rate"
                     type="number"
                     min="0"
                     max="100"
@@ -435,13 +420,13 @@ const contactOptions = computed(() => {
                   />
                 </td>
                 <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(calculateItemTotal(item)) }}
+                  {{ formatCurrency(calculateItemTotal(field.value)) }}
                 </td>
                 <td class="px-3 py-2">
                   <button
                     type="button"
-                    @click="removeItem(index)"
-                    :disabled="items.length === 1"
+                    @click="handleRemoveItem(index)"
+                    :disabled="itemFields.length === 1"
                     class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

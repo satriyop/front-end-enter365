@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter, RouterLink } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useBomTemplate,
   useBomTemplateMetadata,
   useCreateBomTemplate,
   useUpdateBomTemplate,
-  type BomTemplateInput,
 } from '@/api/useBomTemplates'
+import { bomTemplateSchema, type BomTemplateFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, Select, FormField, Card, useToast } from '@/components/ui'
 import { ArrowLeft } from 'lucide-vue-next'
 
@@ -28,22 +31,31 @@ const { data: metadata, isLoading: isLoadingMetadata } = useBomTemplateMetadata(
 const createMutation = useCreateBomTemplate()
 const updateMutation = useUpdateBomTemplate()
 
-// Form state
-const form = ref<BomTemplateInput>({
-  code: '',
-  name: '',
-  description: '',
-  category: 'panel',
-  default_output_unit: 'unit',
-  default_rule_set_id: null,
-  is_active: true,
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<BomTemplateFormData>({
+  validationSchema: toTypedSchema(bomTemplateSchema),
+  initialValues: {
+    code: '',
+    name: '',
+    description: '',
+    category: 'panel',
+    default_output_unit: 'unit',
+    default_rule_set_id: null,
+    is_active: true,
+  },
 })
-const errors = ref<Record<string, string>>({})
 
 // Populate form when editing
 watch(existingTemplate, (template) => {
   if (template) {
-    form.value = {
+    setValues({
       code: template.code,
       name: template.name,
       description: template.description ?? '',
@@ -51,7 +63,7 @@ watch(existingTemplate, (template) => {
       default_output_unit: template.default_output_unit,
       default_rule_set_id: template.default_rule_set_id,
       is_active: template.is_active,
-    }
+    })
   }
 }, { immediate: true })
 
@@ -93,33 +105,11 @@ const unitOptions = computed(() => {
 const isLoading = computed(() => isLoadingTemplate.value || isLoadingMetadata.value)
 const isSaving = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-function validateForm(): boolean {
-  errors.value = {}
-
-  if (!form.value.code.trim()) {
-    errors.value.code = 'Code is required'
-  } else if (!/^[A-Z0-9_-]+$/.test(form.value.code)) {
-    errors.value.code = 'Code must be uppercase letters, numbers, hyphens, or underscores'
-  }
-
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
-  }
-
-  if (!form.value.category) {
-    errors.value.category = 'Category is required'
-  }
-
-  return Object.keys(errors.value).length === 0
-}
-
-async function handleSubmit() {
-  if (!validateForm()) return
-
+const onSubmit = handleSubmit(async (formValues) => {
   // Convert empty string to null for rule_set_id
   const data = {
-    ...form.value,
-    default_rule_set_id: form.value.default_rule_set_id || null,
+    ...formValues,
+    default_rule_set_id: formValues.default_rule_set_id || null,
   }
 
   try {
@@ -138,24 +128,21 @@ async function handleSubmit() {
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
     if (response?.errors) {
-      const fieldErrors: Record<string, string> = {}
-      Object.entries(response.errors).forEach(([key, msgs]) => {
-        const msg = msgs[0]
-        if (msg) fieldErrors[key] = msg
-      })
-      errors.value = fieldErrors
+      setServerErrors({ setErrors }, response.errors)
     }
     toast.error(response?.message || 'Failed to save template')
   }
-}
+})
 
 function generateCode() {
-  if (!form.value.name) return
-  form.value.code = form.value.name
-    .toUpperCase()
-    .replace(/[^A-Z0-9\s-]/g, '')
-    .replace(/\s+/g, '_')
-    .substring(0, 20)
+  if (!form.name) return
+  setValues({
+    code: form.name
+      .toUpperCase()
+      .replace(/[^A-Z0-9\s-]/g, '')
+      .replace(/\s+/g, '_')
+      .substring(0, 20)
+  })
 }
 </script>
 
@@ -191,7 +178,7 @@ function generateCode() {
     </div>
 
     <!-- Form -->
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>
@@ -202,7 +189,7 @@ function generateCode() {
             <Input
               v-model="form.name"
               placeholder="e.g., Standard Panel 100A"
-              @blur="!form.code && generateCode()"
+              @blur="() => { validateField('name'); !form.code && generateCode() }"
             />
           </FormField>
 
@@ -217,6 +204,7 @@ function generateCode() {
                 v-model="form.code"
                 placeholder="e.g., PANEL_100A"
                 class="flex-1 font-mono"
+                @blur="validateField('code')"
               />
               <Button type="button" variant="outline" @click="generateCode">
                 Generate
@@ -225,7 +213,7 @@ function generateCode() {
           </FormField>
 
           <FormField label="Category" required :error="errors.category">
-            <Select v-model="form.category" :options="categoryOptions" />
+            <Select v-model="form.category" :options="categoryOptions" @update:model-value="validateField('category')" />
           </FormField>
 
           <FormField label="Description">
@@ -253,7 +241,7 @@ function generateCode() {
             <Select
               :model-value="form.default_rule_set_id ? String(form.default_rule_set_id) : ''"
               :options="ruleSetOptions"
-              @update:model-value="(v: string | number | null) => form.default_rule_set_id = v ? Number(v) : null"
+              @update:model-value="(v: string | number | null) => setValues({ default_rule_set_id: v ? Number(v) : null })"
             />
           </FormField>
         </div>

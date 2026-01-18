@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useComponentStandard,
   useCreateComponentStandard,
   useUpdateComponentStandard
 } from '@/api/useComponentStandards'
+import { componentStandardSchema, type ComponentStandardFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Select, Card, useToast } from '@/components/ui'
 
 const route = useRoute()
@@ -30,27 +34,30 @@ interface SpecificationField {
   type: 'number' | 'text'
 }
 
-interface FormState {
-  code: string
-  name: string
-  category: string
-  subcategory: string
-  standard: string
-  unit: string
-  is_active: boolean
-  specifications: SpecificationField[]
-}
-
-const form = ref<FormState>({
-  code: '',
-  name: '',
-  category: '',
-  subcategory: '',
-  standard: '',
-  unit: 'pcs',
-  is_active: true,
-  specifications: [],
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<ComponentStandardFormData>({
+  validationSchema: toTypedSchema(componentStandardSchema),
+  initialValues: {
+    code: '',
+    name: '',
+    category: '',
+    subcategory: '',
+    standard: '',
+    unit: 'pcs',
+    is_active: true,
+    specifications: [],
+  },
 })
+
+// Field array for specifications
+const { fields: specFields, push: pushSpec, remove: removeSpec } = useFieldArray<SpecificationField>('specifications')
 
 const categoryOptions = [
   { value: 'circuit_breaker', label: 'Circuit Breaker' },
@@ -88,7 +95,7 @@ const subcategoryOptions = computed(() => {
       { value: 'control', label: 'Control Relay' },
     ],
   }
-  return map[form.value.category] || [{ value: '', label: 'None' }]
+  return map[form.category] || [{ value: '', label: 'None' }]
 })
 
 const unitOptions = [
@@ -135,17 +142,21 @@ const specTemplates: Record<string, SpecificationField[]> = {
   ],
 }
 
-// When category changes, update spec template
-watch(() => form.value.category, (newCategory) => {
+// When category changes, update spec template (only for new items)
+watch(() => form.category, (newCategory) => {
   if (!isEditing.value && specTemplates[newCategory]) {
-    form.value.specifications = [...specTemplates[newCategory]]
+    // Clear existing and add template specs
+    while (specFields.value.length > 0) {
+      removeSpec(0)
+    }
+    specTemplates[newCategory].forEach(spec => pushSpec({ ...spec }))
   }
 })
 
 // Populate form when editing
 watch(existingStandard, (standard) => {
   if (standard) {
-    form.value = {
+    setValues({
       code: standard.code,
       name: standard.name,
       category: standard.category,
@@ -153,22 +164,22 @@ watch(existingStandard, (standard) => {
       standard: standard.standard || '',
       unit: standard.unit,
       is_active: standard.is_active,
-      specifications: Object.entries(standard.specifications).map(([key, value]) => ({
+      specifications: Object.entries(standard.specifications || {}).map(([key, value]) => ({
         key,
         value: String(value),
         type: typeof value === 'number' ? 'number' : 'text'
       })),
-    }
+    })
   }
 }, { immediate: true })
 
 // Add/remove specification fields
 function addSpecField() {
-  form.value.specifications.push({ key: '', value: '', type: 'text' })
+  pushSpec({ key: '', value: '', type: 'text' })
 }
 
 function removeSpecField(index: number) {
-  form.value.specifications.splice(index, 1)
+  removeSpec(index)
 }
 
 // Form submission
@@ -179,39 +190,23 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  if (!form.value.code.trim()) {
-    errors.value.code = 'Code is required'
-  }
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
-  }
-  if (!form.value.category) {
-    errors.value.category = 'Category is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) return
-
-  // Build specifications object
+const onSubmit = handleSubmit(async (formValues) => {
+  // Build specifications object from array
   const specifications: Record<string, unknown> = {}
-  for (const spec of form.value.specifications) {
+  for (const spec of formValues.specifications || []) {
     if (spec.key.trim()) {
       specifications[spec.key.trim()] = spec.type === 'number' ? Number(spec.value) : spec.value
     }
   }
 
   const data = {
-    code: form.value.code,
-    name: form.value.name,
-    category: form.value.category,
-    subcategory: form.value.subcategory || undefined,
-    standard: form.value.standard || undefined,
-    unit: form.value.unit,
-    is_active: form.value.is_active,
+    code: formValues.code,
+    name: formValues.name,
+    category: formValues.category,
+    subcategory: formValues.subcategory || undefined,
+    standard: formValues.standard || undefined,
+    unit: formValues.unit,
+    is_active: formValues.is_active,
     specifications,
   }
 
@@ -226,10 +221,13 @@ async function handleSubmit() {
       router.push(`/settings/component-library/${result.id}`)
     }
   } catch (err: unknown) {
-    const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to save'
-    toast.error(message)
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save')
   }
-}
+})
 
 function formatSpecLabel(key: string): string {
   return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
@@ -252,7 +250,7 @@ function formatSpecLabel(key: string): string {
       <div class="text-slate-500 dark:text-slate-400">Loading component standard...</div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <!-- Basic Information -->
       <Card>
         <template #header>
@@ -264,6 +262,7 @@ function formatSpecLabel(key: string): string {
               v-model="form.code"
               placeholder="e.g., MCB-16A-1P-C"
               :disabled="isEditing"
+              @blur="validateField('code')"
             />
             <template #hint>
               Unique identifier for this component standard
@@ -273,16 +272,16 @@ function formatSpecLabel(key: string): string {
             <Input v-model="form.standard" placeholder="e.g., IEC 60898" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., MCB 16A 1P Curve C 6kA" />
+            <Input v-model="form.name" placeholder="e.g., MCB 16A 1P Curve C 6kA" @blur="validateField('name')" />
           </FormField>
           <FormField label="Category" required :error="errors.category">
-            <Select v-model="form.category" :options="categoryOptions" placeholder="Select category" />
+            <Select v-model="form.category" :options="categoryOptions" placeholder="Select category" @update:model-value="validateField('category')" />
           </FormField>
           <FormField label="Subcategory">
             <Select v-model="form.subcategory" :options="subcategoryOptions" />
           </FormField>
-          <FormField label="Unit" required>
-            <Select v-model="form.unit" :options="unitOptions" />
+          <FormField label="Unit" required :error="errors.unit">
+            <Select v-model="form.unit" :options="unitOptions" @update:model-value="validateField('unit')" />
           </FormField>
         </div>
       </Card>
@@ -298,34 +297,34 @@ function formatSpecLabel(key: string): string {
           </div>
         </template>
 
-        <div v-if="form.specifications.length === 0" class="py-4 text-center text-slate-500 dark:text-slate-400">
+        <div v-if="specFields.length === 0" class="py-4 text-center text-slate-500 dark:text-slate-400">
           Select a category to load specification template, or add fields manually.
         </div>
 
         <div v-else class="space-y-3">
           <div
-            v-for="(spec, index) in form.specifications"
-            :key="index"
+            v-for="(field, index) in specFields"
+            :key="field.key"
             class="flex items-center gap-3"
           >
             <div class="flex-1">
               <Input
-                v-model="spec.key"
-                :placeholder="formatSpecLabel(spec.key) || 'Specification key'"
+                v-model="field.value.key"
+                :placeholder="formatSpecLabel(field.value.key) || 'Specification key'"
                 class="text-sm"
               />
             </div>
             <div class="flex-1">
               <Input
-                v-model="spec.value"
-                :type="spec.type"
+                v-model="field.value.value"
+                :type="field.value.type"
                 placeholder="Value"
                 class="text-sm"
               />
             </div>
             <div class="w-24">
               <Select
-                v-model="spec.type"
+                v-model="field.value.type"
                 :options="[
                   { value: 'number', label: 'Number' },
                   { value: 'text', label: 'Text' },

@@ -134,12 +134,16 @@ export const productSchema = z.object({
   type: z.enum(['product', 'service'], {
     errorMap: () => ({ message: 'Please select a type' }),
   }),
-  description: z.string().optional().nullable(),
+  description: z.string().optional().default(''),
   unit: requiredString('Unit'),
-  purchase_price: currencySchema.optional().nullable(),
-  selling_price: currencySchema.optional().nullable(),
-  category_id: z.number().optional().nullable(),
+  purchase_price: z.number().min(0, 'Price cannot be negative').default(0),
+  selling_price: z.number().min(0, 'Price cannot be negative').default(0),
+  tax_rate: percentageSchema.default(11),
+  is_taxable: z.boolean().default(true),
   is_active: z.boolean().default(true),
+  track_inventory: z.boolean().default(true),
+  min_stock: z.number().int().min(0, 'Minimum stock cannot be negative').default(0),
+  category_id: z.number().optional().nullable(),
 })
 
 /**
@@ -147,13 +151,13 @@ export const productSchema = z.object({
  */
 export const quotationItemSchema = z.object({
   product_id: z.number().optional().nullable(),
-  description: requiredString('Description'),
-  quantity: requiredPositiveNumber('Quantity'),
-  unit: requiredString('Unit'),
-  unit_price: currencySchema,
-  discount_percent: percentageSchema.optional().default(0),
-  tax_rate: percentageSchema.optional().default(0),
-  notes: z.string().optional().nullable(),
+  description: z.string().default(''),
+  quantity: z.number().default(1),
+  unit: z.string().default('pcs'),
+  unit_price: z.number().default(0),
+  discount_percent: z.number().min(0).max(100).default(0),
+  tax_rate: z.number().min(0).max(100).default(11),
+  notes: z.string().optional().default(''),
 })
 
 /**
@@ -162,14 +166,14 @@ export const quotationItemSchema = z.object({
 export const quotationSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
   quotation_date: requiredDate('Quotation date'),
-  valid_until: requiredDate('Valid until date'),
-  subject: z.string().optional().nullable(),
-  reference: z.string().optional().nullable(),
-  discount_type: z.enum(['percentage', 'fixed']).optional().nullable(),
-  discount_value: optionalPositiveNumber,
-  tax_rate: percentageSchema.optional().default(11),
-  notes: z.string().optional().nullable(),
-  terms_conditions: z.string().optional().nullable(),
+  valid_until: z.string().optional().default(''),
+  subject: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  discount_type: z.enum(['percentage', 'fixed']).default('percentage'),
+  discount_value: z.number().min(0).default(0),
+  tax_rate: z.number().min(0).max(100).default(11),
+  notes: z.string().optional().default(''),
+  terms_conditions: z.string().optional().default(''),
   items: z.array(quotationItemSchema).min(1, 'At least one item is required'),
 })
 
@@ -177,10 +181,10 @@ export const quotationSchema = z.object({
  * Invoice item schema
  */
 export const invoiceItemSchema = z.object({
-  description: requiredString('Description'),
-  quantity: requiredPositiveNumber('Quantity'),
-  unit: z.string().optional().default('unit'),
-  unit_price: currencySchema,
+  description: z.string().default(''),
+  quantity: z.number().default(1),
+  unit: z.string().default('pcs'),
+  unit_price: z.number().default(0),
   revenue_account_id: z.number().optional().nullable(),
 })
 
@@ -191,10 +195,10 @@ export const invoiceSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
   invoice_date: requiredDate('Invoice date'),
   due_date: requiredDate('Due date'),
-  description: z.string().optional().nullable(),
-  reference: z.string().optional().nullable(),
-  tax_rate: percentageSchema.optional().default(11),
-  discount_amount: optionalPositiveNumber,
+  description: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  tax_rate: z.number().min(0).max(100).default(11),
+  discount_amount: z.number().min(0).default(0),
   receivable_account_id: z.number().optional().nullable(),
   items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
 })
@@ -298,6 +302,243 @@ export const solarProposalSchema = solarProposalStep1Schema
   .merge(solarProposalStep4Schema)
 
 // ============================================
+// Settings & Profile Schemas
+// ============================================
+
+/**
+ * Profile update schema (name and email only)
+ */
+export const profileUpdateSchema = z.object({
+  name: requiredString('Name'),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+})
+
+/**
+ * Password change schema with confirmation matching
+ */
+export const passwordChangeSchema = z.object({
+  current_password: z.string().min(1, 'Current password is required'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password_confirmation: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.password_confirmation, {
+  message: 'Passwords do not match',
+  path: ['password_confirmation'],
+})
+
+/**
+ * Rule Set schema for component library rules
+ */
+export const ruleSetSchema = z.object({
+  code: z.string()
+    .min(1, 'Code is required')
+    .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores'),
+  name: requiredString('Name'),
+  description: z.string().optional().nullable(),
+  is_active: z.boolean().default(true),
+  is_default: z.boolean().default(false),
+})
+
+/**
+ * Component Standard specification item
+ */
+export const specificationItemSchema = z.object({
+  key: z.string(),
+  value: z.string(),
+  type: z.enum(['text', 'number']),
+})
+
+/**
+ * Component Standard schema for component library
+ */
+export const componentStandardSchema = z.object({
+  code: requiredString('Code'),
+  name: requiredString('Name'),
+  standard: z.string().optional().default(''),
+  category: requiredString('Category'),
+  subcategory: z.string().optional().default(''),
+  unit: requiredString('Unit'),
+  is_active: z.boolean().default(true),
+  specifications: z.array(specificationItemSchema).optional().default([]),
+})
+
+// ============================================
+// Project & Payment Schemas
+// ============================================
+
+/**
+ * Project form schema
+ */
+export const projectSchema = z.object({
+  name: requiredString('Name'),
+  contact_id: z.number({ required_error: 'Customer is required' }).positive('Please select a customer'),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
+  location: z.string().optional().default(''),
+  description: z.string().optional().default(''),
+  start_date: requiredDate('Start date'),
+  end_date: z.string().optional().default(''),
+  contract_amount: z.number().min(0).default(0),
+  budget_amount: z.number().min(0).default(0),
+})
+
+/**
+ * Payment form schema
+ */
+export const paymentSchema = z.object({
+  type: z.enum(['receive', 'pay'], {
+    errorMap: () => ({ message: 'Please select payment type' }),
+  }),
+  contact_id: z.number({ required_error: 'Please select a contact' }).positive('Please select a contact'),
+  payment_date: requiredDate('Payment date'),
+  amount: z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0'),
+  payment_method: z.string().default('bank_transfer'),
+  cash_account_id: z.number({ required_error: 'Cash account is required' }).positive('Please select a cash account'),
+  reference: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+  payable_type: z.string().optional().nullable(),
+  payable_id: z.number().optional().nullable(),
+})
+
+/**
+ * BOM Template form schema
+ */
+export const bomTemplateSchema = z.object({
+  code: z.string()
+    .min(1, 'Code is required')
+    .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores'),
+  name: requiredString('Name'),
+  description: z.string().optional().default(''),
+  category: requiredString('Category'),
+  default_output_unit: z.string().default('unit'),
+  default_rule_set_id: z.number().optional().nullable(),
+  is_active: z.boolean().default(true),
+})
+
+// ============================================
+// Bill & BOM Schemas
+// ============================================
+
+/**
+ * Bill item schema
+ */
+export const billItemSchema = z.object({
+  description: z.string().default(''),
+  quantity: z.number().default(1),
+  unit: z.string().default('pcs'),
+  unit_price: z.number().default(0),
+  discount_percent: z.number().min(0).max(100).default(0),
+  tax_rate: z.number().min(0).max(100).default(11),
+})
+
+/**
+ * Bill form schema
+ */
+export const billSchema = z.object({
+  contact_id: z.number({ required_error: 'Please select a vendor' }).positive('Please select a vendor'),
+  vendor_invoice_number: z.string().optional().nullable(),
+  bill_date: requiredDate('Bill date'),
+  due_date: requiredDate('Due date'),
+  description: z.string().optional().nullable(),
+  items: z.array(billItemSchema).min(1, 'At least one item is required'),
+})
+
+/**
+ * BOM item schema
+ */
+export const bomItemSchema = z.object({
+  type: z.enum(['material', 'labor', 'overhead']).default('material'),
+  product_id: z.number().optional().nullable(),
+  description: z.string().default(''),
+  quantity: z.number().default(1),
+  unit: z.string().default('unit'),
+  unit_cost: z.number().default(0),
+  waste_percentage: z.number().min(0).max(100).default(0),
+  sort_order: z.number().default(0),
+  notes: z.string().optional().default(''),
+})
+
+/**
+ * BOM form schema
+ */
+export const bomSchema = z.object({
+  name: requiredString('BOM Name'),
+  product_id: z.number({ required_error: 'Please select an output product' }).positive('Please select an output product'),
+  output_quantity: z.number().min(0.0001, 'Output quantity must be greater than 0').default(1),
+  output_unit: z.string().default('unit'),
+  description: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+  items: z.array(bomItemSchema).min(1, 'At least one item is required'),
+})
+
+/**
+ * Work Order form schema
+ */
+export const workOrderSchema = z.object({
+  type: z.enum(['production', 'assembly', 'installation', 'maintenance']).default('production'),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
+  name: requiredString('Name'),
+  product_id: z.number().optional().nullable(),
+  project_id: z.number().optional().nullable(),
+  description: z.string().optional().default(''),
+  quantity_ordered: z.number({ required_error: 'Quantity is required' }).int().min(1, 'Quantity must be at least 1'),
+  planned_start_date: z.string().optional().default(''),
+  planned_end_date: z.string().optional().default(''),
+  estimated_material_cost: z.number().min(0).default(0),
+  estimated_labor_cost: z.number().min(0).default(0),
+  estimated_overhead_cost: z.number().min(0).default(0),
+  notes: z.string().optional().default(''),
+})
+
+/**
+ * Service item schema for company profiles
+ */
+export const serviceItemSchema = z.object({
+  title: z.string().default(''),
+  description: z.string().default(''),
+  icon: z.string().default(''),
+})
+
+/**
+ * Portfolio item schema for company profiles
+ */
+export const portfolioItemSchema = z.object({
+  title: z.string().default(''),
+  description: z.string().default(''),
+  year: z.number().int().optional(),
+})
+
+/**
+ * Certification item schema for company profiles
+ */
+export const certificationItemSchema = z.object({
+  name: z.string().default(''),
+  issuer: z.string().default(''),
+  year: z.number().int().optional(),
+})
+
+/**
+ * Company Profile form schema
+ */
+export const companyProfileSchema = z.object({
+  name: requiredString('Company name'),
+  slug: z.string().default(''),
+  custom_domain: z.string().optional().default(''),
+  tagline: z.string().optional().default(''),
+  description: z.string().optional().default(''),
+  founded_year: z.number().int().min(1900).max(2100).optional(),
+  employees_count: z.string().optional().default(''),
+  primary_color: z.string().default('#FF7A3D'),
+  secondary_color: z.string().optional().default(''),
+  services: z.array(serviceItemSchema).optional().default([]),
+  portfolio: z.array(portfolioItemSchema).optional().default([]),
+  certifications: z.array(certificationItemSchema).optional().default([]),
+  email: z.string().email('Invalid email').or(z.literal('')).optional().default(''),
+  phone: z.string().optional().default(''),
+  address: z.string().optional().default(''),
+  website: z.string().url('Invalid URL').or(z.literal('')).optional().default(''),
+  is_active: z.boolean().default(true),
+})
+
+// ============================================
 // Type exports from schemas
 // ============================================
 
@@ -313,3 +554,28 @@ export type SolarProposalStep2Data = z.infer<typeof solarProposalStep2Schema>
 export type SolarProposalStep3Data = z.infer<typeof solarProposalStep3Schema>
 export type SolarProposalStep4Data = z.infer<typeof solarProposalStep4Schema>
 export type SolarProposalFormData = z.infer<typeof solarProposalSchema>
+
+// Settings & Profile
+export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>
+export type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>
+export type RuleSetFormData = z.infer<typeof ruleSetSchema>
+export type SpecificationItemData = z.infer<typeof specificationItemSchema>
+export type ComponentStandardFormData = z.infer<typeof componentStandardSchema>
+
+// Project & Payment
+export type ProjectFormData = z.infer<typeof projectSchema>
+export type PaymentFormData = z.infer<typeof paymentSchema>
+export type BomTemplateFormData = z.infer<typeof bomTemplateSchema>
+
+// Bill & BOM
+export type BillItemFormData = z.infer<typeof billItemSchema>
+export type BillFormData = z.infer<typeof billSchema>
+export type BomItemFormData = z.infer<typeof bomItemSchema>
+export type BomFormData = z.infer<typeof bomSchema>
+export type WorkOrderFormData = z.infer<typeof workOrderSchema>
+
+// Company Profile
+export type ServiceItemFormData = z.infer<typeof serviceItemSchema>
+export type PortfolioItemFormData = z.infer<typeof portfolioItemSchema>
+export type CertificationItemFormData = z.infer<typeof certificationItemSchema>
+export type CompanyProfileFormData = z.infer<typeof companyProfileSchema>

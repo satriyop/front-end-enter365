@@ -1,7 +1,7 @@
 import { onMounted, onUnmounted } from 'vue'
 
 interface FormShortcutsOptions {
-  onSave?: () => void | Promise<void>
+  onSave?: () => void | Promise<unknown>
   onCancel?: () => void
   enabled?: () => boolean
 }

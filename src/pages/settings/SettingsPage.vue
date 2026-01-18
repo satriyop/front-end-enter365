@@ -1,8 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { api } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
+import {
+  profileUpdateSchema,
+  passwordChangeSchema,
+  type ProfileUpdateFormData,
+  type PasswordChangeFormData,
+} from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Card, useToast } from '@/components/ui'
 
 const auth = useAuthStore()
@@ -11,25 +20,49 @@ const toast = useToast()
 // Active tab
 const activeTab = ref<'profile' | 'password'>('profile')
 
-// Profile form
-const profileForm = ref({
-  name: auth.user?.name || '',
-  email: auth.user?.email || '',
+// Profile form with VeeValidate
+const {
+  values: profileValues,
+  errors: profileErrors,
+  handleSubmit: handleProfileSubmit,
+  setErrors: setProfileErrors,
+  validateField: validateProfileField,
+} = useForm<ProfileUpdateFormData>({
+  validationSchema: toTypedSchema(profileUpdateSchema),
+  initialValues: {
+    name: auth.user?.name || '',
+    email: auth.user?.email || '',
+  },
 })
 
-// Password form
-const passwordForm = ref({
-  current_password: '',
-  password: '',
-  password_confirmation: '',
-})
+// Sync profile form when auth user changes
+watch(() => auth.user, (user) => {
+  if (user) {
+    profileValues.name = user.name || ''
+    profileValues.email = user.email || ''
+  }
+}, { immediate: true })
 
-const profileErrors = ref<Record<string, string>>({})
-const passwordErrors = ref<Record<string, string>>({})
+// Password form with VeeValidate
+const {
+  values: passwordValues,
+  errors: passwordErrors,
+  handleSubmit: handlePasswordSubmit,
+  setErrors: setPasswordErrors,
+  resetForm: resetPasswordForm,
+  validateField: validatePasswordField,
+} = useForm<PasswordChangeFormData>({
+  validationSchema: toTypedSchema(passwordChangeSchema),
+  initialValues: {
+    current_password: '',
+    password: '',
+    password_confirmation: '',
+  },
+})
 
 // Update profile mutation
 const updateProfileMutation = useMutation({
-  mutationFn: async (data: { name: string; email: string }) => {
+  mutationFn: async (data: ProfileUpdateFormData) => {
     if (!auth.user?.id) throw new Error('Not authenticated')
     const response = await api.put(`/users/${auth.user.id}`, data)
     return response.data
@@ -38,87 +71,42 @@ const updateProfileMutation = useMutation({
     await auth.fetchUser()
     toast.success('Profile updated successfully')
   },
-  onError: (error: any) => {
-    const errors = error?.response?.data?.errors || {}
-    const errorsMap: Record<string, string> = {}
-    Object.entries(errors).forEach(([key, msgs]) => {
-      const msg = (msgs as string[])[0]
-      if (msg) errorsMap[key] = msg
-    })
-    profileErrors.value = errorsMap
-    toast.error(error?.response?.data?.message || 'Failed to update profile')
+  onError: (error: unknown) => {
+    const err = error as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } }
+    if (err.response?.data?.errors) {
+      setServerErrors({ setErrors: setProfileErrors }, err.response.data.errors)
+    }
+    toast.error(err.response?.data?.message || 'Failed to update profile')
   },
 })
 
 // Update password mutation
 const updatePasswordMutation = useMutation({
-  mutationFn: async (data: { current_password: string; password: string; password_confirmation: string }) => {
+  mutationFn: async (data: PasswordChangeFormData) => {
     if (!auth.user?.id) throw new Error('Not authenticated')
     const response = await api.post(`/users/${auth.user.id}/password`, data)
     return response.data
   },
   onSuccess: () => {
-    passwordForm.value = {
-      current_password: '',
-      password: '',
-      password_confirmation: '',
-    }
+    resetPasswordForm()
     toast.success('Password updated successfully')
   },
-  onError: (error: any) => {
-    const errs = error?.response?.data?.errors || {}
-    const errorsMap: Record<string, string> = {}
-    Object.entries(errs).forEach(([key, msgs]) => {
-      const msg = (msgs as string[])[0]
-      if (msg) errorsMap[key] = msg
-    })
-    passwordErrors.value = errorsMap
-    toast.error(error?.response?.data?.message || 'Failed to update password')
+  onError: (error: unknown) => {
+    const err = error as { response?: { data?: { errors?: Record<string, string[]>; message?: string } } }
+    if (err.response?.data?.errors) {
+      setServerErrors({ setErrors: setPasswordErrors }, err.response.data.errors)
+    }
+    toast.error(err.response?.data?.message || 'Failed to update password')
   },
 })
 
-function handleProfileSubmit() {
-  profileErrors.value = {}
+const onProfileSubmit = handleProfileSubmit((values) => {
+  updateProfileMutation.mutate(values)
+})
 
-  if (!profileForm.value.name.trim()) {
-    profileErrors.value.name = 'Name is required'
-    return
-  }
-  if (!profileForm.value.email.trim()) {
-    profileErrors.value.email = 'Email is required'
-    return
-  }
-
-  updateProfileMutation.mutate({
-    name: profileForm.value.name,
-    email: profileForm.value.email,
-  })
-}
-
-function handlePasswordSubmit() {
-  passwordErrors.value = {}
-
-  if (!passwordForm.value.current_password) {
-    passwordErrors.value.current_password = 'Current password is required'
-  }
-  if (!passwordForm.value.password) {
-    passwordErrors.value.password = 'New password is required'
-  }
-  if (passwordForm.value.password.length < 8) {
-    passwordErrors.value.password = 'Password must be at least 8 characters'
-  }
-  if (passwordForm.value.password !== passwordForm.value.password_confirmation) {
-    passwordErrors.value.password_confirmation = 'Passwords do not match'
-  }
-
-  if (Object.keys(passwordErrors.value).length > 0) return
-
-  updatePasswordMutation.mutate({
-    current_password: passwordForm.value.current_password,
-    password: passwordForm.value.password,
-    password_confirmation: passwordForm.value.password_confirmation,
-  })
-}
+const onPasswordSubmit = handlePasswordSubmit((values) => {
+  updatePasswordMutation.mutate(values)
+})
 
 const isProfileSaving = computed(() => updateProfileMutation.isPending.value)
 const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
@@ -156,17 +144,26 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     </div>
 
     <!-- Profile Tab -->
-    <form v-if="activeTab === 'profile'" @submit.prevent="handleProfileSubmit" class="space-y-6">
+    <form v-if="activeTab === 'profile'" @submit.prevent="onProfileSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Profile Information</h2>
         </template>
         <div class="space-y-4">
           <FormField label="Name" required :error="profileErrors.name">
-            <Input v-model="profileForm.name" placeholder="Your name" />
+            <Input
+              v-model="profileValues.name"
+              placeholder="Your name"
+              @blur="validateProfileField('name')"
+            />
           </FormField>
           <FormField label="Email" required :error="profileErrors.email">
-            <Input v-model="profileForm.email" type="email" placeholder="your@email.com" />
+            <Input
+              v-model="profileValues.email"
+              type="email"
+              placeholder="your@email.com"
+              @blur="validateProfileField('email')"
+            />
           </FormField>
         </div>
       </Card>
@@ -224,7 +221,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     </form>
 
     <!-- Password Tab -->
-    <form v-if="activeTab === 'password'" @submit.prevent="handlePasswordSubmit" class="space-y-6">
+    <form v-if="activeTab === 'password'" @submit.prevent="onPasswordSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Change Password</h2>
@@ -232,27 +229,30 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
         <div class="space-y-4">
           <FormField label="Current Password" required :error="passwordErrors.current_password">
             <Input
-              v-model="passwordForm.current_password"
+              v-model="passwordValues.current_password"
               type="password"
               placeholder="Enter current password"
               autocomplete="current-password"
+              @blur="validatePasswordField('current_password')"
             />
           </FormField>
           <FormField label="New Password" required :error="passwordErrors.password">
             <Input
-              v-model="passwordForm.password"
+              v-model="passwordValues.password"
               type="password"
               placeholder="Enter new password"
               autocomplete="new-password"
+              @blur="validatePasswordField('password')"
             />
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Must be at least 8 characters</p>
           </FormField>
           <FormField label="Confirm New Password" required :error="passwordErrors.password_confirmation">
             <Input
-              v-model="passwordForm.password_confirmation"
+              v-model="passwordValues.password_confirmation"
               type="password"
               placeholder="Confirm new password"
               autocomplete="new-password"
+              @blur="validatePasswordField('password_confirmation')"
             />
           </FormField>
         </div>

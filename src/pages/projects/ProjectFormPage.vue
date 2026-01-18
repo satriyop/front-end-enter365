@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useProject, useCreateProject, useUpdateProject } from '@/api/useProjects'
 import { useContactsLookup } from '@/api/useContacts'
+import { projectSchema, type ProjectFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
 
 const route = useRoute()
@@ -33,44 +37,44 @@ const priorityOptions = [
   { value: 'urgent', label: 'Urgent' },
 ]
 
-interface FormState {
-  name: string
-  contact_id: number | null
-  description: string
-  location: string
-  start_date: string
-  end_date: string
-  priority: string
-  budget_amount: number
-  contract_amount: number
-}
-
 const today = new Date().toISOString().split('T')[0] as string
-const form = ref<FormState>({
-  name: '',
-  contact_id: null,
-  description: '',
-  location: '',
-  start_date: today,
-  end_date: '',
-  priority: 'medium',
-  budget_amount: 0,
-  contract_amount: 0,
+
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<ProjectFormData>({
+  validationSchema: toTypedSchema(projectSchema),
+  initialValues: {
+    name: '',
+    contact_id: undefined as unknown as number,
+    description: '',
+    location: '',
+    start_date: today,
+    end_date: '',
+    priority: 'medium',
+    budget_amount: 0,
+    contract_amount: 0,
+  },
 })
 
 watch(existingProject, (project) => {
   if (project) {
-    form.value = {
+    setValues({
       name: project.name || '',
-      contact_id: project.contact_id ? Number(project.contact_id) : null,
+      contact_id: project.contact_id ? Number(project.contact_id) : undefined as unknown as number,
       description: project.description || '',
       location: project.location || '',
       start_date: project.start_date || today,
       end_date: project.end_date || '',
-      priority: project.priority || 'medium',
+      priority: (project.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
       budget_amount: Number(project.budget_amount) || 0,
       contract_amount: Number(project.contract_amount) || 0,
-    }
+    })
   }
 }, { immediate: true })
 
@@ -78,38 +82,25 @@ const createMutation = useCreateProject()
 const updateMutation = useUpdateProject()
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Project name is required'
-  }
-  if (!form.value.contact_id) {
-    errors.value.contact_id = 'Customer is required'
-  }
-  if (!form.value.start_date) {
-    errors.value.start_date = 'Start date is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) return
-
+const onSubmit = handleSubmit(async (formValues) => {
   try {
     if (isEditing.value && projectId.value) {
-      await updateMutation.mutateAsync({ id: projectId.value, data: form.value as any })
+      await updateMutation.mutateAsync({ id: projectId.value, data: formValues as any })
       toast.success('Project updated')
       router.push(`/projects/${projectId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(form.value as any)
+      const result = await createMutation.mutateAsync(formValues as any)
       toast.success('Project created')
       router.push(`/projects/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save project')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save project')
   }
-}
+})
 </script>
 
 <template>
@@ -128,17 +119,17 @@ async function handleSubmit() {
       <div class="text-slate-500 dark:text-slate-400">Loading project...</div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Project Information</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Project Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., Solar Installation - Site ABC" />
+            <Input v-model="form.name" placeholder="e.g., Solar Installation - Site ABC" @blur="validateField('name')" />
           </FormField>
           <FormField label="Customer" required :error="errors.contact_id">
-            <Select v-model="form.contact_id" :options="contactOptions" placeholder="Select customer" />
+            <Select v-model="form.contact_id" :options="contactOptions" placeholder="Select customer" @update:model-value="validateField('contact_id')" />
           </FormField>
           <FormField label="Priority">
             <Select v-model="form.priority" :options="priorityOptions" />
@@ -158,7 +149,7 @@ async function handleSubmit() {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Start Date" required :error="errors.start_date">
-            <Input v-model="form.start_date" type="date" />
+            <Input v-model="form.start_date" type="date" @blur="validateField('start_date')" />
           </FormField>
           <FormField label="End Date">
             <Input v-model="form.end_date" type="date" />

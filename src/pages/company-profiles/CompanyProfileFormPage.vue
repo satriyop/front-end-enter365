@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useCompanyProfile,
   useCreateCompanyProfile,
   useUpdateCompanyProfile,
   useRemoveLogo,
   useRemoveCover,
-  type CreateCompanyProfileData,
-  type ServiceItem,
-  type PortfolioItem,
-  type Certification,
 } from '@/api/useCompanyProfiles'
 import { getErrorMessage } from '@/api/client'
+import {
+  companyProfileSchema,
+  type CompanyProfileFormData,
+  type ServiceItemFormData,
+  type PortfolioItemFormData,
+  type CertificationItemFormData,
+} from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { useFormShortcuts } from '@/composables/useFormShortcuts'
 import {
   Button,
@@ -41,26 +47,41 @@ const pageTitle = computed(() => (isEditing.value ? 'Edit Company Profile' : 'Ne
 const profileIdRef = computed(() => profileId.value ?? 0)
 const { data: existingProfile, isLoading: loadingProfile } = useCompanyProfile(profileIdRef)
 
-// Form state
-const form = ref<CreateCompanyProfileData>({
-  name: '',
-  slug: '',
-  tagline: '',
-  description: '',
-  founded_year: undefined,
-  employees_count: '',
-  primary_color: '#FF7A3D',
-  secondary_color: '',
-  services: [],
-  portfolio: [],
-  certifications: [],
-  email: '',
-  phone: '',
-  address: '',
-  website: '',
-  custom_domain: '',
-  is_active: true,
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<CompanyProfileFormData>({
+  validationSchema: toTypedSchema(companyProfileSchema),
+  initialValues: {
+    name: '',
+    slug: '',
+    tagline: '',
+    description: '',
+    founded_year: undefined,
+    employees_count: '',
+    primary_color: '#FF7A3D',
+    secondary_color: '',
+    services: [],
+    portfolio: [],
+    certifications: [],
+    email: '',
+    phone: '',
+    address: '',
+    website: '',
+    custom_domain: '',
+    is_active: true,
+  },
 })
+
+// Field arrays for dynamic sections
+const { fields: serviceFields, push: pushService, remove: removeServiceField } = useFieldArray<ServiceItemFormData>('services')
+const { fields: portfolioFields, push: pushPortfolio, remove: removePortfolioField } = useFieldArray<PortfolioItemFormData>('portfolio')
+const { fields: certificationFields, push: pushCertification, remove: removeCertificationField } = useFieldArray<CertificationItemFormData>('certifications')
 
 // File inputs
 const logoFile = ref<File | null>(null)
@@ -73,7 +94,7 @@ watch(
   existingProfile,
   (profile) => {
     if (profile) {
-      form.value = {
+      setValues({
         name: profile.name,
         slug: profile.slug,
         tagline: profile.tagline || '',
@@ -82,16 +103,28 @@ watch(
         employees_count: profile.employees_count || '',
         primary_color: profile.primary_color,
         secondary_color: profile.secondary_color || '',
-        services: profile.services || [],
-        portfolio: profile.portfolio || [],
-        certifications: profile.certifications || [],
+        services: (profile.services || []).map(s => ({
+          title: s.title || '',
+          description: s.description || '',
+          icon: s.icon || '',
+        })),
+        portfolio: (profile.portfolio || []).map(p => ({
+          title: p.title || '',
+          description: p.description || '',
+          year: p.year,
+        })),
+        certifications: (profile.certifications || []).map(c => ({
+          name: c.name || '',
+          issuer: c.issuer || '',
+          year: c.year,
+        })),
         email: profile.email || '',
         phone: profile.phone || '',
         address: profile.address || '',
         website: profile.website || '',
         custom_domain: profile.custom_domain || '',
         is_active: profile.is_active,
-      }
+      })
       logoPreview.value = profile.logo_url || null
       coverPreview.value = profile.cover_image_url || null
     }
@@ -101,15 +134,17 @@ watch(
 
 // Auto-generate slug from name
 watch(
-  () => form.value.name,
+  () => form.name,
   (name) => {
     if (!isEditing.value && name) {
-      form.value.slug = name
-        .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .trim()
+      setValues({
+        slug: name
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .trim()
+      })
     }
   }
 )
@@ -185,32 +220,29 @@ async function handleRemoveCover() {
 
 // Services management
 function addService() {
-  form.value.services = [...(form.value.services || []), { title: '', description: '', icon: '' }]
+  pushService({ title: '', description: '', icon: '' })
 }
 
 function removeService(index: number) {
-  form.value.services = form.value.services?.filter((_, i) => i !== index)
+  removeServiceField(index)
 }
 
 // Portfolio management
 function addPortfolio() {
-  form.value.portfolio = [...(form.value.portfolio || []), { title: '', description: '' }]
+  pushPortfolio({ title: '', description: '', year: undefined })
 }
 
 function removePortfolio(index: number) {
-  form.value.portfolio = form.value.portfolio?.filter((_, i) => i !== index)
+  removePortfolioField(index)
 }
 
 // Certifications management
 function addCertification() {
-  form.value.certifications = [
-    ...(form.value.certifications || []),
-    { name: '', issuer: '', year: undefined },
-  ]
+  pushCertification({ name: '', issuer: '', year: undefined })
 }
 
 function removeCertification(index: number) {
-  form.value.certifications = form.value.certifications?.filter((_, i) => i !== index)
+  removeCertificationField(index)
 }
 
 // Form submission
@@ -221,16 +253,16 @@ const isSubmitting = computed(
   () => createMutation.isPending.value || updateMutation.isPending.value
 )
 
-async function onSubmit() {
+const onSubmit = handleSubmit(async (formValues) => {
   // Build FormData if we have files
   const hasFiles = logoFile.value || coverFile.value
-  let payload: CreateCompanyProfileData | FormData
+  let payload: CompanyProfileFormData | FormData
 
   if (hasFiles) {
     const formData = new FormData()
 
     // Add all form fields
-    Object.entries(form.value).forEach(([key, value]) => {
+    Object.entries(formValues).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         if (Array.isArray(value)) {
           formData.append(key, JSON.stringify(value))
@@ -252,27 +284,31 @@ async function onSubmit() {
 
     payload = formData
   } else {
-    payload = { ...form.value }
+    payload = { ...formValues }
   }
 
   try {
     if (isEditing.value && profileId.value) {
-      await updateMutation.mutateAsync({ id: profileId.value, data: payload })
+      await updateMutation.mutateAsync({ id: profileId.value, data: payload as any })
       toast.success('Company profile updated')
       router.push('/company-profiles')
     } else {
-      await createMutation.mutateAsync(payload)
+      await createMutation.mutateAsync(payload as any)
       toast.success('Company profile created')
       router.push('/company-profiles')
     }
-  } catch (err) {
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
     toast.error(getErrorMessage(err, 'Failed to save company profile'))
   }
-}
+})
 
 // Keyboard shortcut: Ctrl+S to save
 useFormShortcuts({
-  onSave: onSubmit,
+  onSave: () => onSubmit(),
   onCancel: () => router.back(),
 })
 </script>
@@ -309,11 +345,11 @@ useFormShortcuts({
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField label="Company Name" required class="md:col-span-2">
-            <Input v-model="form.name" placeholder="PT Example Company" />
+          <FormField label="Company Name" required :error="errors.name" class="md:col-span-2">
+            <Input v-model="form.name" placeholder="PT Example Company" @blur="validateField('name')" />
           </FormField>
 
-          <FormField label="URL Slug" required>
+          <FormField label="URL Slug" required :error="errors.slug">
             <Input v-model="form.slug" placeholder="example-company" />
             <p class="text-xs text-slate-500 mt-1">Used in the public URL: /profile/{{ form.slug || 'slug' }}</p>
           </FormField>
@@ -445,23 +481,23 @@ useFormShortcuts({
           </div>
         </template>
 
-        <div v-if="form.services?.length" class="space-y-4">
+        <div v-if="serviceFields.length" class="space-y-4">
           <div
-            v-for="(service, index) in form.services"
-            :key="index"
+            v-for="(field, index) in serviceFields"
+            :key="field.key"
             class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
           >
             <div class="flex items-start gap-4">
               <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Title" required>
-                  <Input v-model="(service as ServiceItem).title" placeholder="Service name" />
+                  <Input v-model="field.value.title" placeholder="Service name" />
                 </FormField>
                 <FormField label="Icon">
-                  <Input v-model="(service as ServiceItem).icon" placeholder="zap, sun, etc." />
+                  <Input v-model="field.value.icon" placeholder="zap, sun, etc." />
                 </FormField>
                 <FormField label="Description" class="md:col-span-2">
                   <Textarea
-                    v-model="(service as ServiceItem).description"
+                    v-model="field.value.description"
                     :rows="2"
                     placeholder="Service description"
                   />
@@ -502,27 +538,27 @@ useFormShortcuts({
           </div>
         </template>
 
-        <div v-if="form.portfolio?.length" class="space-y-4">
+        <div v-if="portfolioFields.length" class="space-y-4">
           <div
-            v-for="(project, index) in form.portfolio"
-            :key="index"
+            v-for="(field, index) in portfolioFields"
+            :key="field.key"
             class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
           >
             <div class="flex items-start gap-4">
               <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField label="Project Title" required>
-                  <Input v-model="(project as PortfolioItem).title" placeholder="Project name" />
+                  <Input v-model="field.value.title" placeholder="Project name" />
                 </FormField>
                 <FormField label="Year">
                   <Input
-                    v-model.number="(project as PortfolioItem).year"
+                    v-model.number="field.value.year"
                     type="number"
                     placeholder="2024"
                   />
                 </FormField>
                 <FormField label="Description" class="md:col-span-2">
                   <Textarea
-                    v-model="(project as PortfolioItem).description"
+                    v-model="field.value.description"
                     :rows="2"
                     placeholder="Project description"
                   />
@@ -563,22 +599,22 @@ useFormShortcuts({
           </div>
         </template>
 
-        <div v-if="form.certifications?.length" class="space-y-4">
+        <div v-if="certificationFields.length" class="space-y-4">
           <div
-            v-for="(cert, index) in form.certifications"
-            :key="index"
+            v-for="(field, index) in certificationFields"
+            :key="field.key"
             class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
           >
             <div class="flex items-start gap-4">
               <div class="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <FormField label="Name" required>
-                  <Input v-model="(cert as Certification).name" placeholder="ISO 9001:2015" />
+                  <Input v-model="field.value.name" placeholder="ISO 9001:2015" />
                 </FormField>
                 <FormField label="Issuer">
-                  <Input v-model="(cert as Certification).issuer" placeholder="Certifying body" />
+                  <Input v-model="field.value.issuer" placeholder="Certifying body" />
                 </FormField>
                 <FormField label="Year">
-                  <Input v-model.number="(cert as Certification).year" type="number" placeholder="2020" />
+                  <Input v-model.number="field.value.year" type="number" placeholder="2020" />
                 </FormField>
               </div>
               <Button

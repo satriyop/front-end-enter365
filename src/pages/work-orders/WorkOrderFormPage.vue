@@ -1,10 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import { useWorkOrder, useCreateWorkOrder, useUpdateWorkOrder } from '@/api/useWorkOrders'
 import { useProductsLookup } from '@/api/useProducts'
 import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
+import { workOrderSchema, type WorkOrderFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
 
 const route = useRoute()
@@ -59,98 +63,102 @@ const priorityOptions = [
   { value: 'urgent', label: 'Urgent' },
 ]
 
-interface FormState {
-  type: string
-  name: string
-  description: string
-  product_id: number | null
-  project_id: number | null
-  quantity_ordered: number
-  priority: string
-  planned_start_date: string
-  planned_end_date: string
-  estimated_material_cost: number
-  estimated_labor_cost: number
-  estimated_overhead_cost: number
-  notes: string
-}
+const today = new Date().toISOString().split('T')[0]!
 
-const today = new Date().toISOString().split('T')[0] as string
-const form = ref<FormState>({
-  type: 'production',
-  name: '',
-  description: '',
-  product_id: null,
-  project_id: initialProjectId,
-  quantity_ordered: 1,
-  priority: 'medium',
-  planned_start_date: today,
-  planned_end_date: '',
-  estimated_material_cost: 0,
-  estimated_labor_cost: 0,
-  estimated_overhead_cost: 0,
-  notes: '',
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<WorkOrderFormData>({
+  validationSchema: toTypedSchema(workOrderSchema),
+  initialValues: {
+    type: 'production',
+    name: '',
+    description: '',
+    product_id: null,
+    project_id: initialProjectId,
+    quantity_ordered: 1,
+    priority: 'medium',
+    planned_start_date: today,
+    planned_end_date: '',
+    estimated_material_cost: 0,
+    estimated_labor_cost: 0,
+    estimated_overhead_cost: 0,
+    notes: '',
+  },
 })
 
+// Populate form when editing
 watch(existingWorkOrder, (wo) => {
   if (wo) {
-    form.value = {
-      type: wo.type || 'production',
+    setValues({
+      type: (wo.type as 'production' | 'assembly' | 'installation' | 'maintenance') || 'production',
       name: wo.name || '',
       description: wo.description || '',
       product_id: wo.product_id ? Number(wo.product_id) : null,
       project_id: wo.project_id ? Number(wo.project_id) : null,
       quantity_ordered: wo.quantity_ordered || 1,
-      priority: wo.priority || 'medium',
+      priority: (wo.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
       planned_start_date: wo.planned_start_date || today,
       planned_end_date: wo.planned_end_date || '',
       estimated_material_cost: Number(wo.estimated_material_cost) || 0,
       estimated_labor_cost: Number(wo.estimated_labor_cost) || 0,
       estimated_overhead_cost: Number(wo.estimated_overhead_cost) || 0,
       notes: wo.notes || '',
-    }
+    })
   }
 }, { immediate: true })
 
 const estimatedTotal = computed(() =>
-  form.value.estimated_material_cost +
-  form.value.estimated_labor_cost +
-  form.value.estimated_overhead_cost
+  (form.estimated_material_cost || 0) +
+  (form.estimated_labor_cost || 0) +
+  (form.estimated_overhead_cost || 0)
 )
 
+// Mutations
 const createMutation = useCreateWorkOrder()
 const updateMutation = useUpdateWorkOrder()
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
+const onSubmit = handleSubmit(async (formValues) => {
+  const payload = {
+    type: formValues.type,
+    priority: formValues.priority,
+    name: formValues.name,
+    description: formValues.description || undefined,
+    product_id: formValues.product_id || undefined,
+    project_id: formValues.project_id || undefined,
+    quantity_ordered: formValues.quantity_ordered,
+    planned_start_date: formValues.planned_start_date || undefined,
+    planned_end_date: formValues.planned_end_date || undefined,
+    estimated_material_cost: formValues.estimated_material_cost,
+    estimated_labor_cost: formValues.estimated_labor_cost,
+    estimated_overhead_cost: formValues.estimated_overhead_cost,
+    notes: formValues.notes || undefined,
   }
-  if (form.value.quantity_ordered < 1) {
-    errors.value.quantity_ordered = 'Quantity must be at least 1'
-  }
-
-  if (Object.keys(errors.value).length > 0) return
 
   try {
     if (isEditing.value && workOrderId.value) {
-      await updateMutation.mutateAsync({ id: workOrderId.value, data: form.value as any })
+      await updateMutation.mutateAsync({ id: workOrderId.value, data: payload as any })
       toast.success('Work order updated')
       router.push(`/work-orders/${workOrderId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(form.value as any)
+      const result = await createMutation.mutateAsync(payload as any)
       toast.success('Work order created')
       router.push(`/work-orders/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save work order')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save work order')
   }
-}
+})
 </script>
 
 <template>
@@ -169,7 +177,7 @@ async function handleSubmit() {
       <div class="text-slate-500 dark:text-slate-400">Loading work order...</div>
     </div>
 
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Work Order Information</h2>
@@ -182,7 +190,7 @@ async function handleSubmit() {
             <Select v-model="form.priority" :options="priorityOptions" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly Batch #1" />
+            <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly Batch #1" @blur="validateField('name')" />
           </FormField>
           <FormField label="Product">
             <Select v-model="form.product_id" :options="productOptions" placeholder="Select product" />
@@ -202,7 +210,7 @@ async function handleSubmit() {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField label="Quantity Ordered" required :error="errors.quantity_ordered">
-            <Input v-model.number="form.quantity_ordered" type="number" min="1" />
+            <Input v-model.number="form.quantity_ordered" type="number" min="1" @blur="validateField('quantity_ordered')" />
           </FormField>
           <FormField label="Planned Start Date">
             <Input v-model="form.planned_start_date" type="date" />

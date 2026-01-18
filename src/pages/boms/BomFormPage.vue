@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useBom, useCreateBom, useUpdateBom, type BomItemInput } from '@/api/useBoms'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import { useBom, useCreateBom, useUpdateBom } from '@/api/useBoms'
 import { useProducts } from '@/api/useProducts'
+import { bomSchema, type BomFormData, type BomItemFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency } from '@/utils/format'
 import { Button, Input, Select, FormField, Card, useToast } from '@/components/ui'
 
@@ -28,25 +32,6 @@ const productOptions = computed(() => {
   }))
 })
 
-// Mutations
-const createMutation = useCreateBom()
-const updateMutation = useUpdateBom()
-
-// Form state
-const form = ref({
-  name: '',
-  description: '',
-  product_id: 0,
-  output_quantity: 1,
-  output_unit: 'unit',
-  notes: '',
-})
-
-const items = ref<(BomItemInput & { _key: number })[]>([])
-let itemKeyCounter = 0
-
-const errors = ref<Record<string, string>>({})
-
 // Unit options
 const unitOptions = [
   { value: 'unit', label: 'Unit' },
@@ -64,36 +49,8 @@ const typeOptions = [
   { value: 'overhead', label: 'Overhead' },
 ]
 
-// Initialize form when editing
-watch(existingBom, (bom) => {
-  if (bom) {
-    form.value = {
-      name: bom.name,
-      description: bom.description || '',
-      product_id: bom.product_id,
-      output_quantity: bom.output_quantity,
-      output_unit: bom.output_unit,
-      notes: bom.notes || '',
-    }
-    items.value = (bom.items || []).map(item => ({
-      _key: itemKeyCounter++,
-      type: item.type,
-      product_id: item.product_id,
-      description: item.description,
-      quantity: item.quantity,
-      unit: item.unit,
-      unit_cost: item.unit_cost,
-      waste_percentage: item.waste_percentage,
-      sort_order: item.sort_order,
-      notes: item.notes || '',
-    }))
-  }
-}, { immediate: true })
-
-// Add empty item
-function addItem() {
-  items.value.push({
-    _key: itemKeyCounter++,
+function createEmptyItem(): BomItemFormData {
+  return {
     type: 'material',
     product_id: null,
     description: '',
@@ -101,14 +58,73 @@ function addItem() {
     unit: 'unit',
     unit_cost: 0,
     waste_percentage: 0,
-    sort_order: items.value.length,
+    sort_order: 0,
     notes: '',
-  })
+  }
 }
 
-// Remove item
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<BomFormData>({
+  validationSchema: toTypedSchema(bomSchema),
+  initialValues: {
+    name: '',
+    description: '',
+    product_id: undefined as unknown as number,
+    output_quantity: 1,
+    output_unit: 'unit',
+    notes: '',
+    items: [createEmptyItem()],
+  },
+})
+
+// Field array for items
+const { fields: itemFields, push: pushItem, remove: removeItemField } = useFieldArray<BomItemFormData>('items')
+
+// Initialize form when editing
+watch(existingBom, (bom) => {
+  if (bom) {
+    setValues({
+      name: bom.name,
+      description: bom.description || '',
+      product_id: bom.product_id,
+      output_quantity: bom.output_quantity,
+      output_unit: bom.output_unit,
+      notes: bom.notes || '',
+      items: bom.items && bom.items.length > 0
+        ? bom.items.map((item, index) => ({
+            type: item.type as 'material' | 'labor' | 'overhead',
+            product_id: item.product_id ?? null,
+            description: item.description,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_cost: item.unit_cost,
+            waste_percentage: item.waste_percentage ?? 0,
+            sort_order: item.sort_order ?? index,
+            notes: item.notes || '',
+          }))
+        : [createEmptyItem()],
+    })
+  }
+}, { immediate: true })
+
+// Item management
+function addItem() {
+  const newItem = createEmptyItem()
+  newItem.sort_order = (form.items?.length ?? 0)
+  pushItem(newItem)
+}
+
 function removeItem(index: number) {
-  items.value.splice(index, 1)
+  if (itemFields.value.length > 1) {
+    removeItemField(index)
+  }
 }
 
 // Calculate totals
@@ -117,81 +133,68 @@ const totals = computed(() => {
   let labor = 0
   let overhead = 0
 
-  for (const item of items.value) {
-    const itemTotal = item.quantity * item.unit_cost * (1 + (item.waste_percentage || 0) / 100)
+  for (const item of (form.items || [])) {
+    const itemTotal = (item.quantity || 0) * (item.unit_cost || 0) * (1 + (item.waste_percentage || 0) / 100)
     if (item.type === 'material') material += itemTotal
     else if (item.type === 'labor') labor += itemTotal
     else if (item.type === 'overhead') overhead += itemTotal
   }
 
   const total = material + labor + overhead
-  const unitCost = form.value.output_quantity > 0 ? total / form.value.output_quantity : 0
+  const unitCost = (form.output_quantity || 1) > 0 ? total / (form.output_quantity || 1) : 0
 
   return { material, labor, overhead, total, unitCost }
 })
 
-// Form validation
-function validate(): boolean {
-  errors.value = {}
-
-  if (!form.value.name.trim()) {
-    errors.value.name = 'Name is required'
-  }
-  if (!form.value.product_id) {
-    errors.value.product_id = 'Product is required'
-  }
-  if (form.value.output_quantity <= 0) {
-    errors.value.output_quantity = 'Output quantity must be greater than 0'
-  }
-  if (items.value.length === 0) {
-    errors.value.items = 'At least one item is required'
-  }
-
-  // Validate each item
-  items.value.forEach((item, i) => {
-    if (!item.description.trim()) {
-      errors.value[`item_${i}_description`] = 'Description is required'
-    }
-    if (item.quantity <= 0) {
-      errors.value[`item_${i}_quantity`] = 'Quantity must be greater than 0'
-    }
-    if (item.unit_cost < 0) {
-      errors.value[`item_${i}_unit_cost`] = 'Unit cost cannot be negative'
-    }
-  })
-
-  return Object.keys(errors.value).length === 0
-}
+// Mutations
+const createMutation = useCreateBom()
+const updateMutation = useUpdateBom()
+const isSaving = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
 // Submit form
-async function handleSubmit() {
-  if (!validate()) {
-    toast.error('Please fix the errors before submitting')
-    return
-  }
+const onSubmit = handleSubmit(async (formValues) => {
+  const itemsPayload = (formValues.items || [])
+    .filter(item => item.description)
+    .map((item, index) => ({
+      type: item.type,
+      product_id: item.product_id || null,
+      description: item.description,
+      quantity: item.quantity,
+      unit: item.unit,
+      unit_cost: item.unit_cost,
+      waste_percentage: item.waste_percentage,
+      sort_order: item.sort_order ?? index,
+      notes: item.notes || undefined,
+    }))
 
-  const data = {
-    ...form.value,
-    items: items.value.map(({ _key, ...item }) => item),
+  const payload = {
+    name: formValues.name,
+    description: formValues.description || undefined,
+    product_id: formValues.product_id,
+    output_quantity: formValues.output_quantity,
+    output_unit: formValues.output_unit,
+    notes: formValues.notes || undefined,
+    items: itemsPayload,
   }
 
   try {
     if (isEditing.value && bomId.value) {
-      await updateMutation.mutateAsync({ id: bomId.value, data })
+      await updateMutation.mutateAsync({ id: bomId.value, data: payload })
       toast.success('BOM updated successfully')
       router.push(`/boms/${bomId.value}`)
     } else {
-      const newBom = await createMutation.mutateAsync(data)
+      const newBom = await createMutation.mutateAsync(payload)
       toast.success('BOM created successfully')
       router.push(`/boms/${newBom.id}`)
     }
-  } catch (err: any) {
-    const message = err?.response?.data?.message || 'Failed to save BOM'
-    toast.error(message)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save BOM')
   }
-}
-
-const isSaving = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
+})
 </script>
 
 <template>
@@ -217,7 +220,7 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
         <p class="text-slate-500 dark:text-slate-400">Define materials, labor, and overhead costs for production</p>
       </div>
 
-      <form @submit.prevent="handleSubmit" class="space-y-6">
+      <form @submit.prevent="onSubmit" class="space-y-6">
         <!-- Basic Info -->
         <Card>
           <template #header>
@@ -226,7 +229,7 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="BOM Name" required :error="errors.name" class="md:col-span-2">
-              <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly 450W" />
+              <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly 450W" @blur="validateField('name')" />
             </FormField>
 
             <FormField label="Output Product" required :error="errors.product_id">
@@ -234,12 +237,13 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
                 v-model="form.product_id"
                 :options="productOptions"
                 placeholder="Select product"
+                @update:model-value="validateField('product_id')"
               />
             </FormField>
 
             <div class="grid grid-cols-2 gap-4">
               <FormField label="Output Quantity" required :error="errors.output_quantity">
-                <Input v-model.number="form.output_quantity" type="number" min="0.0001" step="0.0001" />
+                <Input v-model.number="form.output_quantity" type="number" min="0.0001" step="0.0001" @blur="validateField('output_quantity')" />
               </FormField>
               <FormField label="Unit">
                 <Select v-model="form.output_unit" :options="unitOptions" />
@@ -267,54 +271,53 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
             {{ errors.items }}
           </div>
 
-          <div v-if="items.length === 0" class="py-8 text-center text-slate-500 dark:text-slate-400">
+          <div v-if="itemFields.length === 0" class="py-8 text-center text-slate-500 dark:text-slate-400">
             No items added yet. Click "Add Item" to start.
           </div>
 
           <div v-else class="space-y-4">
             <div
-              v-for="(item, index) in items"
-              :key="item._key"
+              v-for="(field, index) in itemFields"
+              :key="field.key"
               class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg"
             >
               <div class="flex items-start gap-4">
                 <div class="flex-1 grid grid-cols-1 md:grid-cols-6 gap-4">
                   <FormField label="Type" class="md:col-span-1">
-                    <Select v-model="item.type" :options="typeOptions" />
+                    <Select v-model="field.value.type" :options="typeOptions" />
                   </FormField>
 
                   <FormField
                     label="Description"
-                    :error="errors[`item_${index}_description`]"
                     class="md:col-span-2"
                   >
-                    <Input v-model="item.description" placeholder="Item description" />
+                    <Input v-model="field.value.description" placeholder="Item description" />
                   </FormField>
 
                   <FormField
                     label="Quantity"
-                    :error="errors[`item_${index}_quantity`]"
                     class="md:col-span-1"
                   >
-                    <Input v-model.number="item.quantity" type="number" min="0" step="0.0001" />
+                    <Input v-model.number="field.value.quantity" type="number" min="0" step="0.0001" />
                   </FormField>
 
                   <FormField label="Unit" class="md:col-span-1">
-                    <Select v-model="item.unit" :options="unitOptions" />
+                    <Select v-model="field.value.unit" :options="unitOptions" />
                   </FormField>
 
                   <FormField
                     label="Unit Cost"
-                    :error="errors[`item_${index}_unit_cost`]"
                     class="md:col-span-1"
                   >
-                    <Input v-model.number="item.unit_cost" type="number" min="0" step="1" />
+                    <Input v-model.number="field.value.unit_cost" type="number" min="0" step="1" />
                   </FormField>
                 </div>
 
                 <button
                   type="button"
                   class="mt-6 p-2 text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  :disabled="itemFields.length === 1"
+                  :class="{ 'opacity-30 cursor-not-allowed': itemFields.length === 1 }"
                   @click="removeItem(index)"
                 >
                   <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,10 +329,10 @@ const isSaving = computed(() => createMutation.isPending.value || updateMutation
               <!-- Item total -->
               <div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-700 flex justify-between text-sm">
                 <span class="text-slate-500 dark:text-slate-400">
-                  {{ item.quantity }} x {{ formatCurrency(item.unit_cost) }}
+                  {{ field.value.quantity }} x {{ formatCurrency(field.value.unit_cost) }}
                 </span>
                 <span class="font-medium text-slate-900 dark:text-slate-100">
-                  = {{ formatCurrency(item.quantity * item.unit_cost) }}
+                  = {{ formatCurrency((field.value.quantity || 0) * (field.value.unit_cost || 0)) }}
                 </span>
               </div>
             </div>

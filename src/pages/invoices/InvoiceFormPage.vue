@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { computed, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useForm, useFieldArray } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
 import {
   useInvoice,
   useCreateInvoice,
@@ -8,6 +10,8 @@ import {
   type CreateInvoiceItem
 } from '@/api/useInvoices'
 import { useContactsLookup } from '@/api/useContacts'
+import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@/utils/validation'
+import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency } from '@/utils/format'
 import {
   Button,
@@ -40,31 +44,8 @@ const { data: existingInvoice, isLoading: loadingInvoice } = useInvoice(invoiceI
 // Lookups
 const { data: contacts, isLoading: loadingContacts } = useContactsLookup('customer')
 
-// Form state
-const form = ref({
-  contact_id: null as number | null,
-  invoice_date: new Date().toISOString().split('T')[0],
-  due_date: '',
-  description: '',
-  reference: '',
-  tax_rate: 11,
-  discount_amount: 0,
-})
-
-// Line items
-interface LineItem {
-  id: string
-  description: string
-  quantity: number
-  unit: string
-  unit_price: number
-}
-
-const items = ref<LineItem[]>([createEmptyItem()])
-
-function createEmptyItem(): LineItem {
+function createEmptyItem(): InvoiceItemFormData {
   return {
-    id: crypto.randomUUID(),
     description: '',
     quantity: 1,
     unit: 'pcs',
@@ -72,54 +53,77 @@ function createEmptyItem(): LineItem {
   }
 }
 
+// Form with VeeValidate
+const {
+  values: form,
+  errors,
+  handleSubmit,
+  setValues,
+  setErrors,
+  validateField,
+} = useForm<InvoiceFormData>({
+  validationSchema: toTypedSchema(invoiceSchema),
+  initialValues: {
+    contact_id: undefined as unknown as number,
+    invoice_date: new Date().toISOString().split('T')[0]!,
+    due_date: '',
+    description: '',
+    reference: '',
+    tax_rate: 11,
+    discount_amount: 0,
+    items: [createEmptyItem()],
+  },
+})
+
+// Field array for line items
+const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<InvoiceItemFormData>('items')
+
 // Populate form when editing
 watch(existingInvoice, (invoice) => {
   if (invoice) {
-    form.value = {
+    setValues({
       contact_id: invoice.contact_id,
-      invoice_date: invoice.invoice_date.split('T')[0] ?? '',
-      due_date: invoice.due_date.split('T')[0] ?? '',
+      invoice_date: invoice.invoice_date.split('T')[0]!,
+      due_date: invoice.due_date.split('T')[0]!,
       description: invoice.description ?? '',
       reference: invoice.reference ?? '',
       tax_rate: invoice.tax_rate ?? 11,
       discount_amount: invoice.discount_amount ?? 0,
-    }
-
-    if (invoice.items && invoice.items.length > 0) {
-      items.value = invoice.items.map(item => ({
-        id: crypto.randomUUID(),
-        description: item.description,
-        quantity: item.quantity,
-        unit: item.unit,
-        unit_price: item.unit_price,
-      }))
-    }
+      items: invoice.items && invoice.items.length > 0
+        ? invoice.items.map(item => ({
+            description: item.description,
+            quantity: item.quantity,
+            unit: item.unit,
+            unit_price: item.unit_price,
+          }))
+        : [createEmptyItem()],
+    })
   }
 }, { immediate: true })
 
 // Calculations
-function calculateItemTotal(item: LineItem): number {
-  return item.quantity * item.unit_price
+function calculateItemTotal(item: InvoiceItemFormData): number {
+  return (item.quantity || 0) * (item.unit_price || 0)
 }
 
 const subtotal = computed(() => {
-  return items.value.reduce((sum, item) => sum + calculateItemTotal(item), 0)
+  return (form.items || []).reduce((sum, item) => sum + calculateItemTotal(item), 0)
 })
 
-const afterDiscount = computed(() => subtotal.value - form.value.discount_amount)
+const afterDiscount = computed(() => subtotal.value - (form.discount_amount || 0))
 
-const taxAmount = computed(() => afterDiscount.value * (form.value.tax_rate / 100))
+const taxAmount = computed(() => afterDiscount.value * ((form.tax_rate || 0) / 100))
 
 const grandTotal = computed(() => afterDiscount.value + taxAmount.value)
 
 // Item management
 function addItem() {
-  items.value.push(createEmptyItem())
+  pushItem(createEmptyItem())
 }
 
-function removeItem(index: number) {
-  if (items.value.length > 1) {
-    items.value.splice(index, 1)
+function handleRemoveItem(index: number) {
+  if (itemFields.value.length > 1) {
+    removeItem(index)
   }
 }
 
@@ -131,30 +135,8 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const errors = ref<Record<string, string>>({})
-
-async function handleSubmit() {
-  errors.value = {}
-
-  // Basic validation
-  if (!form.value.contact_id) {
-    errors.value.contact_id = 'Customer is required'
-  }
-  if (!form.value.invoice_date) {
-    errors.value.invoice_date = 'Invoice date is required'
-  }
-  if (!form.value.due_date) {
-    errors.value.due_date = 'Due date is required'
-  }
-  if (items.value.length === 0 || !items.value.some(i => i.description)) {
-    errors.value.items = 'At least one item is required'
-  }
-
-  if (Object.keys(errors.value).length > 0) {
-    return
-  }
-
-  const itemsPayload: CreateInvoiceItem[] = items.value
+const onSubmit = handleSubmit(async (formValues) => {
+  const itemsPayload: CreateInvoiceItem[] = (formValues.items || [])
     .filter(item => item.description)
     .map(item => ({
       description: item.description,
@@ -164,13 +146,13 @@ async function handleSubmit() {
     }))
 
   const payload = {
-    contact_id: form.value.contact_id!,
-    invoice_date: form.value.invoice_date || new Date().toISOString().split('T')[0]!,
-    due_date: form.value.due_date || new Date().toISOString().split('T')[0]!,
-    description: form.value.description || undefined,
-    reference: form.value.reference || undefined,
-    tax_rate: form.value.tax_rate,
-    discount_amount: form.value.discount_amount || undefined,
+    contact_id: formValues.contact_id!,
+    invoice_date: formValues.invoice_date || new Date().toISOString().split('T')[0]!,
+    due_date: formValues.due_date || new Date().toISOString().split('T')[0]!,
+    description: formValues.description || undefined,
+    reference: formValues.reference || undefined,
+    tax_rate: formValues.tax_rate,
+    discount_amount: formValues.discount_amount || undefined,
     items: itemsPayload,
   }
 
@@ -184,18 +166,21 @@ async function handleSubmit() {
       toast.success('Invoice created successfully')
       router.push(`/invoices/${result.id}`)
     }
-  } catch (err) {
-    toast.error('Failed to save invoice')
-    console.error(err)
+  } catch (err: unknown) {
+    const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
+    if (response?.errors) {
+      setServerErrors({ setErrors }, response.errors)
+    }
+    toast.error(response?.message || 'Failed to save invoice')
   }
-}
+})
 
 // Set default due_date to 30 days from invoice_date
 onMounted(() => {
   if (!isEditing.value) {
     const date = new Date()
     date.setDate(date.getDate() + 30)
-    form.value.due_date = date.toISOString().split('T')[0] ?? ''
+    setValues({ due_date: date.toISOString().split('T')[0]! })
   }
 })
 
@@ -230,7 +215,7 @@ const contactOptions = computed(() => {
     </div>
 
     <!-- Form -->
-    <form v-else @submit.prevent="handleSubmit" class="space-y-6">
+    <form v-else @submit.prevent="onSubmit" class="space-y-6">
       <!-- Header Info Card -->
       <Card>
         <template #header>
@@ -245,6 +230,7 @@ const contactOptions = computed(() => {
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
+              @update:model-value="validateField('contact_id')"
             />
           </FormField>
 
@@ -255,12 +241,12 @@ const contactOptions = computed(() => {
 
           <!-- Invoice Date -->
           <FormField label="Invoice Date" required :error="errors.invoice_date">
-            <Input v-model="form.invoice_date" type="date" />
+            <Input v-model="form.invoice_date" type="date" @blur="validateField('invoice_date')" />
           </FormField>
 
           <!-- Due Date -->
           <FormField label="Due Date" required :error="errors.due_date">
-            <Input v-model="form.due_date" type="date" />
+            <Input v-model="form.due_date" type="date" @blur="validateField('due_date')" />
           </FormField>
 
           <!-- Description -->
@@ -302,10 +288,10 @@ const contactOptions = computed(() => {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-              <tr v-for="(item, index) in items" :key="item.id" class="align-top">
+              <tr v-for="(field, index) in itemFields" :key="field.key" class="align-top">
                 <td class="px-3 py-2">
                   <input
-                    v-model="item.description"
+                    v-model="field.value.description"
                     type="text"
                     placeholder="Item description"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -313,7 +299,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.quantity"
+                    v-model.number="field.value.quantity"
                     type="number"
                     min="1"
                     step="1"
@@ -322,7 +308,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model="item.unit"
+                    v-model="field.value.unit"
                     type="text"
                     placeholder="pcs"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -330,7 +316,7 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <input
-                    v-model.number="item.unit_price"
+                    v-model.number="field.value.unit_price"
                     type="number"
                     min="0"
                     step="1000"
@@ -338,13 +324,13 @@ const contactOptions = computed(() => {
                   />
                 </td>
                 <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(calculateItemTotal(item)) }}
+                  {{ formatCurrency(calculateItemTotal(field.value)) }}
                 </td>
                 <td class="px-3 py-2">
                   <button
                     type="button"
-                    @click="removeItem(index)"
-                    :disabled="items.length === 1"
+                    @click="handleRemoveItem(index)"
+                    :disabled="itemFields.length === 1"
                     class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
