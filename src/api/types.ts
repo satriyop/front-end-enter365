@@ -368,6 +368,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Display a listing of bills */
         get: operations["bills.index"];
         put?: never;
         post: operations["bills.store"];
@@ -558,6 +559,197 @@ export interface paths {
         get: operations["bom.statistics"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all templates with filters */
+        get: operations["bomTemplate.index"];
+        put?: never;
+        /** Create a new template */
+        post: operations["bomTemplate.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get metadata for creating templates */
+        get: operations["bomTemplate.metadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a template with its items */
+        get: operations["bomTemplate.show"];
+        /** Update a template */
+        put: operations["bomTemplate.update"];
+        post?: never;
+        /** Delete a template */
+        delete: operations["bomTemplate.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate a template */
+        post: operations["bomTemplate.duplicate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/toggle-active": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Toggle template active status */
+        post: operations["bomTemplate.toggleActive"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add an item to a template */
+        post: operations["bomTemplate.storeItem"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/items/{item}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update an item within a template */
+        put: operations["bomTemplate.updateItem"];
+        post?: never;
+        /** Delete an item from a template */
+        delete: operations["bomTemplate.destroyItem"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/items/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder items within a template */
+        post: operations["bomTemplate.reorderItems"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/available-brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get available brands for a template */
+        get: operations["bomTemplate.availableBrands"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/preview-bom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview creating a BOM from a template */
+        post: operations["bomTemplate.previewCreateBom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/create-bom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a BOM from a template */
+        post: operations["bomTemplate.createBom"];
         delete?: never;
         options?: never;
         head?: never;
@@ -928,6 +1120,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/company-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["company-profiles.index"];
+        put?: never;
+        post: operations["company-profiles.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/company-profiles/{companyProfile}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["company-profiles.show"];
+        put: operations["company-profiles.update"];
+        post?: never;
+        delete: operations["company-profiles.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/company-profiles/{companyProfile}/logo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove the logo image */
+        delete: operations["companyProfile.removeLogo"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/company-profiles/{companyProfile}/cover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove the cover image */
+        delete: operations["companyProfile.removeCover"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/component-standards/{componentStandard}/mappings": {
         parameters: {
             query?: never;
@@ -1153,6 +1411,142 @@ export interface paths {
         put?: never;
         /** Apply cost optimization to create a new BOM with cheapest alternatives */
         post: operations["componentCrossReference.applyCostOptimization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/items/{item}/alternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get alternatives for a BOM item */
+        get: operations["componentCrossReference.getItemAlternatives"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/boms/{bom}/items/{item}/swap": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Quick swap a BOM item to a different product */
+        patch: operations["componentCrossReference.quickSwapItem"];
+        trace?: never;
+    };
+    "/auto-mapping/unmapped-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get unmapped products for a given brand */
+        get: operations["componentCrossReference.getUnmappedProducts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auto-mapping/products/{product}/suggest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get mapping suggestions for a single product */
+        get: operations["componentCrossReference.suggestMapping"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auto-mapping/suggest-batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get mapping suggestions for multiple products */
+        post: operations["componentCrossReference.suggestMappingsBatch"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auto-mapping/products/{product}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a single mapping suggestion */
+        post: operations["componentCrossReference.acceptSuggestion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auto-mapping/bulk-accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Bulk accept mapping suggestions */
+        post: operations["componentCrossReference.bulkAcceptSuggestions"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auto-mapping/parse-name": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Parse a product name to extract specs (debug/preview endpoint) */
+        get: operations["componentCrossReference.parseProductName"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -2435,6 +2829,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Display a listing of invoices */
         get: operations["invoices.index"];
         put?: never;
         post: operations["invoices.store"];
@@ -2925,6 +3320,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Display a listing of payments */
         get: operations["payment.index"];
         put?: never;
         post: operations["payment.store"];
@@ -3041,8 +3437,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Display a listing of products */
         get: operations["products.index"];
         put?: never;
+        /** Store a newly created product */
         post: operations["products.store"];
         delete?: never;
         options?: never;
@@ -3057,9 +3455,12 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
+        /** Display the specified product */
         get: operations["products.show"];
+        /** Update the specified product */
         put: operations["products.update"];
         post?: never;
+        /** Remove the specified product */
         delete: operations["products.destroy"];
         options?: never;
         head?: never;
@@ -3075,7 +3476,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Adjust product stock */
+        /** Adjust product stock with audit trail */
         post: operations["product.adjustStock"];
         delete?: never;
         options?: never;
@@ -3452,6 +3853,74 @@ export interface paths {
         };
         /** Get project statistics */
         get: operations["project.statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/company-profiles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all active company profiles (for directory/showcase page) */
+        get: operations["publicCompanyProfileList"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/company-profiles/{identifier}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get company profile by slug or custom domain */
+        get: operations["publicCompanyProfileShow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/solar-calculator/calculate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Calculate solar system recommendation based on savings goal */
+        post: operations["publicSolarCalculate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/public/solar-calculator/tariffs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get available PLN tariffs grouped by customer type */
+        get: operations["publicSolarTariffs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5410,6 +5879,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/solar-proposals/{solarProposal}/excel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download Excel for a solar proposal */
+        get: operations["downloadSolarProposalExcel"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/solar-proposals-statistics": {
         parameters: {
             query?: never;
@@ -5421,6 +5907,129 @@ export interface paths {
         get: operations["getSolarProposalStatistics"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all rule sets */
+        get: operations["specValidationRuleSet.index"];
+        put?: never;
+        /** Create a new rule set */
+        post: operations["specValidationRuleSet.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get metadata for creating rules */
+        get: operations["specValidationRuleSet.metadata"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/{specRuleSet}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a rule set with its rules */
+        get: operations["specValidationRuleSet.show"];
+        /** Update a rule set */
+        put: operations["specValidationRuleSet.update"];
+        post?: never;
+        /** Delete a rule set */
+        delete: operations["specValidationRuleSet.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/{specRuleSet}/set-default": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Set a rule set as default */
+        post: operations["specValidationRuleSet.setDefault"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/{specRuleSet}/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a rule to a rule set */
+        post: operations["specValidationRuleSet.storeRule"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/{specRuleSet}/rules/{rule}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a rule within a rule set */
+        put: operations["specValidationRuleSet.updateRule"];
+        post?: never;
+        /** Delete a rule from a rule set */
+        delete: operations["specValidationRuleSet.destroyRule"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/spec-rule-sets/{specRuleSet}/rules/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder rules within a rule set */
+        post: operations["specValidationRuleSet.reorderRules"];
         delete?: never;
         options?: never;
         head?: never;
@@ -6328,20 +6937,20 @@ export interface components {
         };
         /** AttachmentResource */
         AttachmentResource: {
-            id: number;
+            id: string;
             attachable_type: string;
-            attachable_id: number;
+            attachable_id: string;
             filename: string;
             mime_type: string;
-            size: number;
+            size: string;
             size_human: string;
-            description: string | null;
-            category: string | null;
+            description: string;
+            category: string;
             category_label: string;
-            is_image: boolean;
-            is_pdf: boolean;
+            is_image: string;
+            is_pdf: string;
             download_url: string;
-            uploaded_by: number | null;
+            uploaded_by: string;
             uploader?: {
                 id: string;
                 name: string;
@@ -6376,51 +6985,71 @@ export interface components {
         };
         /** BillItemResource */
         BillItemResource: {
-            id: number;
-            bill_id: number;
+            id: string;
+            bill_id: string;
             description: string;
             quantity: number;
             unit: string;
-            unit_price: number;
+            unit_price: string;
             discount_percent: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            line_total: number;
-            sort_order: number;
-            notes: string | null;
-            expense_account_id: number | null;
+            tax_amount: string;
+            line_total: string;
+            sort_order: string;
+            notes: string;
+            expense_account_id: string;
             expense_account?: components["schemas"]["AccountResource"];
             created_at: string;
             updated_at: string;
         };
         /** BillResource */
         BillResource: {
-            id: number;
+            id: string;
             bill_number: string;
-            vendor_invoice_number: string | null;
-            contact_id: number;
+            vendor_invoice_number: string;
+            contact_id: string;
             bill_date: string;
             due_date: string;
-            description: string | null;
-            reference: string | null;
-            subtotal: number;
-            tax_amount: number;
+            description: string;
+            reference: string;
+            subtotal: string;
+            tax_amount: string;
             tax_rate: number;
-            discount_amount: number;
-            total_amount: number;
-            paid_amount: number;
-            outstanding_amount: number;
+            discount_amount: string;
+            total_amount: string;
+            paid_amount: string;
+            outstanding_amount: string;
             status: string;
-            journal_entry_id: number | null;
-            payable_account_id: number | null;
+            journal_entry_id: string;
+            payable_account_id: string;
             contact?: components["schemas"]["ContactResource"];
             items?: components["schemas"]["BillItemResource"][];
             journal_entry?: components["schemas"]["JournalEntryResource"];
             payments?: components["schemas"]["PaymentResource"][];
-            created_by: number | null;
+            created_by: string;
             created_at: string;
             updated_at: string;
+        };
+        /** BomItem */
+        BomItem: {
+            id: number;
+            bom_id: number;
+            type: string;
+            product_id: number | null;
+            description: string;
+            quantity: string;
+            unit: string | null;
+            unit_cost: number;
+            total_cost: number;
+            waste_percentage: string;
+            sort_order: number;
+            notes: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            component_standard_id: number | null;
         };
         /** BomItemResource */
         BomItemResource: {
@@ -6442,111 +7071,138 @@ export interface components {
             effective_quantity: string;
             sort_order: string;
             notes: string;
+            component_standard_id: string;
             created_at: string;
             updated_at: string;
         };
         /** BomResource */
         BomResource: {
-            id: number;
+            id: string;
             bom_number: string;
             name: string;
-            description: string | null;
-            product_id: number;
+            description: string;
+            product_id: string;
             product?: {
-                id: number;
+                id: string;
                 name: string;
                 sku: string;
             };
             output_quantity: number;
-            output_unit: string | null;
-            total_material_cost: number;
-            total_labor_cost: number;
-            total_overhead_cost: number;
-            total_cost: number;
-            unit_cost: number;
+            output_unit: string;
+            total_material_cost: string;
+            total_labor_cost: string;
+            total_overhead_cost: string;
+            total_cost: string;
+            unit_cost: string;
             status: string;
             version: string;
-            parent_bom_id: number | null;
-            variant_group_id: number | null;
-            variant_name: string | null;
-            variant_label: string | null;
-            is_primary_variant: boolean;
-            variant_sort_order: number;
-            notes: string | null;
+            parent_bom_id: string;
+            variant_group_id: string;
+            variant_name: string;
+            variant_label: string;
+            is_primary_variant: string;
+            variant_sort_order: string;
+            notes: string;
             items?: components["schemas"]["BomItemResource"][];
             items_count?: number;
-            cost_breakdown?: {
-                [key: string]: unknown;
+            cost_breakdown?: string;
+            created_by: string;
+            creator?: {
+                id: string;
+                name: string;
             };
-            created_by: number | null;
+            approved_by: string;
+            approved_at: string;
+            created_at: string;
+            updated_at: string;
+        };
+        /** BomTemplateItemResource */
+        BomTemplateItemResource: {
+            id: number;
+            template_id: number;
+            type: string;
+            type_label: string;
+            component_standard_id: number | null;
+            component_standard?: {
+                id: number;
+                code: string;
+                name: string;
+                category: string;
+            };
+            product_id: number | null;
+            product?: {
+                id: number;
+                name: string;
+                sku: string;
+                purchase_price: number;
+            };
+            description: string;
+            default_quantity: string;
+            unit: string;
+            is_required: boolean;
+            is_quantity_variable: boolean;
+            sort_order: number;
+            notes: string | null;
+            has_component_standard: boolean;
+            has_product: boolean;
+            created_at: string;
+            updated_at: string;
+        };
+        /** BomTemplateResource */
+        BomTemplateResource: {
+            id: number;
+            code: string;
+            name: string;
+            description: string | null;
+            category: string | null;
+            category_label: string | null;
+            thumbnail_path: string | null;
+            thumbnail_url: string | null;
+            is_active: boolean;
+            usage_count: number;
+            default_rule_set?: {
+                id: number;
+                name: string;
+                code: string;
+            };
+            items?: components["schemas"]["BomTemplateItemResource"][];
+            items_count?: number;
+            summary?: {
+                material_count: number;
+                labor_count: number;
+                overhead_count: number;
+            };
             creator?: {
                 id: number;
                 name: string;
             };
-            approved_by: number | null;
-            approved_at: string;
             created_at: string;
             updated_at: string;
         };
         /** BomVariantGroupResource */
         BomVariantGroupResource: {
-            id: number;
-            product_id: number;
+            id: string;
+            product_id: string;
             product?: {
-                id: number;
+                id: string;
                 name: string;
                 sku: string;
             };
             name: string;
-            description: string | null;
-            comparison_notes: string | null;
+            description: string;
+            comparison_notes: string;
             status: string;
-            created_by: number | null;
+            created_by: string;
             creator?: {
-                id: number;
+                id: string;
                 name: string;
             };
-            boms?: {
-                id: number;
-                bom_number: string;
-                name: string;
-                variant_name: string | null;
-                variant_label: string | null;
-                is_primary_variant: boolean;
-                variant_sort_order: number;
-                status: string;
-                total_cost: number;
-                unit_cost: number;
-                cost_breakdown: {
-                    material: {
-                        amount: number;
-                        percentage: number;
-                    };
-                    labor: {
-                        amount: number;
-                        percentage: number;
-                    };
-                    overhead: {
-                        amount: number;
-                        percentage: number;
-                    };
-                    total: number;
-                    unit_cost: number;
-                };
-            }[];
-            active_boms?: {
-                id: number;
-                bom_number: string;
-                name: string;
-                variant_name: string | null;
-                variant_label: string | null;
-                is_primary_variant: boolean;
-                total_cost: number;
-            }[];
-            variants_count?: number;
+            boms?: string;
+            active_boms?: string;
+            variants_count?: string;
             cost_summary?: {
-                min: unknown;
-                max: unknown;
+                min: string;
+                max: string;
                 difference: string;
             } | null;
             created_at: string;
@@ -6623,6 +7279,42 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** CompanyProfileResource */
+        CompanyProfileResource: {
+            id: number;
+            name: string;
+            slug: string;
+            tagline: string | null;
+            description: string | null;
+            founded_year: number | null;
+            employees_count: string | null;
+            /** @description Branding */
+            logo_path: string | null;
+            logo_url: string;
+            cover_image_path: string | null;
+            cover_image_url: string;
+            primary_color: string;
+            secondary_color: string | null;
+            /** @description Content arrays */
+            services: unknown[] | null | string[];
+            portfolio: unknown[] | null | string[];
+            team: unknown[] | null | string[];
+            certifications: unknown[] | null | string[];
+            social_links: unknown[] | null | string[];
+            /** @description Contact */
+            email: string | null;
+            phone: string | null;
+            address: string | null;
+            website: string | null;
+            /** @description Custom domain */
+            custom_domain: string | null;
+            public_url: string;
+            /** @description Status */
+            is_active: boolean;
+            /** @description Timestamps */
+            created_at: string;
+            updated_at: string;
+        };
         /** ComponentBrandMappingResource */
         ComponentBrandMappingResource: {
             id: number;
@@ -6674,25 +7366,35 @@ export interface components {
         };
         /** ContactResource */
         ContactResource: {
-            id: number;
+            id: string;
             code: string;
             name: string;
             type: string;
-            email: string | null;
-            phone: string | null;
-            address: string | null;
-            city: string | null;
-            province: string | null;
-            postal_code: string | null;
-            npwp: string | null;
-            nik: string | null;
-            credit_limit: number;
-            payment_term_days: number;
-            is_active: boolean;
+            email: string;
+            phone: string;
+            address: string;
+            city: string;
+            province: string;
+            postal_code: string;
+            npwp: string;
+            nik: string;
+            credit_limit: string;
+            payment_term_days: string;
+            is_active: string;
             receivable_balance?: string;
             payable_balance?: string;
             created_at: string;
             updated_at: string;
+        };
+        /** CreateBomFromTemplateRequest */
+        CreateBomFromTemplateRequest: {
+            product_id: number;
+            /** @enum {string|null} */
+            target_brand?: "schneider" | "abb" | "siemens" | "chint" | "ls" | "legrand" | "eaton" | "hager" | "mitsubishi" | null;
+            name?: string | null;
+            notes?: string | null;
+            output_quantity?: number | null;
+            quantity_overrides?: number[] | null;
         };
         /** DeliveryOrderItemResource */
         DeliveryOrderItemResource: {
@@ -6768,6 +7470,12 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /**
+         * DocumentStatus
+         * @description Centralized document status enum for all document types. Replaces scattered STATUS_* constants across models for type safety, centralized labels, and workflow validation.
+         * @enum {string}
+         */
+        DocumentStatus: "draft" | "cancelled" | "submitted" | "approved" | "rejected" | "completed" | "converted" | "expired" | "sent" | "partial" | "paid" | "overdue" | "received" | "active" | "inactive" | "confirmed" | "in_progress" | "processing" | "applied" | "issued" | "assigned" | "shipped" | "delivered" | "receiving" | "planning" | "on_hold" | "accepted" | "archived";
         /** DownPaymentApplicationResource */
         DownPaymentApplicationResource: {
             id: string;
@@ -6946,7 +7654,7 @@ export interface components {
         };
         /** IndonesiaSolarDataResource */
         IndonesiaSolarDataResource: {
-            id: number;
+            id: string;
             province: string;
             city: string;
             latitude: number;
@@ -6964,31 +7672,31 @@ export interface components {
         };
         /** InventoryMovementResource */
         InventoryMovementResource: {
-            id: number;
+            id: string;
             movement_number: string;
-            product_id: number;
+            product_id: string;
             product?: components["schemas"]["ProductResource"];
-            warehouse_id: number;
+            warehouse_id: string;
             warehouse?: components["schemas"]["WarehouseResource"];
             type: string;
             type_label: string;
-            quantity: number;
-            quantity_before: number;
-            quantity_after: number;
-            unit_cost: number;
-            total_cost: number;
+            quantity: string;
+            quantity_before: string;
+            quantity_after: string;
+            unit_cost: string;
+            total_cost: string;
             /** @description Reference */
-            reference_type: string | null;
-            reference_id: number | null;
+            reference_type: string;
+            reference_id: string;
             /** @description Transfer info */
-            transfer_warehouse_id: number | null;
+            transfer_warehouse_id: string;
             transfer_warehouse?: components["schemas"]["WarehouseResource"];
             movement_date: string;
-            notes: string | null;
+            notes: string;
             /** @description Audit */
-            created_by: number | null;
+            created_by: string;
             created_by_user?: {
-                id: number;
+                id: string;
                 name: string;
             };
             created_at: string;
@@ -6996,48 +7704,48 @@ export interface components {
         };
         /** InvoiceItemResource */
         InvoiceItemResource: {
-            id: number;
-            invoice_id: number;
+            id: string;
+            invoice_id: string;
             description: string;
             quantity: number;
             unit: string;
-            unit_price: number;
+            unit_price: string;
             discount_percent: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            line_total: number;
-            sort_order: number;
-            notes: string | null;
-            revenue_account_id: number | null;
+            tax_amount: string;
+            line_total: string;
+            sort_order: string;
+            notes: string;
+            revenue_account_id: string;
             revenue_account?: components["schemas"]["AccountResource"];
             created_at: string;
             updated_at: string;
         };
         /** InvoiceResource */
         InvoiceResource: {
-            id: number;
+            id: string;
             invoice_number: string;
-            contact_id: number;
+            contact_id: string;
             invoice_date: string;
             due_date: string;
-            description: string | null;
-            reference: string | null;
-            subtotal: number;
-            tax_amount: number;
+            description: string;
+            reference: string;
+            subtotal: string;
+            tax_amount: string;
             tax_rate: number;
-            discount_amount: number;
-            total_amount: number;
-            paid_amount: number;
-            outstanding_amount: number;
+            discount_amount: string;
+            total_amount: string;
+            paid_amount: string;
+            outstanding_amount: string;
             status: string;
-            journal_entry_id: number | null;
-            receivable_account_id: number | null;
+            journal_entry_id: string;
+            receivable_account_id: string;
             contact?: components["schemas"]["ContactResource"];
             items?: components["schemas"]["InvoiceItemResource"][];
             journal_entry?: components["schemas"]["JournalEntryResource"];
             payments?: components["schemas"]["PaymentResource"][];
-            created_by: number | null;
+            created_by: string;
             created_at: string;
             updated_at: string;
         };
@@ -7317,60 +8025,85 @@ export interface components {
         };
         /** PaymentResource */
         PaymentResource: {
-            id: number;
+            id: string;
             payment_number: string;
             type: string;
-            contact_id: number;
+            contact_id: string;
             payment_date: string;
-            amount: number;
+            amount: string;
             payment_method: string;
-            reference: string | null;
-            notes: string | null;
-            cash_account_id: number;
-            journal_entry_id: number | null;
-            payable_type: string | null;
-            payable_id: number | null;
-            is_voided: boolean;
+            reference: string;
+            notes: string;
+            cash_account_id: string;
+            journal_entry_id: string;
+            payable_type: string;
+            payable_id: string;
+            is_voided: string;
             contact?: components["schemas"]["ContactResource"];
             cash_account?: components["schemas"]["AccountResource"];
             journal_entry?: components["schemas"]["JournalEntryResource"];
-            created_by: number | null;
+            created_by: string;
             created_at: string;
             updated_at: string;
         };
         /** PermissionResource */
         PermissionResource: {
-            id: number;
+            id: string;
             name: string;
             display_name: string;
             group: string;
-            description: string | null;
+            description: string;
             created_at: string;
             updated_at: string;
         };
-        /** PlnTariffResource */
-        PlnTariffResource: {
+        /** PlnTariff */
+        PlnTariff: {
             id: number;
             category_code: string;
             category_name: string;
             customer_type: string;
-            customer_type_label: string;
             power_va_min: number;
             power_va_max: number | null;
-            power_range_label: string;
             rate_per_kwh: number;
-            formatted_rate: string;
             capacity_charge: number | null;
             minimum_charge: number | null;
-            /** @description Time-of-Use rates */
-            is_tou_tariff: boolean;
             peak_rate_per_kwh: number | null;
             off_peak_rate_per_kwh: number | null;
             peak_hours: string | null;
             is_active: boolean;
+            /** Format: date-time */
+            effective_from: string | null;
+            /** Format: date-time */
+            effective_until: string | null;
+            notes: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+        };
+        /** PlnTariffResource */
+        PlnTariffResource: {
+            id: string;
+            category_code: string;
+            category_name: string;
+            customer_type: string;
+            customer_type_label: string;
+            power_va_min: string;
+            power_va_max: string;
+            power_range_label: string;
+            rate_per_kwh: string;
+            formatted_rate: string;
+            capacity_charge: string;
+            minimum_charge: string;
+            /** @description Time-of-Use rates */
+            is_tou_tariff: string;
+            peak_rate_per_kwh: string;
+            off_peak_rate_per_kwh: string;
+            peak_hours: string;
+            is_active: string;
             effective_from: string;
             effective_until: string;
-            notes: string | null;
+            notes: string;
         };
         /** Product */
         Product: {
@@ -7416,79 +8149,79 @@ export interface components {
         };
         /** ProductCategoryResource */
         ProductCategoryResource: {
-            id: number;
+            id: string;
             code: string;
             name: string;
-            description: string | null;
-            parent_id: number | null;
+            description: string;
+            parent_id: string;
             parent?: components["schemas"]["ProductCategoryResource"];
             children?: components["schemas"]["ProductCategoryResource"][];
             descendants?: components["schemas"]["ProductCategoryResource"][];
             full_path: string;
-            is_active: boolean;
-            sort_order: number;
-            products_count?: number;
-            has_children?: boolean;
+            is_active: string;
+            sort_order: string;
+            products_count?: string;
+            has_children?: string;
             created_at: string;
             updated_at: string;
         };
         /** ProductResource */
         ProductResource: {
-            id: number;
+            id: string;
             sku: string;
             name: string;
-            description: string | null;
+            description: string;
             type: string;
             /** @enum {string} */
             type_label: "Produk" | "Jasa";
-            category_id: number | null;
+            category_id: string;
             category?: components["schemas"]["ProductCategoryResource"];
             unit: string;
             /** @description Pricing */
-            purchase_price: number;
-            selling_price: number;
+            purchase_price: string;
+            selling_price: string;
             selling_price_with_tax: string;
             selling_tax_amount: string;
             tax_rate: number;
-            is_taxable: boolean;
+            is_taxable: string;
             profit_margin: string;
             markup: string;
             /** @description Inventory */
-            track_inventory: boolean;
-            min_stock: number;
-            current_stock: number;
-            is_low_stock: boolean;
-            is_out_of_stock: boolean;
+            track_inventory: string;
+            min_stock: string;
+            current_stock: string;
+            is_low_stock: string;
+            is_out_of_stock: string;
             /** @description Accounting links */
-            inventory_account_id: number | null;
+            inventory_account_id: string;
             inventory_account?: components["schemas"]["AccountResource"];
-            cogs_account_id: number | null;
+            cogs_account_id: string;
             cogs_account?: components["schemas"]["AccountResource"];
-            sales_account_id: number | null;
+            sales_account_id: string;
             sales_account?: components["schemas"]["AccountResource"];
-            purchase_account_id: number | null;
+            purchase_account_id: string;
             purchase_account?: components["schemas"]["AccountResource"];
             /** @description Status */
-            is_active: boolean;
-            is_purchasable: boolean;
-            is_sellable: boolean;
+            is_active: string;
+            is_purchasable: string;
+            is_sellable: string;
             /** @description Additional info */
-            barcode: string | null;
-            brand: string | null;
-            custom_fields: unknown[] | null;
+            barcode: string;
+            brand: string;
+            custom_fields: string;
             created_at: string;
             updated_at: string;
         };
         /** ProductStockResource */
         ProductStockResource: {
-            id: number;
-            product_id: number;
+            id: string;
+            product_id: string;
             product?: components["schemas"]["ProductResource"];
-            warehouse_id: number;
+            warehouse_id: string;
             warehouse?: components["schemas"]["WarehouseResource"];
-            quantity: number;
-            average_cost: number;
-            total_value: number;
+            quantity: string;
+            average_cost: string;
+            total_value: string;
             created_at: string;
             updated_at: string;
         };
@@ -7604,98 +8337,98 @@ export interface components {
         };
         /** PurchaseOrderItemResource */
         PurchaseOrderItemResource: {
-            id: number;
-            purchase_order_id: number;
-            product_id: number | null;
+            id: string;
+            purchase_order_id: string;
+            product_id: string;
             product?: components["schemas"]["ProductResource"];
             description: string;
             quantity: number;
             quantity_received: number;
-            quantity_remaining: number;
+            quantity_remaining: string;
             unit: string;
-            unit_price: number;
-            gross_amount: number;
+            unit_price: string;
+            gross_amount: string;
             discount_percent: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            line_total: number;
-            sort_order: number;
-            notes: string | null;
-            expense_account_id: number | null;
+            tax_amount: string;
+            line_total: string;
+            sort_order: string;
+            notes: string;
+            expense_account_id: string;
             expense_account?: {
-                id: number;
+                id: string;
                 code: string;
                 name: string;
             };
             /** @description Receiving info */
-            is_fully_received: boolean;
-            receiving_progress: number;
+            is_fully_received: string;
+            receiving_progress: string;
             last_received_at: string;
             created_at: string;
             updated_at: string;
         };
         /** PurchaseOrderResource */
         PurchaseOrderResource: {
-            id: number;
+            id: string;
             po_number: string;
-            revision: number;
+            revision: string;
             full_number: string;
-            contact_id: number;
+            contact_id: string;
             contact?: components["schemas"]["ContactResource"];
             po_date: string;
             expected_date: string;
-            reference: string | null;
-            subject: string | null;
+            reference: string;
+            subject: string;
             status: string;
             status_label: string;
             currency: string;
             exchange_rate: number;
-            subtotal: number;
-            discount_type: string | null;
+            subtotal: string;
+            discount_type: string;
             discount_value: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            total: number;
-            base_currency_total: number;
-            notes: string | null;
-            terms_conditions: string | null;
-            shipping_address: string | null;
+            tax_amount: string;
+            total: string;
+            base_currency_total: string;
+            notes: string;
+            terms_conditions: string;
+            shipping_address: string;
             /** @description Receiving info */
-            receiving_progress: number;
-            is_fully_received: boolean;
-            has_received_items: boolean;
+            receiving_progress: string;
+            is_fully_received: string;
+            has_received_items: string;
             first_received_at: string;
             fully_received_at: string;
             /** @description Workflow info */
             submitted_at: string;
-            submitted_by: number | null;
+            submitted_by: string;
             approved_at: string;
-            approved_by: number | null;
+            approved_by: string;
             rejected_at: string;
-            rejected_by: number | null;
-            rejection_reason: string | null;
+            rejected_by: string;
+            rejection_reason: string;
             cancelled_at: string;
-            cancelled_by: number | null;
-            cancellation_reason: string | null;
-            converted_to_bill_id: number | null;
+            cancelled_by: string;
+            cancellation_reason: string;
+            converted_to_bill_id: string;
             converted_at: string;
-            original_po_id: number | null;
+            original_po_id: string;
             /** @description Permissions */
-            can_edit: boolean;
-            can_submit: boolean;
-            can_approve: boolean;
-            can_reject: boolean;
-            can_cancel: boolean;
-            can_receive: boolean;
-            can_convert: boolean;
-            can_revise: boolean;
+            can_edit: string;
+            can_submit: string;
+            can_approve: string;
+            can_reject: string;
+            can_cancel: string;
+            can_receive: string;
+            can_convert: string;
+            can_revise: string;
             /** @description Relations */
             items?: components["schemas"]["PurchaseOrderItemResource"][];
             revisions?: components["schemas"]["PurchaseOrderResource"][];
             converted_bill?: components["schemas"]["BillResource"];
-            created_by: number | null;
+            created_by: string;
             created_at: string;
             updated_at: string;
         };
@@ -7782,48 +8515,48 @@ export interface components {
         };
         /** QuotationActivityResource */
         QuotationActivityResource: {
-            id: number;
-            quotation_id: number;
-            user_id: number | null;
+            id: string;
+            quotation_id: string;
+            user_id: string;
             user?: components["schemas"]["UserResource"];
             type: string;
             type_label: string;
-            contact_method: string | null;
-            subject: string | null;
-            description: string | null;
+            contact_method: string;
+            subject: string;
+            description: string;
             activity_at: string;
-            duration_minutes: number | null;
-            formatted_duration: string | null;
-            contact_person: string | null;
-            contact_phone: string | null;
+            duration_minutes: string;
+            formatted_duration: string;
+            contact_person: string;
+            contact_phone: string;
             next_follow_up_at: string;
-            follow_up_type: string | null;
-            outcome: string | null;
-            outcome_label: string | null;
+            follow_up_type: string;
+            outcome: string;
+            outcome_label: string;
             created_at: string;
             updated_at: string;
         };
         /** QuotationItemResource */
         QuotationItemResource: {
-            id: number;
-            quotation_id: number;
-            product_id: number | null;
+            id: string;
+            quotation_id: string;
+            product_id: string;
             product?: components["schemas"]["ProductResource"];
             description: string;
             quantity: number;
             unit: string;
-            unit_price: number;
-            gross_amount: number;
+            unit_price: string;
+            gross_amount: string;
             discount_percent: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            line_total: number;
-            sort_order: number;
-            notes: string | null;
-            revenue_account_id: number | null;
+            tax_amount: string;
+            line_total: string;
+            sort_order: string;
+            notes: string;
+            revenue_account_id: string;
             revenue_account?: {
-                id: number;
+                id: string;
                 code: string;
                 name: string;
             };
@@ -7832,127 +8565,112 @@ export interface components {
         };
         /** QuotationResource */
         QuotationResource: {
-            id: number;
+            id: string;
             quotation_number: string;
-            revision: number;
+            revision: string;
             full_number: string;
-            contact_id: number;
+            contact_id: string;
             contact?: components["schemas"]["ContactResource"];
             quotation_date: string;
             valid_until: string;
-            days_until_expiry: number;
-            is_expired: boolean;
-            reference: string | null;
-            subject: string | null;
+            days_until_expiry: string;
+            is_expired: string;
+            reference: string;
+            subject: string;
             quotation_type: string;
-            is_multi_option: boolean;
-            variant_group_id: number | null;
+            is_multi_option: string;
+            variant_group_id: string;
             variant_group?: components["schemas"]["BomVariantGroupResource"];
-            selected_variant_id: number | null;
+            selected_variant_id: string;
             selected_variant?: components["schemas"]["BomResource"];
-            has_selected_variant: boolean;
+            has_selected_variant: string;
             status: string;
             status_label: string;
             currency: string;
             exchange_rate: number;
-            subtotal: number;
-            discount_type: string | null;
+            subtotal: string;
+            discount_type: string;
             discount_value: number;
-            discount_amount: number;
+            discount_amount: string;
             tax_rate: number;
-            tax_amount: number;
-            total: number;
-            base_currency_total: number;
-            notes: string | null;
-            terms_conditions: string | null;
+            tax_amount: string;
+            total: string;
+            base_currency_total: string;
+            notes: string;
+            terms_conditions: string;
             /** @description Workflow info */
             submitted_at: string;
-            submitted_by: number | null;
+            submitted_by: string;
             approved_at: string;
-            approved_by: number | null;
+            approved_by: string;
             rejected_at: string;
-            rejected_by: number | null;
-            rejection_reason: string | null;
+            rejected_by: string;
+            rejection_reason: string;
             /** @description Follow-up tracking */
             next_follow_up_at: string;
             last_contacted_at: string;
-            assigned_to: number | null;
+            assigned_to: string;
             assigned_user?: components["schemas"]["UserResource"];
-            follow_up_count: number;
+            follow_up_count: string;
             priority: string;
             priority_label: string;
-            needs_follow_up: boolean;
-            days_since_last_contact: number | null;
+            needs_follow_up: string;
+            days_since_last_contact: string;
             /** @description Win/Loss outcome */
-            outcome: string | null;
-            outcome_label: string | null;
-            won_reason: string | null;
-            lost_reason: string | null;
-            lost_to_competitor: string | null;
-            outcome_notes: string | null;
+            outcome: string;
+            outcome_label: string;
+            won_reason: string;
+            lost_reason: string;
+            lost_to_competitor: string;
+            outcome_notes: string;
             outcome_at: string;
-            converted_to_invoice_id: number | null;
+            converted_to_invoice_id: string;
             converted_at: string;
-            original_quotation_id: number | null;
+            original_quotation_id: string;
             /** @description Permissions */
-            can_edit: boolean;
-            can_submit: boolean;
-            can_approve: boolean;
-            can_reject: boolean;
-            can_convert: boolean;
-            can_revise: boolean;
+            can_edit: string;
+            can_submit: string;
+            can_approve: string;
+            can_reject: string;
+            can_convert: string;
+            can_revise: string;
             /** @description Relations */
             items?: components["schemas"]["QuotationItemResource"][];
             revisions?: components["schemas"]["QuotationResource"][];
             converted_invoice?: components["schemas"]["InvoiceResource"];
             activities?: components["schemas"]["QuotationActivityResource"][];
             variant_options?: components["schemas"]["QuotationVariantOptionResource"][];
-            variant_comparison?: {
-                options: {
-                    [key: string]: unknown;
-                }[];
-                price_range: {
-                    min: number;
-                    max: number;
-                    difference: number;
-                };
-            } | null;
-            created_by: number | null;
+            variant_comparison?: string;
+            created_by: string;
             created_at: string;
             updated_at: string;
         };
         /** QuotationVariantOptionResource */
         QuotationVariantOptionResource: {
-            id: number;
-            quotation_id: number;
-            bom_id: number;
+            id: string;
+            quotation_id: string;
+            bom_id: string;
             bom?: {
-                id: number;
+                id: string;
                 bom_number: string;
                 name: string;
-                variant_name: string | null;
-                variant_label: string | null;
-                total_cost: number;
-                unit_cost: number;
+                variant_name: string;
+                variant_label: string;
+                total_cost: string;
+                unit_cost: string;
             };
             display_name: string;
-            tagline: string | null;
-            is_recommended: boolean;
-            selling_price: number;
-            features: unknown[] | null;
-            specifications: unknown[] | null;
-            warranty_terms: string | null;
-            sort_order: number;
+            tagline: string;
+            is_recommended: string;
+            selling_price: string;
+            features: string;
+            specifications: string;
+            warranty_terms: string;
+            sort_order: string;
             /** @description Calculated fields (from BOM relationship) */
-            profit_margin?: number;
-            profit_amount?: number;
-            cost_breakdown?: {
-                material: number;
-                labor: number;
-                overhead: number;
-                total: number;
-                unit_cost: number;
-            };
+            profit_margin?: string;
+            profit_amount?: string;
+            cost_breakdown?: string;
             created_at: string;
             updated_at: string;
         };
@@ -7962,34 +8680,34 @@ export interface components {
         };
         /** RecurringTemplateResource */
         RecurringTemplateResource: {
-            id: number;
+            id: string;
             name: string;
             type: string;
-            contact_id: number;
+            contact_id: string;
             contact?: components["schemas"]["ContactResource"];
             frequency: string;
             frequency_label: string;
-            interval: number;
+            interval: string;
             start_date: string;
             end_date: string;
             next_generate_date: string;
-            occurrences_limit: number | null;
-            occurrences_count: number;
-            description: string | null;
-            reference: string | null;
+            occurrences_limit: string;
+            occurrences_count: string;
+            description: string;
+            reference: string;
             tax_rate: number;
-            discount_amount: number;
+            discount_amount: string;
             early_discount_percent: number;
-            early_discount_days: number;
-            payment_term_days: number;
+            early_discount_days: string;
+            payment_term_days: string;
             currency: string;
-            items: unknown[];
-            is_active: boolean;
-            auto_post: boolean;
-            auto_send: boolean;
-            can_generate: boolean;
-            invoices_count?: number;
-            bills_count?: number;
+            items: string;
+            is_active: string;
+            auto_post: string;
+            auto_send: string;
+            can_generate: string;
+            invoices_count?: string;
+            bills_count?: string;
             created_at: string;
             updated_at: string;
         };
@@ -8005,11 +8723,11 @@ export interface components {
         };
         /** RoleResource */
         RoleResource: {
-            id: number;
+            id: string;
             name: string;
             display_name: string;
-            description: string | null;
-            is_system: boolean;
+            description: string;
+            is_system: string;
             /** @description Related */
             permissions?: components["schemas"]["PermissionResource"][];
             permissions_count?: number;
@@ -8100,44 +8818,44 @@ export interface components {
         };
         /** SolarProposalListResource */
         SolarProposalListResource: {
-            id: number;
+            id: string;
             proposal_number: string;
             status: string;
             status_label: string;
-            contact_id: number;
+            contact_id: string;
             contact?: components["schemas"]["ContactResource"];
-            site_name: string | null;
-            province: string | null;
-            city: string | null;
+            site_name: string;
+            province: string;
+            city: string;
             system_capacity_kwp: number | null;
-            system_cost: number | null;
-            payback_years: number | null;
-            roi_percent: number | null;
+            system_cost: string;
+            payback_years: string;
+            roi_percent: string;
             valid_until: string;
-            is_expired: boolean;
-            created_by: number;
+            is_expired: string;
+            created_by: string;
             creator?: components["schemas"]["UserResource"];
             created_at: string;
             updated_at: string;
         };
         /** SolarProposalResource */
         SolarProposalResource: {
-            id: number;
+            id: string;
             proposal_number: string;
             status: string;
             status_label: string;
             /** @description Contact */
-            contact_id: number;
+            contact_id: string;
             contact?: components["schemas"]["ContactResource"];
             /** @description Site Information */
-            site_name: string | null;
-            site_address: string | null;
-            province: string | null;
-            city: string | null;
+            site_name: string;
+            site_address: string;
+            province: string;
+            city: string;
             latitude: number | null;
             longitude: number | null;
             roof_area_m2: number | null;
-            roof_polygon: unknown[] | null;
+            roof_polygon: string;
             roof_type: string;
             roof_type_label: string;
             roof_orientation: string;
@@ -8146,61 +8864,100 @@ export interface components {
             shading_percentage: number | null;
             /** @description Electricity Profile */
             monthly_consumption_kwh: number | null;
-            pln_tariff_category: string | null;
-            electricity_rate: number | null;
+            pln_tariff_category: string;
+            electricity_rate: string;
             tariff_escalation_percent: number | null;
             /** @description Solar Data */
             peak_sun_hours: number | null;
             solar_irradiance: number | null;
             performance_ratio: number | null;
             /** @description System Selection */
-            variant_group_id: number | null;
+            variant_group_id: string;
             variant_group?: components["schemas"]["BomVariantGroupResource"];
-            selected_bom_id: number | null;
+            selected_bom_id: string;
             selected_bom?: components["schemas"]["BomResource"];
             system_capacity_kwp: number | null;
             annual_production_kwh: number | null;
-            monthly_production_kwh: number | null;
-            solar_offset_percent: number | null;
-            system_cost: number | null;
+            monthly_production_kwh: string;
+            solar_offset_percent: string;
+            system_cost: string;
             /** @description Financial Analysis */
-            financial_analysis: unknown[] | null;
-            payback_years: number | null;
-            roi_percent: number | null;
-            npv: number | null;
-            irr_percent: number | null;
-            first_year_savings: number | null;
-            total_lifetime_savings: number | null;
+            financial_analysis: string;
+            payback_years: string;
+            roi_percent: string;
+            npv: string;
+            irr_percent: string;
+            first_year_savings: string;
+            total_lifetime_savings: string;
             /** @description Environmental Impact */
-            environmental_impact: unknown[] | null;
-            co2_offset_tons: number | null;
-            trees_equivalent: number | null;
-            cars_equivalent: number | null;
+            environmental_impact: string;
+            co2_offset_tons: string;
+            trees_equivalent: string;
+            cars_equivalent: string;
             /** @description Proposal Settings */
-            sections_config: unknown[] | null;
-            custom_content: unknown[] | null;
+            sections_config: string;
+            custom_content: string;
             valid_until: string;
-            days_until_expiry: number | null;
-            is_expired: boolean;
-            notes: string | null;
+            days_until_expiry: string;
+            is_expired: string;
+            notes: string;
             /** @description Metadata */
-            created_by: number;
+            created_by: string;
             creator?: components["schemas"]["UserResource"];
             sent_at: string;
             accepted_at: string;
             rejected_at: string;
-            rejection_reason: string | null;
-            converted_quotation_id: number | null;
+            rejection_reason: string;
+            converted_quotation_id: string;
             converted_quotation?: components["schemas"]["QuotationResource"];
             /** @description Public Access */
-            public_url: string | null;
-            has_valid_public_token: boolean;
+            public_url: string;
+            has_valid_public_token: string;
             /** @description Permissions */
-            can_edit: boolean;
-            can_send: boolean;
-            can_accept: boolean;
-            can_reject: boolean;
-            can_convert: boolean;
+            can_edit: string;
+            can_send: string;
+            can_accept: string;
+            can_reject: string;
+            can_convert: string;
+            created_at: string;
+            updated_at: string;
+        };
+        /** SpecValidationRuleResource */
+        SpecValidationRuleResource: {
+            id: number;
+            rule_set_id: number;
+            category: string;
+            category_label: string;
+            spec_key: string;
+            validation_type: string;
+            validation_type_label: string;
+            threshold_value: string | null;
+            severity: string;
+            severity_label: string;
+            message: string | null;
+            sort_order: number;
+            description: string;
+            requires_threshold: boolean;
+            created_at: string;
+            updated_at: string;
+        };
+        /** SpecValidationRuleSet */
+        SpecValidationRuleSet: Record<string, never>;
+        /** SpecValidationRuleSetResource */
+        SpecValidationRuleSetResource: {
+            id: number;
+            code: string;
+            name: string;
+            description: string | null;
+            is_default: boolean;
+            is_active: boolean;
+            rules?: components["schemas"]["SpecValidationRuleResource"][];
+            rules_count?: number;
+            boms_count?: number;
+            creator?: {
+                id: number;
+                name: string;
+            };
             created_at: string;
             updated_at: string;
         };
@@ -8398,6 +9155,32 @@ export interface components {
                 notes?: string | null;
             }[];
         };
+        /** StoreBomTemplateItemRequest */
+        StoreBomTemplateItemRequest: {
+            /** @enum {string} */
+            type: "material" | "labor" | "overhead";
+            component_standard_id?: number | null;
+            product_id?: number | null;
+            description: string;
+            default_quantity?: number | null;
+            unit?: string | null;
+            is_required?: boolean | null;
+            is_quantity_variable?: boolean | null;
+            sort_order?: number | null;
+            notes?: string | null;
+        };
+        /** StoreBomTemplateRequest */
+        StoreBomTemplateRequest: {
+            code: string;
+            name: string;
+            description?: string | null;
+            /** @enum {string|null} */
+            category?: "distribution" | "motor_control" | "solar" | "lighting" | "other" | null;
+            /** Format: binary */
+            thumbnail?: string | null;
+            default_rule_set_id?: number | null;
+            is_active?: boolean | null;
+        };
         /** StoreBomVariantGroupRequest */
         StoreBomVariantGroupRequest: {
             product_id: number;
@@ -8452,6 +9235,72 @@ export interface components {
                 nov_amount?: number | null;
                 dec_amount?: number | null;
                 notes?: string | null;
+            }[] | null;
+        };
+        /** StoreCompanyProfileRequest */
+        StoreCompanyProfileRequest: {
+            name: string;
+            slug: string;
+            tagline?: string | null;
+            description?: string | null;
+            founded_year?: number | null;
+            employees_count?: string | null;
+            /**
+             * Format: binary
+             * @description Branding - restrict to safe image formats (no SVG)
+             */
+            logo?: string | null;
+            /**
+             * Format: binary
+             * @description 2MB max
+             */
+            cover_image?: string | null;
+            /** @description 5MB max */
+            primary_color?: string | null;
+            secondary_color?: string | null;
+            /**
+             * Format: email
+             * @description Contact
+             */
+            email?: string | null;
+            phone?: string | null;
+            address?: string | null;
+            /** Format: uri */
+            website?: string | null;
+            /** @description Custom domain */
+            custom_domain?: string | null;
+            /** @description Status */
+            is_active?: boolean;
+            social_links?: {
+                /** Format: uri */
+                instagram?: string | null;
+                /** Format: uri */
+                linkedin?: string | null;
+                /** Format: uri */
+                facebook?: string | null;
+                /** Format: uri */
+                youtube?: string | null;
+            };
+            /** @description JSON arrays */
+            services?: {
+                title?: string;
+                description?: string | null;
+                icon?: string | null;
+            }[] | null;
+            portfolio?: {
+                title?: string;
+                description?: string | null;
+                year?: number | null;
+            }[] | null;
+            team?: {
+                name?: string;
+                role?: string | null;
+                bio?: string | null;
+            }[] | null;
+            certifications?: {
+                name?: string;
+                issuer?: string | null;
+                year?: number | null;
             }[] | null;
         };
         /** StoreComponentBrandMappingRequest */
@@ -8922,6 +9771,27 @@ export interface components {
                 coordinates?: string[];
             };
         };
+        /** StoreSpecValidationRuleRequest */
+        StoreSpecValidationRuleRequest: {
+            /** @enum {string} */
+            category: "circuit_breaker" | "contactor" | "relay" | "cable" | "busbar" | "enclosure" | "terminal" | "meter" | "transformer" | "capacitor";
+            spec_key: string;
+            /** @enum {string} */
+            validation_type: "warn_if_lower" | "warn_if_higher" | "must_match" | "min_value" | "max_value";
+            threshold_value?: number | null;
+            /** @enum {string|null} */
+            severity?: "warning" | "error" | null;
+            message?: string | null;
+            sort_order?: number | null;
+        };
+        /** StoreSpecValidationRuleSetRequest */
+        StoreSpecValidationRuleSetRequest: {
+            code: string;
+            name: string;
+            description?: string | null;
+            is_default?: boolean | null;
+            is_active?: boolean | null;
+        };
         /** StoreStockOpnameRequest */
         StoreStockOpnameRequest: {
             warehouse_id: number;
@@ -9179,6 +10049,32 @@ export interface components {
                 notes?: string | null;
             }[];
         };
+        /** UpdateBomTemplateItemRequest */
+        UpdateBomTemplateItemRequest: {
+            /** @enum {string} */
+            type?: "material" | "labor" | "overhead";
+            component_standard_id?: number | null;
+            product_id?: number | null;
+            description?: string;
+            default_quantity?: number | null;
+            unit?: string | null;
+            is_required?: boolean | null;
+            is_quantity_variable?: boolean | null;
+            sort_order?: number | null;
+            notes?: string | null;
+        };
+        /** UpdateBomTemplateRequest */
+        UpdateBomTemplateRequest: {
+            code?: string;
+            name?: string;
+            description?: string | null;
+            /** @enum {string|null} */
+            category?: "distribution" | "motor_control" | "solar" | "lighting" | "other" | null;
+            /** Format: binary */
+            thumbnail?: string | null;
+            default_rule_set_id?: number | null;
+            is_active?: boolean | null;
+        };
         /** UpdateBomVariantGroupRequest */
         UpdateBomVariantGroupRequest: {
             name?: string;
@@ -9212,6 +10108,68 @@ export interface components {
             /** @enum {string} */
             type?: "annual" | "quarterly" | "monthly";
             notes?: string | null;
+        };
+        /** UpdateCompanyProfileRequest */
+        UpdateCompanyProfileRequest: {
+            name?: string;
+            slug?: string;
+            tagline?: string | null;
+            description?: string | null;
+            founded_year?: number | null;
+            employees_count?: string | null;
+            /**
+             * Format: binary
+             * @description Branding - restrict to safe image formats (no SVG)
+             */
+            logo?: string | null;
+            /** Format: binary */
+            cover_image?: string | null;
+            primary_color?: string | null;
+            secondary_color?: string | null;
+            /**
+             * Format: email
+             * @description Contact
+             */
+            email?: string | null;
+            phone?: string | null;
+            address?: string | null;
+            /** Format: uri */
+            website?: string | null;
+            /** @description Custom domain */
+            custom_domain?: string | null;
+            /** @description Status */
+            is_active?: boolean;
+            social_links?: {
+                /** Format: uri */
+                instagram?: string | null;
+                /** Format: uri */
+                linkedin?: string | null;
+                /** Format: uri */
+                facebook?: string | null;
+                /** Format: uri */
+                youtube?: string | null;
+            };
+            /** @description JSON arrays */
+            services?: {
+                title?: string;
+                description?: string | null;
+                icon?: string | null;
+            }[] | null;
+            portfolio?: {
+                title?: string;
+                description?: string | null;
+                year?: number | null;
+            }[] | null;
+            team?: {
+                name?: string;
+                role?: string | null;
+                bio?: string | null;
+            }[] | null;
+            certifications?: {
+                name?: string;
+                issuer?: string | null;
+                year?: number | null;
+            }[] | null;
         };
         /** UpdateComponentBrandMappingRequest */
         UpdateComponentBrandMappingRequest: {
@@ -9590,6 +10548,27 @@ export interface components {
                 coordinates?: string[];
             };
         };
+        /** UpdateSpecValidationRuleRequest */
+        UpdateSpecValidationRuleRequest: {
+            /** @enum {string} */
+            category?: "circuit_breaker" | "contactor" | "relay" | "cable" | "busbar" | "enclosure" | "terminal" | "meter" | "transformer" | "capacitor";
+            spec_key?: string;
+            /** @enum {string} */
+            validation_type?: "warn_if_lower" | "warn_if_higher" | "must_match" | "min_value" | "max_value";
+            threshold_value?: number | null;
+            /** @enum {string|null} */
+            severity?: "warning" | "error" | null;
+            message?: string | null;
+            sort_order?: number | null;
+        };
+        /** UpdateSpecValidationRuleSetRequest */
+        UpdateSpecValidationRuleSetRequest: {
+            code?: string;
+            name?: string;
+            description?: string | null;
+            is_default?: boolean | null;
+            is_active?: boolean | null;
+        };
         /** UpdateStockOpnameRequest */
         UpdateStockOpnameRequest: {
             /** Format: date-time */
@@ -9685,15 +10664,15 @@ export interface components {
         };
         /** WarehouseResource */
         WarehouseResource: {
-            id: number;
+            id: string;
             code: string;
             name: string;
-            address: string | null;
-            phone: string | null;
-            contact_person: string | null;
-            is_default: boolean;
-            is_active: boolean;
-            notes: string | null;
+            address: string;
+            phone: string;
+            contact_person: string;
+            is_default: string;
+            is_active: string;
+            notes: string;
             /** @description Related counts */
             product_stocks_count?: number;
             product_stocks?: components["schemas"]["ProductStockResource"][];
@@ -10871,14 +11850,7 @@ export interface operations {
     };
     "bills.index": {
         parameters: {
-            query?: {
-                status?: string;
-                contact_id?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -11036,27 +12008,12 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /**
-             * @description An error
-             *
-             *     An error
-             */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example Hanya tagihan draft yang bisa dihapus.
-                         */
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Tidak bisa menghapus tagihan yang sudah memiliki pembayaran.
-                         */
                         message: string;
                     };
                 };
@@ -11088,19 +12045,12 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /** @description An error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Tagihan sudah diposting.
-                         */
                         message: string;
                     };
                 };
@@ -11529,6 +12479,670 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
+    "bomTemplate.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                category?: string;
+                search?: string;
+                sort_by?: string;
+                sort_dir?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `BomTemplateResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "bomTemplate.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["StoreBomTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomTemplateResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            categories: [
+                                "Distribution Panel",
+                                "Motor Control Center",
+                                "Solar Panel",
+                                "Lighting Panel",
+                                "Other"
+                            ];
+                            item_types: [
+                                "Material",
+                                "Tenaga Kerja",
+                                "Overhead"
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "bomTemplate.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `BomTemplateResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomTemplate.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["UpdateBomTemplateRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomTemplateResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Template berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomTemplate.duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    code: string;
+                    name?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description `BomTemplateResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.toggleActive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Template berhasil diaktifkan." | "Template berhasil dinonaktifkan.";
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomTemplate.storeItem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreBomTemplateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomTemplateItemResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateItemResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.updateItem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+                /** @description The item ID */
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateBomTemplateItemRequest"];
+            };
+        };
+        responses: {
+            /** @description `BomTemplateItemResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BomTemplateItemResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.destroyItem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+                /** @description The item ID */
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Item berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomTemplate.reorderItems": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    item_ids: number[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Urutan item berhasil diubah.";
+                        data: components["schemas"]["BomTemplateResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.availableBrands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: [
+                            {
+                                code: string;
+                                name: string;
+                                coverage: string;
+                                coverage_percent: number;
+                            }
+                        ] | string[];
+                        meta: {
+                            template_id: number;
+                            template_code: string;
+                            items_with_standard: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bomTemplate.previewCreateBom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    target_brand?: string | null;
+                    quantity_overrides?: string[] | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: [
+                            {
+                                template_item_id: string;
+                                type: string;
+                                description: string;
+                                quantity: string;
+                                unit: string;
+                                unit_cost: string | 0;
+                                product: string | null;
+                                component_standard: {
+                                    id: string;
+                                    code: string;
+                                    name: string;
+                                } | null;
+                                status: string;
+                                notes: string | null;
+                                is_required: string;
+                                is_quantity_variable: string;
+                            }
+                        ];
+                        report: {
+                            template_id: number;
+                            template_code: string;
+                            target_brand: unknown;
+                            total_items: number;
+                            /** @enum {integer} */
+                            resolved: 0;
+                            /** @enum {integer} */
+                            no_mapping: 0;
+                            /** @enum {integer} */
+                            using_product: 0;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplate.createBom": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBomFromTemplateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "BOM berhasil dibuat dari template.";
+                        data: components["schemas"]["BomResource"];
+                        report: {
+                            template_id: number;
+                            template_code: string;
+                            target_brand: string | null;
+                            total_items: number;
+                            /** @enum {integer} */
+                            resolved: 0;
+                            /** @enum {integer} */
+                            no_mapping: 0;
+                            /** @enum {integer} */
+                            using_product: 0;
+                            items: [
+                                {
+                                    /** @enum {string} */
+                                    status: "using_product";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: null;
+                                        component_standard_id: null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | "pcs";
+                                        /** @enum {integer} */
+                                        unit_cost: 0;
+                                        notes: string | null;
+                                    };
+                                    product: null;
+                                    /** @enum {string} */
+                                    notes: "Item manual tanpa produk terkait";
+                                } | {
+                                    /** @enum {string} */
+                                    status: "no_mapping";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: null;
+                                        component_standard_id: number | null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | "pcs";
+                                        /** @enum {integer} */
+                                        unit_cost: 0;
+                                        notes: string | null;
+                                    };
+                                    product: null;
+                                    /** @enum {string} */
+                                    notes: "Tidak ada brand mapping untuk komponen standar ini";
+                                } | {
+                                    /** @enum {string} */
+                                    status: "resolved";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: string;
+                                        component_standard_id: number | null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | (string | "pcs");
+                                        unit_cost: string | 0;
+                                        notes: string | null;
+                                    };
+                                    product: {
+                                        id: string;
+                                        name: string;
+                                        sku: string;
+                                        brand: string;
+                                        brand_sku: string;
+                                        purchase_price: string;
+                                    };
+                                    notes: string;
+                                } | {
+                                    /** @enum {string} */
+                                    status: "no_mapping";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: null;
+                                        component_standard_id: number | null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | "pcs";
+                                        /** @enum {integer} */
+                                        unit_cost: 0;
+                                        notes: string | null;
+                                    };
+                                    product: null;
+                                    notes: string;
+                                } | {
+                                    /** @enum {string} */
+                                    status: "resolved";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: string;
+                                        component_standard_id: number | null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | (string | "pcs");
+                                        unit_cost: string | 0;
+                                        notes: string | null;
+                                    };
+                                    product: {
+                                        id: string;
+                                        name: string;
+                                        sku: string;
+                                        brand: string;
+                                        brand_sku: string;
+                                        purchase_price: string;
+                                    };
+                                    notes: null;
+                                } | {
+                                    /** @enum {string} */
+                                    status: "using_product";
+                                    bom_item_data: {
+                                        type: string;
+                                        product_id: number;
+                                        component_standard_id: number | null;
+                                        description: string;
+                                        quantity: (string | null) | number;
+                                        unit: string | (string | "pcs");
+                                        unit_cost: number | 0;
+                                        notes: string | null;
+                                    };
+                                    product: {
+                                        id: number;
+                                        name: string;
+                                        sku: string;
+                                        brand: string | null;
+                                        purchase_price: number;
+                                    };
+                                    /** @enum {string} */
+                                    notes: "Menggunakan produk spesifik dari template";
+                                }
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "bom-variant-groups.index": {
         parameters: {
             query?: {
@@ -11723,7 +13337,7 @@ export interface operations {
                                 variant_name: string | null;
                                 variant_label: string | null;
                                 is_primary: boolean;
-                                status: string;
+                                status: components["schemas"]["DocumentStatus"];
                                 cost_breakdown: {
                                     material: {
                                         amount: number;
@@ -12642,6 +14256,226 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "company-profiles.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                search?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "company-profiles.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["StoreCompanyProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "company-profiles.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The company profile ID */
+                companyProfile: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "company-profiles.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The company profile ID */
+                companyProfile: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "multipart/form-data": components["schemas"]["UpdateCompanyProfileRequest"];
+            };
+        };
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "company-profiles.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The company profile ID */
+                companyProfile: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Profil perusahaan berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "companyProfile.removeLogo": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The company profile ID */
+                companyProfile: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "companyProfile.removeCover": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The company profile ID */
+                companyProfile: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "componentBrandMapping.store": {
         parameters: {
             query?: never;
@@ -12975,6 +14809,7 @@ export interface operations {
                             };
                             items: [
                                 {
+                                    bom_item_id: string;
                                     description: string;
                                     quantity: string;
                                     current_unit_cost: string;
@@ -12985,8 +14820,22 @@ export interface operations {
                                     can_swap: string;
                                     target_product: string;
                                     target_sku: string;
+                                    validation: {
+                                        status: string | "valid";
+                                        warnings: string | string[];
+                                        errors: string | string[];
+                                    } | null;
                                 }
                             ];
+                            validation: {
+                                valid: string;
+                                rule_set: {
+                                    id: string;
+                                    name: string;
+                                    code: string;
+                                } | null;
+                                summary: string | string[];
+                            };
                         };
                     };
                 };
@@ -13176,6 +15025,344 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.getItemAlternatives": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+                /** @description The item ID */
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            current: {
+                                product_id: number | null;
+                                product_name: string;
+                                product_sku: string;
+                                unit_cost: number;
+                                brand: string;
+                                component_standard_id: number | null;
+                                brand_label: string | null;
+                            };
+                            alternatives: string;
+                            has_standard: boolean;
+                        } | {
+                            current: {
+                                product_id: number | null;
+                                product_name: string;
+                                product_sku: string;
+                                unit_cost: number;
+                                brand: null;
+                                component_standard_id: number | null;
+                            };
+                            alternatives: string[];
+                            has_standard: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.quickSwapItem": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom ID */
+                bom: number;
+                /** @description The item ID */
+                item: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product_id: number;
+                    reason?: string | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Item berhasil diganti.";
+                        data: {
+                            success: boolean;
+                            item: components["schemas"]["BomItem"];
+                            previous: unknown[];
+                            savings: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.getUnmappedProducts": {
+        parameters: {
+            query?: {
+                brand?: string;
+                limit?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                            name: string;
+                            sku: string;
+                            brand: string | null;
+                            purchase_price: number;
+                        }[];
+                        meta: {
+                            total: number;
+                            brand: unknown;
+                            limit: Record<string, never> | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "componentCrossReference.suggestMapping": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The product ID */
+                product: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            product_id: number;
+                            product_name: string;
+                            product_sku: string;
+                            product_brand: string | null;
+                            parsed_specs: {
+                                category: string;
+                                subcategory: string;
+                                specs: {
+                                    rating_amps: number;
+                                    poles: number;
+                                    curve: string;
+                                    breaking_capacity_ka: number;
+                                    voltage: number;
+                                    conductor_size_mm2: number;
+                                    cores: number;
+                                    coil_voltage: number;
+                                    ac_category: string;
+                                    width_mm: number;
+                                    thickness_mm: number;
+                                    /** @enum {string} */
+                                    material: "aluminium";
+                                };
+                                brand: string;
+                            };
+                            suggestions: [
+                                {
+                                    component_standard_id: string;
+                                    code: string;
+                                    name: string;
+                                    category: string;
+                                    subcategory: string;
+                                    specifications: string;
+                                    match_score: string;
+                                    existing_brands: string;
+                                }
+                            ];
+                            has_suggestions: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "componentCrossReference.suggestMappingsBatch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    product_ids: number[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.acceptSuggestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The product ID */
+                product: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    component_standard_id: number;
+                    brand_sku?: string | null;
+                    is_preferred?: boolean | null;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Mapping berhasil dibuat.";
+                        data: components["schemas"]["ComponentBrandMappingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.bulkAcceptSuggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    mappings: {
+                        product_id: number;
+                        component_standard_id: number;
+                        brand_sku?: string | null;
+                        is_preferred?: boolean | null;
+                    }[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "componentCrossReference.parseProductName": {
+        parameters: {
+            query: {
+                name: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            category: string;
+                            subcategory: string;
+                            specs: {
+                                rating_amps: number;
+                                poles: number;
+                                curve: string;
+                                breaking_capacity_ka: number;
+                                voltage: number;
+                                conductor_size_mm2: number;
+                                cores: number;
+                                coil_voltage: number;
+                                ac_category: string;
+                                width_mm: number;
+                                thickness_mm: number;
+                                /** @enum {string} */
+                                material: "aluminium";
+                            };
+                            brand: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -13990,11 +16177,7 @@ export interface operations {
     };
     "delivery-orders.index": {
         parameters: {
-            query?: {
-                /** @description Sorting */
-                sort?: string;
-                direction?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -15735,29 +17918,10 @@ export interface operations {
                         period: components["schemas"]["FiscalPeriodResource"];
                         can_close: boolean;
                         checklist: {
-                            unposted_journals: {
-                                /** @enum {string} */
-                                status: "ok" | "error";
+                            [key: string]: {
+                                status: string;
                                 count: number;
-                                message: string | "Semua jurnal sudah diposting";
-                            };
-                            draft_invoices: {
-                                /** @enum {string} */
-                                status: "ok" | "warning";
-                                count: number;
-                                message: string | "Tidak ada faktur draft";
-                            };
-                            draft_bills: {
-                                /** @enum {string} */
-                                status: "ok" | "warning";
-                                count: number;
-                                message: string | "Tidak ada tagihan draft";
-                            };
-                            unreconciled_bank: {
-                                /** @enum {string} */
-                                status: "ok" | "warning";
-                                count: number;
-                                message: string | "Semua transaksi bank sudah direkonsiliasi";
+                                message: string;
                             };
                         };
                     };
@@ -16571,14 +18735,7 @@ export interface operations {
     };
     "invoices.index": {
         parameters: {
-            query?: {
-                status?: string;
-                contact_id?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -16736,31 +18893,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /**
-             * @description An error
-             *
-             *     An error
-             */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example Hanya faktur draft yang bisa dihapus.
-                         */
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Tidak bisa menghapus faktur yang sudah memiliki pembayaran.
-                         */
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "invoice.post": {
@@ -16788,23 +18920,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /** @description An error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Faktur sudah diposting.
-                         */
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "invoice.makeRecurring": {
@@ -17819,7 +19934,7 @@ export interface operations {
                     "application/json": {
                         horizon_start: string;
                         horizon_end: string;
-                        warehouse_id: string;
+                        warehouse_id: unknown;
                         total_shortages: number;
                         shortages: [
                             {
@@ -17880,15 +19995,7 @@ export interface operations {
     };
     "payment.index": {
         parameters: {
-            query?: {
-                type?: string;
-                contact_id?: string;
-                is_voided?: boolean;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -18015,19 +20122,12 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /** @description An error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Pembayaran sudah dibatalkan.
-                         */
                         message: string;
                     };
                 };
@@ -18162,16 +20262,7 @@ export interface operations {
     };
     "products.index": {
         parameters: {
-            query?: {
-                type?: string;
-                category_id?: string;
-                is_active?: boolean;
-                is_sellable?: boolean;
-                is_purchasable?: boolean;
-                track_inventory?: boolean;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -18323,10 +20414,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        message: "Produk berhasil dihapus.";
-                    } | {
-                        /** @enum {string} */
-                        message: "Produk dinonaktifkan karena sudah memiliki transaksi.";
+                        message: "Produk berhasil dihapus." | "Produk dinonaktifkan karena sudah memiliki transaksi.";
                     };
                 };
             };
@@ -18347,6 +20435,7 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
+                    warehouse_id: number;
                     quantity: number;
                     reason?: string | null;
                 };
@@ -18361,9 +20450,9 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         message: "Stok berhasil disesuaikan.";
-                        previous_stock: string;
-                        adjustment: unknown;
-                        current_stock: string;
+                        ""?: {
+                            [key: string]: unknown;
+                        };
                     };
                 };
             };
@@ -18735,16 +20824,7 @@ export interface operations {
     };
     "projects.index": {
         parameters: {
-            query?: {
-                status?: string;
-                priority?: string;
-                contact_id?: string;
-                manager_id?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -19428,7 +21508,7 @@ export interface operations {
                         data: {
                             project_id: number;
                             project_number: string;
-                            status: string;
+                            status: components["schemas"]["DocumentStatus"];
                             progress: string;
                             budget: {
                                 amount: number;
@@ -19513,6 +21593,191 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    publicCompanyProfileList: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            id: number;
+                            name: string;
+                            slug: string;
+                            tagline: string | null;
+                            logo_url: string;
+                            primary_color: string;
+                            public_url: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
+    publicCompanyProfileShow: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifier: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CompanyProfileResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CompanyProfileResource"];
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Profil perusahaan tidak ditemukan.";
+                        /** @enum {string} */
+                        error: "profile_not_found";
+                    };
+                };
+            };
+        };
+    };
+    publicSolarCalculate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    monthly_bill: number;
+                    /** @description Min Rp 5 juta for B2B */
+                    pln_power_va?: number | null;
+                    /** @description Min 5.5 kVA for B2B */
+                    pln_category?: string | null;
+                    target_savings?: number | null;
+                    price_per_kwp?: number | null;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            /** @description Input summary */
+                            input: {
+                                monthly_bill: number;
+                                target_savings: number;
+                                pln_tariff: {
+                                    code: string;
+                                    name: string;
+                                    rate_per_kwh: string;
+                                };
+                                peak_sun_hours: number;
+                            };
+                            /** @description Recommendation */
+                            recommendation: {
+                                capacity_kwp: string;
+                                estimated_panels: number;
+                                /** @description ~400W panels */
+                                roof_area_m2: number;
+                            };
+                            /** @description Production */
+                            production: {
+                                monthly_kwh: number;
+                                annual_kwh: number;
+                            };
+                            /** @description Savings summary (most important for user) */
+                            savings: {
+                                monthly_bill_before: number;
+                                monthly_bill_after: number;
+                                monthly_savings: number;
+                                annual_savings: number;
+                                solar_offset_percent: null | Record<string, never> | 0;
+                            };
+                            /** @description Financial analysis */
+                            financial: {
+                                investment_cost: number;
+                                price_per_kwp: number;
+                                payback_years: number | null;
+                                roi_percent: number | 0;
+                                /** @enum {integer} */
+                                lifetime_savings: 0;
+                                npv: number;
+                            };
+                            /** @description Environmental impact */
+                            environmental: {
+                                co2_offset_tons_per_year: number;
+                                trees_equivalent: number;
+                                co2_lifetime_tons: number;
+                            };
+                        };
+                    };
+                };
+            };
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Tarif PLN tidak ditemukan.";
+                        /** @enum {string} */
+                        error: "tariff_not_found";
+                    };
+                };
+            };
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    publicSolarTariffs: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            tariffs: components["schemas"]["PlnTariff"][];
+                            grouped: string[][];
+                        };
+                    };
+                };
+            };
         };
     };
     getPublicProposal: {
@@ -19676,14 +21941,7 @@ export interface operations {
     };
     "purchase-orders.index": {
         parameters: {
-            query?: {
-                status?: string;
-                contact_id?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -20165,11 +22423,7 @@ export interface operations {
     };
     "purchase-returns.index": {
         parameters: {
-            query?: {
-                /** @description Sorting */
-                sort?: string;
-                direction?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -20612,15 +22866,7 @@ export interface operations {
     };
     "quotations.index": {
         parameters: {
-            query?: {
-                status?: string;
-                contact_id?: string;
-                quotation_type?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -21989,7 +24235,7 @@ export interface operations {
                         /** @enum {string} */
                         report_name: "Neraca Saldo";
                         as_of_date: unknown | string;
-                        accounts: string[];
+                        accounts: string;
                         total_debit: string;
                         total_credit: string;
                         is_balanced: boolean;
@@ -22019,70 +24265,8 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Posisi Keuangan";
-                        as_of_date: unknown | string;
-                        assets: {
-                            current: string;
-                            fixed: string;
-                            total: string;
-                        };
-                        liabilities: {
-                            current: string;
-                            long_term: string;
-                            total: string;
-                        };
-                        equity: {
-                            items: string;
-                            total: string;
-                        };
-                        total_liabilities_equity: string;
-                    } | {
-                        /** @enum {string} */
-                        report_name: "Laporan Posisi Keuangan Komparatif";
-                        current_period: {
-                            as_of_date: unknown | string;
-                            assets: {
-                                current: string;
-                                fixed: string;
-                                total: string;
-                            };
-                            liabilities: {
-                                current: string;
-                                long_term: string;
-                                total: string;
-                            };
-                            equity: {
-                                items: string;
-                                total: string;
-                            };
-                            total_liabilities_equity: string;
-                        };
-                        previous_period: {
-                            as_of_date: unknown | string;
-                            assets: {
-                                current: string;
-                                fixed: string;
-                                total: string;
-                            };
-                            liabilities: {
-                                current: string;
-                                long_term: string;
-                                total: string;
-                            };
-                            equity: {
-                                items: string;
-                                total: string;
-                            };
-                            total_liabilities_equity: string;
-                        };
-                        variance: {
-                            assets_change: string;
-                            assets_change_percent: number | 0;
-                            liabilities_change: string;
-                            liabilities_change_percent: number | 0;
-                            equity_change: string;
-                            equity_change_percent: number | 0;
-                        };
-                    };
+                        ""?: string;
+                    } | string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22111,70 +24295,8 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Laba Rugi";
-                        period_start: unknown | string;
-                        period_end: unknown | string;
-                        revenue: {
-                            operating: string;
-                            other: string;
-                            total: string;
-                        };
-                        expenses: {
-                            cost_of_goods: string;
-                            operating: string;
-                            other: string;
-                            total: string;
-                        };
-                        gross_profit: string;
-                        operating_income: string;
-                        net_income: string;
-                    } | {
-                        /** @enum {string} */
-                        report_name: "Laporan Laba Rugi Komparatif";
-                        current_period: {
-                            period_start: unknown | string;
-                            period_end: unknown | string;
-                            revenue: {
-                                operating: string;
-                                other: string;
-                                total: string;
-                            };
-                            expenses: {
-                                cost_of_goods: string;
-                                operating: string;
-                                other: string;
-                                total: string;
-                            };
-                            gross_profit: string;
-                            operating_income: string;
-                            net_income: string;
-                        };
-                        previous_period: {
-                            period_start: unknown | string;
-                            period_end: unknown | string;
-                            revenue: {
-                                operating: string;
-                                other: string;
-                                total: string;
-                            };
-                            expenses: {
-                                cost_of_goods: string;
-                                operating: string;
-                                other: string;
-                                total: string;
-                            };
-                            gross_profit: string;
-                            operating_income: string;
-                            net_income: string;
-                        };
-                        variance: {
-                            revenue_change: string;
-                            revenue_change_percent: number | 0;
-                            expenses_change: string;
-                            expenses_change_percent: number | 0;
-                            net_income_change: string;
-                            net_income_change_percent: number | 0;
-                        };
-                    };
+                        ""?: string;
+                    } | string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22202,7 +24324,7 @@ export interface operations {
                         report_name: "Buku Besar";
                         start_date: unknown;
                         end_date: unknown;
-                        accounts: string[];
+                        accounts: string;
                     };
                 };
             };
@@ -22228,12 +24350,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Umur Piutang";
-                        as_of_date: string;
-                        buckets: string;
-                        contacts: string[];
-                        totals: {
-                            [key: string]: number;
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -22259,12 +24376,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Umur Hutang";
-                        as_of_date: string;
-                        buckets: string;
-                        contacts: string[];
-                        totals: {
-                            [key: string]: number;
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -22298,18 +24410,7 @@ export interface operations {
                             name: string;
                         };
                         as_of_date: string;
-                        receivable: {
-                            buckets: {
-                                [key: string]: number;
-                            };
-                            invoice_count: number;
-                        };
-                        payable: {
-                            buckets: {
-                                [key: string]: number;
-                            };
-                            bill_count: number;
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -22337,44 +24438,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan PPN";
-                        period: {
-                            start: string;
-                            end: string;
-                        };
-                        output_tax: {
-                            count: number;
-                            base: string;
-                            tax: string;
-                        };
-                        input_tax: {
-                            count: number;
-                            base: string;
-                            tax: string;
-                        };
-                        net_tax: string;
-                        /** @enum {string} */
-                        net_tax_status: "payable" | "refundable";
-                        details: {
-                            invoices: {
-                                date: string;
-                                number: string;
-                                contact: string;
-                                npwp: string | null;
-                                base: number;
-                                tax_rate: string;
-                                tax: number;
-                            }[];
-                            bills: {
-                                date: string;
-                                number: string;
-                                vendor_invoice: string | null;
-                                contact: string;
-                                npwp: string | null;
-                                base: number;
-                                tax_rate: string;
-                                tax: number;
-                            }[];
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -22398,7 +24462,7 @@ export interface operations {
                     "application/json": {
                         report_name: string;
                         year: number;
-                        months: string[];
+                        months: string;
                         total_output: string;
                         total_input: string;
                         total_net: string;
@@ -22432,16 +24496,7 @@ export interface operations {
                             start: string;
                             end: string;
                         };
-                        invoices: {
-                            tanggal: string;
-                            nomor_faktur: string;
-                            nama_pembeli: string;
-                            npwp_pembeli: string | null | "-";
-                            alamat: string | null | "-";
-                            dpp: number;
-                            ppn: number;
-                            total: number;
-                        }[];
+                        invoices: string;
                         total_dpp: string;
                         total_ppn: string;
                     };
@@ -22474,16 +24529,7 @@ export interface operations {
                             start: string;
                             end: string;
                         };
-                        bills: {
-                            tanggal: string;
-                            nomor_faktur_vendor: string | null | "-";
-                            nomor_internal: string;
-                            nama_penjual: string;
-                            npwp_penjual: string | null | "-";
-                            dpp: number;
-                            ppn: number;
-                            total: number;
-                        }[];
+                        bills: string;
                         total_dpp: string;
                         total_ppn: string;
                     };
@@ -22512,25 +24558,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Arus Kas";
-                        period: {
-                            start: string;
-                            end: string;
-                        };
-                        operating: {
-                            items: string[];
-                            subtotal: string;
-                        };
-                        investing: {
-                            items: string[];
-                            subtotal: string;
-                        };
-                        financing: {
-                            items: string[];
-                            subtotal: string;
-                        };
-                        net_cash_flow: string;
-                        beginning_cash: number;
-                        ending_cash: string;
+                        ""?: string;
                     };
                 };
             };
@@ -22561,7 +24589,7 @@ export interface operations {
                             start: string;
                             end: string;
                         };
-                        movements: string[];
+                        movements: string;
                         total_receipts: string;
                         total_payments: string;
                         net_movement: string;
@@ -22589,51 +24617,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Profitabilitas Proyek";
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        projects: {
-                            id: number;
-                            project_number: string;
-                            name: string;
-                            customer: string;
-                            status: string;
-                            start_date: string;
-                            end_date: string;
-                            contract_amount: number | 0;
-                            total_revenue: number | 0;
-                            costs: {
-                                material: number;
-                                labor: number;
-                                subcontractor: number;
-                                equipment: number;
-                                overhead: number;
-                                other: number;
-                                total: number | 0;
-                            };
-                            gross_profit: number | 0;
-                            profit_margin: number;
-                            budget_amount: number | 0;
-                            budget_variance: string;
-                            budget_utilization: number;
-                            is_over_budget: boolean;
-                            progress_percentage: number;
-                        }[];
-                        totals: {
-                            total_contract: string;
-                            total_revenue: string;
-                            total_costs: string;
-                            total_profit: string;
-                            average_margin: number | 0;
-                            projects_count: number;
-                            profitable_count: number;
-                            loss_count: number;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22656,75 +24640,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Detail Profitabilitas Proyek";
-                        project: {
-                            id: number;
-                            project_number: string;
-                            name: string;
-                            description: string | null;
-                            customer: {
-                                id: number;
-                                name: string;
-                                code: string;
-                            } | null;
-                            status: string;
-                            priority: string;
-                            location: string | null;
-                            manager_id: number | null;
-                        };
-                        financials: {
-                            contract_amount: number | 0;
-                            budget_amount: number | 0;
-                            total_revenue: number | 0;
-                            total_cost: number | 0;
-                            gross_profit: number | 0;
-                            profit_margin: number;
-                            budget_variance: number;
-                            budget_utilization: number;
-                            is_over_budget: boolean;
-                        };
-                        cost_breakdown: {
-                            material: number;
-                            labor: number;
-                            subcontractor: number;
-                            equipment: number;
-                            overhead: number;
-                            other: number;
-                            total: number | 0;
-                        };
-                        revenue_breakdown: {
-                            items: {
-                                type: string;
-                                total: number;
-                                count: number;
-                            }[];
-                            total: number | 0;
-                        };
-                        timeline: {
-                            planned_start: string;
-                            planned_end: string;
-                            actual_start: string;
-                            actual_end: string;
-                            duration_days: number | null;
-                            days_until_deadline: number | null;
-                            is_overdue: boolean;
-                        };
-                        progress: {
-                            percentage: number;
-                            work_orders_count: number;
-                            work_orders_completed: number;
-                            invoices_count: number;
-                            invoices_paid: number;
-                        };
-                        monthly_costs: string;
-                        kpis: {
-                            cost_per_progress: number | 0;
-                            revenue_per_progress: number | 0;
-                            burn_rate: number;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22748,21 +24664,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Analisis Biaya Proyek";
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        by_type: string[];
-                        by_project: string;
-                        totals: {
-                            grand_total: number;
-                            cost_types_count: string;
-                            projects_count: string;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22787,55 +24689,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Biaya Work Order";
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        work_orders: {
-                            id: number;
-                            wo_number: string;
-                            name: string;
-                            project_number: string;
-                            project_name: string;
-                            product_name: string;
-                            type: string;
-                            status: string;
-                            quantity_ordered: number;
-                            quantity_completed: number;
-                            completion_percentage: number;
-                            estimated_costs: {
-                                material: number | 0;
-                                labor: number | 0;
-                                overhead: number | 0;
-                                total: number | 0;
-                            };
-                            actual_costs: {
-                                material: number | 0;
-                                labor: number | 0;
-                                overhead: number | 0;
-                                total: number | 0;
-                            };
-                            variance: {
-                                material: string;
-                                labor: string;
-                                overhead: string;
-                                total: number | 0;
-                            };
-                            cost_per_unit: number | 0;
-                        }[];
-                        totals: {
-                            work_orders_count: number;
-                            total_estimated: string;
-                            total_actual: string;
-                            total_variance: string;
-                            variance_percent: number | 0;
-                            completed_count: number;
-                            in_progress_count: number;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22858,72 +24712,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Detail Biaya Work Order";
-                        work_order: {
-                            id: number;
-                            wo_number: string;
-                            name: string;
-                            type: string;
-                            status: string;
-                            project: {
-                                id: number;
-                                project_number: string;
-                                name: string;
-                            } | null;
-                            product: {
-                                id: number;
-                                sku: string;
-                                name: string;
-                            } | null;
-                            quantity_ordered: number;
-                            quantity_completed: number;
-                            quantity_scrapped: number;
-                            completion_percentage: number;
-                        };
-                        cost_summary: {
-                            estimated: {
-                                material: number | 0;
-                                labor: number | 0;
-                                overhead: number | 0;
-                                total: number | 0;
-                            };
-                            actual: {
-                                material: number | 0;
-                                labor: number | 0;
-                                overhead: number | 0;
-                                total: number | 0;
-                            };
-                            variance: {
-                                material: string;
-                                labor: string;
-                                overhead: string;
-                                total: number | 0;
-                            };
-                            cost_per_unit: number | 0;
-                        };
-                        item_breakdown: {
-                            id: number;
-                            type: string;
-                            product_name: string;
-                            quantity_required: number;
-                            quantity_consumed: number;
-                            unit: string | null;
-                            estimated_cost: number | 0;
-                            actual_cost: number | 0;
-                            variance: string;
-                        }[];
-                        timeline: {
-                            planned_start: string;
-                            planned_end: string;
-                            actual_start: string;
-                            actual_end: string;
-                            confirmed_at: string;
-                            started_at: string;
-                            completed_at: string;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22947,27 +24736,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Variansi Biaya";
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        over_budget: string;
-                        under_budget: string;
-                        on_budget: string;
-                        summary: {
-                            total_work_orders: number;
-                            over_budget_count: string;
-                            under_budget_count: string;
-                            on_budget_count: string;
-                            total_estimated: string;
-                            total_actual: string;
-                            total_variance: string;
-                            overall_variance_percent: number | 0;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -22990,22 +24759,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Subkontraktor";
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        subcontractors: string;
-                        totals: {
-                            total_subcontractors: string;
-                            total_agreed: string;
-                            total_paid: string;
-                            total_outstanding: string;
-                            total_retention: string;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -23031,59 +24785,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Detail Subkontraktor";
-                        subcontractor: {
-                            id: number;
-                            code: string;
-                            name: string;
-                            phone: string | null;
-                            email: string | null;
-                            hourly_rate: number | null;
-                            daily_rate: number | null;
-                        };
-                        period: {
-                            start: unknown;
-                            end: unknown;
-                        };
-                        work_orders: {
-                            id: number;
-                            sc_wo_number: string;
-                            name: string;
-                            project_number: string;
-                            project_name: string;
-                            status: string;
-                            agreed_amount: number;
-                            actual_amount: number;
-                            retention_amount: number;
-                            amount_invoiced: number;
-                            amount_paid: number;
-                            scheduled_start: string;
-                            scheduled_end: string;
-                            actual_start: string;
-                            actual_end: string;
-                            completion_percentage: number;
-                        }[];
-                        invoices: {
-                            id: number;
-                            invoice_number: string;
-                            invoice_date: string;
-                            amount: string;
-                            status: string;
-                            sc_wo_number: string;
-                        }[];
-                        summary: {
-                            total_work_orders: number;
-                            completed_work_orders: number;
-                            total_agreed: string;
-                            total_actual: string;
-                            total_invoiced: string;
-                            total_paid: string;
-                            outstanding: string;
-                            retention_held: string;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -23104,31 +24806,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        report_name: "Laporan Retensi Subkontraktor";
-                        retentions: {
-                            id: number;
-                            sc_wo_number: string;
-                            name: string;
-                            subcontractor_name: string;
-                            project_number: string;
-                            status: string;
-                            agreed_amount: number;
-                            retention_percent: number;
-                            retention_amount: number;
-                            scheduled_end: string;
-                            actual_end: string;
-                            is_releasable: boolean;
-                        }[];
-                        by_subcontractor: string;
-                        totals: {
-                            total_retention_held: string;
-                            releasable_amount: string;
-                            pending_amount: string;
-                            work_orders_count: number;
-                        };
-                    };
+                    "application/json": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -23154,28 +24832,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Perubahan Ekuitas";
-                        period_start: unknown | string;
-                        period_end: unknown | string;
-                        opening_equity: {
-                            items: string;
-                            total: string;
-                        };
-                        changes: {
-                            /** @enum {integer} */
-                            capital_additions: 0;
-                            /** @enum {integer} */
-                            capital_withdrawals: 0;
-                            net_income: string;
-                            /** @enum {integer} */
-                            dividends: 0;
-                            /** @enum {integer} */
-                            other_adjustments: 0;
-                            total_changes: string;
-                        };
-                        closing_equity: {
-                            items: string;
-                            total: string;
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -23204,40 +24861,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Rekonsiliasi Bank";
-                        account: {
-                            id: number;
-                            code: string;
-                            name: string;
-                        };
-                        as_of_date: string;
-                        book_balance: number;
-                        bank_balance: number;
-                        adjustments_to_book: {
-                            items: {
-                                id: number;
-                                date: string;
-                                description: string;
-                                reference: string | null;
-                                amount: string;
-                                /** @enum {string} */
-                                type: "deposit" | "withdrawal";
-                            }[];
-                            total: string;
-                        };
-                        adjustments_to_bank: {
-                            items: string[];
-                            total: string;
-                        };
-                        adjusted_book_balance: string;
-                        adjusted_bank_balance: string;
-                        difference: string;
-                        is_reconciled: boolean;
-                        reconciliation_summary: {
-                            total: string;
-                            reconciled: string;
-                            matched: string;
-                            unmatched: string;
-                        };
+                        ""?: string;
                     };
                 };
             };
@@ -23273,38 +24897,7 @@ export interface operations {
                             name: string;
                         };
                         as_of_date: unknown | string;
-                        outstanding_deposits: {
-                            id: number;
-                            date: string;
-                            number: string;
-                            description: string;
-                            amount: number;
-                        }[];
-                        outstanding_checks: {
-                            id: number;
-                            date: string;
-                            number: string;
-                            description: string;
-                            amount: number;
-                        }[];
-                        unmatched_bank_transactions: {
-                            id: number;
-                            date: string;
-                            description: string;
-                            reference: string | null;
-                            debit: number;
-                            credit: number;
-                            net_amount: string;
-                        }[];
-                        unmatched_book_entries: {
-                            id: number;
-                            journal_entry_id: number;
-                            date: string;
-                            journal_number: string;
-                            description: string | null;
-                            debit: number;
-                            credit: number;
-                        }[];
+                        ""?: string;
                     };
                 };
             };
@@ -23332,18 +24925,7 @@ export interface operations {
                     "application/json": {
                         /** @enum {string} */
                         report_name: "Laporan Harga Pokok Penjualan";
-                        period: {
-                            start: string;
-                            end: string;
-                        };
-                        /** @enum {integer} */
-                        beginning_inventory: 0;
-                        purchases: number;
-                        goods_available: string;
-                        /** @enum {integer} */
-                        ending_inventory: 0;
-                        cogs: Record<string, never> | null;
-                        cogs_from_movements: number;
+                        ""?: string;
                     };
                 };
             };
@@ -23374,16 +24956,7 @@ export interface operations {
                             start: unknown | string;
                             end: unknown | string;
                         };
-                        products: {
-                            product_id: number;
-                            sku: string;
-                            name: string;
-                            category: string | null;
-                            quantity_sold: number;
-                            average_unit_cost: number;
-                            total_cogs: number;
-                            percentage: number;
-                        }[];
+                        products: string;
                         total_cogs: string;
                     };
                 };
@@ -23415,14 +24988,7 @@ export interface operations {
                             start: unknown | string;
                             end: unknown | string;
                         };
-                        categories: {
-                            category_id: number | null;
-                            category_name: string;
-                            product_count: number;
-                            quantity_sold: number;
-                            total_cogs: number;
-                            percentage: number;
-                        }[];
+                        categories: string;
                         total_cogs: string;
                     };
                 };
@@ -23447,7 +25013,7 @@ export interface operations {
                     "application/json": {
                         report_name: string;
                         year: number;
-                        months: string[];
+                        months: string;
                         total_cogs: string;
                     };
                 };
@@ -23487,17 +25053,7 @@ export interface operations {
                             start: unknown | string;
                             end: unknown | string;
                         };
-                        movements: {
-                            id: number;
-                            date: string;
-                            movement_number: string;
-                            reference_type: string | null;
-                            reference_id: number | null;
-                            quantity: number;
-                            unit_cost: number;
-                            total_cost: number;
-                            notes: string | null;
-                        }[];
+                        movements: string;
                         total_quantity: string;
                         total_cogs: string;
                     };
@@ -23756,11 +25312,7 @@ export interface operations {
     };
     "sales-returns.index": {
         parameters: {
-            query?: {
-                /** @description Sorting */
-                sort?: string;
-                direction?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24848,21 +26400,40 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            401: components["responses"]["AuthenticationException"];
-            404: components["responses"]["ModelNotFoundException"];
-            /** @description TODO: Implement PDF generation */
-            501: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        message: "Fitur PDF belum tersedia.";
-                        proposal_number: string;
-                    };
+                    "application/json": Record<string, never>;
                 };
             };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    downloadSolarProposalExcel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The solar proposal ID */
+                solarProposal: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     getSolarProposalStatistics: {
@@ -24898,6 +26469,423 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "specValidationRuleSet.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                search?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `SpecValidationRuleSetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleSetResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "specValidationRuleSet.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreSpecValidationRuleSetRequest"];
+            };
+        };
+        responses: {
+            /** @description `SpecValidationRuleSetResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "specValidationRuleSet.metadata": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            categories: [
+                                "Circuit Breaker",
+                                "Kontaktor",
+                                "Relay",
+                                "Kabel",
+                                "Busbar",
+                                "Panel Enclosure",
+                                "Terminal Block",
+                                "Meter",
+                                "Trafo",
+                                "Kapasitor"
+                            ];
+                            validation_types: [
+                                "Warn if Lower",
+                                "Warn if Higher",
+                                "Must Match",
+                                "Minimum Value",
+                                "Maximum Value"
+                            ];
+                            severity_levels: [
+                                "Warning",
+                                "Error"
+                            ];
+                            common_spec_keys: [
+                                [
+                                    "rating_amps",
+                                    "poles",
+                                    "curve",
+                                    "breaking_capacity_ka",
+                                    "voltage_rating"
+                                ],
+                                [
+                                    "rating_amps",
+                                    "coil_voltage",
+                                    "poles",
+                                    "ac_category"
+                                ],
+                                [
+                                    "conductor_size_mm2",
+                                    "cores",
+                                    "insulation",
+                                    "voltage_rating"
+                                ],
+                                [
+                                    "material",
+                                    "width_mm",
+                                    "thickness_mm",
+                                    "current_rating_a"
+                                ],
+                                [
+                                    "coil_voltage",
+                                    "contact_configuration",
+                                    "current_rating"
+                                ],
+                                [
+                                    "ip_rating",
+                                    "material",
+                                    "dimensions"
+                                ]
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "specValidationRuleSet.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `SpecValidationRuleSetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "specValidationRuleSet.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateSpecValidationRuleSetRequest"];
+            };
+        };
+        responses: {
+            /** @description `SpecValidationRuleSetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "specValidationRuleSet.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Rule set berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+        };
+    };
+    "specValidationRuleSet.setDefault": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Rule set berhasil dijadikan default.";
+                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "specValidationRuleSet.storeRule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreSpecValidationRuleRequest"];
+            };
+        };
+        responses: {
+            /** @description `SpecValidationRuleResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "specValidationRuleSet.updateRule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+                /** @description The rule ID */
+                rule: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateSpecValidationRuleRequest"];
+            };
+        };
+        responses: {
+            /** @description `SpecValidationRuleResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["SpecValidationRuleResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "specValidationRuleSet.destroyRule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+                /** @description The rule ID */
+                rule: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Rule berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "specValidationRuleSet.reorderRules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The spec rule set ID */
+                specRuleSet: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SpecValidationRuleSet"] & {
+                    rule_ids: number[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Urutan rule berhasil diubah.";
+                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "stock-opnames.index": {
@@ -26624,19 +28612,7 @@ export interface operations {
     };
     "work-orders.index": {
         parameters: {
-            query?: {
-                status?: string;
-                type?: string;
-                priority?: string;
-                project_id?: string;
-                bom_id?: string;
-                product_id?: string;
-                warehouse_id?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
