@@ -17,7 +17,7 @@ import {
   type ProductMappingSuggestion,
   type BulkMappingInput,
 } from '@/api/useComponentStandards'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, AlertTriangle, Wand2, Loader2, Check } from 'lucide-vue-next'
 
 const toast = useToast()
@@ -316,6 +316,16 @@ function getCategoryColor(category: string): string {
   }
   return colors[category] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'code', label: 'Code', showInMobile: false },
+  { key: 'name', label: 'Name', mobilePriority: 1 },
+  { key: 'category', label: 'Category', mobilePriority: 2 },
+  { key: 'specifications', label: 'Specifications', showInMobile: false },
+  { key: 'brand_mappings_count', label: 'Brands', align: 'center', mobilePriority: 3 },
+  { key: 'is_active', label: 'Status', align: 'center', showInMobile: false },
+]
 </script>
 
 <template>
@@ -434,79 +444,98 @@ function getCategoryColor(category: string): string {
 
     <!-- Data Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Specifications</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Brands</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="standard in standards" :key="standard.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ standard.code }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/settings/component-library/${standard.id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ standard.name }}
-              </RouterLink>
-              <div v-if="standard.standard" class="text-xs text-slate-400 dark:text-slate-500">
-                {{ standard.standard }}
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
-                :class="getCategoryColor(standard.category)"
-              >
-                {{ standard.category_label }}
-              </span>
-              <div v-if="standard.subcategory" class="text-xs text-slate-400 dark:text-slate-500 mt-1">
-                {{ standard.subcategory }}
-              </div>
-            </td>
-            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-              {{ formatSpecs(standard.specifications) }}
-            </td>
-            <td class="px-6 py-4 text-center">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
-                {{ standard.brand_mappings_count ?? standard.brand_mappings?.length ?? 0 }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <Badge :variant="standard.is_active ? 'success' : 'default'">
-                {{ standard.is_active ? 'Active' : 'Inactive' }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/settings/component-library/${standard.id}`">
-                  <Button variant="ghost" size="xs">View</Button>
-                </RouterLink>
-                <RouterLink :to="`/settings/component-library/${standard.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  @click="confirmDelete(standard.id, standard.name)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="standards"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="code"
+        @row-click="(item) => $router.push(`/settings/component-library/${item.id}`)"
+      >
+        <!-- Custom cell: Code -->
+        <template #cell-code="{ item }">
+          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.code }}</span>
+        </template>
+
+        <!-- Custom cell: Name -->
+        <template #cell-name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.name }}
+          </span>
+          <div v-if="item.standard" class="text-xs text-slate-400 dark:text-slate-500">
+            {{ item.standard }}
+          </div>
+        </template>
+
+        <!-- Custom cell: Category -->
+        <template #cell-category="{ item }">
+          <span
+            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+            :class="getCategoryColor(item.category)"
+          >
+            {{ item.category_label }}
+          </span>
+          <div v-if="item.subcategory" class="text-xs text-slate-400 dark:text-slate-500 mt-1">
+            {{ item.subcategory }}
+          </div>
+        </template>
+
+        <!-- Custom cell: Specifications -->
+        <template #cell-specifications="{ item }">
+          <span class="text-sm text-slate-600 dark:text-slate-400">{{ formatSpecs(item.specifications) }}</span>
+        </template>
+
+        <!-- Custom cell: Brands -->
+        <template #cell-brand_mappings_count="{ item }">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
+            {{ item.brand_mappings_count ?? item.brand_mappings?.length ?? 0 }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_active="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'default'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <span
+            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+            :class="getCategoryColor(item.category)"
+          >
+            {{ item.category_label }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/settings/component-library/${item.id}`">
+              <Button variant="ghost" size="xs">View</Button>
+            </RouterLink>
+            <RouterLink :to="`/settings/component-library/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              @click.stop="confirmDelete(item.id, item.name)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

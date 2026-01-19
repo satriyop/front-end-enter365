@@ -11,7 +11,7 @@ import {
   type BomTemplateFilters,
 } from '@/api/useBomTemplates'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { Copy, Trash2, Eye, Pencil, Power, FileStack } from 'lucide-vue-next'
 
 const toast = useToast()
@@ -119,6 +119,16 @@ function getCategoryColor(category: string): string {
   }
   return colors[category] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'code', label: 'Code', showInMobile: false },
+  { key: 'name', label: 'Name', mobilePriority: 1 },
+  { key: 'category', label: 'Category', mobilePriority: 2 },
+  { key: 'items_count', label: 'Items', align: 'center', mobilePriority: 3 },
+  { key: 'usage_count', label: 'Usage', align: 'center', showInMobile: false },
+  { key: 'is_active', label: 'Status', align: 'center', showInMobile: false },
+]
 </script>
 
 <template>
@@ -208,100 +218,119 @@ function getCategoryColor(category: string): string {
 
     <!-- Data Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Category</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Items</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Usage</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="template in templates" :key="template.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ template.code }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/settings/bom-templates/${template.id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ template.name }}
-              </RouterLink>
-              <div v-if="template.description" class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[300px]">
-                {{ template.description }}
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
-                :class="getCategoryColor(template.category)"
-              >
-                {{ template.category_label }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
-                {{ template.items_count ?? template.items?.length ?? 0 }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <span class="text-sm text-slate-600 dark:text-slate-400">
-                {{ template.usage_count }} BOM{{ template.usage_count !== 1 ? 's' : '' }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <Badge :variant="template.is_active ? 'success' : 'default'">
-                {{ template.is_active ? 'Active' : 'Inactive' }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-1">
-                <RouterLink :to="`/settings/bom-templates/${template.id}`">
-                  <Button variant="ghost" size="xs" title="View Details">
-                    <Eye class="w-4 h-4" />
-                  </Button>
-                </RouterLink>
-                <RouterLink :to="`/settings/bom-templates/${template.id}/edit`">
-                  <Button variant="ghost" size="xs" title="Edit">
-                    <Pencil class="w-4 h-4" />
-                  </Button>
-                </RouterLink>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  title="Duplicate"
-                  :loading="duplicateMutation.isPending.value"
-                  @click="handleDuplicate(template.id)"
-                >
-                  <Copy class="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  :title="template.is_active ? 'Deactivate' : 'Activate'"
-                  @click="handleToggleActive(template.id)"
-                >
-                  <Power class="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  title="Delete"
-                  @click="confirmDelete(template.id, template.name)"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="templates"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="code"
+        @row-click="(item) => $router.push(`/settings/bom-templates/${item.id}`)"
+      >
+        <!-- Custom cell: Code -->
+        <template #cell-code="{ item }">
+          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.code }}</span>
+        </template>
+
+        <!-- Custom cell: Name -->
+        <template #cell-name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.name }}
+          </span>
+          <div v-if="item.description" class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[300px]">
+            {{ item.description }}
+          </div>
+        </template>
+
+        <!-- Custom cell: Category -->
+        <template #cell-category="{ item }">
+          <span
+            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+            :class="getCategoryColor(item.category)"
+          >
+            {{ item.category_label }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Items count -->
+        <template #cell-items_count="{ item }">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
+            {{ item.items_count ?? item.items?.length ?? 0 }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Usage -->
+        <template #cell-usage_count="{ item }">
+          <span class="text-sm text-slate-600 dark:text-slate-400">
+            {{ item.usage_count }} BOM{{ item.usage_count !== 1 ? 's' : '' }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_active="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'default'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <span
+            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium"
+            :class="getCategoryColor(item.category)"
+          >
+            {{ item.category_label }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-1">
+            <RouterLink :to="`/settings/bom-templates/${item.id}`">
+              <Button variant="ghost" size="xs" title="View Details">
+                <Eye class="w-4 h-4" />
+              </Button>
+            </RouterLink>
+            <RouterLink :to="`/settings/bom-templates/${item.id}/edit`">
+              <Button variant="ghost" size="xs" title="Edit">
+                <Pencil class="w-4 h-4" />
+              </Button>
+            </RouterLink>
+            <Button
+              variant="ghost"
+              size="xs"
+              title="Duplicate"
+              :loading="duplicateMutation.isPending.value"
+              @click.stop="handleDuplicate(item.id)"
+            >
+              <Copy class="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              :title="item.is_active ? 'Deactivate' : 'Activate'"
+              @click.stop="handleToggleActive(item.id)"
+            >
+              <Power class="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              title="Delete"
+              @click.stop="confirmDelete(item.id, item.name)"
+            >
+              <Trash2 class="w-4 h-4" />
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

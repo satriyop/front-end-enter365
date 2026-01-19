@@ -20,6 +20,7 @@ import Badge from '@/components/ui/Badge.vue'
 import Card from '@/components/ui/Card.vue'
 import FilterBar from '@/components/ui/FilterBar.vue'
 import FilterGroup from '@/components/ui/FilterGroup.vue'
+import { ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import CreateQuotationFromBomModal from '@/components/quotations/CreateQuotationFromBomModal.vue'
 
 // Resource list with filters and pagination
@@ -67,6 +68,15 @@ function getStatusLabel(status: string): string {
   }
   return labels[status] ?? status
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'quotation_number', label: 'Quotation #', mobilePriority: 1 },
+  { key: 'contact.name', label: 'Customer', mobilePriority: 2 },
+  { key: 'total', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'status', label: 'Status', showInMobile: false },
+  { key: 'valid_until', label: 'Valid Until', showInMobile: false, format: (v) => formatDate(v as string) },
+]
 </script>
 
 <template>
@@ -160,66 +170,57 @@ function getStatusLabel(status: string): string {
       </div>
 
       <!-- Data Table -->
-      <table v-else class="w-full">
-        <thead class="bg-muted/50 border-b">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Quotation #
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Customer
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Amount
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Valid Until
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-border">
-          <tr
-            v-for="quotation in quotations"
-            :key="quotation.id"
-            class="hover:bg-muted/30 transition-colors"
-          >
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/quotations/${quotation.id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ quotation.quotation_number }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-medium">{{ quotation.contact?.name }}</div>
-              <div class="text-sm text-muted-foreground">{{ quotation.subject }}</div>
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ formatCurrency(quotation.total) }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :status="quotation.status as BadgeStatus" dot>
-                {{ getStatusLabel(quotation.status) }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-muted-foreground">
-              {{ formatDate(quotation.valid_until) }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              <Button variant="ghost" size="icon-sm">
-                <MoreVertical class="h-4 w-4" />
-              </Button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        v-if="quotations.length > 0"
+        :items="quotations"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="quotation_number"
+        subtitle-field="contact.name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/quotations/${item.id}`)"
+      >
+        <!-- Custom cell: Quotation number with link styling -->
+        <template #cell-quotation_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.quotation_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Customer with subject -->
+        <template #cell-contact\.name="{ item }">
+          <div class="font-medium">{{ item.contact?.name }}</div>
+          <div class="text-sm text-muted-foreground">{{ item.subject }}</div>
+        </template>
+
+        <!-- Custom cell: Status badge -->
+        <template #cell-status="{ item }">
+          <Badge :status="item.status as BadgeStatus" dot>
+            {{ getStatusLabel(item.status) }}
+          </Badge>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :status="item.status as BadgeStatus" dot>
+            {{ getStatusLabel(item.status) }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.quotation_number }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions>
+          <Button variant="ghost" size="icon-sm">
+            <MoreVertical class="h-4 w-4" />
+          </Button>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div

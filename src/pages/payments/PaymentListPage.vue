@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { usePayments, type PaymentFilters, type Payment } from '@/api/usePayments'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Badge } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Badge, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 // Resource list with filters and pagination (no delete for payments)
@@ -28,6 +28,17 @@ const typeOptions = [
   { value: '', label: 'All Types' },
   { value: 'receive', label: 'Received' },
   { value: 'pay', label: 'Paid' },
+]
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'payment_number', label: 'Payment #', mobilePriority: 1 },
+  { key: 'type', label: 'Type', mobilePriority: 4 },
+  { key: 'contact.name', label: 'Contact', mobilePriority: 2 },
+  { key: 'payment_date', label: 'Date', showInMobile: false, format: (v) => formatDate(v as string) },
+  { key: 'payment_method', label: 'Method', showInMobile: false },
+  { key: 'amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'is_voided', label: 'Status', showInMobile: false },
 ]
 </script>
 
@@ -87,50 +98,59 @@ const typeOptions = [
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Payment #</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Contact</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Method</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Amount</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="payment in payments" :key="payment.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <RouterLink :to="`/payments/${payment.id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ payment.payment_number }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="payment.type === 'receive' ? 'success' : 'warning'">
-                {{ payment.type === 'receive' ? 'Received' : 'Paid' }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-slate-900 dark:text-slate-100">
-              {{ payment.contact?.name ?? '-' }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ formatDate(payment.payment_date) }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 capitalize">
-              {{ payment.payment_method }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ formatCurrency(payment.amount) }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="payment.is_voided ? 'destructive' : 'success'">
-                {{ payment.is_voided ? 'Voided' : 'Active' }}
-              </Badge>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="payments"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="payment_number"
+        subtitle-field="contact.name"
+        @row-click="(item) => $router.push(`/payments/${item.id}`)"
+      >
+        <!-- Custom cell: Payment number -->
+        <template #cell-payment_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.payment_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Type badge -->
+        <template #cell-type="{ item }">
+          <Badge :variant="item.type === 'receive' ? 'success' : 'warning'">
+            {{ item.type === 'receive' ? 'Received' : 'Paid' }}
+          </Badge>
+        </template>
+
+        <!-- Custom cell: Contact -->
+        <template #cell-contact\.name="{ item }">
+          {{ item.contact?.name ?? '-' }}
+        </template>
+
+        <!-- Custom cell: Payment method -->
+        <template #cell-payment_method="{ item }">
+          <span class="capitalize">{{ item.payment_method }}</span>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_voided="{ item }">
+          <Badge :variant="item.is_voided ? 'destructive' : 'success'">
+            {{ item.is_voided ? 'Voided' : 'Active' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.payment_number }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="item.type === 'receive' ? 'success' : 'warning'">
+            {{ item.type === 'receive' ? 'Received' : 'Paid' }}
+          </Badge>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

@@ -9,7 +9,7 @@ import {
   type RuleSetFilters,
 } from '@/api/useSpecRuleSets'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { Star, StarOff, Trash2, Eye, Pencil } from 'lucide-vue-next'
 
 const toast = useToast()
@@ -80,6 +80,15 @@ async function handleSetDefault(id: number) {
     toast.error(message)
   }
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'code', label: 'Code', showInMobile: false },
+  { key: 'name', label: 'Name', mobilePriority: 1 },
+  { key: 'rules_count', label: 'Rules', align: 'center', mobilePriority: 2 },
+  { key: 'boms_count', label: 'BOMs', align: 'center', showInMobile: false },
+  { key: 'is_active', label: 'Status', align: 'center', showInMobile: false },
+]
 </script>
 
 <template>
@@ -164,94 +173,115 @@ async function handleSetDefault(id: number) {
 
     <!-- Data Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Code</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Rules</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">BOMs</th>
-            <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="ruleSet in ruleSets" :key="ruleSet.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ ruleSet.code }}</span>
-                <span
-                  v-if="ruleSet.is_default"
-                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
-                >
-                  <Star class="w-3 h-3" />
-                  Default
-                </span>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/settings/rule-sets/${ruleSet.id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ ruleSet.name }}
-              </RouterLink>
-              <div v-if="ruleSet.description" class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[300px]">
-                {{ ruleSet.description }}
-              </div>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
-                {{ ruleSet.rules_count ?? ruleSet.rules?.length ?? 0 }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <span class="text-sm text-slate-600 dark:text-slate-400">
-                {{ ruleSet.boms_count ?? 0 }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-center">
-              <Badge :variant="ruleSet.is_active ? 'success' : 'default'">
-                {{ ruleSet.is_active ? 'Active' : 'Inactive' }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center justify-end gap-1">
-                <RouterLink :to="`/settings/rule-sets/${ruleSet.id}`">
-                  <Button variant="ghost" size="xs" title="View Details">
-                    <Eye class="w-4 h-4" />
-                  </Button>
-                </RouterLink>
-                <RouterLink :to="`/settings/rule-sets/${ruleSet.id}/edit`">
-                  <Button variant="ghost" size="xs" title="Edit">
-                    <Pencil class="w-4 h-4" />
-                  </Button>
-                </RouterLink>
-                <Button
-                  v-if="!ruleSet.is_default"
-                  variant="ghost"
-                  size="xs"
-                  title="Set as Default"
-                  :loading="setDefaultMutation.isPending.value"
-                  @click="handleSetDefault(ruleSet.id)"
-                >
-                  <StarOff class="w-4 h-4" />
-                </Button>
-                <Button
-                  v-if="!ruleSet.is_default"
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  title="Delete"
-                  @click="confirmDelete(ruleSet.id, ruleSet.name)"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="ruleSets"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="code"
+        @row-click="(item) => $router.push(`/settings/rule-sets/${item.id}`)"
+      >
+        <!-- Custom cell: Code -->
+        <template #cell-code="{ item }">
+          <div class="flex items-center gap-2">
+            <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.code }}</span>
+            <span
+              v-if="item.is_default"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+            >
+              <Star class="w-3 h-3" />
+              Default
+            </span>
+          </div>
+        </template>
+
+        <!-- Custom cell: Name -->
+        <template #cell-name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.name }}
+          </span>
+          <div v-if="item.description" class="text-xs text-slate-400 dark:text-slate-500 truncate max-w-[300px]">
+            {{ item.description }}
+          </div>
+        </template>
+
+        <!-- Custom cell: Rules count -->
+        <template #cell-rules_count="{ item }">
+          <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-sm font-medium text-slate-900 dark:text-slate-100">
+            {{ item.rules_count ?? item.rules?.length ?? 0 }}
+          </span>
+        </template>
+
+        <!-- Custom cell: BOMs count -->
+        <template #cell-boms_count="{ item }">
+          <span class="text-sm text-slate-600 dark:text-slate-400">
+            {{ item.boms_count ?? 0 }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_active="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'default'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <div class="flex items-center gap-2">
+            <span class="text-orange-600 dark:text-orange-400 font-medium">{{ item.name }}</span>
+            <span
+              v-if="item.is_default"
+              class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+            >
+              <Star class="w-3 h-3" />
+            </span>
+          </div>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'default'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-1">
+            <RouterLink :to="`/settings/rule-sets/${item.id}`">
+              <Button variant="ghost" size="xs" title="View Details">
+                <Eye class="w-4 h-4" />
+              </Button>
+            </RouterLink>
+            <RouterLink :to="`/settings/rule-sets/${item.id}/edit`">
+              <Button variant="ghost" size="xs" title="Edit">
+                <Pencil class="w-4 h-4" />
+              </Button>
+            </RouterLink>
+            <Button
+              v-if="!item.is_default"
+              variant="ghost"
+              size="xs"
+              title="Set as Default"
+              :loading="setDefaultMutation.isPending.value"
+              @click.stop="handleSetDefault(item.id)"
+            >
+              <StarOff class="w-4 h-4" />
+            </Button>
+            <Button
+              v-if="!item.is_default"
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              title="Delete"
+              @click.stop="confirmDelete(item.id, item.name)"
+            >
+              <Trash2 class="w-4 h-4" />
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

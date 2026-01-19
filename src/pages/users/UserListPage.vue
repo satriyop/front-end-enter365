@@ -12,7 +12,7 @@ import {
   type User,
 } from '@/api/useUsers'
 import { formatDate } from '@/utils/format'
-import { Button, Input, Select, Badge, Modal, FormField, Pagination, EmptyState, useToast } from '@/components/ui'
+import { Button, Input, Select, Badge, Modal, FormField, Pagination, EmptyState, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 
 const toast = useToast()
 
@@ -33,6 +33,15 @@ const statusOptions = [
   { value: '', label: 'All Status' },
   { value: 'true', label: 'Active' },
   { value: 'false', label: 'Inactive' },
+]
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'name', label: 'User', mobilePriority: 1 },
+  { key: 'email', label: 'Email', mobilePriority: 2 },
+  { key: 'roles', label: 'Roles', showInMobile: false },
+  { key: 'is_active', label: 'Status', showInMobile: false },
+  { key: 'created_at', label: 'Created', showInMobile: false, format: (v) => formatDate(v as string) },
 ]
 
 // Mutations
@@ -359,92 +368,90 @@ function toggleRole(roleId: number) {
 
     <!-- Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              User
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Email
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Roles
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Created
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 font-medium">
-                  {{ user.name.charAt(0).toUpperCase() }}
-                </div>
-                <div class="font-medium text-slate-900 dark:text-slate-100">{{ user.name }}</div>
-              </div>
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ user.email }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex flex-wrap gap-1">
-                <span
-                  v-for="role in user.roles"
-                  :key="role.id"
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
-                >
-                  {{ role.display_name }}
-                </span>
-                <span v-if="!user.roles?.length" class="text-slate-400 dark:text-slate-500">No roles</span>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="user.is_active ? 'success' : 'destructive'">
-                {{ user.is_active ? 'Active' : 'Inactive' }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
-              {{ formatDate(user.created_at) }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex justify-end gap-1">
-                <Button variant="ghost" size="xs" @click="openEditModal(user)">
-                  Edit
-                </Button>
-                <Button variant="ghost" size="xs" @click="openPasswordModal(user)">
-                  Password
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  :class="user.is_active ? 'text-orange-600' : 'text-green-600'"
-                  :loading="toggleActiveMutation.isPending.value"
-                  @click="handleToggleActive(user)"
-                >
-                  {{ user.is_active ? 'Deactivate' : 'Activate' }}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500"
-                  @click="openDeleteModal(user)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="users"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="email"
+      >
+        <!-- Custom cell: User with avatar -->
+        <template #cell-name="{ item }">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 font-medium">
+              {{ item.name.charAt(0).toUpperCase() }}
+            </div>
+            <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.name }}</div>
+          </div>
+        </template>
+
+        <!-- Custom cell: Roles -->
+        <template #cell-roles="{ item }">
+          <div class="flex flex-wrap gap-1">
+            <span
+              v-for="role in item.roles"
+              :key="role.id"
+              class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+            >
+              {{ role.display_name }}
+            </span>
+            <span v-if="!item.roles?.length" class="text-slate-400 dark:text-slate-500">No roles</span>
+          </div>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_active="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'destructive'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 font-medium text-sm">
+              {{ item.name.charAt(0).toUpperCase() }}
+            </div>
+            <span class="font-medium">{{ item.name }}</span>
+          </div>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="item.is_active ? 'success' : 'destructive'">
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex justify-end gap-1 flex-wrap">
+            <Button variant="ghost" size="xs" @click.stop="openEditModal(item)">
+              Edit
+            </Button>
+            <Button variant="ghost" size="xs" @click.stop="openPasswordModal(item)">
+              Password
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              :class="item.is_active ? 'text-orange-600' : 'text-green-600'"
+              :loading="toggleActiveMutation.isPending.value"
+              @click.stop="handleToggleActive(item)"
+            >
+              {{ item.is_active ? 'Deactivate' : 'Activate' }}
+            </Button>
+            <Button
+              variant="ghost"
+              size="xs"
+              class="text-red-500"
+              @click.stop="openDeleteModal(item)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

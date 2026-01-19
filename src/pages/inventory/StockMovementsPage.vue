@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInventoryMovements, type MovementFilters } from '@/api/useInventory'
-import { Button, Input, Select, Pagination, EmptyState, Badge, Card } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Badge, Card, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const router = useRouter()
@@ -69,6 +69,18 @@ function clearFilters() {
     end_date: '',
   }
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'movement_date', label: 'Date', mobilePriority: 3, format: (v) => formatDate(v as string) },
+  { key: 'product.name', label: 'Product', mobilePriority: 1 },
+  { key: 'warehouse.name', label: 'Warehouse', showInMobile: false },
+  { key: 'type', label: 'Type', mobilePriority: 4 },
+  { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 2 },
+  { key: 'unit_cost', label: 'Unit Cost', align: 'right', showInMobile: false, format: (v) => formatCurrency(v as number) },
+  { key: 'balance_after', label: 'Balance', align: 'right', showInMobile: false },
+  { key: 'notes', label: 'Notes', showInMobile: false },
+]
 </script>
 
 <template>
@@ -131,59 +143,66 @@ function clearFilters() {
 
     <!-- Movements Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Product</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Warehouse</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Qty</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unit Cost</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Balance</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notes</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="movement in movements" :key="movement.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-              {{ formatDate(movement.movement_date) }}
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/products/${movement.product_id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ movement.product?.name }}
-              </RouterLink>
-              <div class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ movement.product?.sku }}</div>
-            </td>
-            <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-              {{ movement.warehouse?.name ?? 'Default' }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="getTypeVariant(movement.type)">
-                {{ getTypeLabel(movement.type) }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right font-mono">
-              <span :class="movement.type.includes('out') ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
-                {{ movement.type.includes('out') ? '-' : '+' }}{{ movement.quantity }}
-              </span>
-              <span class="text-slate-400 dark:text-slate-500 text-xs"> {{ movement.product?.unit }}</span>
-            </td>
-            <td class="px-6 py-4 text-right text-sm text-slate-600 dark:text-slate-400">
-              {{ formatCurrency(movement.unit_cost) }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
-              {{ movement.balance_after }} {{ movement.product?.unit }}
-            </td>
-            <td class="px-6 py-4 text-sm text-slate-500 dark:text-slate-400 max-w-xs truncate">
-              {{ movement.notes || '-' }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="movements"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="product.name"
+        subtitle-field="product.sku"
+        @row-click="(item) => $router.push(`/products/${item.product_id}`)"
+      >
+        <!-- Custom cell: Product -->
+        <template #cell-product\.name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.product?.name }}
+          </span>
+          <div class="text-xs text-slate-400 dark:text-slate-500 font-mono">{{ item.product?.sku }}</div>
+        </template>
+
+        <!-- Custom cell: Warehouse -->
+        <template #cell-warehouse\.name="{ item }">
+          {{ item.warehouse?.name ?? 'Default' }}
+        </template>
+
+        <!-- Custom cell: Type -->
+        <template #cell-type="{ item }">
+          <Badge :variant="getTypeVariant(item.type)">
+            {{ getTypeLabel(item.type) }}
+          </Badge>
+        </template>
+
+        <!-- Custom cell: Quantity -->
+        <template #cell-quantity="{ item }">
+          <span :class="item.type.includes('out') ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'" class="font-mono">
+            {{ item.type.includes('out') ? '-' : '+' }}{{ item.quantity }}
+          </span>
+          <span class="text-slate-400 dark:text-slate-500 text-xs"> {{ item.product?.unit }}</span>
+        </template>
+
+        <!-- Custom cell: Balance -->
+        <template #cell-balance_after="{ item }">
+          {{ item.balance_after }} {{ item.product?.unit }}
+        </template>
+
+        <!-- Custom cell: Notes -->
+        <template #cell-notes="{ item }">
+          <span class="max-w-xs truncate">{{ item.notes || '-' }}</span>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.product?.name }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="getTypeVariant(item.type)">
+            {{ getTypeLabel(item.type) }}
+          </Badge>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useStockLevels, type ProductStock, type InventoryFilters } from '@/api/useInventory'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Pagination, EmptyState, Badge } from '@/components/ui'
+import { Button, Input, Pagination, EmptyState, Badge, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 // Resource list with filters and pagination
@@ -28,6 +28,17 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' 
   if (quantity < 10) return 'warning'
   return 'success'
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'product.sku', label: 'SKU', mobilePriority: 3 },
+  { key: 'product.name', label: 'Product', mobilePriority: 1 },
+  { key: 'warehouse.name', label: 'Warehouse', showInMobile: false },
+  { key: 'quantity', label: 'Quantity', align: 'right', mobilePriority: 2 },
+  { key: 'average_cost', label: 'Avg Cost', align: 'right', showInMobile: false, format: (v) => formatCurrency(v as number) },
+  { key: 'total_value', label: 'Value', align: 'right', mobilePriority: 4, format: (v) => formatCurrency(v as number) },
+  { key: 'level', label: 'Level', showInMobile: false },
+]
 </script>
 
 <template>
@@ -81,48 +92,57 @@ function getStockLevel(quantity: number): 'success' | 'warning' | 'destructive' 
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">SKU</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Product</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Warehouse</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Quantity</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Avg Cost</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Value</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Level</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="stock in stocks" :key="stock.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ stock.product?.sku }}</span>
-            </td>
-            <td class="px-6 py-4 text-slate-900 dark:text-slate-100">
-              <RouterLink :to="`/products/${stock.product_id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
-                {{ stock.product?.name }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ stock.warehouse?.name ?? 'Default' }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ stock.quantity }} {{ stock.product?.unit }}
-            </td>
-            <td class="px-6 py-4 text-right text-slate-600 dark:text-slate-400">
-              {{ formatCurrency(stock.average_cost) }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ formatCurrency(stock.total_value) }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="getStockLevel(stock.quantity)">
-                {{ stock.quantity <= 0 ? 'Out' : stock.quantity < 10 ? 'Low' : 'OK' }}
-              </Badge>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="stocks"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="product.name"
+        subtitle-field="product.sku"
+        @row-click="(item) => $router.push(`/products/${item.product_id}`)"
+      >
+        <!-- Custom cell: SKU -->
+        <template #cell-product\.sku="{ item }">
+          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.product?.sku }}</span>
+        </template>
+
+        <!-- Custom cell: Product name -->
+        <template #cell-product\.name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300">
+            {{ item.product?.name }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Warehouse -->
+        <template #cell-warehouse\.name="{ item }">
+          {{ item.warehouse?.name ?? 'Default' }}
+        </template>
+
+        <!-- Custom cell: Quantity -->
+        <template #cell-quantity="{ item }">
+          {{ item.quantity }} {{ item.product?.unit }}
+        </template>
+
+        <!-- Custom cell: Level badge -->
+        <template #cell-level="{ item }">
+          <Badge :variant="getStockLevel(item.quantity)">
+            {{ item.quantity <= 0 ? 'Out' : item.quantity < 10 ? 'Low' : 'OK' }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.product?.name }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="getStockLevel(item.quantity)">
+            {{ item.quantity <= 0 ? 'Out' : item.quantity < 10 ? 'Low' : 'OK' }}
+          </Badge>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useContacts, useDeleteContact, type ContactFilters, type Contact } from '@/api/useContacts'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 
 const toast = useToast()
 
@@ -51,6 +51,15 @@ function handleStatusChange(value: string | number | null) {
     updateFilter('is_active', undefined)
   }
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'code', label: 'Code', mobilePriority: 3 },
+  { key: 'name', label: 'Name', mobilePriority: 1 },
+  { key: 'type', label: 'Type', mobilePriority: 2 },
+  { key: 'email', label: 'Contact Info', showInMobile: false },
+  { key: 'is_active', label: 'Status', showInMobile: false },
+]
 
 // Delete handling
 const deleteMutation = useDeleteContact()
@@ -147,89 +156,81 @@ async function handleDelete() {
 
     <!-- Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Code
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Name
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Type
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Contact Info
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr
-            v-for="contact in contacts"
-            :key="contact.id"
-            class="hover:bg-slate-50 dark:hover:bg-slate-800"
+      <ResponsiveTable
+        :items="contacts"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="code"
+        @row-click="(item) => $router.push(`/contacts/${item.id}`)"
+      >
+        <!-- Custom cell: Code -->
+        <template #cell-code="{ item }">
+          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.code }}</span>
+        </template>
+
+        <!-- Custom cell: Name with link styling -->
+        <template #cell-name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Type badge -->
+        <template #cell-type="{ item }">
+          <span
+            class="inline-flex px-2 py-0.5 rounded text-xs font-medium capitalize"
+            :class="{
+              'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': item.type === 'customer',
+              'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': item.type === 'supplier',
+              'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': item.type === 'both',
+            }"
           >
-            <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ contact.code }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink
-                :to="`/contacts/${contact.id}`"
-                class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium"
-              >
-                {{ contact.name }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex px-2 py-0.5 rounded text-xs font-medium capitalize"
-                :class="{
-                  'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400': contact.type === 'customer',
-                  'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400': contact.type === 'supplier',
-                  'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400': contact.type === 'both',
-                }"
-              >
-                {{ contact.type }}
-              </span>
-            </td>
-            <td class="px-6 py-4">
-              <div v-if="contact.email" class="text-sm text-slate-900 dark:text-slate-100">{{ contact.email }}</div>
-              <div v-if="contact.phone" class="text-sm text-slate-500 dark:text-slate-400">{{ contact.phone }}</div>
-              <div v-if="!contact.email && !contact.phone" class="text-sm text-slate-400 dark:text-slate-500">-</div>
-            </td>
-            <td class="px-6 py-4">
-              <span
-                class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
-                :class="contact.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'"
-              >
-                {{ contact.is_active ? 'Active' : 'Inactive' }}
-              </span>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/contacts/${contact.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  @click="deleteConfirmation.confirmDelete(contact.id)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+            {{ item.type }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Contact Info -->
+        <template #cell-email="{ item }">
+          <div v-if="item.email" class="text-sm text-slate-900 dark:text-slate-100">{{ item.email }}</div>
+          <div v-if="item.phone" class="text-sm text-slate-500 dark:text-slate-400">{{ item.phone }}</div>
+          <div v-if="!item.email && !item.phone" class="text-sm text-slate-400 dark:text-slate-500">-</div>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-is_active="{ item }">
+          <span
+            class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
+            :class="item.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'"
+          >
+            {{ item.is_active ? 'Active' : 'Inactive' }}
+          </span>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/contacts/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              @click.stop="deleteConfirmation.confirmDelete(item.id)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

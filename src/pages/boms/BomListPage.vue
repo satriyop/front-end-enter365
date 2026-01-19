@@ -2,7 +2,7 @@
 import { useBoms, type BomFilters, type Bom } from '@/api/useBoms'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency } from '@/utils/format'
-import { Button, Input, Select, Badge, Pagination, EmptyState } from '@/components/ui'
+import { Button, Input, Select, Badge, Pagination, EmptyState, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { FileStack } from 'lucide-vue-next'
 
 // Resource list with filters and pagination
@@ -40,6 +40,16 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
   }
   return map[status] || 'default'
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'bom_number', label: 'BOM #', mobilePriority: 1 },
+  { key: 'product.name', label: 'Product', mobilePriority: 2 },
+  { key: 'output_quantity', label: 'Output', align: 'right', showInMobile: false },
+  { key: 'unit_cost', label: 'Unit Cost', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'total_cost', label: 'Total Cost', align: 'right', showInMobile: false, format: (v) => formatCurrency(v as number) },
+  { key: 'status', label: 'Status', showInMobile: false },
+]
 </script>
 
 <template>
@@ -106,59 +116,64 @@ function getStatusVariant(status: string): 'default' | 'success' | 'warning' | '
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">BOM #</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Product</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Output</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Unit Cost</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total Cost</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr
-            v-for="bom in boms"
-            :key="bom.id"
-            class="hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
-            @click="$router.push(`/boms/${bom.id}`)"
-          >
-            <td class="px-6 py-4">
-              <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ bom.bom_number }}
-              </span>
-              <div v-if="bom.variant_label" class="text-xs text-slate-500 dark:text-slate-400">
-                {{ bom.variant_label }}
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <div class="font-medium text-slate-900 dark:text-slate-100">{{ bom.product?.name }}</div>
-              <div class="text-sm text-slate-500 dark:text-slate-400">{{ bom.name }}</div>
-            </td>
-            <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-              {{ bom.output_quantity }} {{ bom.output_unit }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
-              {{ formatCurrency(bom.unit_cost) }}
-            </td>
-            <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-              {{ formatCurrency(bom.total_cost) }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="getStatusVariant(bom.status)">
-                {{ bom.status }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right" @click.stop>
-              <RouterLink :to="`/boms/${bom.id}`">
-                <Button variant="ghost" size="xs">View</Button>
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="boms"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="bom_number"
+        subtitle-field="name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/boms/${item.id}`)"
+      >
+        <!-- Custom cell: BOM number -->
+        <template #cell-bom_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.bom_number }}
+          </span>
+          <div v-if="item.variant_label" class="text-xs text-slate-500 dark:text-slate-400">
+            {{ item.variant_label }}
+          </div>
+        </template>
+
+        <!-- Custom cell: Product -->
+        <template #cell-product\.name="{ item }">
+          <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name }}</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">{{ item.name }}</div>
+        </template>
+
+        <!-- Custom cell: Output -->
+        <template #cell-output_quantity="{ item }">
+          {{ item.output_quantity }} {{ item.output_unit }}
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-status="{ item }">
+          <Badge :variant="getStatusVariant(item.status)">
+            {{ item.status }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.bom_number }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="getStatusVariant(item.status)">
+            {{ item.status }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <RouterLink :to="`/boms/${item.id}`">
+            <Button variant="ghost" size="xs">View</Button>
+          </RouterLink>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

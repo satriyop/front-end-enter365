@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useProjects, useDeleteProject, type ProjectFilters, type Project } from '@/api/useProjects'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatDate } from '@/utils/format'
 
 const toast = useToast()
@@ -45,6 +45,16 @@ const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 
   completed: 'success',
   cancelled: 'destructive',
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'project_number', label: 'Project #', mobilePriority: 1 },
+  { key: 'name', label: 'Name', mobilePriority: 2 },
+  { key: 'contact.name', label: 'Customer', mobilePriority: 3 },
+  { key: 'timeline', label: 'Timeline', showInMobile: false },
+  { key: 'progress_percentage', label: 'Progress', mobilePriority: 4 },
+  { key: 'status', label: 'Status', showInMobile: false },
+]
 
 // Delete handling
 const deleteMutation = useDeleteProject()
@@ -118,69 +128,86 @@ async function handleDelete() {
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Project #</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Customer</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Timeline</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Progress</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="project in projects" :key="project.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <RouterLink :to="`/projects/${project.id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ project.project_number }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4 text-slate-900 dark:text-slate-100">
-              {{ project.name }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ project.contact?.name ?? '-' }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 text-sm">
-              {{ formatDate(project.start_date) }} - {{ formatDate(project.end_date) }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <div class="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    class="h-full bg-orange-500 rounded-full"
-                    :style="{ width: `${project.progress_percentage ?? 0}%` }"
-                  />
-                </div>
-                <span class="text-sm text-slate-600 dark:text-slate-400">{{ project.progress_percentage ?? 0 }}%</span>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="statusColors[project.status] || 'default'">
-                {{ project.status.replace('_', ' ') }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/projects/${project.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button
-                  v-if="project.status === 'draft'"
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  @click="deleteConfirmation.confirmDelete(project.id)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="projects"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="project_number"
+        subtitle-field="name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/projects/${item.id}`)"
+      >
+        <!-- Custom cell: Project number with link styling -->
+        <template #cell-project_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.project_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Customer -->
+        <template #cell-contact\.name="{ item }">
+          <span class="text-slate-600 dark:text-slate-400">{{ item.contact?.name ?? '-' }}</span>
+        </template>
+
+        <!-- Custom cell: Timeline -->
+        <template #cell-timeline="{ item }">
+          <span class="text-slate-600 dark:text-slate-400 text-sm">
+            {{ formatDate(item.start_date) }} - {{ formatDate(item.end_date) }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Progress -->
+        <template #cell-progress_percentage="{ item }">
+          <div class="flex items-center gap-2">
+            <div class="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-orange-500 rounded-full"
+                :style="{ width: `${item.progress_percentage ?? 0}%` }"
+              />
+            </div>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ item.progress_percentage ?? 0 }}%</span>
+          </div>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status.replace('_', ' ') }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.project_number }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status.replace('_', ' ') }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/projects/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button
+              v-if="item.status === 'draft'"
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              @click.stop="deleteConfirmation.confirmDelete(item.id)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

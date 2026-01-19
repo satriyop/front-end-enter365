@@ -6,7 +6,7 @@ import { useInvoices, type Invoice, type InvoiceFilters } from '@/api/useInvoice
 import { useResourceList } from '@/composables/useResourceList'
 import { useBulkSelection } from '@/composables/useBulkSelection'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Badge, Button, Input, Select, Pagination, EmptyState, useToast } from '@/components/ui'
+import { Badge, Button, Input, Select, Pagination, EmptyState, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import BulkActionsBar from '@/components/BulkActionsBar.vue'
 
 const toast = useToast()
@@ -61,6 +61,16 @@ const statusOptions = [
   { value: 'paid', label: 'Paid' },
   { value: 'overdue', label: 'Overdue' },
   { value: 'void', label: 'Void' },
+]
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'invoice_number', label: 'Invoice #', mobilePriority: 1 },
+  { key: 'contact.name', label: 'Customer', mobilePriority: 2 },
+  { key: 'total_amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'outstanding_amount', label: 'Outstanding', align: 'right', mobilePriority: 4, format: (v) => formatCurrency(v as number) },
+  { key: 'status', label: 'Status', showInMobile: false },
+  { key: 'due_date', label: 'Due Date', showInMobile: false, format: (v) => formatDate(v as string) },
 ]
 
 // Bulk delete mutation
@@ -162,87 +172,68 @@ const bulkActions = computed(() => [
 
     <!-- Table -->
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-4 py-3 text-left">
-              <input
-                type="checkbox"
-                class="rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
-                :checked="isAllSelected"
-                :indeterminate="isSomeSelected"
-                @change="toggleAll"
-              />
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Invoice #
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Customer
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Amount
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Outstanding
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Status
-            </th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Due Date
-            </th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr
-            v-for="invoice in invoices"
-            :key="invoice.id"
-            class="hover:bg-slate-50 dark:hover:bg-slate-800"
-            :class="{ 'bg-primary-50 dark:bg-primary-900/20': isSelected(invoice) }"
-          >
-            <td class="px-4 py-4" @click.stop>
-              <input
-                type="checkbox"
-                class="rounded border-slate-300 dark:border-slate-600 text-primary-600 focus:ring-primary-500"
-                :checked="isSelected(invoice)"
-                @change="toggleItem(invoice)"
-              />
-            </td>
-            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ invoice.invoice_number }}
-              </span>
-            </td>
-            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <div class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.contact?.name }}</div>
-              <div class="text-sm text-slate-500 dark:text-slate-400">{{ invoice.description }}</div>
-            </td>
-            <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              {{ formatCurrency(invoice.total_amount) }}
-            </td>
-            <td class="px-6 py-4 text-right cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <span :class="invoice.outstanding_amount > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-500 dark:text-slate-400'">
-                {{ formatCurrency(invoice.outstanding_amount) }}
-              </span>
-            </td>
-            <td class="px-6 py-4 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              <Badge :status="invoice.status as any" />
-            </td>
-            <td class="px-6 py-4 text-slate-500 dark:text-slate-400 cursor-pointer" @click="$router.push(`/invoices/${invoice.id}`)">
-              {{ formatDate(invoice.due_date) }}
-            </td>
-            <td class="px-6 py-4 text-right" @click.stop>
-              <RouterLink :to="`/invoices/${invoice.id}`">
-                <Button variant="ghost" size="xs">View</Button>
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="invoices"
+        :columns="columns"
+        :loading="isLoading"
+        :selectable="true"
+        :selected-keys="new Set(getSelectedIds())"
+        title-field="invoice_number"
+        subtitle-field="contact.name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/invoices/${item.id}`)"
+        @select="(keys) => {
+          clearSelection()
+          keys.forEach((k) => {
+            const inv = invoices.find((i) => i.id === k)
+            if (inv) toggleItem(inv)
+          })
+        }"
+      >
+        <!-- Custom cell: Invoice number with link styling -->
+        <template #cell-invoice_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.invoice_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Customer with description -->
+        <template #cell-contact\.name="{ item }">
+          <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.contact?.name }}</div>
+          <div class="text-sm text-slate-500 dark:text-slate-400">{{ item.description }}</div>
+        </template>
+
+        <!-- Custom cell: Outstanding with color -->
+        <template #cell-outstanding_amount="{ item }">
+          <span :class="item.outstanding_amount > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-500 dark:text-slate-400'">
+            {{ formatCurrency(item.outstanding_amount) }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Status badge -->
+        <template #cell-status="{ item }">
+          <Badge :status="item.status" />
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :status="item.status" />
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.invoice_number }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <RouterLink :to="`/invoices/${item.id}`">
+            <Button variant="ghost" size="xs">View</Button>
+          </RouterLink>
+        </template>
+      </ResponsiveTable>
 
       <!-- Pagination -->
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">

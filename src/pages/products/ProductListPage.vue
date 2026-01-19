@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useProducts, useDeleteProduct, type ProductFilters, type Product } from '@/api/useProducts'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const toast = useToast()
@@ -31,6 +31,15 @@ const typeOptions = [
   { value: '', label: 'All Types' },
   { value: 'product', label: 'Products' },
   { value: 'service', label: 'Services' },
+]
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'sku', label: 'SKU', mobilePriority: 2 },
+  { key: 'name', label: 'Name', mobilePriority: 1 },
+  { key: 'type', label: 'Type', mobilePriority: 4 },
+  { key: 'selling_price', label: 'Price', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'current_stock', label: 'Stock', align: 'right', showInMobile: false },
 ]
 
 // Delete handling
@@ -105,51 +114,57 @@ async function handleDelete() {
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">SKU</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Price</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Stock</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="product in products" :key="product.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ product.sku }}</span>
-            </td>
-            <td class="px-6 py-4">
-              <RouterLink :to="`/products/${product.id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ product.name }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="product.type === 'product' ? 'info' : 'warning'">
-                {{ product.type_label }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ formatCurrency(product.selling_price) }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              {{ product.type === 'product' ? product.current_stock : '-' }}
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/products/${product.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button variant="ghost" size="xs" class="text-red-500 hover:text-red-600" @click="deleteConfirmation.confirmDelete(product.id)">
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="products"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="name"
+        subtitle-field="sku"
+        @row-click="(item) => $router.push(`/products/${item.id}`)"
+      >
+        <!-- Custom cell: SKU -->
+        <template #cell-sku="{ item }">
+          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.sku }}</span>
+        </template>
+
+        <!-- Custom cell: Name with link styling -->
+        <template #cell-name="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Type badge -->
+        <template #cell-type="{ item }">
+          <Badge :variant="item.type === 'product' ? 'info' : 'warning'">
+            {{ item.type_label }}
+          </Badge>
+        </template>
+
+        <!-- Custom cell: Stock -->
+        <template #cell-current_stock="{ item }">
+          {{ item.type === 'product' ? item.current_stock : '-' }}
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.name }}
+          </span>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/products/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button variant="ghost" size="xs" class="text-red-500 hover:text-red-600" @click.stop="deleteConfirmation.confirmDelete(item.id)">
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

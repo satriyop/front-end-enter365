@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useWorkOrders, useDeleteWorkOrder, type WorkOrderFilters, type WorkOrder } from '@/api/useWorkOrders'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatDate } from '@/utils/format'
 
 const toast = useToast()
@@ -43,6 +43,16 @@ const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 
   completed: 'success',
   cancelled: 'destructive',
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'wo_number', label: 'WO #', mobilePriority: 1 },
+  { key: 'name', label: 'Name', mobilePriority: 2 },
+  { key: 'type', label: 'Type', showInMobile: false },
+  { key: 'schedule', label: 'Schedule', showInMobile: false },
+  { key: 'completion_percentage', label: 'Progress', mobilePriority: 3 },
+  { key: 'status', label: 'Status', showInMobile: false },
+]
 
 // Delete handling
 const deleteMutation = useDeleteWorkOrder()
@@ -116,69 +126,86 @@ async function handleDelete() {
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">WO #</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Type</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Schedule</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Progress</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="wo in workOrders" :key="wo.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <RouterLink :to="`/work-orders/${wo.id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ wo.wo_number }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4 text-slate-900 dark:text-slate-100">
-              {{ wo.name }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge variant="info">{{ wo.type }}</Badge>
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400 text-sm">
-              {{ formatDate(wo.planned_start_date) }} - {{ formatDate(wo.planned_end_date) }}
-            </td>
-            <td class="px-6 py-4">
-              <div class="flex items-center gap-2">
-                <div class="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    class="h-full bg-orange-500 rounded-full"
-                    :style="{ width: wo.completion_percentage }"
-                  />
-                </div>
-                <span class="text-sm text-slate-600 dark:text-slate-400">{{ wo.completion_percentage }}</span>
-              </div>
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="statusColors[wo.status] || 'default'">
-                {{ wo.status.replace('_', ' ') }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/work-orders/${wo.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button
-                  v-if="wo.status === 'draft'"
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  @click="deleteConfirmation.confirmDelete(wo.id)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="workOrders"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="wo_number"
+        subtitle-field="name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/work-orders/${item.id}`)"
+      >
+        <!-- Custom cell: WO number -->
+        <template #cell-wo_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.wo_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Type badge -->
+        <template #cell-type="{ item }">
+          <Badge variant="info">{{ item.type }}</Badge>
+        </template>
+
+        <!-- Custom cell: Schedule -->
+        <template #cell-schedule="{ item }">
+          <span class="text-slate-600 dark:text-slate-400 text-sm">
+            {{ formatDate(item.planned_start_date) }} - {{ formatDate(item.planned_end_date) }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Progress -->
+        <template #cell-completion_percentage="{ item }">
+          <div class="flex items-center gap-2">
+            <div class="w-24 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+              <div
+                class="h-full bg-orange-500 rounded-full"
+                :style="{ width: item.completion_percentage }"
+              />
+            </div>
+            <span class="text-sm text-slate-600 dark:text-slate-400">{{ item.completion_percentage }}</span>
+          </div>
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status.replace('_', ' ') }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.wo_number }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status.replace('_', ' ') }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/work-orders/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button
+              v-if="item.status === 'draft'"
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              @click.stop="deleteConfirmation.confirmDelete(item.id)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

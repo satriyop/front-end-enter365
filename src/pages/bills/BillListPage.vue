@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBills, useDeleteBill, type BillFilters, type Bill } from '@/api/useBills'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const toast = useToast()
@@ -44,6 +44,16 @@ const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 
   overdue: 'destructive',
   voided: 'destructive',
 }
+
+// Table columns with mobile priorities
+const columns: ResponsiveColumn[] = [
+  { key: 'bill_number', label: 'Bill #', mobilePriority: 1 },
+  { key: 'contact.name', label: 'Vendor', mobilePriority: 2 },
+  { key: 'bill_date', label: 'Date', showInMobile: false, format: (v) => formatDate(v as string) },
+  { key: 'due_date', label: 'Due Date', showInMobile: false, format: (v) => formatDate(v as string) },
+  { key: 'total_amount', label: 'Total', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'status', label: 'Status', showInMobile: false },
+]
 
 // Delete handling
 const deleteMutation = useDeleteBill()
@@ -117,61 +127,66 @@ async function handleDelete() {
     </div>
 
     <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      <table class="w-full">
-        <thead class="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-          <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bill #</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Vendor</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Due Date</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Total</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Status</th>
-            <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">Actions</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-          <tr v-for="bill in bills" :key="bill.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-            <td class="px-6 py-4">
-              <RouterLink :to="`/bills/${bill.id}`" class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
-                {{ bill.bill_number }}
-              </RouterLink>
-            </td>
-            <td class="px-6 py-4 text-slate-900 dark:text-slate-100">
-              {{ bill.contact?.name ?? '-' }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ formatDate(bill.bill_date) }}
-            </td>
-            <td class="px-6 py-4 text-slate-600 dark:text-slate-400">
-              {{ formatDate(bill.due_date) }}
-            </td>
-            <td class="px-6 py-4 text-right font-medium">
-              {{ formatCurrency(bill.total_amount) }}
-            </td>
-            <td class="px-6 py-4">
-              <Badge :variant="statusColors[bill.status] || 'default'">
-                {{ bill.status }}
-              </Badge>
-            </td>
-            <td class="px-6 py-4 text-right">
-              <div class="flex items-center justify-end gap-2">
-                <RouterLink :to="`/bills/${bill.id}/edit`">
-                  <Button variant="ghost" size="xs">Edit</Button>
-                </RouterLink>
-                <Button
-                  v-if="bill.status === 'draft'"
-                  variant="ghost"
-                  size="xs"
-                  class="text-red-500 hover:text-red-600"
-                  @click="deleteConfirmation.confirmDelete(bill.id)"
-                >
-                  Delete
-                </Button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <ResponsiveTable
+        :items="bills"
+        :columns="columns"
+        :loading="isLoading"
+        title-field="bill_number"
+        subtitle-field="contact.name"
+        status-field="status"
+        @row-click="(item) => $router.push(`/bills/${item.id}`)"
+      >
+        <!-- Custom cell: Bill number -->
+        <template #cell-bill_number="{ item }">
+          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+            {{ item.bill_number }}
+          </span>
+        </template>
+
+        <!-- Custom cell: Vendor -->
+        <template #cell-contact\.name="{ item }">
+          {{ item.contact?.name ?? '-' }}
+        </template>
+
+        <!-- Custom cell: Status -->
+        <template #cell-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status }}
+          </Badge>
+        </template>
+
+        <!-- Mobile title slot -->
+        <template #mobile-title="{ item }">
+          <span class="text-orange-600 dark:text-orange-400 font-medium">
+            {{ item.bill_number }}
+          </span>
+        </template>
+
+        <!-- Mobile status slot -->
+        <template #mobile-status="{ item }">
+          <Badge :variant="statusColors[item.status] || 'default'">
+            {{ item.status }}
+          </Badge>
+        </template>
+
+        <!-- Actions -->
+        <template #actions="{ item }">
+          <div class="flex items-center justify-end gap-2">
+            <RouterLink :to="`/bills/${item.id}/edit`">
+              <Button variant="ghost" size="xs">Edit</Button>
+            </RouterLink>
+            <Button
+              v-if="item.status === 'draft'"
+              variant="ghost"
+              size="xs"
+              class="text-red-500 hover:text-red-600"
+              @click.stop="deleteConfirmation.confirmDelete(item.id)"
+            >
+              Delete
+            </Button>
+          </div>
+        </template>
+      </ResponsiveTable>
 
       <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
         <Pagination

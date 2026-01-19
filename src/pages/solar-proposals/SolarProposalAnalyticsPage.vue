@@ -3,7 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import { useSolarProposals, type SolarProposalFilters } from '@/api/useSolarProposals'
 import { formatCurrency, formatCurrencyCompact, formatNumber, formatPercent } from '@/utils/format'
-import { Button, Card, Select } from '@/components/ui'
+import { Button, Card, Select, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import {
   Target,
   Clock,
@@ -202,6 +202,24 @@ const sizeDistribution = computed(() => {
     }
   })
 })
+
+// Table columns for size distribution
+const sizeColumns: ResponsiveColumn[] = [
+  { key: 'label', label: 'Size Bracket', mobilePriority: 1 },
+  { key: 'count', label: 'Proposals', align: 'right', showInMobile: false },
+  { key: 'won', label: 'Won', align: 'right', showInMobile: false },
+  { key: 'winRate', label: 'Win Rate', align: 'right', mobilePriority: 2 },
+  { key: 'value', label: 'Total Value', align: 'right', mobilePriority: 3 },
+]
+
+// Table columns for province distribution
+const provinceColumns: ResponsiveColumn[] = [
+  { key: 'name', label: 'Province', mobilePriority: 1 },
+  { key: 'total', label: 'Proposals', align: 'right', showInMobile: false },
+  { key: 'won', label: 'Won', align: 'right', showInMobile: false },
+  { key: 'winRate', label: 'Win Rate', align: 'right', mobilePriority: 2 },
+  { key: 'value', label: 'Total Value', align: 'right', mobilePriority: 3 },
+]
 
 // ============================================
 // Charts
@@ -611,63 +629,63 @@ watch([proposals, dateRange], () => {
             Analyze which system sizes have the highest conversion rates
           </p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-slate-50 dark:bg-slate-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Size Bracket
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Proposals
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Won
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Win Rate
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Total Value
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-              <tr
-                v-for="bracket in sizeDistribution"
-                :key="bracket.label"
-                class="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              >
-                <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">
-                  {{ bracket.label }}
-                </td>
-                <td class="px-6 py-4 text-right text-slate-600 dark:text-slate-300">
-                  {{ bracket.count }}
-                </td>
-                <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
-                  {{ bracket.won }}
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="
-                      bracket.winRate >= 50
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : bracket.winRate >= 25
-                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                    "
-                  >
-                    {{ formatPercent(bracket.winRate) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right text-slate-600 dark:text-slate-300">
-                  {{ formatCurrencyCompact(bracket.value) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ResponsiveTable
+          :items="sizeDistribution"
+          :columns="sizeColumns"
+          title-field="label"
+        >
+          <!-- Custom cell: Size Bracket -->
+          <template #cell-label="{ item }">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.label }}</span>
+          </template>
+
+          <!-- Custom cell: Won -->
+          <template #cell-won="{ item }">
+            <span class="text-green-600 dark:text-green-400">{{ item.won }}</span>
+          </template>
+
+          <!-- Custom cell: Win Rate -->
+          <template #cell-winRate="{ item }">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="
+                item.winRate >= 50
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : item.winRate >= 25
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+              "
+            >
+              {{ formatPercent(item.winRate) }}
+            </span>
+          </template>
+
+          <!-- Custom cell: Total Value -->
+          <template #cell-value="{ item }">
+            <span class="text-slate-600 dark:text-slate-300">{{ formatCurrencyCompact(item.value) }}</span>
+          </template>
+
+          <!-- Mobile title slot -->
+          <template #mobile-title="{ item }">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.label }}</span>
+          </template>
+
+          <!-- Mobile status slot -->
+          <template #mobile-status="{ item }">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="
+                item.winRate >= 50
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : item.winRate >= 25
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+              "
+            >
+              {{ formatPercent(item.winRate) }}
+            </span>
+          </template>
+        </ResponsiveTable>
       </Card>
 
       <!-- Province Performance Table -->
@@ -678,63 +696,63 @@ watch([proposals, dateRange], () => {
             Top performing provinces by proposal volume and win rate
           </p>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full">
-            <thead class="bg-slate-50 dark:bg-slate-800">
-              <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Province
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Proposals
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Won
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Win Rate
-                </th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
-                  Total Value
-                </th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-              <tr
-                v-for="province in provinceDistribution"
-                :key="province.name"
-                class="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-              >
-                <td class="px-6 py-4 font-medium text-slate-900 dark:text-slate-100">
-                  {{ province.name }}
-                </td>
-                <td class="px-6 py-4 text-right text-slate-600 dark:text-slate-300">
-                  {{ province.total }}
-                </td>
-                <td class="px-6 py-4 text-right text-green-600 dark:text-green-400">
-                  {{ province.won }}
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <span
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    :class="
-                      province.winRate >= 50
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : province.winRate >= 25
-                          ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
-                    "
-                  >
-                    {{ formatPercent(province.winRate) }}
-                  </span>
-                </td>
-                <td class="px-6 py-4 text-right text-slate-600 dark:text-slate-300">
-                  {{ formatCurrencyCompact(province.value) }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <ResponsiveTable
+          :items="provinceDistribution"
+          :columns="provinceColumns"
+          title-field="name"
+        >
+          <!-- Custom cell: Province -->
+          <template #cell-name="{ item }">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.name }}</span>
+          </template>
+
+          <!-- Custom cell: Won -->
+          <template #cell-won="{ item }">
+            <span class="text-green-600 dark:text-green-400">{{ item.won }}</span>
+          </template>
+
+          <!-- Custom cell: Win Rate -->
+          <template #cell-winRate="{ item }">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="
+                item.winRate >= 50
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : item.winRate >= 25
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+              "
+            >
+              {{ formatPercent(item.winRate) }}
+            </span>
+          </template>
+
+          <!-- Custom cell: Total Value -->
+          <template #cell-value="{ item }">
+            <span class="text-slate-600 dark:text-slate-300">{{ formatCurrencyCompact(item.value) }}</span>
+          </template>
+
+          <!-- Mobile title slot -->
+          <template #mobile-title="{ item }">
+            <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.name }}</span>
+          </template>
+
+          <!-- Mobile status slot -->
+          <template #mobile-status="{ item }">
+            <span
+              class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+              :class="
+                item.winRate >= 50
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                  : item.winRate >= 25
+                    ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+              "
+            >
+              {{ formatPercent(item.winRate) }}
+            </span>
+          </template>
+        </ResponsiveTable>
       </Card>
     </template>
   </div>
