@@ -52,7 +52,7 @@ async function handleDelete() {
 
       <!-- Header -->
       <Card class="mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -105,7 +105,7 @@ async function handleDelete() {
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Contact Information</h2>
             </template>
 
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Email</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">
@@ -161,7 +161,7 @@ async function handleDelete() {
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Tax Information</h2>
             </template>
 
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">NPWP</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100 font-mono">{{ contact.npwp || '-' }}</dd>

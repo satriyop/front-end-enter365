@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBill, usePostBill, useVoidBill, useDeleteBill } from '@/api/useBills'
-import { Button, Card, Badge, useToast } from '@/components/ui'
+import { Button, Card, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const route = useRoute()
@@ -55,6 +55,14 @@ async function handleDelete() {
     toast.error('Failed to delete bill')
   }
 }
+
+// Line items table columns with mobile priorities
+const itemColumns: ResponsiveColumn[] = [
+  { key: 'description', label: 'Description', mobilePriority: 1 },
+  { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
+  { key: 'unit_price', label: 'Price', align: 'right', showInMobile: false },
+  { key: 'line_total', label: 'Amount', align: 'right', mobilePriority: 2 },
+]
 </script>
 
 <template>
@@ -64,7 +72,7 @@ async function handleDelete() {
     </div>
 
     <template v-else-if="bill">
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ bill.bill_number }}</h1>
@@ -97,7 +105,7 @@ async function handleDelete() {
             <template #header>
               <h2 class="font-medium text-slate-900 dark:text-slate-100">Bill Details</h2>
             </template>
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Vendor</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ bill.contact?.name }}</dd>
@@ -121,28 +129,40 @@ async function handleDelete() {
             </dl>
           </Card>
 
-          <Card>
+          <Card :padding="false">
             <template #header>
-              <h2 class="font-medium text-slate-900 dark:text-slate-100">Line Items</h2>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100 px-6 pt-6">Line Items</h2>
             </template>
-            <table class="w-full">
-              <thead class="bg-slate-50 dark:bg-slate-800">
-                <tr>
-                  <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">Description</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Qty</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Price</th>
-                  <th class="px-4 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400">Amount</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                <tr v-for="item in bill.items" :key="item.id">
-                  <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ item.description }}</td>
-                  <td class="px-4 py-3 text-right text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</td>
-                  <td class="px-4 py-3 text-right text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_price) }}</td>
-                  <td class="px-4 py-3 text-right font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</td>
-                </tr>
-              </tbody>
-            </table>
+            <ResponsiveTable
+              :items="bill.items"
+              :columns="itemColumns"
+              title-field="description"
+            >
+              <!-- Custom cell: Description -->
+              <template #cell-description="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ item.description }}</span>
+              </template>
+
+              <!-- Custom cell: Quantity -->
+              <template #cell-quantity="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
+              </template>
+
+              <!-- Custom cell: Unit Price -->
+              <template #cell-unit_price="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_price) }}</span>
+              </template>
+
+              <!-- Custom cell: Line Total -->
+              <template #cell-line_total="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</span>
+              </template>
+
+              <!-- Mobile title slot -->
+              <template #mobile-title="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</span>
+              </template>
+            </ResponsiveTable>
           </Card>
         </div>
 

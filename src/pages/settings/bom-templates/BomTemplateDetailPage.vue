@@ -483,7 +483,7 @@ function getTypeLabel(type: string): string {
           <Input v-model="itemForm.description" placeholder="e.g., MCB 16A 1P" />
         </FormField>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Quantity" required :error="itemFormErrors.default_quantity">
             <Input
               v-model.number="itemForm.default_quantity"

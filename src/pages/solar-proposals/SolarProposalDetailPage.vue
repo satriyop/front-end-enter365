@@ -310,7 +310,7 @@ const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
 
       <!-- Header -->
       <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">

@@ -24,7 +24,7 @@ import {
 } from '@/api/useComponentStandards'
 import { Check, TrendingDown, ArrowLeftRight, Loader2 } from 'lucide-vue-next'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, Card, Input, useToast } from '@/components/ui'
+import { Button, Badge, Modal, Card, Input, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -390,6 +390,15 @@ const costBreakdown = computed(() => {
     overhead: ((bom.value.total_overhead_cost / total) * 100).toFixed(1),
   }
 })
+
+// BOM Items table columns with mobile priorities
+const bomItemColumns: ResponsiveColumn[] = [
+  { key: 'type', label: 'Type', showInMobile: false },
+  { key: 'description', label: 'Description', mobilePriority: 1 },
+  { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
+  { key: 'unit_cost', label: 'Unit Cost', align: 'right', showInMobile: false },
+  { key: 'total_cost', label: 'Total', align: 'right', mobilePriority: 2 },
+]
 </script>
 
 <template>
@@ -415,7 +424,7 @@ const costBreakdown = computed(() => {
 
       <!-- Header -->
       <Card class="mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -534,7 +543,7 @@ const costBreakdown = computed(() => {
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Details</h2>
             </template>
 
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Output Quantity</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">
@@ -561,68 +570,82 @@ const costBreakdown = computed(() => {
           </Card>
 
           <!-- BOM Items Card -->
-          <Card>
+          <Card :padding="false">
             <template #header>
-              <h2 class="font-semibold text-slate-900 dark:text-slate-100">BOM Items</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100 px-6 pt-6">BOM Items</h2>
             </template>
 
-            <div class="overflow-x-auto -mx-6">
-              <table class="w-full">
-                <thead class="bg-slate-50 dark:bg-slate-800">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Type</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Description</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Unit Cost</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-20"></th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                  <tr v-for="item in bom.items" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-                    <td class="px-6 py-4">
-                      <span
-                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium capitalize"
-                        :class="getTypeColor(item.type)"
-                      >
-                        {{ item.type }}
-                      </span>
-                    </td>
-                    <td class="px-6 py-4">
-                      <div class="font-medium text-slate-900 dark:text-slate-100">
-                        {{ item.product?.name || item.description }}
-                      </div>
-                      <div v-if="item.product?.sku" class="text-sm text-slate-500 dark:text-slate-400">
-                        {{ item.product.sku }}
-                      </div>
-                      <div v-if="item.waste_percentage > 0" class="text-xs text-orange-600 dark:text-orange-400">
-                        +{{ item.waste_percentage }}% waste allowance
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                      {{ item.quantity }} {{ item.unit }}
-                    </td>
-                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                      {{ formatCurrency(item.unit_cost) }}
-                    </td>
-                    <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
-                      {{ formatCurrency(item.total_cost) }}
-                    </td>
-                    <td class="px-6 py-4 text-center">
-                      <button
-                        v-if="item.component_standard_id"
-                        type="button"
-                        class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
-                        title="Swap to equivalent product"
-                        @click="openQuickSwapModal(item)"
-                      >
-                        <ArrowLeftRight class="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <ResponsiveTable
+              :items="bom.items || []"
+              :columns="bomItemColumns"
+              title-field="description"
+            >
+              <!-- Custom cell: Type -->
+              <template #cell-type="{ item }">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium capitalize"
+                  :class="getTypeColor(item.type)"
+                >
+                  {{ item.type }}
+                </span>
+              </template>
+
+              <!-- Custom cell: Description -->
+              <template #cell-description="{ item }">
+                <div class="font-medium text-slate-900 dark:text-slate-100">
+                  {{ item.product?.name || item.description }}
+                </div>
+                <div v-if="item.product?.sku" class="text-sm text-slate-500 dark:text-slate-400">
+                  {{ item.product.sku }}
+                </div>
+                <div v-if="item.waste_percentage > 0" class="text-xs text-orange-600 dark:text-orange-400">
+                  +{{ item.waste_percentage }}% waste allowance
+                </div>
+              </template>
+
+              <!-- Custom cell: Quantity -->
+              <template #cell-quantity="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
+              </template>
+
+              <!-- Custom cell: Unit Cost -->
+              <template #cell-unit_cost="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_cost) }}</span>
+              </template>
+
+              <!-- Custom cell: Total Cost -->
+              <template #cell-total_cost="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.total_cost) }}</span>
+              </template>
+
+              <!-- Mobile title slot -->
+              <template #mobile-title="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name || item.description }}</span>
+              </template>
+
+              <!-- Mobile status slot -->
+              <template #mobile-status="{ item }">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded text-xs font-medium capitalize"
+                  :class="getTypeColor(item.type)"
+                >
+                  {{ item.type }}
+                </span>
+              </template>
+
+              <!-- Actions -->
+              <template #actions="{ item }">
+                <button
+                  v-if="item.component_standard_id"
+                  type="button"
+                  class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
+                  title="Swap to equivalent product"
+                  @click.stop="openQuickSwapModal(item)"
+                >
+                  <ArrowLeftRight class="w-4 h-4" />
+                </button>
+              </template>
+            </ResponsiveTable>
 
             <div v-if="!bom.items?.length" class="py-8 text-center text-slate-500 dark:text-slate-400">
               No items in this BOM
@@ -1465,7 +1488,7 @@ const costBreakdown = computed(() => {
                 :disabled="quickSwapMutation.isPending.value"
                 @click="handleQuickSwapToProduct(alt.product_id)"
               >
-                <div class="flex items-start justify-between gap-3">
+                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 gap-3">
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="font-medium text-slate-900 dark:text-slate-100 truncate">{{ alt.product_name }}</span>

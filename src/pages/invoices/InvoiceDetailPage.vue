@@ -9,7 +9,7 @@ import {
   useDeleteInvoice,
 } from '@/api/useInvoices'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, Card, useToast } from '@/components/ui'
+import { Button, Badge, Modal, Card, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
 
@@ -105,6 +105,14 @@ const printableItems = computed(() => {
     line_total: item.line_total,
   }))
 })
+
+// Line items table columns with mobile priorities
+const itemColumns: ResponsiveColumn[] = [
+  { key: 'description', label: 'Description', mobilePriority: 1 },
+  { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
+  { key: 'unit_price', label: 'Price', align: 'right', showInMobile: false },
+  { key: 'line_total', label: 'Total', align: 'right', mobilePriority: 2 },
+]
 </script>
 
 <template>
@@ -130,7 +138,7 @@ const printableItems = computed(() => {
 
       <!-- Header -->
       <Card class="mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -213,7 +221,7 @@ const printableItems = computed(() => {
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Details</h2>
             </template>
 
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Customer</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.contact?.name }}</dd>
@@ -238,40 +246,42 @@ const printableItems = computed(() => {
           </Card>
 
           <!-- Items Card -->
-          <Card>
+          <Card :padding="false">
             <template #header>
-              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Line Items</h2>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100 px-6 pt-6">Line Items</h2>
             </template>
 
-            <div class="overflow-x-auto -mx-6">
-              <table class="w-full">
-                <thead class="bg-slate-50 dark:bg-slate-800">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Description</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                  <tr v-for="item in invoice.items" :key="item.id">
-                    <td class="px-6 py-4">
-                      <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</div>
-                      <div v-if="item.notes" class="text-sm text-slate-500 dark:text-slate-400">{{ item.notes }}</div>
-                    </td>
-                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                      {{ item.quantity }} {{ item.unit }}
-                    </td>
-                    <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                      {{ formatCurrency(item.unit_price) }}
-                    </td>
-                    <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
-                      {{ formatCurrency(item.line_total) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <ResponsiveTable
+              :items="invoice.items"
+              :columns="itemColumns"
+              title-field="description"
+            >
+              <!-- Custom cell: Description -->
+              <template #cell-description="{ item }">
+                <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</div>
+                <div v-if="item.notes" class="text-sm text-slate-500 dark:text-slate-400">{{ item.notes }}</div>
+              </template>
+
+              <!-- Custom cell: Quantity -->
+              <template #cell-quantity="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
+              </template>
+
+              <!-- Custom cell: Unit Price -->
+              <template #cell-unit_price="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_price) }}</span>
+              </template>
+
+              <!-- Custom cell: Line Total -->
+              <template #cell-line_total="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</span>
+              </template>
+
+              <!-- Mobile title slot -->
+              <template #mobile-title="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</span>
+              </template>
+            </ResponsiveTable>
           </Card>
 
           <!-- Payments Card -->

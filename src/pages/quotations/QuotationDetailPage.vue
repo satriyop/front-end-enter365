@@ -12,7 +12,7 @@ import {
 } from '@/api/useQuotations'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, ConfirmDialog, PageSkeleton, useToast } from '@/components/ui'
+import { Button, Badge, Modal, ConfirmDialog, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
 
@@ -135,6 +135,16 @@ const printableItems = computed(() => {
     line_total: item.line_total,
   }))
 })
+
+// Line items table columns with mobile priorities
+const itemColumns: ResponsiveColumn[] = [
+  { key: 'item', label: 'Item', mobilePriority: 1 },
+  { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
+  { key: 'unit_price', label: 'Price', align: 'right', showInMobile: false },
+  { key: 'discount_percent', label: 'Disc', align: 'right', showInMobile: false },
+  { key: 'tax_rate', label: 'Tax', align: 'right', showInMobile: false },
+  { key: 'line_total', label: 'Total', align: 'right', mobilePriority: 2 },
+]
 </script>
 
 <template>
@@ -158,7 +168,7 @@ const printableItems = computed(() => {
 
       <!-- Header -->
       <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6 mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
@@ -170,7 +180,7 @@ const printableItems = computed(() => {
           </div>
 
           <!-- Action Buttons -->
-          <div class="flex gap-2">
+          <div class="flex flex-wrap gap-2">
             <!-- Print -->
             <Button
               variant="ghost"
@@ -265,7 +275,7 @@ const printableItems = computed(() => {
           <!-- Details Card -->
           <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Details</h2>
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Subject</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.subject || '-' }}</dd>
@@ -301,41 +311,47 @@ const printableItems = computed(() => {
             <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Line Items</h2>
             </div>
-            <table class="w-full">
-              <thead class="bg-slate-50 dark:bg-slate-800">
-                <tr>
-                  <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Item</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qty</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Disc</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tax</th>
-                  <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                <tr v-for="item in quotation.items" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-                  <td class="px-6 py-4">
-                    <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name || item.description }}</div>
-                    <div v-if="item.product?.name" class="text-sm text-slate-500 dark:text-slate-400">{{ item.description }}</div>
-                  </td>
-                  <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                    {{ item.quantity }} {{ item.unit }}
-                  </td>
-                  <td class="px-6 py-4 text-right text-slate-900 dark:text-slate-100">
-                    {{ formatCurrency(item.unit_price) }}
-                  </td>
-                  <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400">
-                    {{ item.discount_percent }}%
-                  </td>
-                  <td class="px-6 py-4 text-right text-slate-500 dark:text-slate-400">
-                    {{ item.tax_rate }}%
-                  </td>
-                  <td class="px-6 py-4 text-right font-medium text-slate-900 dark:text-slate-100">
-                    {{ formatCurrency(item.line_total) }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <ResponsiveTable
+              :items="quotation.items"
+              :columns="itemColumns"
+              title-field="item"
+            >
+              <!-- Custom cell: Item -->
+              <template #cell-item="{ item }">
+                <div class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name || item.description }}</div>
+                <div v-if="item.product?.name" class="text-sm text-slate-500 dark:text-slate-400">{{ item.description }}</div>
+              </template>
+
+              <!-- Custom cell: Quantity -->
+              <template #cell-quantity="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
+              </template>
+
+              <!-- Custom cell: Unit Price -->
+              <template #cell-unit_price="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">{{ formatCurrency(item.unit_price) }}</span>
+              </template>
+
+              <!-- Custom cell: Discount -->
+              <template #cell-discount_percent="{ item }">
+                <span class="text-slate-500 dark:text-slate-400">{{ item.discount_percent }}%</span>
+              </template>
+
+              <!-- Custom cell: Tax -->
+              <template #cell-tax_rate="{ item }">
+                <span class="text-slate-500 dark:text-slate-400">{{ item.tax_rate }}%</span>
+              </template>
+
+              <!-- Custom cell: Line Total -->
+              <template #cell-line_total="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</span>
+              </template>
+
+              <!-- Mobile title slot -->
+              <template #mobile-title="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.product?.name || item.description }}</span>
+              </template>
+            </ResponsiveTable>
           </div>
 
           <!-- Notes & Terms -->

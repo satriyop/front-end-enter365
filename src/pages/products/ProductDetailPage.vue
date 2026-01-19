@@ -35,7 +35,7 @@ async function handleDelete() {
 
     <template v-else-if="product">
       <!-- Header -->
-      <div class="flex items-start justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ product.name }}</h1>
@@ -63,7 +63,7 @@ async function handleDelete() {
             <template #header>
               <h2 class="font-medium text-slate-900 dark:text-slate-100">Product Information</h2>
             </template>
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">SKU</dt>
                 <dd class="font-mono text-slate-900 dark:text-slate-100">{{ product.sku }}</dd>
@@ -91,7 +91,7 @@ async function handleDelete() {
             <template #header>
               <h2 class="font-medium text-slate-900 dark:text-slate-100">Pricing</h2>
             </template>
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Purchase Price</dt>
                 <dd class="text-lg font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(product.purchase_price) }}</dd>

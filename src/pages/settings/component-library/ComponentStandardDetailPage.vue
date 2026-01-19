@@ -12,7 +12,7 @@ import {
   type BrandMappingInput
 } from '@/api/useComponentStandards'
 import { useProducts } from '@/api/useProducts'
-import { Button, Badge, Modal, Card, Input, Select, useToast } from '@/components/ui'
+import { Button, Badge, Modal, Card, Input, Select, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const route = useRoute()
@@ -172,6 +172,15 @@ function getCategoryColor(category: string): string {
   }
   return colors[category] || 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
 }
+
+// Brand Mappings table columns with mobile priorities
+const mappingColumns: ResponsiveColumn[] = [
+  { key: 'brand_label', label: 'Brand', mobilePriority: 1 },
+  { key: 'product', label: 'Product', mobilePriority: 2 },
+  { key: 'brand_sku', label: 'Brand SKU', showInMobile: false },
+  { key: 'price', label: 'Price', align: 'right', mobilePriority: 3 },
+  { key: 'status', label: 'Status', align: 'center', showInMobile: false },
+]
 </script>
 
 <template>
@@ -193,7 +202,7 @@ function getCategoryColor(category: string): string {
 
       <!-- Header -->
       <Card class="mb-6">
-        <div class="flex items-start justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
             <div class="flex items-center gap-3 mb-2">
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ standard.code }}</h1>
@@ -237,7 +246,7 @@ function getCategoryColor(category: string): string {
             <template #header>
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Specifications</h2>
             </template>
-            <dl class="grid grid-cols-2 gap-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div v-for="spec in formatSpecs(standard.specifications)" :key="spec.key">
                 <dt class="text-sm text-slate-500 dark:text-slate-400">{{ spec.key }}</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ spec.value }}</dd>
@@ -264,80 +273,93 @@ function getCategoryColor(category: string): string {
               No brand mappings yet. Add mappings to enable cross-brand swapping.
             </div>
 
-            <div v-else class="overflow-x-auto -mx-6">
-              <table class="w-full">
-                <thead class="bg-slate-50 dark:bg-slate-800">
-                  <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Brand</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Product</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Brand SKU</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Price</th>
-                    <th class="px-6 py-3 text-center text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Actions</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-                  <tr v-for="mapping in standard.brand_mappings" :key="mapping.id" class="hover:bg-slate-50 dark:hover:bg-slate-800">
-                    <td class="px-6 py-4">
-                      <span class="font-medium text-slate-900 dark:text-slate-100">{{ mapping.brand_label }}</span>
-                    </td>
-                    <td class="px-6 py-4">
-                      <div v-if="mapping.product" class="text-slate-900 dark:text-slate-100">
-                        {{ mapping.product.name }}
-                        <div class="text-sm text-slate-400 dark:text-slate-500">{{ mapping.product.sku }}</div>
-                      </div>
-                      <span v-else class="text-slate-400 dark:text-slate-500">-</span>
-                    </td>
-                    <td class="px-6 py-4">
-                      <span class="font-mono text-sm">{{ mapping.brand_sku }}</span>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                      <span v-if="mapping.product">{{ formatCurrency(mapping.product.selling_price) }}</span>
-                      <span v-else>-</span>
-                      <div v-if="mapping.price_factor !== 1" class="text-xs text-slate-400 dark:text-slate-500">
-                        x{{ mapping.price_factor }}
-                      </div>
-                    </td>
-                    <td class="px-6 py-4">
-                      <div class="flex items-center justify-center gap-1">
-                        <Badge v-if="mapping.is_preferred" variant="success">Preferred</Badge>
-                        <Badge v-if="mapping.is_verified" variant="info">Verified</Badge>
-                      </div>
-                    </td>
-                    <td class="px-6 py-4 text-right">
-                      <div class="flex items-center justify-end gap-1">
-                        <Button
-                          v-if="!mapping.is_preferred"
-                          variant="ghost"
-                          size="xs"
-                          :loading="setPreferredMutation.isPending.value"
-                          @click="handleSetPreferred(mapping.id)"
-                        >
-                          Set Preferred
-                        </Button>
-                        <Button
-                          v-if="!mapping.is_verified"
-                          variant="ghost"
-                          size="xs"
-                          :loading="verifyMutation.isPending.value"
-                          @click="handleVerify(mapping.id)"
-                        >
-                          Verify
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="xs"
-                          class="text-red-500 hover:text-red-600"
-                          @click="confirmDeleteMapping(mapping.id, mapping.brand_label)"
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+            <ResponsiveTable
+              v-else
+              :items="standard.brand_mappings"
+              :columns="mappingColumns"
+              title-field="brand_label"
+            >
+              <!-- Custom cell: Brand -->
+              <template #cell-brand_label="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.brand_label }}</span>
+              </template>
+
+              <!-- Custom cell: Product -->
+              <template #cell-product="{ item }">
+                <div v-if="item.product" class="text-slate-900 dark:text-slate-100">
+                  {{ item.product.name }}
+                  <div class="text-sm text-slate-400 dark:text-slate-500">{{ item.product.sku }}</div>
+                </div>
+                <span v-else class="text-slate-400 dark:text-slate-500">-</span>
+              </template>
+
+              <!-- Custom cell: Brand SKU -->
+              <template #cell-brand_sku="{ item }">
+                <span class="font-mono text-sm">{{ item.brand_sku }}</span>
+              </template>
+
+              <!-- Custom cell: Price -->
+              <template #cell-price="{ item }">
+                <span v-if="item.product">{{ formatCurrency(item.product.selling_price) }}</span>
+                <span v-else>-</span>
+                <div v-if="item.price_factor !== 1" class="text-xs text-slate-400 dark:text-slate-500">
+                  x{{ item.price_factor }}
+                </div>
+              </template>
+
+              <!-- Custom cell: Status -->
+              <template #cell-status="{ item }">
+                <div class="flex items-center justify-center gap-1">
+                  <Badge v-if="item.is_preferred" variant="success">Preferred</Badge>
+                  <Badge v-if="item.is_verified" variant="info">Verified</Badge>
+                </div>
+              </template>
+
+              <!-- Mobile title slot -->
+              <template #mobile-title="{ item }">
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.brand_label }}</span>
+              </template>
+
+              <!-- Mobile status slot -->
+              <template #mobile-status="{ item }">
+                <div class="flex items-center gap-1">
+                  <Badge v-if="item.is_preferred" variant="success">Preferred</Badge>
+                  <Badge v-if="item.is_verified" variant="info">Verified</Badge>
+                </div>
+              </template>
+
+              <!-- Actions -->
+              <template #actions="{ item }">
+                <div class="flex items-center justify-end gap-1">
+                  <Button
+                    v-if="!item.is_preferred"
+                    variant="ghost"
+                    size="xs"
+                    :loading="setPreferredMutation.isPending.value"
+                    @click.stop="handleSetPreferred(item.id)"
+                  >
+                    Set Preferred
+                  </Button>
+                  <Button
+                    v-if="!item.is_verified"
+                    variant="ghost"
+                    size="xs"
+                    :loading="verifyMutation.isPending.value"
+                    @click.stop="handleVerify(item.id)"
+                  >
+                    Verify
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="xs"
+                    class="text-red-500 hover:text-red-600"
+                    @click.stop="confirmDeleteMapping(item.id, item.brand_label)"
+                  >
+                    Delete
+                  </Button>
+                </div>
+              </template>
+            </ResponsiveTable>
           </Card>
         </div>
 

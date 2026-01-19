@@ -440,7 +440,7 @@ function formatAllowedValues(values: unknown[] | null): string {
       @update:open="showRuleModal = $event"
     >
       <div class="space-y-4">
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Category" required :error="ruleFormErrors.category">
             <Select
               v-model="ruleForm.category"
@@ -465,7 +465,7 @@ function formatAllowedValues(values: unknown[] | null): string {
           </FormField>
         </div>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField label="Validation Type" required :error="ruleFormErrors.validation_type">
             <Select
               v-model="ruleForm.validation_type"
