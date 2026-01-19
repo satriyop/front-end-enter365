@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { RouterView } from 'vue-router'
 import AppSidebar from './AppSidebar.vue'
 import AppHeader from './AppHeader.vue'
@@ -7,18 +7,42 @@ import { Breadcrumbs } from '@/components/ui'
 import CommandPalette from '@/components/CommandPalette.vue'
 import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 
-const sidebarOpen = ref(true)
 const showShortcuts = ref(false)
+
+// Desktop: sidebar starts open. Mobile: starts closed.
+const isMobile = ref(false)
+const sidebarOpen = ref(true)
+
+function checkMobile() {
+  isMobile.value = window.innerWidth < 1024
+}
+
+onMounted(() => {
+  checkMobile()
+  // Start closed on mobile
+  if (isMobile.value) {
+    sidebarOpen.value = false
+  }
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 
 function toggleSidebar() {
   sidebarOpen.value = !sidebarOpen.value
+}
+
+function closeSidebar() {
+  sidebarOpen.value = false
 }
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-50 dark:bg-slate-950">
     <!-- Sidebar -->
-    <AppSidebar :open="sidebarOpen" @toggle="toggleSidebar" />
+    <AppSidebar :open="sidebarOpen" @toggle="toggleSidebar" @close="closeSidebar" />
 
     <!-- Main Content -->
     <div

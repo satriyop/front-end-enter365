@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
 interface NavItem {
@@ -19,9 +19,20 @@ defineProps<{
   open: boolean
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   toggle: []
+  close: []
 }>()
+
+const router = useRouter()
+
+// Close sidebar on mobile after navigation
+router.afterEach(() => {
+  // Only close on mobile (check window width)
+  if (window.innerWidth < 1024) {
+    emit('close')
+  }
+})
 
 const route = useRoute()
 const auth = useAuthStore()
@@ -99,9 +110,30 @@ function isActive(path: string): boolean {
 </script>
 
 <template>
+  <!-- Mobile Backdrop -->
+  <Transition
+    enter-active-class="transition-opacity duration-300"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-300"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div
+      v-if="open"
+      class="fixed inset-0 z-30 bg-black/50 lg:hidden"
+      @click="$emit('close')"
+    />
+  </Transition>
+
+  <!-- Sidebar -->
   <aside
-    class="fixed inset-y-0 left-0 z-20 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300"
-    :class="open ? 'w-60' : 'w-16'"
+    class="fixed inset-y-0 left-0 z-40 flex flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 transition-all duration-300"
+    :class="[
+      open ? 'w-60' : 'w-16',
+      // Mobile: slide in/out
+      open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+    ]"
   >
     <!-- Logo -->
     <div class="flex items-center h-16 px-4 border-b border-slate-200 dark:border-slate-700">
