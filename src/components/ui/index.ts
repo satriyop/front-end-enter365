@@ -42,6 +42,21 @@ export { default as VirtualTable } from './VirtualTable.vue'
 export { default as ResponsiveTable } from './ResponsiveTable.vue'
 export { default as PullToRefresh } from './PullToRefresh.vue'
 
+// ResponsiveTable types
+export interface ResponsiveColumn {
+  key: string
+  label: string
+  /** Show in mobile card view */
+  showInMobile?: boolean
+  /** Priority for mobile (lower = more important) */
+  mobilePriority?: number
+  /** Width for desktop table */
+  width?: string
+  align?: 'left' | 'center' | 'right'
+  /** Format function for display */
+  format?: (value: unknown, item: Record<string, unknown>) => string
+}
+
 // Toast System
 export { Toast, ToastProvider, useToast } from './Toast'
 export type { ToastType, ToastVariant, ToastOptions } from './Toast'
