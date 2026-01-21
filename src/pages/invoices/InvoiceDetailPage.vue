@@ -252,7 +252,7 @@ const itemColumns: ResponsiveColumn[] = [
             </template>
 
             <ResponsiveTable
-              :items="invoice.items"
+              :items="invoice.items || []"
               :columns="itemColumns"
               title-field="description"
             >

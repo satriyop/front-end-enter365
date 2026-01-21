@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useBill, usePostBill, useVoidBill, useDeleteBill } from '@/api/useBills'
 import { Button, Card, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
-import { formatCurrency, formatDate } from '@/utils/format'
+import { formatCurrency, formatDate, toNumber } from '@/utils/format'
 
 const route = useRoute()
 const router = useRouter()
@@ -134,7 +134,7 @@ const itemColumns: ResponsiveColumn[] = [
               <h2 class="font-medium text-slate-900 dark:text-slate-100 px-6 pt-6">Line Items</h2>
             </template>
             <ResponsiveTable
-              :items="bill.items"
+              :items="bill.items || []"
               :columns="itemColumns"
               title-field="description"
             >
@@ -199,7 +199,7 @@ const itemColumns: ResponsiveColumn[] = [
             </dl>
           </Card>
 
-          <Card v-if="bill.outstanding_amount > 0 && bill.status !== 'draft'">
+          <Card v-if="toNumber(bill.outstanding_amount) > 0 && bill.status !== 'draft'">
             <RouterLink :to="`/payments/new?type=pay&bill_id=${bill.id}`">
               <Button class="w-full">Record Payment</Button>
             </RouterLink>

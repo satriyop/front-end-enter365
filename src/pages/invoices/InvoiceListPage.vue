@@ -35,11 +35,7 @@ const {
 // Bulk selection
 const {
   selectedCount,
-  isAllSelected,
-  isSomeSelected,
-  isSelected,
   toggleItem,
-  toggleAll,
   clearSelection,
   getSelectedIds,
 } = useBulkSelection({
@@ -205,19 +201,19 @@ const bulkActions = computed(() => [
 
         <!-- Custom cell: Outstanding with color -->
         <template #cell-outstanding_amount="{ item }">
-          <span :class="item.outstanding_amount > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-500 dark:text-slate-400'">
+          <span :class="Number(item.outstanding_amount) > 0 ? 'text-orange-600 dark:text-orange-400 font-medium' : 'text-slate-500 dark:text-slate-400'">
             {{ formatCurrency(item.outstanding_amount) }}
           </span>
         </template>
 
         <!-- Custom cell: Status badge -->
         <template #cell-status="{ item }">
-          <Badge :status="item.status" />
+          <Badge :status="item.status as any" />
         </template>
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :status="item.status" />
+          <Badge :status="item.status as any" />
         </template>
 
         <!-- Mobile title slot -->

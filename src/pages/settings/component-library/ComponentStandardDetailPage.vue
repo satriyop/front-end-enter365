@@ -451,7 +451,7 @@ const mappingColumns: ResponsiveColumn[] = [
               :key="product.id"
               type="button"
               class="w-full px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-800 border-b dark:border-slate-700 last:border-b-0"
-              @click="selectProduct(product.id, product.name)"
+              @click="selectProduct(Number(product.id), product.name)"
             >
               <div class="font-medium text-slate-900 dark:text-slate-100">{{ product.name }}</div>
               <div class="text-sm text-slate-500 dark:text-slate-400">{{ product.sku }} - {{ formatCurrency(product.selling_price) }}</div>

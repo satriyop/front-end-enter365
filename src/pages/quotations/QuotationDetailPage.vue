@@ -312,7 +312,7 @@ const itemColumns: ResponsiveColumn[] = [
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Line Items</h2>
             </div>
             <ResponsiveTable
-              :items="quotation.items"
+              :items="quotation.items || []"
               :columns="itemColumns"
               title-field="item"
             >

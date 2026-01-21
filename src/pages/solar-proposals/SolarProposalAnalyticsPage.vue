@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
 import { useSolarProposals, type SolarProposalFilters } from '@/api/useSolarProposals'
-import { formatCurrency, formatCurrencyCompact, formatNumber, formatPercent } from '@/utils/format'
+import { formatCurrency, formatCurrencyCompact, formatNumber, formatPercent, toNumber } from '@/utils/format'
 import { Button, Card, Select, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import {
   Target,
@@ -91,13 +91,13 @@ const conversionMetrics = computed(() => {
 
 // Financial metrics
 const financialMetrics = computed(() => {
-  const validProposals = proposals.value.filter((p) => p.system_cost && p.system_cost > 0)
+  const validProposals = proposals.value.filter((p) => p.system_cost && toNumber(p.system_cost) > 0)
   const wonProposals = proposals.value.filter(
     (p) => (p.status === 'accepted' || p.status === 'converted') && p.system_cost
   )
 
-  const totalValue = validProposals.reduce((sum, p) => sum + (p.system_cost || 0), 0)
-  const wonValue = wonProposals.reduce((sum, p) => sum + (p.system_cost || 0), 0)
+  const totalValue = validProposals.reduce((sum, p) => sum + toNumber(p.system_cost), 0)
+  const wonValue = wonProposals.reduce((sum, p) => sum + toNumber(p.system_cost), 0)
   const avgValue = validProposals.length > 0 ? totalValue / validProposals.length : 0
   const avgWonValue = wonProposals.length > 0 ? wonValue / wonProposals.length : 0
 
@@ -106,12 +106,12 @@ const financialMetrics = computed(() => {
     wonValue,
     avgValue,
     avgWonValue,
-    totalCapacity: validProposals.reduce((sum, p) => sum + (p.system_capacity_kwp || 0), 0),
+    totalCapacity: validProposals.reduce((sum, p) => sum + toNumber(p.system_capacity_kwp), 0),
     avgPayback: validProposals.length > 0
-      ? validProposals.reduce((sum, p) => sum + (p.payback_years || 0), 0) / validProposals.length
+      ? validProposals.reduce((sum, p) => sum + toNumber(p.payback_years), 0) / validProposals.length
       : 0,
     avgRoi: validProposals.length > 0
-      ? validProposals.reduce((sum, p) => sum + (p.roi_percent || 0), 0) / validProposals.length
+      ? validProposals.reduce((sum, p) => sum + toNumber(p.roi_percent), 0) / validProposals.length
       : 0,
   }
 })
@@ -157,7 +157,7 @@ const provinceDistribution = computed(() => {
     }
 
     provinces[province].total++
-    provinces[province].value += p.system_cost || 0
+    provinces[province].value += toNumber(p.system_cost)
 
     if (p.status === 'accepted' || p.status === 'converted') {
       provinces[province].won++
@@ -187,7 +187,7 @@ const sizeDistribution = computed(() => {
 
   return brackets.map((bracket) => {
     const inBracket = proposals.value.filter((p) => {
-      const size = p.system_capacity_kwp || 0
+      const size = toNumber(p.system_capacity_kwp)
       return size >= bracket.min && size < bracket.max
     })
 
@@ -197,7 +197,7 @@ const sizeDistribution = computed(() => {
       ...bracket,
       count: inBracket.length,
       won: won.length,
-      value: inBracket.reduce((sum, p) => sum + (p.system_cost || 0), 0),
+      value: inBracket.reduce((sum, p) => sum + toNumber(p.system_cost), 0),
       winRate: inBracket.length > 0 ? (won.length / inBracket.length) * 100 : 0,
     }
   })

@@ -7,7 +7,7 @@ import Modal from '@/components/ui/Modal.vue'
 import PaybackChart from '@/components/charts/PaybackChart.vue'
 import MonthlyBillChart from '@/components/charts/MonthlyBillChart.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
-import { formatCurrency, formatDate, formatNumber, formatPercent, formatSolarOffset } from '@/utils/format'
+import { formatCurrency, formatDate, formatNumber, formatPercent, formatSolarOffset, toNumber } from '@/utils/format'
 import { getErrorMessage } from '@/api/client'
 import {
   useSolarProposal,
@@ -42,6 +42,13 @@ interface EnvironmentalImpact {
   co2_lifetime_tons: number
   trees_equivalent: number
   cars_equivalent: number
+}
+
+// BOM type for variant group active_boms (OpenAPI types as unknown[])
+interface VariantBom {
+  id: number | string
+  name: string
+  total_cost: number | string
 }
 
 const route = useRoute()
@@ -193,9 +200,9 @@ Terima kasih atas kesempatan untuk mengajukan proposal PLTS.
 
 📋 *Proposal ${p.proposal_number}*
 ☀️ Kapasitas: *${p.system_capacity_kwp} kWp*
-💰 Investasi: *${formatRp(p.system_cost)}*
-⏱️ Balik Modal: *${p.payback_years?.toFixed(1) || '-'} tahun*
-📈 ROI 25 Tahun: *${p.roi_percent?.toFixed(0) || '-'}%*
+💰 Investasi: *${formatRp(toNumber(p.system_cost))}*
+⏱️ Balik Modal: *${p.payback_years ? toNumber(p.payback_years).toFixed(1) : '-'} tahun*
+📈 ROI 25 Tahun: *${p.roi_percent ? toNumber(p.roi_percent).toFixed(0) : '-'}%*
 
 Silakan lihat detail proposal di link berikut:
 🔗 ${publicUrl}
@@ -260,16 +267,16 @@ const paybackYearIndex = computed(() => {
 // Monthly Bill Chart Data
 const monthlyBillBefore = computed(() => {
   // Monthly electricity bill before solar = consumption × rate
-  const consumption = proposal.value?.monthly_consumption_kwh || 0
-  const rate = proposal.value?.electricity_rate || 0
+  const consumption = toNumber(proposal.value?.monthly_consumption_kwh)
+  const rate = toNumber(proposal.value?.electricity_rate)
   return consumption * rate
 })
 
 const monthlyBillAfter = computed(() => {
   // After solar: only pay for what's not covered by solar
-  const consumption = proposal.value?.monthly_consumption_kwh || 0
-  const production = proposal.value?.monthly_production_kwh || 0
-  const rate = proposal.value?.electricity_rate || 0
+  const consumption = toNumber(proposal.value?.monthly_consumption_kwh)
+  const production = toNumber(proposal.value?.monthly_production_kwh)
+  const rate = toNumber(proposal.value?.electricity_rate)
 
   // Remaining bill = (consumption - production) × rate, minimum 0
   const remaining = Math.max(0, consumption - production)
@@ -283,8 +290,8 @@ const monthlySavings = computed(() => {
 })
 
 // For chart: raw values
-const monthlyProductionKwh = computed(() => proposal.value?.monthly_production_kwh || 0)
-const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
+const monthlyProductionKwh = computed(() => toNumber(proposal.value?.monthly_production_kwh))
+const electricityRate = computed(() => toNumber(proposal.value?.electricity_rate))
 </script>
 
 <template>
@@ -466,9 +473,9 @@ const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
                 <div class="text-xl font-bold text-slate-900 dark:text-slate-100">{{ formatNumber(proposal.monthly_production_kwh || 0) }} kWh</div>
               </div>
               <div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatSolarOffset(proposal.solar_offset_percent).label }}</div>
-                <div class="text-xl font-bold" :class="formatSolarOffset(proposal.solar_offset_percent).isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-green-600 dark:text-green-400'">
-                  {{ formatSolarOffset(proposal.solar_offset_percent).value }}
+                <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatSolarOffset(toNumber(proposal.solar_offset_percent)).label }}</div>
+                <div class="text-xl font-bold" :class="formatSolarOffset(toNumber(proposal.solar_offset_percent)).isSurplus ? 'text-emerald-600 dark:text-emerald-400' : 'text-green-600 dark:text-green-400'">
+                  {{ formatSolarOffset(toNumber(proposal.solar_offset_percent)).value }}
                 </div>
               </div>
             </div>
@@ -497,7 +504,7 @@ const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
               </div>
               <div class="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                 <div class="text-sm text-orange-600 dark:text-orange-400">Payback Period</div>
-                <div class="text-xl font-bold text-orange-700 dark:text-orange-300">{{ proposal.payback_years?.toFixed(1) }} years</div>
+                <div class="text-xl font-bold text-orange-700 dark:text-orange-300">{{ proposal.payback_years ? toNumber(proposal.payback_years).toFixed(1) : '-' }} years</div>
               </div>
               <div class="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <div class="text-sm text-blue-600 dark:text-blue-400">ROI</div>
@@ -574,7 +581,7 @@ const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div class="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                 <div class="text-3xl mb-2">🌱</div>
-                <div class="text-xl font-bold text-green-700 dark:text-green-300">{{ proposal.co2_offset_tons?.toFixed(1) }}</div>
+                <div class="text-xl font-bold text-green-700 dark:text-green-300">{{ proposal.co2_offset_tons ? toNumber(proposal.co2_offset_tons).toFixed(1) : '-' }}</div>
                 <div class="text-sm text-green-600 dark:text-green-400">Tons CO2/Year</div>
               </div>
               <div class="text-center p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
@@ -710,7 +717,7 @@ const electricityRate = computed(() => proposal.value?.electricity_rate || 0)
               <div class="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase mb-2">Available Options</div>
               <div class="space-y-2">
                 <div
-                  v-for="bom in proposal.variant_group.active_boms"
+                  v-for="bom in (proposal.variant_group.active_boms as unknown as VariantBom[])"
                   :key="bom.id"
                   class="flex items-center justify-between p-2 rounded-lg text-sm"
                   :class="proposal.selected_bom_id === bom.id ? 'bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800' : 'bg-slate-50 dark:bg-slate-800'"

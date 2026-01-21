@@ -12,7 +12,7 @@ import LineChart from '@/components/charts/LineChart.vue'
 import BarChart from '@/components/charts/BarChart.vue'
 import LocationMapPicker, { type LocationData, type SolarData } from '@/components/maps/LocationMapPicker.vue'
 import { useToast } from '@/components/ui/Toast/useToast'
-import { formatCurrency, formatNumber, formatSolarOffset } from '@/utils/format'
+import { formatCurrency, formatNumber, formatSolarOffset, toNumber } from '@/utils/format'
 import CapacityCalculatorModal from '@/components/solar/CapacityCalculatorModal.vue'
 import WizardStepIndicator from '@/components/solar/WizardStepIndicator.vue'
 import StatsCard from '@/components/solar/StatsCard.vue'
@@ -370,10 +370,10 @@ const carbonCreditMetrics = computed(() => {
 
 // System cost from selected BOM
 // Priority: 1) existing proposal's selected_bom, 2) frontend variant group's BOM
-const systemCost = computed(() => {
+const systemCost = computed((): number => {
   // First check if we have the cost from existing proposal (edit mode)
   if (existingProposal.value?.selected_bom?.total_cost) {
-    return existingProposal.value.selected_bom.total_cost
+    return toNumber(existingProposal.value.selected_bom.total_cost)
   }
 
   // Otherwise, try to get from the selected variant group in frontend data
@@ -385,11 +385,11 @@ const systemCost = computed(() => {
       // If a specific BOM is selected, use its cost
       if (form.value.selected_bom_id) {
         const selectedBom = selectedGroup.boms.find(b => b.id === form.value.selected_bom_id)
-        if (selectedBom) return selectedBom.total_cost
+        if (selectedBom) return toNumber(selectedBom.total_cost)
       }
       // Otherwise use the primary BOM's cost
       const primaryBom = selectedGroup.boms.find(b => b.is_primary_variant) || selectedGroup.boms[0]
-      if (primaryBom) return primaryBom.total_cost
+      if (primaryBom) return toNumber(primaryBom.total_cost)
     }
   }
 
@@ -509,7 +509,7 @@ const systemLifetimeYears = computed(() => mergedSettings.value.core.systemLifet
 watch(existingProposal, (proposal) => {
   if (proposal) {
     form.value = {
-      contact_id: proposal.contact_id,
+      contact_id: proposal.contact_id ? Number(proposal.contact_id) : undefined,
       site_name: proposal.site_name || '',
       site_address: proposal.site_address || '',
       province: proposal.province || '',
@@ -524,13 +524,13 @@ watch(existingProposal, (proposal) => {
       shading_percentage: proposal.shading_percentage || 0,
       monthly_consumption_kwh: proposal.monthly_consumption_kwh ?? undefined,
       pln_tariff_category: proposal.pln_tariff_category || '',
-      electricity_rate: proposal.electricity_rate ?? undefined,
+      electricity_rate: toNumber(proposal.electricity_rate) || undefined,
       tariff_escalation_percent: proposal.tariff_escalation_percent || 3,
       peak_sun_hours: proposal.peak_sun_hours ?? undefined,
       solar_irradiance: proposal.solar_irradiance ?? undefined,
       performance_ratio: proposal.performance_ratio || 0.8,
-      variant_group_id: proposal.variant_group_id ?? undefined,
-      selected_bom_id: proposal.selected_bom_id ?? undefined,
+      variant_group_id: proposal.variant_group_id ? Number(proposal.variant_group_id) : undefined,
+      selected_bom_id: proposal.selected_bom_id ? Number(proposal.selected_bom_id) : undefined,
       system_capacity_kwp: proposal.system_capacity_kwp ?? undefined,
       valid_until: proposal.valid_until?.split('T')[0] || form.value.valid_until,
       notes: proposal.notes || '',
@@ -543,7 +543,7 @@ watch(() => form.value.pln_tariff_category, (category) => {
   if (category && plnTariffs.value) {
     const tariff = plnTariffs.value.find((t: PlnTariff) => t.category_code === category)
     if (tariff) {
-      form.value.electricity_rate = tariff.rate_per_kwh
+      form.value.electricity_rate = toNumber(tariff.rate_per_kwh)
     }
   }
 })
@@ -671,7 +671,7 @@ async function handleSubmit() {
     }
 
     // Calculate after save
-    await calculateMutation.mutateAsync(result.id)
+    await calculateMutation.mutateAsync(Number(result.id))
 
     router.push(`/solar-proposals/${result.id}`)
   } catch (err) {
@@ -1452,14 +1452,14 @@ const steps = computed(() => [
               <!-- Customer Info -->
               <div class="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold">
-                  {{ contacts.find((c: Contact) => c.id === form.contact_id)?.name?.charAt(0) || '?' }}
+                  {{ contacts.find((c: Contact) => Number(c.id) === form.contact_id)?.name?.charAt(0) || '?' }}
                 </div>
                 <div>
                   <div class="font-medium text-slate-900 dark:text-slate-100">
-                    {{ contacts.find((c: Contact) => c.id === form.contact_id)?.name || 'No customer selected' }}
+                    {{ contacts.find((c: Contact) => Number(c.id) === form.contact_id)?.name || 'No customer selected' }}
                   </div>
                   <div class="text-sm text-slate-500 dark:text-slate-400">
-                    {{ contacts.find((c: Contact) => c.id === form.contact_id)?.code || '' }}
+                    {{ contacts.find((c: Contact) => Number(c.id) === form.contact_id)?.code || '' }}
                   </div>
                 </div>
               </div>

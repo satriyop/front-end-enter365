@@ -441,6 +441,44 @@ export const billSchema = z.object({
   items: z.array(billItemSchema).min(1, 'At least one item is required'),
 })
 
+// ============================================
+// Purchase Order Schemas
+// ============================================
+
+/**
+ * Purchase order item schema
+ */
+export const purchaseOrderItemSchema = z.object({
+  product_id: z.number().optional().nullable(),
+  description: z.string().default(''),
+  quantity: z.number().default(1),
+  unit: z.string().default('pcs'),
+  unit_price: z.number().default(0),
+  discount_percent: z.number().min(0).max(100).default(0),
+  tax_rate: z.number().min(0).max(100).default(11),
+  notes: z.string().optional().default(''),
+})
+
+/**
+ * Purchase order form schema
+ */
+export const purchaseOrderSchema = z.object({
+  contact_id: z.number({ required_error: 'Please select a vendor' }).positive('Please select a vendor'),
+  po_date: requiredDate('PO date'),
+  expected_date: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  subject: z.string().optional().default(''),
+  currency: z.string().default('IDR'),
+  exchange_rate: z.number().min(0).default(1),
+  discount_type: z.enum(['percentage', 'fixed']).default('percentage'),
+  discount_value: z.number().min(0).default(0),
+  tax_rate: z.number().min(0).max(100).default(11),
+  notes: z.string().optional().default(''),
+  terms_conditions: z.string().optional().default(''),
+  shipping_address: z.string().optional().default(''),
+  items: z.array(purchaseOrderItemSchema).min(1, 'At least one item is required'),
+})
+
 /**
  * BOM item schema
  */
@@ -574,8 +612,62 @@ export type BomItemFormData = z.infer<typeof bomItemSchema>
 export type BomFormData = z.infer<typeof bomSchema>
 export type WorkOrderFormData = z.infer<typeof workOrderSchema>
 
+// Purchase Order
+export type PurchaseOrderItemFormData = z.infer<typeof purchaseOrderItemSchema>
+export type PurchaseOrderFormData = z.infer<typeof purchaseOrderSchema>
+
 // Company Profile
 export type ServiceItemFormData = z.infer<typeof serviceItemSchema>
 export type PortfolioItemFormData = z.infer<typeof portfolioItemSchema>
 export type CertificationItemFormData = z.infer<typeof certificationItemSchema>
 export type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
+
+// ============================================
+// Manufacturing Schemas
+// ============================================
+
+/**
+ * Material Requisition item schema
+ */
+export const materialRequisitionItemSchema = z.object({
+  work_order_item_id: z.number().optional().nullable(),
+  product_id: z.number().optional().nullable(),
+  description: z.string().default(''),
+  quantity_requested: z.number().min(1, 'Quantity must be at least 1').default(1),
+  unit: z.string().default('unit'),
+  notes: z.string().optional().default(''),
+})
+
+/**
+ * Material Requisition form schema
+ */
+export const materialRequisitionSchema = z.object({
+  work_order_id: z.number({ required_error: 'Please select a work order' }).positive('Please select a work order'),
+  warehouse_id: z.number({ required_error: 'Please select a warehouse' }).positive('Please select a warehouse'),
+  required_date: requiredDate('Required date'),
+  notes: z.string().optional().default(''),
+  items: z.array(materialRequisitionItemSchema).min(1, 'At least one item is required'),
+})
+
+/**
+ * Subcontractor Work Order form schema
+ */
+export const subcontractorWorkOrderSchema = z.object({
+  work_order_id: z.number().optional().nullable(),
+  project_id: z.number().optional().nullable(),
+  name: requiredString('Name'),
+  description: z.string().optional().default(''),
+  scope_of_work: requiredString('Scope of work'),
+  agreed_amount: z.number({ required_error: 'Agreed amount is required' }).min(0, 'Amount cannot be negative'),
+  retention_percent: z.number().min(0).max(100).default(0),
+  scheduled_start_date: requiredDate('Scheduled start date'),
+  scheduled_end_date: requiredDate('Scheduled end date'),
+  work_location: z.string().optional().default(''),
+  location_address: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+})
+
+// Manufacturing types
+export type MaterialRequisitionItemFormData = z.infer<typeof materialRequisitionItemSchema>
+export type MaterialRequisitionFormData = z.infer<typeof materialRequisitionSchema>
+export type SubcontractorWorkOrderFormData = z.infer<typeof subcontractorWorkOrderSchema>

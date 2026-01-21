@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useProduct, useCreateProduct, useUpdateProduct } from '@/api/useProducts'
+import { toNumber } from '@/utils/format'
 import { productSchema, type ProductFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
@@ -73,13 +74,13 @@ watch(existingProduct, (product) => {
       description: product.description || '',
       type: product.type as 'product' | 'service',
       unit: product.unit,
-      purchase_price: product.purchase_price,
-      selling_price: product.selling_price,
-      tax_rate: product.tax_rate,
-      is_taxable: product.is_taxable,
-      is_active: product.is_active,
-      track_inventory: product.track_inventory ?? true,
-      min_stock: product.min_stock ?? 0,
+      purchase_price: toNumber(product.purchase_price),
+      selling_price: toNumber(product.selling_price),
+      tax_rate: toNumber(product.tax_rate),
+      is_taxable: product.is_taxable === 'true' || product.is_taxable === '1' || (product.is_taxable as unknown) === true,
+      is_active: product.is_active === 'true' || product.is_active === '1' || (product.is_active as unknown) === true,
+      track_inventory: product.track_inventory === 'true' || product.track_inventory === '1' || (product.track_inventory as unknown) === true,
+      min_stock: toNumber(product.min_stock),
     })
   }
 }, { immediate: true })
@@ -94,12 +95,14 @@ const isSubmitting = computed(() =>
 
 const onSubmit = handleSubmit(async (formValues) => {
   try {
+    // Cast to unknown first since form uses numbers but API expects string serialization
+    const payload = formValues as unknown as Parameters<typeof createMutation.mutateAsync>[0]
     if (isEditing.value && productId.value) {
-      await updateMutation.mutateAsync({ id: productId.value, data: formValues })
+      await updateMutation.mutateAsync({ id: productId.value, data: payload })
       toast.success('Product updated successfully')
       router.push(`/products/${productId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(formValues)
+      const result = await createMutation.mutateAsync(payload)
       toast.success('Product created successfully')
       router.push(`/products/${result.id}`)
     }

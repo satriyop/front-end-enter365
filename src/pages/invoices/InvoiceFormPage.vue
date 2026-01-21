@@ -12,7 +12,7 @@ import {
 import { useContactsLookup } from '@/api/useContacts'
 import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toNumber } from '@/utils/format'
 import {
   Button,
   Input,
@@ -82,19 +82,19 @@ const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray
 watch(existingInvoice, (invoice) => {
   if (invoice) {
     setValues({
-      contact_id: invoice.contact_id,
+      contact_id: Number(invoice.contact_id),
       invoice_date: invoice.invoice_date.split('T')[0]!,
       due_date: invoice.due_date.split('T')[0]!,
       description: invoice.description ?? '',
       reference: invoice.reference ?? '',
       tax_rate: invoice.tax_rate ?? 11,
-      discount_amount: invoice.discount_amount ?? 0,
+      discount_amount: toNumber(invoice.discount_amount),
       items: invoice.items && invoice.items.length > 0
         ? invoice.items.map(item => ({
             description: item.description,
             quantity: item.quantity,
             unit: item.unit,
-            unit_price: item.unit_price,
+            unit_price: toNumber(item.unit_price),
           }))
         : [createEmptyItem()],
     })

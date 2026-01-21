@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { formatCurrency, formatDate } from '@/utils/format'
 
+/** Numeric value that may be string from API */
+type NumericValue = number | string
+
 export interface DocumentItem {
-  id: number
+  id: number | string
   description: string
   notes?: string | null
   quantity: number
   unit?: string | null
-  unit_price: number
+  unit_price: NumericValue
   discount_percent?: number | null
   tax_rate?: number | null
-  line_total: number
+  line_total: NumericValue
 }
 
 export interface PrintableDocumentProps {
@@ -32,16 +35,16 @@ export interface PrintableDocumentProps {
   // Line items
   items: DocumentItem[]
 
-  // Totals
-  subtotal: number
-  discountAmount?: number | null
-  taxRate?: number | null
-  taxAmount: number
-  total: number
+  // Totals (can be string from API)
+  subtotal: NumericValue
+  discountAmount?: NumericValue | null
+  taxRate?: NumericValue | null
+  taxAmount: NumericValue
+  total: NumericValue
 
   // For invoices
-  paidAmount?: number | null
-  outstandingAmount?: number | null
+  paidAmount?: NumericValue | null
+  outstandingAmount?: NumericValue | null
 
   // Notes & terms
   notes?: string | null

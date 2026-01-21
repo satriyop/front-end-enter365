@@ -227,7 +227,7 @@ function handleProductChange(value: string | number | null) {
   itemForm.value.product_id = productId
 
   if (productId && !itemForm.value.description) {
-    const product = products.value.find(p => p.id === productId)
+    const product = products.value.find(p => Number(p.id) === productId)
     if (product) {
       itemForm.value.description = product.name
       if (product.unit) itemForm.value.unit = product.unit

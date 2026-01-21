@@ -10,6 +10,7 @@ import {
   type CreateContactData
 } from '@/api/useContacts'
 import { getErrorMessage } from '@/api/client'
+import { toNumber } from '@/utils/format'
 import { contactSchema, type ContactFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { useFormShortcuts } from '@/composables/useFormShortcuts'
@@ -84,9 +85,9 @@ watch(existingContact, (contact) => {
       postal_code: contact.postal_code || '',
       npwp: contact.npwp || '',
       nik: contact.nik || '',
-      credit_limit: contact.credit_limit,
-      payment_term_days: contact.payment_term_days,
-      is_active: contact.is_active,
+      credit_limit: toNumber(contact.credit_limit),
+      payment_term_days: toNumber(contact.payment_term_days),
+      is_active: contact.is_active === 'true' || contact.is_active === '1' || (contact.is_active as unknown) === true,
     })
   }
 }, { immediate: true })

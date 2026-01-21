@@ -50,7 +50,17 @@ const navigation: NavGroup[] = [
       { name: 'Quotations', path: '/quotations', icon: '📋', permission: 'quotations.view' },
       { name: 'Solar Proposals', path: '/solar-proposals', icon: '☀️', permission: 'solar_proposals.view' },
       { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view' },
+      { name: 'Delivery Orders', path: '/sales/delivery-orders', icon: '🚚', permission: 'delivery_orders.view' },
+      { name: 'Sales Returns', path: '/sales/sales-returns', icon: '↩️', permission: 'sales_returns.view' },
       { name: 'Contacts', path: '/contacts', icon: '👥', permission: 'contacts.view' },
+    ]
+  },
+  {
+    label: 'Purchasing',
+    items: [
+      { name: 'Purchase Orders', path: '/purchasing/purchase-orders', icon: '🛒', permission: 'purchase_orders.view' },
+      { name: 'Goods Receipt', path: '/purchasing/goods-receipt-notes', icon: '📥', permission: 'goods_receipt_notes.view' },
+      { name: 'Purchase Returns', path: '/purchasing/purchase-returns', icon: '↩️', permission: 'purchase_returns.view' },
     ]
   },
   {
@@ -58,6 +68,14 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Projects', path: '/projects', icon: '🏗️', permission: 'projects.view' },
       { name: 'Work Orders', path: '/work-orders', icon: '🔧', permission: 'work_orders.view' },
+    ]
+  },
+  {
+    label: 'Manufacturing',
+    items: [
+      { name: 'Material Requisitions', path: '/manufacturing/material-requisitions', icon: '📋', permission: 'material_requisitions.view' },
+      { name: 'Subcontractor WO', path: '/manufacturing/subcontractor-work-orders', icon: '🔨', permission: 'subcontractor_work_orders.view' },
+      { name: 'SC Invoices', path: '/manufacturing/subcontractor-invoices', icon: '📄', permission: 'subcontractor_invoices.view' },
     ]
   },
   {
@@ -70,9 +88,18 @@ const navigation: NavGroup[] = [
     ]
   },
   {
+    label: 'Accounting',
+    items: [
+      { name: 'Chart of Accounts', path: '/accounting/accounts', icon: '📒', permission: 'accounts.view' },
+      { name: 'Journal Entries', path: '/accounting/journal-entries', icon: '📝', permission: 'journal_entries.view' },
+      { name: 'Fiscal Periods', path: '/accounting/fiscal-periods', icon: '📅', permission: 'fiscal_periods.view' },
+    ]
+  },
+  {
     label: 'Finance',
     items: [
       { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
+      { name: 'Down Payments', path: '/finance/down-payments', icon: '💰', permission: 'down_payments.view' },
       { name: 'Bills', path: '/bills', icon: '📑', permission: 'bills.view' },
       { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.view' },
     ]

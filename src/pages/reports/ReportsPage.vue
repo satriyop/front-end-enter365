@@ -16,7 +16,6 @@ const reportCategories = [
     title: 'Sales Reports',
     description: 'Revenue, customers, and receivables',
     reports: [
-      { name: 'Sales Summary', path: '/reports/sales-summary', description: 'Sales by period and customer' },
       { name: 'Receivables Aging', path: '/reports/receivables-aging', description: 'Outstanding invoices by age' },
       { name: 'Customer Statement', path: '/reports/customer-statement', description: 'Transaction history by customer' },
     ],
@@ -25,7 +24,6 @@ const reportCategories = [
     title: 'Purchase Reports',
     description: 'Expenses, vendors, and payables',
     reports: [
-      { name: 'Purchase Summary', path: '/reports/purchase-summary', description: 'Purchases by period and vendor' },
       { name: 'Payables Aging', path: '/reports/payables-aging', description: 'Outstanding bills by age' },
       { name: 'Vendor Statement', path: '/reports/vendor-statement', description: 'Transaction history by vendor' },
     ],

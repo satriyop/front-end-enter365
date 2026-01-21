@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm, useFieldArray } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useBill, useCreateBill, useUpdateBill } from '@/api/useBills'
+import { toNumber } from '@/utils/format'
 import { useContactsLookup } from '@/api/useContacts'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
@@ -70,7 +71,7 @@ const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray
 watch(existingBill, (bill) => {
   if (bill) {
     setValues({
-      contact_id: bill.contact_id,
+      contact_id: Number(bill.contact_id),
       vendor_invoice_number: bill.vendor_invoice_number || '',
       bill_date: bill.bill_date?.split('T')[0] || today,
       due_date: bill.due_date?.split('T')[0] || today,
@@ -80,7 +81,7 @@ watch(existingBill, (bill) => {
             description: item.description,
             quantity: item.quantity,
             unit: item.unit,
-            unit_price: item.unit_price,
+            unit_price: toNumber(item.unit_price),
             discount_percent: item.discount_percent ?? 0,
             tax_rate: item.tax_rate ?? 11,
           }))

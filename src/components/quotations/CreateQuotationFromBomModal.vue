@@ -186,7 +186,7 @@ async function handleSubmit() {
     })
 
     emit('update:open', false)
-    emit('success', quotation.id)
+    emit('success', Number(quotation.id))
 
     // Navigate to the new quotation
     router.push(`/quotations/${quotation.id}`)

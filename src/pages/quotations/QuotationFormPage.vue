@@ -13,7 +13,7 @@ import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
 import { quotationSchema, type QuotationFormData, type QuotationItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toNumber } from '@/utils/format'
 import {
   Button,
   Input,
@@ -91,25 +91,25 @@ function createEmptyItem(): QuotationItemFormData {
 watch(existingQuotation, (quotation) => {
   if (quotation) {
     setValues({
-      contact_id: quotation.contact_id,
+      contact_id: toNumber(quotation.contact_id),
       quotation_date: quotation.quotation_date.split('T')[0]!,
       valid_until: quotation.valid_until?.split('T')[0] ?? '',
       subject: quotation.subject ?? '',
       reference: quotation.reference ?? '',
       discount_type: (quotation.discount_type as 'percentage' | 'fixed') ?? 'percentage',
-      discount_value: quotation.discount_value ?? 0,
-      tax_rate: quotation.tax_rate ?? 11,
+      discount_value: toNumber(quotation.discount_value),
+      tax_rate: toNumber(quotation.tax_rate) || 11,
       notes: quotation.notes ?? '',
       terms_conditions: quotation.terms_conditions ?? '',
       items: quotation.items && quotation.items.length > 0
         ? quotation.items.map(item => ({
-            product_id: item.product_id,
+            product_id: item.product_id ? toNumber(item.product_id) : null,
             description: item.description,
-            quantity: item.quantity,
+            quantity: toNumber(item.quantity),
             unit: item.unit,
-            unit_price: item.unit_price,
-            discount_percent: item.discount_percent,
-            tax_rate: item.tax_rate,
+            unit_price: toNumber(item.unit_price),
+            discount_percent: toNumber(item.discount_percent),
+            tax_rate: toNumber(item.tax_rate),
             notes: item.notes ?? '',
           }))
         : [createEmptyItem()],
@@ -167,12 +167,12 @@ function handleRemoveItem(index: number) {
 
 function onProductSelect(index: number, productId: number | null) {
   if (productId && products.value) {
-    const product = products.value.find(p => p.id === productId)
+    const product = products.value.find(p => toNumber(p.id) === productId)
     if (product && form.items?.[index]) {
       form.items[index].description = product.name
       form.items[index].unit = product.unit
-      form.items[index].unit_price = product.selling_price
-      form.items[index].tax_rate = product.tax_rate
+      form.items[index].unit_price = toNumber(product.selling_price)
+      form.items[index].tax_rate = toNumber(product.tax_rate)
     }
   }
 }

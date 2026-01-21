@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useSolarProposals, useSolarProposalStatistics, type SolarProposal, type SolarProposalFilters } from '@/api/useSolarProposals'
 import { useResourceList } from '@/composables/useResourceList'
-import { formatCurrency, formatDate, formatNumber, formatPercent } from '@/utils/format'
+import { formatCurrency, formatDate, formatNumber, formatPercent, toNumber } from '@/utils/format'
 import { Button, Input, Select } from '@/components/ui'
 import { Plus, Eye, Pencil, BarChart3 } from 'lucide-vue-next'
 
@@ -210,7 +210,7 @@ const statusOptions = [
               <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatCurrency(proposal.system_cost) }}</div>
             </td>
             <td class="px-6 py-4 text-right">
-              <div class="font-medium text-green-600 dark:text-green-400">{{ proposal.payback_years?.toFixed(1) || '-' }} yrs</div>
+              <div class="font-medium text-green-600 dark:text-green-400">{{ proposal.payback_years ? toNumber(proposal.payback_years).toFixed(1) : '-' }} yrs</div>
               <div class="text-sm text-slate-500 dark:text-slate-400">{{ formatPercent(proposal.roi_percent) }} ROI</div>
             </td>
             <td class="px-6 py-4">

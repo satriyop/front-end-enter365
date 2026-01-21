@@ -1,14 +1,29 @@
+/** Numeric value from API (can be string from PHP serialization) */
+export type NumericValue = number | string | null | undefined
+
+/**
+ * Convert API numeric value to number
+ * Handles PHP decimal serialization as strings
+ */
+export function toNumber(value: NumericValue): number {
+  if (value == null) return 0
+  if (typeof value === 'string') return parseFloat(value) || 0
+  return value
+}
+
 /**
  * Format number as Indonesian Rupiah
+ * Accepts both number and string (from API responses)
  */
-export function formatCurrency(value: number | null | undefined): string {
-  if (value == null) return 'Rp 0'
+export function formatCurrency(value: NumericValue): string {
+  const num = toNumber(value)
+  if (num === 0 && value == null) return 'Rp 0'
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(num)
 }
 
 /**
@@ -17,11 +32,12 @@ export function formatCurrency(value: number | null | undefined): string {
  * 1M - 1B: Rp 326 jt (millions)
  * >= 1B: Rp 1,5 M (billions)
  */
-export function formatCurrencyCompact(value: number | null | undefined): string {
-  if (value == null || value === 0) return 'Rp 0'
+export function formatCurrencyCompact(value: NumericValue): string {
+  const num = toNumber(value)
+  if (num === 0) return 'Rp 0'
 
-  const absValue = Math.abs(value)
-  const sign = value < 0 ? '-' : ''
+  const absValue = Math.abs(num)
+  const sign = num < 0 ? '-' : ''
 
   if (absValue >= 1_000_000_000) {
     // Billions (Miliar)
@@ -40,23 +56,23 @@ export function formatCurrencyCompact(value: number | null | undefined): string 
   }
 
   // Under 1 million - show full format
-  return formatCurrency(value)
+  return formatCurrency(num)
 }
 
 /**
  * Format number with Indonesian thousand separators
  */
-export function formatNumber(value: number | null | undefined): string {
-  if (value == null) return '0'
-  return new Intl.NumberFormat('id-ID').format(value)
+export function formatNumber(value: NumericValue): string {
+  const num = toNumber(value)
+  return new Intl.NumberFormat('id-ID').format(num)
 }
 
 /**
  * Format percentage
  */
-export function formatPercent(value: number | null | undefined, decimals: number = 1): string {
-  if (value == null) return '0%'
-  return `${value.toFixed(decimals).replace('.', ',')}%`
+export function formatPercent(value: NumericValue, decimals: number = 1): string {
+  const num = toNumber(value)
+  return `${num.toFixed(decimals).replace('.', ',')}%`
 }
 
 /**
