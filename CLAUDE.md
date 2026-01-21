@@ -1,5 +1,16 @@
 # Enter365 Frontend - Development Guidelines
 
+## Related Projects
+
+| Project | Path | Description |
+|---------|------|-------------|
+| **Backend API** | `/Users/satriyo/dev/laravel-project/enter365` | Laravel API backend |
+| **Frontend** | `/Users/satriyo/dev/laravel-project/front-end-enter365` | This Vue.js SPA |
+
+When working on features that span both frontend and backend, reference the backend at the path above.
+
+---
+
 ## For AI Agents
 
 **Start here:** Read `docs/AGENT.md` for essential rules, patterns, and common task templates optimized for AI agents.
