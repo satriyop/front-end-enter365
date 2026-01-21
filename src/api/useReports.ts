@@ -204,6 +204,100 @@ export interface DailyCashMovementReport {
   net_movement: number
 }
 
+export interface ContactAgingInvoice {
+  id: number
+  invoice_number?: string
+  bill_number?: string
+  date: string
+  due_date: string
+  total: number
+  paid: number
+  balance: number
+  days_overdue: number
+  aging_bucket: string
+}
+
+export interface ContactAgingReport {
+  report_name: string
+  contact: {
+    id: number
+    code: string
+    name: string
+  }
+  as_of_date: string
+  receivables?: {
+    invoices: ContactAgingInvoice[]
+    totals: {
+      current: number
+      days_1_30: number
+      days_31_60: number
+      days_61_90: number
+      over_90: number
+      total: number
+    }
+  }
+  payables?: {
+    bills: ContactAgingInvoice[]
+    totals: {
+      current: number
+      days_1_30: number
+      days_31_60: number
+      days_61_90: number
+      over_90: number
+      total: number
+    }
+  }
+}
+
+export interface InventorySummaryReport {
+  warehouse: {
+    id: number
+    code: string
+    name: string
+  } | null
+  summary: {
+    total_value: number
+    total_items: number
+    total_quantity: number
+    low_stock_count: number
+    out_of_stock_count: number
+  }
+}
+
+export interface MovementSummaryItem {
+  product_id: number
+  sku: string
+  name: string
+  unit: string
+  opening_qty: number
+  in_qty: number
+  out_qty: number
+  adjustment_qty: number
+  closing_qty: number
+  opening_value: number
+  closing_value: number
+}
+
+export interface MovementSummaryReport {
+  warehouse: {
+    id: number
+    code: string
+    name: string
+  } | null
+  period: {
+    start: string
+    end: string
+  }
+  summary: {
+    total_opening_value: number
+    total_closing_value: number
+    total_in: number
+    total_out: number
+    total_adjustment: number
+    items: MovementSummaryItem[]
+  }
+}
+
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
@@ -353,5 +447,53 @@ export function useDailyCashMovement(
       return response.data
     },
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useContactAging(
+  contactId: Ref<number | string | undefined>,
+  asOfDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'contact-aging', contactId, asOfDate],
+    queryFn: async () => {
+      const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
+      const response = await api.get<ContactAgingReport>(`/reports/contacts/${contactId.value}/aging`, { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!contactId.value),
+  })
+}
+
+export function useInventorySummary(warehouseId?: Ref<number | undefined>) {
+  return useQuery({
+    queryKey: ['reports', 'inventory-summary', warehouseId],
+    queryFn: async () => {
+      const params = warehouseId?.value ? { warehouse_id: warehouseId.value } : {}
+      const response = await api.get<InventorySummaryReport>('/inventory/summary', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useMovementSummary(
+  startDate: Ref<string | undefined>,
+  endDate: Ref<string | undefined>,
+  warehouseId?: Ref<number | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'movement-summary', startDate, endDate, warehouseId],
+    queryFn: async () => {
+      const params: Record<string, string | number> = {}
+      if (startDate.value) params.start_date = startDate.value
+      if (endDate.value) params.end_date = endDate.value
+      if (warehouseId?.value) params.warehouse_id = warehouseId.value
+      const response = await api.get<MovementSummaryReport>('/inventory/movement-summary', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!startDate.value && !!endDate.value),
   })
 }

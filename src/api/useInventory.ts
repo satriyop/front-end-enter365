@@ -134,6 +134,15 @@ export interface StockOutData {
   notes?: string
 }
 
+export interface Warehouse {
+  id: number
+  code: string
+  name: string
+  address?: string
+  is_default: boolean
+  is_active: boolean
+}
+
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
@@ -269,5 +278,21 @@ export function useStockOut() {
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
       queryClient.invalidateQueries({ queryKey: ['products'] })
     },
+  })
+}
+
+/**
+ * Fetch warehouses for dropdown/select (lightweight)
+ */
+export function useWarehousesLookup() {
+  return useQuery({
+    queryKey: ['warehouses', 'lookup'],
+    queryFn: async () => {
+      const response = await api.get<{ data: Warehouse[] }>('/warehouses', {
+        params: { is_active: true, per_page: 100 }
+      })
+      return response.data.data
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes - warehouses don't change often
   })
 }

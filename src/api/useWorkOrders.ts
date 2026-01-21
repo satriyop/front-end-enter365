@@ -38,6 +38,7 @@ export const useWorkOrder = hooks.useSingle
 export const useCreateWorkOrder = hooks.useCreate
 export const useUpdateWorkOrder = hooks.useUpdate
 export const useDeleteWorkOrder = hooks.useDelete
+export const useWorkOrdersLookup = hooks.useLookup
 
 // ============================================
 // Custom Action Hooks

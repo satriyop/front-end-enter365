@@ -37,6 +37,7 @@ export const useProject = hooks.useSingle
 export const useCreateProject = hooks.useCreate
 export const useUpdateProject = hooks.useUpdate
 export const useDeleteProject = hooks.useDelete
+export const useProjectsLookup = hooks.useLookup
 
 // ============================================
 // Custom Action Hooks
