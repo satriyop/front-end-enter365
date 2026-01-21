@@ -35,8 +35,8 @@ interface Props {
   placeholder?: string
   /** Size variant */
   size?: 'sm' | 'default' | 'lg'
-  /** Show error state */
-  error?: boolean
+  /** Show error state (accepts boolean or truthy string) */
+  error?: boolean | string
   /** Disable the select */
   disabled?: boolean
   /** Additional trigger classes */

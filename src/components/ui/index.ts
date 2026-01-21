@@ -27,6 +27,10 @@ export { default as PageSkeleton } from './PageSkeleton.vue'
 
 // Dialogs
 export { default as ConfirmDialog } from './ConfirmDialog.vue'
+export { default as ConfirmationModal } from './ConfirmationModal.vue'
+
+// Status
+export { default as StatusBadge } from './StatusBadge.vue'
 
 // Navigation
 export { default as Breadcrumbs } from './Breadcrumbs.vue'
@@ -43,8 +47,8 @@ export { default as ResponsiveTable } from './ResponsiveTable.vue'
 export { default as PullToRefresh } from './PullToRefresh.vue'
 
 // ResponsiveTable types
-export interface ResponsiveColumn {
-  key: string
+export interface ResponsiveColumn<T = object> {
+  key: keyof T | (string & {})
   label: string
   /** Show in mobile card view */
   showInMobile?: boolean
@@ -54,7 +58,7 @@ export interface ResponsiveColumn {
   width?: string
   align?: 'left' | 'center' | 'right'
   /** Format function for display */
-  format?: (value: unknown, item: Record<string, unknown>) => string
+  format?: (value: unknown, item: T) => string
 }
 
 // Toast System

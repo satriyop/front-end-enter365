@@ -102,6 +102,44 @@ const router = createRouter({
           component: () => import('@/pages/invoices/InvoiceFormPage.vue'),
           meta: { breadcrumb: 'Edit Invoice' }
         },
+        // Sales - Delivery Orders routes
+        {
+          path: 'sales/delivery-orders',
+          name: 'delivery-orders',
+          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderListPage.vue'),
+          meta: { breadcrumb: 'Delivery Orders' }
+        },
+        {
+          path: 'sales/delivery-orders/new',
+          name: 'delivery-order-new',
+          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderListPage.vue'),
+          meta: { breadcrumb: 'New Delivery Order' }
+        },
+        {
+          path: 'sales/delivery-orders/:id',
+          name: 'delivery-order-detail',
+          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderDetailPage.vue'),
+          meta: { breadcrumb: (route) => `DO #${route.params.id}` }
+        },
+        // Sales - Sales Returns routes
+        {
+          path: 'sales/sales-returns',
+          name: 'sales-returns',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnListPage.vue'),
+          meta: { breadcrumb: 'Sales Returns' }
+        },
+        {
+          path: 'sales/sales-returns/new',
+          name: 'sales-return-new',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnListPage.vue'),
+          meta: { breadcrumb: 'New Sales Return' }
+        },
+        {
+          path: 'sales/sales-returns/:id',
+          name: 'sales-return-detail',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Return #${route.params.id}` }
+        },
         // Contact routes
         {
           path: 'contacts',
@@ -196,6 +234,25 @@ const router = createRouter({
           component: () => import('@/pages/payments/PaymentDetailPage.vue'),
           meta: { breadcrumb: (route) => `Payment #${route.params.id}` }
         },
+        // Finance - Down Payments routes
+        {
+          path: 'finance/down-payments',
+          name: 'down-payments',
+          component: () => import('@/pages/finance/down-payments/DownPaymentListPage.vue'),
+          meta: { breadcrumb: 'Down Payments' }
+        },
+        {
+          path: 'finance/down-payments/new',
+          name: 'down-payment-new',
+          component: () => import('@/pages/finance/down-payments/DownPaymentListPage.vue'),
+          meta: { breadcrumb: 'New Down Payment' }
+        },
+        {
+          path: 'finance/down-payments/:id',
+          name: 'down-payment-detail',
+          component: () => import('@/pages/finance/down-payments/DownPaymentDetailPage.vue'),
+          meta: { breadcrumb: (route) => `DP #${route.params.id}` }
+        },
         // Project routes
         {
           path: 'projects',
@@ -265,6 +322,177 @@ const router = createRouter({
           component: () => import('@/pages/inventory/StockAdjustmentPage.vue'),
           meta: { breadcrumb: 'Stock Adjustment' }
         },
+        // Accounting - Chart of Accounts routes
+        {
+          path: 'accounting/accounts',
+          name: 'accounts',
+          component: () => import('@/pages/accounting/accounts/AccountListPage.vue'),
+          meta: { breadcrumb: 'Chart of Accounts' }
+        },
+        {
+          path: 'accounting/accounts/new',
+          name: 'account-new',
+          component: () => import('@/pages/accounting/accounts/AccountFormPage.vue'),
+          meta: { breadcrumb: 'New Account' }
+        },
+        {
+          path: 'accounting/accounts/:id',
+          name: 'account-detail',
+          component: () => import('@/pages/accounting/accounts/AccountDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Account #${route.params.id}` }
+        },
+        {
+          path: 'accounting/accounts/:id/edit',
+          name: 'account-edit',
+          component: () => import('@/pages/accounting/accounts/AccountFormPage.vue'),
+          meta: { breadcrumb: 'Edit Account' }
+        },
+        // Accounting - Journal Entries routes
+        {
+          path: 'accounting/journal-entries',
+          name: 'journal-entries',
+          component: () => import('@/pages/accounting/journal-entries/JournalEntryListPage.vue'),
+          meta: { breadcrumb: 'Journal Entries' }
+        },
+        {
+          path: 'accounting/journal-entries/new',
+          name: 'journal-entry-new',
+          component: () => import('@/pages/accounting/journal-entries/JournalEntryFormPage.vue'),
+          meta: { breadcrumb: 'New Entry' }
+        },
+        {
+          path: 'accounting/journal-entries/:id',
+          name: 'journal-entry-detail',
+          component: () => import('@/pages/accounting/journal-entries/JournalEntryDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Entry #${route.params.id}` }
+        },
+        // Accounting - Fiscal Periods routes
+        {
+          path: 'accounting/fiscal-periods',
+          name: 'fiscal-periods',
+          component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodListPage.vue'),
+          meta: { breadcrumb: 'Fiscal Periods' }
+        },
+        {
+          path: 'accounting/fiscal-periods/new',
+          name: 'fiscal-period-new',
+          component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodFormPage.vue'),
+          meta: { breadcrumb: 'New Period' }
+        },
+        {
+          path: 'accounting/fiscal-periods/:id',
+          name: 'fiscal-period-detail',
+          component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Period #${route.params.id}` }
+        },
+        // Purchasing - Purchase Orders routes
+        {
+          path: 'purchasing/purchase-orders',
+          name: 'purchase-orders',
+          component: () => import('@/pages/purchasing/purchase-orders/PurchaseOrderListPage.vue'),
+          meta: { breadcrumb: 'Purchase Orders' }
+        },
+        {
+          path: 'purchasing/purchase-orders/new',
+          name: 'purchase-order-new',
+          component: () => import('@/pages/purchasing/purchase-orders/PurchaseOrderFormPage.vue'),
+          meta: { breadcrumb: 'New Purchase Order' }
+        },
+        {
+          path: 'purchasing/purchase-orders/:id',
+          name: 'purchase-order-detail',
+          component: () => import('@/pages/purchasing/purchase-orders/PurchaseOrderDetailPage.vue'),
+          meta: { breadcrumb: (route) => `PO #${route.params.id}` }
+        },
+        {
+          path: 'purchasing/purchase-orders/:id/edit',
+          name: 'purchase-order-edit',
+          component: () => import('@/pages/purchasing/purchase-orders/PurchaseOrderFormPage.vue'),
+          meta: { breadcrumb: 'Edit Purchase Order' }
+        },
+        // Purchasing - Goods Receipt Notes routes
+        {
+          path: 'purchasing/goods-receipt-notes',
+          name: 'goods-receipt-notes',
+          component: () => import('@/pages/purchasing/goods-receipt-notes/GoodsReceiptNoteListPage.vue'),
+          meta: { breadcrumb: 'Goods Receipt Notes' }
+        },
+        {
+          path: 'purchasing/goods-receipt-notes/:id',
+          name: 'goods-receipt-note-detail',
+          component: () => import('@/pages/purchasing/goods-receipt-notes/GoodsReceiptNoteDetailPage.vue'),
+          meta: { breadcrumb: (route) => `GRN #${route.params.id}` }
+        },
+        // Purchasing - Purchase Returns routes
+        {
+          path: 'purchasing/purchase-returns',
+          name: 'purchase-returns',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnListPage.vue'),
+          meta: { breadcrumb: 'Purchase Returns' }
+        },
+        {
+          path: 'purchasing/purchase-returns/:id',
+          name: 'purchase-return-detail',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Return #${route.params.id}` }
+        },
+        // Manufacturing - Material Requisitions routes
+        {
+          path: 'manufacturing/material-requisitions',
+          name: 'material-requisitions',
+          component: () => import('@/pages/manufacturing/material-requisitions/MaterialRequisitionListPage.vue'),
+          meta: { breadcrumb: 'Material Requisitions' }
+        },
+        {
+          path: 'manufacturing/material-requisitions/new',
+          name: 'material-requisition-new',
+          component: () => import('@/pages/manufacturing/material-requisitions/MaterialRequisitionFormPage.vue'),
+          meta: { breadcrumb: 'New Requisition' }
+        },
+        {
+          path: 'manufacturing/material-requisitions/:id',
+          name: 'material-requisition-detail',
+          component: () => import('@/pages/manufacturing/material-requisitions/MaterialRequisitionDetailPage.vue'),
+          meta: { breadcrumb: (route) => `MR #${route.params.id}` }
+        },
+        // Manufacturing - Subcontractor Work Orders routes
+        {
+          path: 'manufacturing/subcontractor-work-orders',
+          name: 'subcontractor-work-orders',
+          component: () => import('@/pages/manufacturing/subcontractor-work-orders/SubcontractorWorkOrderListPage.vue'),
+          meta: { breadcrumb: 'Subcontractor Work Orders' }
+        },
+        {
+          path: 'manufacturing/subcontractor-work-orders/new',
+          name: 'subcontractor-work-order-new',
+          component: () => import('@/pages/manufacturing/subcontractor-work-orders/SubcontractorWorkOrderFormPage.vue'),
+          meta: { breadcrumb: 'New Work Order' }
+        },
+        {
+          path: 'manufacturing/subcontractor-work-orders/:id',
+          name: 'subcontractor-work-order-detail',
+          component: () => import('@/pages/manufacturing/subcontractor-work-orders/SubcontractorWorkOrderDetailPage.vue'),
+          meta: { breadcrumb: (route) => `SCWO #${route.params.id}` }
+        },
+        {
+          path: 'manufacturing/subcontractor-work-orders/:id/edit',
+          name: 'subcontractor-work-order-edit',
+          component: () => import('@/pages/manufacturing/subcontractor-work-orders/SubcontractorWorkOrderFormPage.vue'),
+          meta: { breadcrumb: 'Edit Work Order' }
+        },
+        // Manufacturing - Subcontractor Invoices routes
+        {
+          path: 'manufacturing/subcontractor-invoices',
+          name: 'subcontractor-invoices',
+          component: () => import('@/pages/manufacturing/subcontractor-invoices/SubcontractorInvoiceListPage.vue'),
+          meta: { breadcrumb: 'Subcontractor Invoices' }
+        },
+        {
+          path: 'manufacturing/subcontractor-invoices/:id',
+          name: 'subcontractor-invoice-detail',
+          component: () => import('@/pages/manufacturing/subcontractor-invoices/SubcontractorInvoiceDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Invoice #${route.params.id}` }
+        },
         // Reports routes
         {
           path: 'reports',
@@ -313,6 +541,42 @@ const router = createRouter({
           name: 'report-vat',
           component: () => import('@/pages/reports/VatReportPage.vue'),
           meta: { breadcrumb: 'VAT Report' }
+        },
+        {
+          path: 'reports/tax-summary',
+          name: 'report-tax-summary',
+          component: () => import('@/pages/reports/TaxSummaryPage.vue'),
+          meta: { breadcrumb: 'Tax Summary' }
+        },
+        {
+          path: 'reports/stock-summary',
+          name: 'report-stock-summary',
+          component: () => import('@/pages/reports/StockSummaryPage.vue'),
+          meta: { breadcrumb: 'Stock Summary' }
+        },
+        {
+          path: 'reports/stock-movement',
+          name: 'report-stock-movement',
+          component: () => import('@/pages/reports/StockMovementPage.vue'),
+          meta: { breadcrumb: 'Stock Movement' }
+        },
+        {
+          path: 'reports/stock-valuation',
+          name: 'report-stock-valuation',
+          component: () => import('@/pages/reports/StockValuationPage.vue'),
+          meta: { breadcrumb: 'Stock Valuation' }
+        },
+        {
+          path: 'reports/customer-statement',
+          name: 'report-customer-statement',
+          component: () => import('@/pages/reports/CustomerStatementPage.vue'),
+          meta: { breadcrumb: 'Customer Statement' }
+        },
+        {
+          path: 'reports/vendor-statement',
+          name: 'report-vendor-statement',
+          component: () => import('@/pages/reports/VendorStatementPage.vue'),
+          meta: { breadcrumb: 'Vendor Statement' }
         },
         // Settings route
         {

@@ -1,10 +1,8 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends object">
 import { computed, useSlots } from 'vue'
 
-type TableItem = Record<string, unknown>
-
-export interface ResponsiveColumn {
-  key: string
+export interface ResponsiveColumn<TItem = object> {
+  key: keyof TItem | (string & {})
   label: string
   /** Show in mobile card view */
   showInMobile?: boolean
@@ -14,16 +12,16 @@ export interface ResponsiveColumn {
   width?: string
   align?: 'left' | 'center' | 'right'
   /** Format function for display */
-  format?: (value: unknown, item: TableItem) => string
+  format?: (value: unknown, item: TItem) => string
 }
 
 interface Props {
   /** Data items to display */
-  items: TableItem[]
+  items: T[]
   /** Column definitions */
-  columns: ResponsiveColumn[]
+  columns: ResponsiveColumn<T>[]
   /** Unique key field for each item */
-  keyField?: string
+  keyField?: keyof T | (string & {})
   /** Enable row selection */
   selectable?: boolean
   /** Currently selected keys */
@@ -33,15 +31,15 @@ interface Props {
   /** Empty state message */
   emptyMessage?: string
   /** Title field for mobile card header */
-  titleField?: string
+  titleField?: keyof T | (string & {})
   /** Subtitle field for mobile card */
-  subtitleField?: string
+  subtitleField?: keyof T | (string & {})
   /** Show status badge (field name) */
-  statusField?: string
+  statusField?: keyof T | (string & {})
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  keyField: 'id',
+  keyField: 'id' as keyof T | (string & {}),
   selectable: false,
   selectedKeys: () => new Set(),
   loading: false,
@@ -49,21 +47,21 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{
-  'row-click': [item: TableItem, index: number]
+  'row-click': [item: T, index: number]
   'select': [keys: Set<string | number>]
 }>()
 
 const slots = useSlots()
 
 // Get item key
-function getItemKey(item: TableItem): string | number {
-  return item[props.keyField] as string | number
+function getItemKey(item: T): string | number {
+  return item[props.keyField as keyof T] as string | number
 }
 
 // Get item field value
-function getFieldValue(item: TableItem, field: string | undefined): unknown {
+function getFieldValue(item: T, field: keyof T | string | undefined): unknown {
   if (!field) return undefined
-  return item[field]
+  return item[field as keyof T]
 }
 
 // Get mobile-visible columns sorted by priority
@@ -81,12 +79,12 @@ const allSelected = computed(() => {
 })
 
 // Handle row click
-function handleRowClick(item: TableItem, index: number) {
+function handleRowClick(item: T, index: number) {
   emit('row-click', item, index)
 }
 
 // Handle selection toggle
-function handleSelect(item: TableItem) {
+function handleSelect(item: T) {
   const key = getItemKey(item)
   const newSelected = new Set(props.selectedKeys)
 
@@ -110,8 +108,8 @@ function handleSelectAll() {
 }
 
 // Get cell value with nested key support
-function getCellValue(item: TableItem, column: ResponsiveColumn): string {
-  const keys = column.key.split('.')
+function getCellValue(item: T, column: ResponsiveColumn<T>): string {
+  const keys = String(column.key).split('.')
   let value: unknown = item
 
   for (const key of keys) {
@@ -142,12 +140,12 @@ function getAlignClass(align?: 'left' | 'center' | 'right'): string {
 }
 
 // Check if item is selected
-function isSelected(item: TableItem): boolean {
+function isSelected(item: T): boolean {
   return props.selectedKeys.has(getItemKey(item))
 }
 
 // Check if column should be hidden in mobile (already shown in header)
-function isHeaderField(column: ResponsiveColumn): boolean {
+function isHeaderField(column: ResponsiveColumn<T>): boolean {
   return (
     column.key === props.titleField ||
     column.key === props.subtitleField ||
@@ -200,7 +198,7 @@ function isHeaderField(column: ResponsiveColumn): boolean {
             <!-- Column Headers -->
             <th
               v-for="column in columns"
-              :key="column.key"
+              :key="String(column.key)"
               class="px-4 py-3 text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider"
               :class="getAlignClass(column.align)"
               :style="{ width: column.width }"
@@ -236,11 +234,11 @@ function isHeaderField(column: ResponsiveColumn): boolean {
             <!-- Data Cells -->
             <td
               v-for="column in columns"
-              :key="column.key"
+              :key="String(column.key)"
               class="px-4 py-3 text-sm text-slate-700 dark:text-slate-300"
               :class="getAlignClass(column.align)"
             >
-              <slot :name="`cell-${column.key}`" :item="item" :value="getCellValue(item, column)">
+              <slot :name="`cell-${String(column.key)}`" :item="item" :value="getCellValue(item, column)">
                 {{ getCellValue(item, column) }}
               </slot>
             </td>
@@ -309,11 +307,11 @@ function isHeaderField(column: ResponsiveColumn): boolean {
 
         <!-- Card Body - Key fields -->
         <div class="grid grid-cols-2 gap-2 text-sm">
-          <template v-for="column in mobileColumns" :key="column.key">
+          <template v-for="column in mobileColumns" :key="String(column.key)">
             <div v-if="!isHeaderField(column)">
               <span class="text-slate-500 dark:text-slate-400">{{ column.label }}:</span>
               <span class="ml-1 text-slate-700 dark:text-slate-300">
-                <slot :name="`cell-${column.key}`" :item="item" :value="getCellValue(item, column)">
+                <slot :name="`cell-${String(column.key)}`" :item="item" :value="getCellValue(item, column)">
                   {{ getCellValue(item, column) }}
                 </slot>
               </span>
