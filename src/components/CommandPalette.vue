@@ -171,7 +171,7 @@ function handleSelect(value: string) {
 // Global keyboard shortcut
 function handleGlobalKeydown(e: KeyboardEvent) {
   // Cmd+K or Ctrl+K
-  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault()
     isOpen.value = !isOpen.value
   }
