@@ -150,14 +150,18 @@ export function buildAccountTree(accounts: Account[]): Account[] {
 
   // First pass: create map and initialize children arrays
   accounts.forEach((account) => {
-    accountMap.set(account.id, { ...account, children: [] })
+    accountMap.set(String(account.id), { ...account, children: [] })
   })
 
   // Second pass: build tree structure
   accounts.forEach((account) => {
-    const node = accountMap.get(account.id)!
-    if (account.parent_id && accountMap.has(account.parent_id)) {
-      accountMap.get(account.parent_id)!.children.push(node)
+    const node = accountMap.get(String(account.id))
+    if (!node) return
+
+    const parentId = account.parent_id ? String(account.parent_id) : null
+
+    if (parentId && accountMap.has(parentId)) {
+      accountMap.get(parentId)!.children.push(node)
     } else {
       roots.push(node)
     }

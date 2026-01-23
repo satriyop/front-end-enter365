@@ -69,7 +69,9 @@ export function usePostInvoice() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      queryClient.setQueryData(['invoice', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['invoice', data.id] })
+      queryClient.invalidateQueries({ queryKey: ['journal-entries'] })
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
     },
   })
 }
