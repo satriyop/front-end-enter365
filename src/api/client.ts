@@ -96,6 +96,12 @@ export function getErrorMessage(error: unknown, fallback = 'An error occurred'):
   // Axios error with response
   if (axios.isAxiosError(error)) {
     const data = error.response?.data as { message?: string } | undefined
+    
+    // Check for specific server error (500)
+    if (error.response?.status === 500) {
+      return data?.message || 'Server Error: Something went wrong on the server.'
+    }
+
     if (data?.message) return data.message
     if (error.message) return error.message
   }

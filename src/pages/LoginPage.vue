@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { getErrorMessage } from '@/api/client'
 
 const auth = useAuthStore()
 
@@ -19,7 +20,7 @@ async function handleSubmit() {
   try {
     await auth.login(form)
   } catch (e: unknown) {
-    error.value = (e as Error).message || 'Login failed'
+    error.value = getErrorMessage(e, 'Login failed')
   } finally {
     loading.value = false
   }
