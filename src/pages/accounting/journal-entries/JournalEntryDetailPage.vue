@@ -16,7 +16,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-const entryId = computed(() => Number(route.params.id))
+const entryId = computed(() => String(route.params.id))
 
 // Fetch journal entry
 const { data: entry, isLoading, error, refetch } = useJournalEntry(entryId)
@@ -39,9 +39,12 @@ const reversalDescription = ref('')
 const status = computed(() => entry.value ? getJournalEntryStatus(entry.value) : null)
 
 // Check if entry can be modified
-const canDelete = computed(() => entry.value && !entry.value.is_posted && !entry.value.is_reversed)
-const canPost = computed(() => entry.value && !entry.value.is_posted && !entry.value.is_reversed && entry.value.is_balanced)
-const canReverse = computed(() => entry.value && entry.value.is_posted && !entry.value.is_reversed)
+const isPosted = computed(() => entry.value?.is_posted === '1' || entry.value?.is_posted === 'true' || (typeof entry.value?.is_posted === 'boolean' && entry.value.is_posted))
+const isReversed = computed(() => entry.value?.is_reversed === '1' || entry.value?.is_reversed === 'true' || (typeof entry.value?.is_reversed === 'boolean' && entry.value.is_reversed))
+
+const canDelete = computed(() => entry.value && !isPosted.value && !isReversed.value)
+const canPost = computed(() => entry.value && !isPosted.value && !isReversed.value && entry.value.is_balanced)
+const canReverse = computed(() => entry.value && isPosted.value && !isReversed.value)
 
 // Delete handler
 async function handleDelete() {
@@ -84,12 +87,12 @@ async function handleReverse() {
 }
 
 // Navigate to related entry
-function viewRelatedEntry(id: number) {
+function viewRelatedEntry(id: string) {
   router.push(`/accounting/journal-entries/${id}`)
 }
 
 // Navigate to account
-function viewAccount(accountId: number) {
+function viewAccount(accountId: string) {
   router.push(`/accounting/accounts/${accountId}`)
 }
 </script>
@@ -201,7 +204,7 @@ function viewAccount(accountId: number) {
             This entry was reversed by
             <button
               class="text-orange-600 hover:text-orange-700 dark:text-orange-400 font-mono"
-              @click="viewRelatedEntry(entry.reversed_by!.id)"
+              @click="viewRelatedEntry(String(entry.reversed_by.id))"
             >
               {{ entry.reversed_by.entry_number }}
             </button>
@@ -217,7 +220,7 @@ function viewAccount(accountId: number) {
             This is a reversal of
             <button
               class="text-orange-600 hover:text-orange-700 dark:text-orange-400 font-mono"
-              @click="viewRelatedEntry(entry.reversal_of!.id)"
+              @click="viewRelatedEntry(String(entry.reversal_of.id))"
             >
               {{ entry.reversal_of.entry_number }}
             </button>
@@ -261,7 +264,7 @@ function viewAccount(accountId: number) {
                   <button
                     v-if="line.account"
                     class="text-left hover:text-orange-600 dark:hover:text-orange-400"
-                    @click="viewAccount(line.account.id)"
+                    @click="viewAccount(String(line.account.id))"
                   >
                     <span class="font-mono text-slate-500 dark:text-slate-400">{{ line.account.code }}</span>
                     <span class="ml-2 text-slate-900 dark:text-slate-100">{{ line.account.name }}</span>
@@ -271,10 +274,10 @@ function viewAccount(accountId: number) {
                   {{ line.description || '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ line.debit > 0 ? formatCurrency(line.debit) : '-' }}
+                  {{ parseFloat(line.debit) > 0 ? formatCurrency(parseFloat(line.debit)) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ line.credit > 0 ? formatCurrency(line.credit) : '-' }}
+                  {{ parseFloat(line.credit) > 0 ? formatCurrency(parseFloat(line.credit)) : '-' }}
                 </td>
               </tr>
             </tbody>

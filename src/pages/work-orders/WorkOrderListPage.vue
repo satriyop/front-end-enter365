@@ -169,8 +169,8 @@ async function handleDelete() {
 
         <!-- Custom cell: Status -->
         <template #cell-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status.replace('_', ' ') }}
+          <Badge :variant="statusColors[item.status.value] || 'default'">
+            {{ item.status.label }}
           </Badge>
         </template>
 
@@ -183,8 +183,8 @@ async function handleDelete() {
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status.replace('_', ' ') }}
+          <Badge :variant="statusColors[item.status.value] || 'default'">
+            {{ item.status.label }}
           </Badge>
         </template>
 
@@ -195,7 +195,7 @@ async function handleDelete() {
               <Button variant="ghost" size="xs">Edit</Button>
             </RouterLink>
             <Button
-              v-if="item.status === 'draft'"
+              v-if="item.status.value === 'draft'"
               variant="ghost"
               size="xs"
               class="text-red-500 hover:text-red-600"

@@ -19,12 +19,12 @@ const router = useRouter()
 const toast = useToast()
 
 // Determine if editing
-const accountId = computed(() => route.params.id ? Number(route.params.id) : null)
+const accountId = computed(() => route.params.id ? String(route.params.id) : null)
 const isEditing = computed(() => !!accountId.value)
 
 // Fetch existing account if editing
 const { data: existingAccount, isLoading: accountLoading } = useAccount(
-  computed(() => accountId.value ?? 0)
+  computed(() => accountId.value ?? '')
 )
 
 // Fetch accounts for parent dropdown
@@ -103,12 +103,15 @@ const accountSchema = z.object({
   }),
   subtype: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
-  parent_id: z.union([z.number(), z.string()]).optional().nullable().transform(val => {
+  parent_id: z.string().optional().nullable().transform(val => {
     if (!val || val === '') return null
-    return typeof val === 'string' ? parseInt(val, 10) : val
+    return val
   }),
   is_active: z.boolean().default(true),
-  opening_balance: z.number().default(0),
+  opening_balance: z.union([z.number(), z.string()]).default(0).transform(val => {
+    if (typeof val === 'string') return parseFloat(val) || 0
+    return val
+  }),
 })
 
 type AccountFormValues = z.infer<typeof accountSchema>
@@ -138,8 +141,8 @@ watch(existingAccount, (account) => {
       subtype: account.subtype || '',
       description: account.description || '',
       parent_id: account.parent_id,
-      is_active: account.is_active,
-      opening_balance: account.opening_balance,
+      is_active: account.is_active === '1' || account.is_active === 'true' || (typeof account.is_active === 'boolean' && account.is_active),
+      opening_balance: typeof account.opening_balance === 'string' ? parseFloat(account.opening_balance) : (account.opening_balance || 0),
     })
   }
 }, { immediate: true })
@@ -171,7 +174,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       type: formValues.type,
       subtype: formValues.subtype || null,
       description: formValues.description || null,
-      parent_id: formValues.parent_id || null,
+      parent_id: formValues.parent_id ? parseInt(formValues.parent_id, 10) : null,
       is_active: formValues.is_active,
       opening_balance: formValues.opening_balance,
     }
@@ -295,11 +298,11 @@ const onSubmit = handleSubmit(async (formValues) => {
                   Parent Account
                 </label>
                 <Select
-                  :model-value="values.parent_id ? String(values.parent_id) : ''"
+                  :model-value="values.parent_id || ''"
                   :options="parentOptions"
                   :loading="accountsLoading"
                   placeholder="Select parent account"
-                  @update:model-value="(v) => setFieldValue('parent_id', v ? parseInt(String(v), 10) : null)"
+                  @update:model-value="(v) => setFieldValue('parent_id', v ? String(v) : null)"
                 />
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Leave empty for top-level accounts

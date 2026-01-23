@@ -6,10 +6,20 @@
 
 import type { components } from '@/api/types'
 import { createContact } from './contactFactory'
+import { formatCurrency } from '@/utils/format'
 
 export type Invoice = components['schemas']['InvoiceResource']
 
 let invoiceId = 1
+
+const STATUS_MAP: Record<string, Invoice['status']> = {
+  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: '0', is_editable: '1' },
+  sent: { value: 'sent', label: 'Terkirim', color: 'blue', is_terminal: '0', is_editable: '0' },
+  partial: { value: 'partial', label: 'Sebagian', color: 'orange', is_terminal: '0', is_editable: '0' },
+  paid: { value: 'paid', label: 'Lunas', color: 'green', is_terminal: '1', is_editable: '0' },
+  overdue: { value: 'overdue', label: 'Jatuh Tempo', color: 'red', is_terminal: '0', is_editable: '0' },
+  void: { value: 'void', label: 'Dibatalkan', color: 'red', is_terminal: '1', is_editable: '0' },
+}
 
 /**
  * Create a single invoice with optional overrides
@@ -31,6 +41,10 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
     contact,
     invoice_date: invoiceDate.toISOString().split('T')[0]!,
     due_date: dueDate.toISOString().split('T')[0]!,
+    days_until_due: 30,
+    is_overdue: false,
+    currency: 'IDR',
+    exchange_rate: 1,
     description: `Invoice for ${contact.name}`,
     reference: '',
     subtotal: String(subtotal),
@@ -39,13 +53,33 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
     discount_amount: '0',
     total_amount: String(total),
     paid_amount: '0',
-    outstanding_amount: String(total),
-    status: 'draft',
+    outstanding_amount: total,
+    base_currency_total: String(total),
+    formatted: {
+      subtotal: formatCurrency(subtotal),
+      discount_amount: formatCurrency(0),
+      tax_amount: formatCurrency(taxAmount),
+      total_amount: formatCurrency(total),
+      paid_amount: formatCurrency(0),
+      outstanding_amount: formatCurrency(total),
+    },
+    status: STATUS_MAP.draft!,
     journal_entry_id: '',
+    has_journal_entry: false,
     receivable_account_id: '1',
+    reminder_count: '0',
+    last_reminder_at: '',
     created_by: '1',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
+    actions: {
+      can_edit: true,
+      can_post: true,
+      can_cancel: true,
+      can_delete: true,
+      can_mark_as_paid: false,
+      can_mark_as_partial: false,
+    },
     ...overrides,
   }
 }
@@ -62,7 +96,7 @@ export function createInvoices(count: number, overrides: Partial<Invoice> = {}):
  */
 export function createDraftInvoice(overrides: Partial<Invoice> = {}): Invoice {
   return createInvoice({
-    status: 'draft',
+    status: STATUS_MAP.draft,
     ...overrides,
   })
 }
@@ -72,7 +106,7 @@ export function createDraftInvoice(overrides: Partial<Invoice> = {}): Invoice {
  */
 export function createSentInvoice(overrides: Partial<Invoice> = {}): Invoice {
   return createInvoice({
-    status: 'sent',
+    status: STATUS_MAP.sent,
     ...overrides,
   })
 }
@@ -88,9 +122,9 @@ export function createPartiallyPaidInvoice(
   const total = Number(invoice.total_amount)
   return {
     ...invoice,
-    status: 'partial',
+    status: STATUS_MAP.partial!,
     paid_amount: String(paidAmount),
-    outstanding_amount: String(total - paidAmount),
+    outstanding_amount: total - paidAmount,
     ...overrides,
   }
 }
@@ -102,9 +136,9 @@ export function createPaidInvoice(overrides: Partial<Invoice> = {}): Invoice {
   const invoice = createInvoice(overrides)
   return {
     ...invoice,
-    status: 'paid',
+    status: STATUS_MAP.paid!,
     paid_amount: invoice.total_amount,
-    outstanding_amount: '0',
+    outstanding_amount: 0,
     ...overrides,
   }
 }
@@ -116,7 +150,8 @@ export function createOverdueInvoice(overrides: Partial<Invoice> = {}): Invoice 
   const pastDate = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
   return createInvoice({
     due_date: pastDate.toISOString().split('T')[0],
-    status: 'overdue',
+    status: STATUS_MAP.overdue!,
+    is_overdue: true,
     ...overrides,
   })
 }

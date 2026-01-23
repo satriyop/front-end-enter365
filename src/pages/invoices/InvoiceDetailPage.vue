@@ -77,10 +77,10 @@ async function handleDelete() {
 }
 
 // Status-based action availability
-const canEdit = computed(() => invoice.value?.status === 'draft')
-const canPost = computed(() => invoice.value?.status === 'draft')
-const canVoid = computed(() => ['posted', 'partial'].includes(invoice.value?.status ?? ''))
-const canDelete = computed(() => invoice.value?.status === 'draft')
+const canEdit = computed(() => invoice.value?.status?.value === 'draft')
+const canPost = computed(() => invoice.value?.status?.value === 'draft')
+const canVoid = computed(() => ['posted', 'partial'].includes(invoice.value?.status?.value ?? ''))
+const canDelete = computed(() => invoice.value?.status?.value === 'draft')
 
 // Print functionality
 function handlePrint() {
@@ -144,7 +144,7 @@ const itemColumns: ResponsiveColumn[] = [
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ invoice.invoice_number }}
               </h1>
-              <Badge :status="invoice.status as any" />
+              <Badge :status="invoice.status.value as any" />
             </div>
             <p class="text-slate-500 dark:text-slate-400">{{ invoice.contact?.name }}</p>
           </div>
@@ -344,7 +344,7 @@ const itemColumns: ResponsiveColumn[] = [
           </Card>
 
           <!-- Quick Actions -->
-          <Card v-if="invoice.status === 'posted' || invoice.status === 'partial'">
+          <Card v-if="invoice.status.value === 'posted' || invoice.status.value === 'partial'">
             <template #header>
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Quick Actions</h2>
             </template>
@@ -430,7 +430,7 @@ const itemColumns: ResponsiveColumn[] = [
         <PrintableDocument
           type="invoice"
           :number="invoice.invoice_number"
-          :status="invoice.status"
+          :status="invoice.status.value"
           :date="invoice.invoice_date"
           :due-date="invoice.due_date"
           :reference="invoice.reference"

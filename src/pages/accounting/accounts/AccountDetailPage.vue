@@ -18,7 +18,7 @@ const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
-const accountId = computed(() => Number(route.params.id))
+const accountId = computed(() => String(route.params.id))
 
 // Fetch account details
 const { data: account, isLoading: accountLoading, error: accountError } = useAccount(accountId)
@@ -56,7 +56,7 @@ async function handleDelete() {
 }
 
 // Navigate to journal entry
-function viewJournalEntry(journalEntryId: number) {
+function viewJournalEntry(journalEntryId: string) {
   router.push(`/accounting/journal-entries/${journalEntryId}`)
 }
 
@@ -190,7 +190,7 @@ function goToPage(page: number) {
             <div class="flex justify-between">
               <dt class="text-slate-500 dark:text-slate-400">Opening Balance</dt>
               <dd class="font-medium text-slate-900 dark:text-slate-100">
-                {{ formatCurrency(account.opening_balance) }}
+                {{ formatCurrency(parseFloat(account.opening_balance)) }}
               </dd>
             </div>
             <div v-if="account.parent" class="flex justify-between">
@@ -305,13 +305,13 @@ function goToPage(page: number) {
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ entry.debit > 0 ? formatCurrency(entry.debit) : '-' }}
+                  {{ parseFloat(entry.debit) > 0 ? formatCurrency(parseFloat(entry.debit)) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ entry.credit > 0 ? formatCurrency(entry.credit) : '-' }}
+                  {{ parseFloat(entry.credit) > 0 ? formatCurrency(parseFloat(entry.credit)) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(entry.running_balance) }}
+                  {{ formatCurrency(parseFloat(entry.running_balance)) }}
                 </td>
               </tr>
             </tbody>

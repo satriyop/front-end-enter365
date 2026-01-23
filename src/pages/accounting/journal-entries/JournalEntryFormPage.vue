@@ -41,8 +41,13 @@ const lines = ref<CreateJournalEntryLineData[]>([
 // Calculate totals
 const totals = computed(() => calculateLineTotals(lines.value))
 
+// Filter out empty lines for validation
+const linesToValidate = computed(() => lines.value.filter(
+  line => line.account_id > 0 && ((line.debit || 0) > 0 || (line.credit || 0) > 0)
+))
+
 // Validation errors
-const validationErrors = computed(() => validateJournalLines(lines.value))
+const validationErrors = computed(() => validateJournalLines(linesToValidate.value))
 const hasErrors = computed(() => validationErrors.value.length > 0)
 
 // Add new line
@@ -127,7 +132,7 @@ async function handleSubmit() {
 
   // Filter out empty lines
   const validLines = lines.value.filter(
-    line => line.account_id > 0 && (line.debit > 0 || line.credit > 0)
+    line => line.account_id > 0 && ((line.debit || 0) > 0 || (line.credit || 0) > 0)
   )
 
   if (validLines.length < 2) {

@@ -116,8 +116,8 @@ function formatPercent(value: string | number | undefined): string {
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ workOrder.wo_number }}</h1>
-            <Badge :variant="statusColors[workOrder.status] || 'default'">
-              {{ workOrder.status }}
+            <Badge :variant="statusColors[workOrder.status.value] || 'default'">
+              {{ workOrder.status.label }}
             </Badge>
             <Badge v-if="workOrder.type" variant="info">
               {{ typeLabels[workOrder.type] || workOrder.type }}
@@ -136,11 +136,11 @@ function formatPercent(value: string | number | undefined): string {
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
-          <RouterLink v-if="workOrder.status === 'draft'" :to="`/work-orders/${workOrder.id}/edit`">
+          <RouterLink v-if="workOrder.status.value === 'draft'" :to="`/work-orders/${workOrder.id}/edit`">
             <Button variant="secondary">Edit</Button>
           </RouterLink>
           <Button
-            v-if="workOrder.status === 'draft'"
+            v-if="workOrder.status.value === 'draft'"
            
             @click="handleConfirm"
             :loading="confirmMutation.isPending.value"
@@ -148,7 +148,7 @@ function formatPercent(value: string | number | undefined): string {
             Confirm
           </Button>
           <Button
-            v-if="workOrder.status === 'confirmed'"
+            v-if="workOrder.status.value === 'confirmed'"
            
             @click="handleStart"
             :loading="startMutation.isPending.value"
@@ -156,7 +156,7 @@ function formatPercent(value: string | number | undefined): string {
             Start
           </Button>
           <Button
-            v-if="workOrder.status === 'in_progress'"
+            v-if="workOrder.status.value === 'in_progress'"
             variant="success"
             @click="handleComplete"
             :loading="completeMutation.isPending.value"
@@ -164,7 +164,7 @@ function formatPercent(value: string | number | undefined): string {
             Complete
           </Button>
           <Button
-            v-if="workOrder.status !== 'completed' && workOrder.status !== 'cancelled'"
+            v-if="workOrder.status.value !== 'completed' && workOrder.status.value !== 'cancelled'"
             variant="destructive"
             @click="handleCancel"
             :loading="cancelMutation.isPending.value"
@@ -172,7 +172,7 @@ function formatPercent(value: string | number | undefined): string {
             Cancel
           </Button>
           <Button
-            v-if="workOrder.status === 'draft'"
+            v-if="workOrder.status.value === 'draft'"
             variant="ghost"
             @click="handleDelete"
             :loading="deleteMutation.isPending.value"

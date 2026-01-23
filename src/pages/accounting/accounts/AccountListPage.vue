@@ -40,9 +40,9 @@ const typeOptions = [
 ]
 
 // Expanded nodes tracking
-const expandedNodes = ref<Set<number>>(new Set())
+const expandedNodes = ref<Set<string>>(new Set())
 
-function toggleNode(id: number) {
+function toggleNode(id: string) {
   if (expandedNodes.value.has(id)) {
     expandedNodes.value.delete(id)
   } else {
@@ -295,7 +295,7 @@ const AccountTreeNode = defineComponent({
       required: true,
     },
     expandedNodes: {
-      type: Object as PropType<Set<number>>,
+      type: Object as PropType<Set<string>>,
       required: true,
     },
   },
@@ -303,10 +303,22 @@ const AccountTreeNode = defineComponent({
   setup(props) {
     const hasChildren = computed(() => (props.account.children?.length ?? 0) > 0)
     const isExpanded = computed(() => props.expandedNodes.has(props.account.id))
+    const isActive = computed(() => 
+      props.account.is_active === '1' || 
+      props.account.is_active === 'true' || 
+      (typeof props.account.is_active === 'boolean' && props.account.is_active)
+    )
+    const isSystem = computed(() => 
+      props.account.is_system === '1' || 
+      props.account.is_system === 'true' || 
+      (typeof props.account.is_system === 'boolean' && props.account.is_system)
+    )
 
     return {
       hasChildren,
       isExpanded,
+      isActive,
+      isSystem,
       getAccountTypeLabel,
       getAccountTypeColor,
       formatCurrency,
@@ -358,11 +370,11 @@ const AccountTreeNode = defineComponent({
         <div class="col-span-1 text-center">
           <span
             class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
-            :class="account.is_active
+            :class="isActive
               ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
               : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'"
           >
-            {{ account.is_active ? 'Active' : 'Inactive' }}
+            {{ isActive ? 'Active' : 'Inactive' }}
           </span>
         </div>
 
@@ -376,7 +388,7 @@ const AccountTreeNode = defineComponent({
             <Pencil class="w-4 h-4" />
           </Button>
           <Button
-            v-if="!account.is_system"
+            v-if="!isSystem"
             variant="ghost"
             size="icon-sm"
             class="text-red-500 hover:text-red-600"
