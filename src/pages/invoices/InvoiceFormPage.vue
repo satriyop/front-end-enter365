@@ -59,6 +59,7 @@ const {
   errors,
   handleSubmit,
   setValues,
+  setFieldValue,
   setErrors,
   validateField,
 } = useForm<InvoiceFormData>({
@@ -226,11 +227,11 @@ const contactOptions = computed(() => {
           <!-- Customer -->
           <FormField label="Customer" required :error="errors.contact_id">
             <Select
-              v-model="form.contact_id"
+              :model-value="form.contact_id"
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
-              @update:model-value="validateField('contact_id')"
+              @update:model-value="(v) => { setFieldValue('contact_id', Number(v)); validateField('contact_id'); }"
             />
           </FormField>
 

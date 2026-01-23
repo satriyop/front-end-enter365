@@ -12,6 +12,7 @@ import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
+import { FileText } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -77,10 +78,10 @@ async function handleDelete() {
 }
 
 // Status-based action availability
-const canEdit = computed(() => invoice.value?.status?.value === 'draft')
-const canPost = computed(() => invoice.value?.status?.value === 'draft')
-const canVoid = computed(() => ['posted', 'partial'].includes(invoice.value?.status?.value ?? ''))
-const canDelete = computed(() => invoice.value?.status?.value === 'draft')
+const canEdit = computed(() => invoice.value?.actions?.can_edit)
+const canPost = computed(() => invoice.value?.actions?.can_post)
+const canVoid = computed(() => invoice.value?.actions?.can_cancel)
+const canDelete = computed(() => invoice.value?.actions?.can_delete)
 
 // Print functionality
 function handlePrint() {
@@ -366,6 +367,20 @@ const itemColumns: ResponsiveColumn[] = [
               >
                 Print / Download PDF
               </Button>
+            </div>
+          </Card>
+
+          <!-- Related Documents -->
+          <Card v-if="invoice.journal_entry_id">
+            <template #header>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Related Documents</h2>
+            </template>
+
+            <div class="space-y-2">
+              <RouterLink :to="`/accounting/journal-entries/${invoice.journal_entry_id}`" class="flex items-center gap-2 text-sm text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+                <FileText class="w-4 h-4" />
+                Journal Entry #{{ invoice.journal_entry?.entry_number || invoice.journal_entry_id }}
+              </RouterLink>
             </div>
           </Card>
         </div>
