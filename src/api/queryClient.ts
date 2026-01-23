@@ -4,13 +4,26 @@
  * Optimized caching strategies for the application.
  */
 
-import { QueryClient } from '@tanstack/vue-query'
+import { QueryClient, MutationCache } from '@tanstack/vue-query'
+import { eventBus } from '@/infrastructure/events/eventBus'
+import { getErrorMessage } from './client'
 
 /**
  * Create a configured QueryClient instance
  */
 export function createQueryClient(): QueryClient {
   return new QueryClient({
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        // Emit global error event for mutations
+        // UI components (like ToastProvider) will listen to this
+        eventBus.emit('error:api', {
+          endpoint: 'mutation',
+          statusCode: 0, // Unknown/generic
+          message: getErrorMessage(error),
+        })
+      },
+    }),
     defaultOptions: {
       queries: {
         // Cache data for 5 minutes by default

@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
 import { createToastContext, provideToast } from './useToast'
 import Toast from './Toast.vue'
+import { eventBus } from '@/infrastructure/events/eventBus'
 
 // Create and provide toast context
 const context = createToastContext()
@@ -9,6 +11,17 @@ provideToast(context)
 function handleClose(id: string) {
   context.remove(id)
 }
+
+// Listen for global API errors
+onMounted(() => {
+  const unsubscribe = eventBus.on('error:api', (event) => {
+    context.error({
+      title: 'Error',
+      message: event.payload.message,
+    })
+  })
+  onUnmounted(unsubscribe)
+})
 </script>
 
 <template>
