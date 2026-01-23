@@ -30,7 +30,7 @@ import {
   ArrowRight,
 } from 'lucide-vue-next'
 import { useRecentlyViewed, type RecentlyViewedItem } from '@/composables/useRecentlyViewed'
-import { api } from '@/api/client'
+import { useGlobalSearch } from '@/api/useGlobalSearch'
 
 // Types
 interface SearchResult {
@@ -58,9 +58,22 @@ const { items: recentItems } = useRecentlyViewed()
 // State
 const isOpen = ref(false)
 const searchQuery = ref('')
-const isSearching = ref(false)
-const searchResults = ref<SearchResult[]>([])
+const debouncedQuery = ref('')
 const selectedValue = ref('')
+
+// Update debounced query
+const updateDebounced = useDebounceFn((val: string) => {
+  debouncedQuery.value = val
+}, 300)
+
+watch(searchQuery, (val) => {
+  updateDebounced(val)
+})
+
+// Use global search hook
+const { data: searchResultsData, isLoading: isSearching } = useGlobalSearch(debouncedQuery)
+
+const searchResults = computed(() => searchResultsData.value || [])
 
 // Emit for parent to show shortcuts modal
 const emit = defineEmits<{
@@ -79,72 +92,6 @@ const quickActions = computed<QuickAction[]>(() => [
   { id: 'settings', type: 'navigation', title: 'Settings', subtitle: 'App settings', icon: Settings, path: '/settings' },
   { id: 'shortcuts', type: 'action', title: 'Keyboard Shortcuts', subtitle: 'View all shortcuts', icon: Keyboard, action: () => { close(); emit('show-shortcuts') }, shortcut: '?' },
 ])
-
-// Type icons
-const typeIcons: Record<string, typeof Home> = {
-  quotation: FileText,
-  invoice: Receipt,
-  contact: Users,
-  product: Package,
-  bom: Layers,
-  project: Layers,
-  solar_proposal: Sun,
-}
-
-const typeLabels: Record<string, string> = {
-  quotation: 'Quotation',
-  invoice: 'Invoice',
-  contact: 'Contact',
-  product: 'Product',
-  bom: 'BOM',
-  project: 'Project',
-  solar_proposal: 'Solar Proposal',
-}
-
-// Filter quick actions based on search
-const filteredActions = computed(() => {
-  if (!searchQuery.value) return quickActions.value
-  const q = searchQuery.value.toLowerCase()
-  return quickActions.value.filter(
-    a => a.title.toLowerCase().includes(q) || a.subtitle?.toLowerCase().includes(q)
-  )
-})
-
-// Recent items filtered
-const filteredRecent = computed(() => {
-  if (searchQuery.value) return []
-  return recentItems.value.slice(0, 5)
-})
-
-// Perform global search
-const performSearch = useDebounceFn(async (query: string) => {
-  if (!query || query.length < 2) {
-    searchResults.value = []
-    return
-  }
-
-  isSearching.value = true
-  try {
-    const response = await api.get<{ data: SearchResult[] }>('/search', {
-      params: { q: query, limit: 10 }
-    })
-    searchResults.value = response.data.data || []
-  } catch {
-    // If no global search endpoint, search locally in recent
-    searchResults.value = []
-  } finally {
-    isSearching.value = false
-  }
-}, 300)
-
-// Watch search query
-watch(searchQuery, (val) => {
-  if (val.length >= 2) {
-    performSearch(val)
-  } else {
-    searchResults.value = []
-  }
-})
 
 // Handle selection
 function handleSelect(value: string) {
@@ -183,13 +130,13 @@ function handleSelect(value: string) {
 function open() {
   isOpen.value = true
   searchQuery.value = ''
-  searchResults.value = []
+  debouncedQuery.value = ''
 }
 
 function close() {
   isOpen.value = false
   searchQuery.value = ''
-  searchResults.value = []
+  debouncedQuery.value = ''
 }
 
 // Global keyboard shortcut
