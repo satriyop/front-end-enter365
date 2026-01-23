@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
 import { api, type PaginatedResponse } from './client'
-import type { components } from './types'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
@@ -16,40 +16,31 @@ export interface AccountFilters {
   search?: string
   type?: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
   is_active?: boolean
-  parent_id?: number | null
+  parent_id?: string | null
 }
 
-export interface CreateAccountData {
-  code: string
-  name: string
-  type: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
-  subtype?: string | null
-  description?: string | null
-  parent_id?: number | null
-  is_active?: boolean
-  opening_balance?: number
-}
+export type CreateAccountData = paths['/accounts']['post']['requestBody']['content']['application/json']
 
 export interface AccountBalance {
-  account_id: number
+  account_id: string
   account_code: string
   account_name: string
-  debit_total: number
-  credit_total: number
-  balance: number
+  debit_total: string
+  credit_total: string
+  balance: string
   as_of_date: string
 }
 
 export interface LedgerEntry {
-  id: number
+  id: string
   date: string
   entry_number: string
   description: string
   reference: string | null
-  debit: number
-  credit: number
-  running_balance: number
-  journal_entry_id: number
+  debit: string
+  credit: string
+  running_balance: string
+  journal_entry_id: string
 }
 
 export interface LedgerFilters {
@@ -154,7 +145,7 @@ export function useAccountLedger(
  * Build a tree structure from flat accounts list
  */
 export function buildAccountTree(accounts: Account[]): Account[] {
-  const accountMap = new Map<number, Account & { children: Account[] }>()
+  const accountMap = new Map<string, Account & { children: Account[] }>()
   const roots: (Account & { children: Account[] })[] = []
 
   // First pass: create map and initialize children arrays

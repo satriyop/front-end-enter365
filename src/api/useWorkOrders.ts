@@ -5,7 +5,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
 import { createCrudHooks } from './factory'
-import type { components } from './types'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
@@ -22,7 +22,7 @@ export interface WorkOrderFilters {
   project_id?: number | string
 }
 
-export type CreateWorkOrderData = Partial<WorkOrder>
+export type CreateWorkOrderData = paths['/work-orders']['post']['requestBody']['content']['application/json']
 
 // ============================================
 // CRUD Hooks (via factory)

@@ -19,6 +19,6 @@ export interface CrudHooksConfig {
  */
 export interface BaseFilters {
   page?: number
-  per_page?: number
+  per_page?: string | number
   search?: string
 }

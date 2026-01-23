@@ -5,7 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
 import { createCrudHooks } from './factory'
-import type { components } from './types'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
@@ -14,6 +14,7 @@ import type { components } from './types'
 export type Quotation = components['schemas']['QuotationResource']
 export type QuotationItem = components['schemas']['QuotationItemResource']
 
+// Manual definition because OpenAPI spec is missing query parameters
 export interface QuotationFilters {
   page?: number
   per_page?: number
@@ -24,30 +25,8 @@ export interface QuotationFilters {
   date_to?: string
 }
 
-export interface CreateQuotationData {
-  contact_id: number
-  quotation_date: string
-  valid_until: string
-  subject?: string
-  reference?: string
-  discount_type?: 'percentage' | 'fixed'
-  discount_value?: number
-  tax_rate?: number
-  notes?: string
-  terms_conditions?: string
-  items: CreateQuotationItem[]
-}
-
-export interface CreateQuotationItem {
-  product_id?: number | null
-  description: string
-  quantity: number
-  unit: string
-  unit_price: number
-  discount_percent?: number
-  tax_rate?: number
-  notes?: string
-}
+export type CreateQuotationData = paths['/quotations']['post']['requestBody']['content']['application/json']
+export type CreateQuotationItem = CreateQuotationData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)
@@ -178,19 +157,7 @@ export function useReviseQuotation() {
 // Create from BOM
 // ============================================
 
-export interface CreateQuotationFromBomData {
-  bom_id: number
-  contact_id: number
-  margin_percent?: number
-  selling_price?: number
-  expand_items?: boolean
-  quotation_date?: string
-  valid_until?: string
-  subject?: string
-  tax_rate?: number
-  notes?: string
-  terms_conditions?: string
-}
+export type CreateQuotationFromBomData = paths['/quotations/from-bom']['post']['requestBody']['content']['application/json']
 
 export function useCreateQuotationFromBom() {
   const queryClient = useQueryClient()

@@ -5,7 +5,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
 import { createCrudHooks } from './factory'
-import type { components } from './types'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
@@ -24,25 +24,8 @@ export interface InvoiceFilters {
   date_to?: string
 }
 
-export interface CreateInvoiceData {
-  contact_id: number
-  invoice_date: string
-  due_date: string
-  description?: string
-  reference?: string
-  tax_rate?: number
-  discount_amount?: number
-  receivable_account_id?: number | null
-  items: CreateInvoiceItem[]
-}
-
-export interface CreateInvoiceItem {
-  description: string
-  quantity: number
-  unit?: string
-  unit_price: number
-  revenue_account_id?: number | null
-}
+export type CreateInvoiceData = paths['/invoices']['post']['requestBody']['content']['application/json']
+export type CreateInvoiceItem = CreateInvoiceData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { createCrudHooks } from './factory'
 import { api } from './client'
-import type { components } from './types'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
@@ -20,19 +20,8 @@ export interface JournalEntryFilters {
   fiscal_period_id?: number
 }
 
-export interface CreateJournalEntryLineData {
-  account_id: number
-  description?: string | null
-  debit: number
-  credit: number
-}
-
-export interface CreateJournalEntryData {
-  entry_date: string
-  description: string
-  reference?: string | null
-  lines: CreateJournalEntryLineData[]
-}
+export type CreateJournalEntryData = paths['/journal-entries']['post']['requestBody']['content']['application/json']
+export type CreateJournalEntryLineData = CreateJournalEntryData['lines'][number]
 
 // ============================================
 // CRUD Hooks (via factory)
@@ -116,8 +105,8 @@ export function calculateLineTotals(lines: CreateJournalEntryLineData[]): {
   isBalanced: boolean
   difference: number
 } {
-  const totalDebit = lines.reduce((sum, line) => sum + (line.debit || 0), 0)
-  const totalCredit = lines.reduce((sum, line) => sum + (line.credit || 0), 0)
+  const totalDebit = lines.reduce((sum, line) => sum + (Number(line.debit) || 0), 0)
+  const totalCredit = lines.reduce((sum, line) => sum + (Number(line.credit) || 0), 0)
   const difference = Math.abs(totalDebit - totalCredit)
   const isBalanced = difference < 0.01 // Allow for floating point precision
 
@@ -144,15 +133,18 @@ export function validateJournalLines(lines: CreateJournalEntryLineData[]): strin
       errors.push(`Line ${index + 1}: Account is required`)
     }
 
-    if (line.debit === 0 && line.credit === 0) {
+    const debit = Number(line.debit) || 0
+    const credit = Number(line.credit) || 0
+
+    if (debit === 0 && credit === 0) {
       errors.push(`Line ${index + 1}: Either debit or credit must be greater than 0`)
     }
 
-    if (line.debit > 0 && line.credit > 0) {
+    if (debit > 0 && credit > 0) {
       errors.push(`Line ${index + 1}: Cannot have both debit and credit on the same line`)
     }
 
-    if (line.debit < 0 || line.credit < 0) {
+    if (debit < 0 || credit < 0) {
       errors.push(`Line ${index + 1}: Amounts cannot be negative`)
     }
   })
