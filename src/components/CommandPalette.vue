@@ -33,14 +33,6 @@ import { useRecentlyViewed, type RecentlyViewedItem } from '@/composables/useRec
 import { useGlobalSearch } from '@/api/useGlobalSearch'
 
 // Types
-interface SearchResult {
-  id: string
-  type: 'quotation' | 'invoice' | 'contact' | 'product' | 'bom' | 'project' | 'solar_proposal'
-  title: string
-  subtitle?: string
-  path: string
-}
-
 interface QuickAction {
   id: string
   type: 'navigation' | 'action'

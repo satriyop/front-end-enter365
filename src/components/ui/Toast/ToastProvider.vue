@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { createToastContext, provideToast } from './useToast'
 import Toast from './Toast.vue'
-import { eventBus } from '@/infrastructure/events/eventBus'
+import { eventBus } from '@/infrastructure/events/EventBus'
 
 // Create and provide toast context
 const context = createToastContext()

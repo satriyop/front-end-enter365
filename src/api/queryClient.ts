@@ -5,7 +5,7 @@
  */
 
 import { QueryClient, MutationCache } from '@tanstack/vue-query'
-import { eventBus } from '@/infrastructure/events/eventBus'
+import { eventBus } from '@/infrastructure/events/EventBus'
 import { getErrorMessage } from './client'
 
 /**
