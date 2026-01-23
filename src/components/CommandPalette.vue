@@ -85,6 +85,39 @@ const quickActions = computed<QuickAction[]>(() => [
   { id: 'shortcuts', type: 'action', title: 'Keyboard Shortcuts', subtitle: 'View all shortcuts', icon: Keyboard, action: () => { close(); emit('show-shortcuts') }, shortcut: '?' },
 ])
 
+const typeIcons: Record<string, typeof Home> = {
+  quotation: FileText,
+  invoice: Receipt,
+  contact: Users,
+  product: Package,
+  bom: Layers,
+  project: Layers,
+  solar_proposal: Sun,
+}
+
+const typeLabels: Record<string, string> = {
+  quotation: 'Quotation',
+  invoice: 'Invoice',
+  contact: 'Contact',
+  product: 'Product',
+  bom: 'BOM',
+  project: 'Project',
+  solar_proposal: 'Solar Proposal',
+}
+
+const filteredActions = computed(() => {
+  if (!searchQuery.value) return quickActions.value
+  const q = searchQuery.value.toLowerCase()
+  return quickActions.value.filter(
+    a => a.title.toLowerCase().includes(q) || a.subtitle?.toLowerCase().includes(q)
+  )
+})
+
+const filteredRecent = computed(() => {
+  if (searchQuery.value) return []
+  return recentItems.value.slice(0, 5)
+})
+
 // Handle selection
 function handleSelect(value: string) {
   if (!value) return
@@ -157,9 +190,6 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('keydown', handleGlobalKeydown)
 })
-
-// Expose open method for external trigger
-defineExpose({ open, close })
 </script>
 
 <template>
