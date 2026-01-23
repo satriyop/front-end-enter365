@@ -21,6 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:currentPage': [page: number]
   'update:perPage': [perPage: number]
+  'page-change': [page: number]
 }>()
 
 // Calculate visible page numbers
@@ -75,6 +76,7 @@ const showingTo = computed(() => {
 function goToPage(page: number) {
   if (page >= 1 && page <= props.totalPages && page !== props.currentPage) {
     emit('update:currentPage', page)
+    emit('page-change', page)
   }
 }
 
@@ -83,6 +85,7 @@ function handlePerPageChange(event: Event) {
   emit('update:perPage', Number(target.value))
   // Reset to page 1 when changing per page
   emit('update:currentPage', 1)
+  emit('page-change', 1)
 }
 </script>
 

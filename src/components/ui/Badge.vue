@@ -48,6 +48,8 @@ type StatusType =
   | 'paid'
   | 'expired'
   | 'converted'
+  | 'posted'
+  | 'void'
 
 interface Props {
   /** Visual style variant */
@@ -85,10 +87,12 @@ const statusStyles: Record<StatusType, { badge: string; dot: string }> = {
   partial: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
   expired: { badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300', dot: 'bg-slate-400' },
   converted: { badge: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400', dot: 'bg-green-500' },
+  posted: { badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', dot: 'bg-blue-500' },
+  void: { badge: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400 line-through', dot: 'bg-slate-500' },
 }
 
 const badgeClasses = computed(() => {
-  if (props.status) {
+  if (props.status && statusStyles[props.status]) {
     return cn(
       'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
       statusStyles[props.status].badge,
@@ -100,7 +104,8 @@ const badgeClasses = computed(() => {
 
 const dotClasses = computed(() => {
   if (!props.dot) return ''
-  const dotColor = props.status ? statusStyles[props.status].dot : 'bg-current'
+  const style = props.status ? statusStyles[props.status] : null
+  const dotColor = style ? style.dot : 'bg-current'
   return cn('h-1.5 w-1.5 rounded-full', dotColor)
 })
 </script>
