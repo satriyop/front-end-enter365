@@ -8,6 +8,7 @@ import CommandPalette from '@/components/CommandPalette.vue'
 import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 
 const showShortcuts = ref(false)
+const commandPaletteOpen = ref(false)
 
 // Desktop: sidebar starts open. Mobile: starts closed.
 const isMobile = ref(false)
@@ -37,6 +38,10 @@ function toggleSidebar() {
 function closeSidebar() {
   sidebarOpen.value = false
 }
+
+function openCommandPalette() {
+  commandPaletteOpen.value = true
+}
 </script>
 
 <template>
@@ -50,7 +55,7 @@ function closeSidebar() {
       :class="sidebarOpen ? 'lg:ml-60' : 'lg:ml-16'"
     >
       <!-- Header -->
-      <AppHeader @toggle-sidebar="toggleSidebar" />
+      <AppHeader @toggle-sidebar="toggleSidebar" @open-command-palette="openCommandPalette" />
 
       <!-- Page Content -->
       <main class="p-6 min-h-screen">
@@ -67,7 +72,7 @@ function closeSidebar() {
     </div>
 
     <!-- Command Palette (Cmd+K) -->
-    <CommandPalette @show-shortcuts="showShortcuts = true" />
+    <CommandPalette v-model:open="commandPaletteOpen" @show-shortcuts="showShortcuts = true" />
 
     <!-- Keyboard Shortcuts Modal -->
     <KeyboardShortcutsModal v-model:open="showShortcuts" />

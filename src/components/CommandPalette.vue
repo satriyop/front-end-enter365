@@ -44,11 +44,33 @@ interface QuickAction {
   shortcut?: string
 }
 
+const props = defineProps<{
+  modelValue?: boolean
+}>()
+
+const emit = defineEmits<{
+  'update:modelValue': [value: boolean]
+  'show-shortcuts': []
+}>()
+
 const router = useRouter()
 const { items: recentItems } = useRecentlyViewed()
 
 // State
-const isOpen = ref(false)
+const internalOpen = ref(false)
+const isOpen = computed({
+  get: () => props.modelValue !== undefined ? props.modelValue : internalOpen.value,
+  set: (val) => {
+    internalOpen.value = val
+    emit('update:modelValue', val)
+    if (!val) {
+      // Clear query when closing
+      searchQuery.value = ''
+      debouncedQuery.value = ''
+    }
+  }
+})
+
 const searchQuery = ref('')
 const debouncedQuery = ref('')
 const selectedValue = ref('')
@@ -67,11 +89,6 @@ const { data: searchResultsData, isLoading: isSearching } = useGlobalSearch(debo
 
 const searchResults = computed(() => searchResultsData.value || [])
 
-// Emit for parent to show shortcuts modal
-const emit = defineEmits<{
-  'show-shortcuts': []
-}>()
-
 // Quick actions / navigation
 const quickActions = computed<QuickAction[]>(() => [
   { id: 'home', type: 'navigation', title: 'Dashboard', subtitle: 'Go to home', icon: Home, path: '/', shortcut: 'G H' },
@@ -82,7 +99,7 @@ const quickActions = computed<QuickAction[]>(() => [
   { id: 'boms', type: 'navigation', title: 'Bill of Materials', subtitle: 'View all BOMs', icon: Layers, path: '/boms', shortcut: 'G B' },
   { id: 'solar', type: 'navigation', title: 'Solar Proposals', subtitle: 'View solar proposals', icon: Sun, path: '/solar-proposals' },
   { id: 'settings', type: 'navigation', title: 'Settings', subtitle: 'App settings', icon: Settings, path: '/settings' },
-  { id: 'shortcuts', type: 'action', title: 'Keyboard Shortcuts', subtitle: 'View all shortcuts', icon: Keyboard, action: () => { close(); emit('show-shortcuts') }, shortcut: '?' },
+  { id: 'shortcuts', type: 'action', title: 'Keyboard Shortcuts', subtitle: 'View all shortcuts', icon: Keyboard, action: () => { isOpen.value = false; emit('show-shortcuts') }, shortcut: '?' },
 ])
 
 const typeIcons: Record<string, typeof Home> = {
@@ -130,7 +147,7 @@ function handleSelect(value: string) {
     } else if (action.path) {
       router.push(action.path)
     }
-    close()
+    isOpen.value = false
     return
   }
 
@@ -138,7 +155,7 @@ function handleSelect(value: string) {
   const recent = recentItems.value.find((r: RecentlyViewedItem) => `recent-${r.type}-${r.id}` === value)
   if (recent) {
     router.push(recent.path)
-    close()
+    isOpen.value = false
     return
   }
 
@@ -146,22 +163,9 @@ function handleSelect(value: string) {
   const result = searchResults.value.find(r => `search-${r.type}-${r.id}` === value)
   if (result) {
     router.push(result.path)
-    close()
+    isOpen.value = false
     return
   }
-}
-
-// Open/close
-function open() {
-  isOpen.value = true
-  searchQuery.value = ''
-  debouncedQuery.value = ''
-}
-
-function close() {
-  isOpen.value = false
-  searchQuery.value = ''
-  debouncedQuery.value = ''
 }
 
 // Global keyboard shortcut
@@ -169,11 +173,7 @@ function handleGlobalKeydown(e: KeyboardEvent) {
   // Cmd+K or Ctrl+K
   if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
     e.preventDefault()
-    if (isOpen.value) {
-      close()
-    } else {
-      open()
-    }
+    isOpen.value = !isOpen.value
   }
   // ? for shortcuts (when not in input)
   const target = e.target as HTMLElement
@@ -193,7 +193,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <DialogRoot :open="isOpen" @update:open="(val) => val ? open() : close()">
+  <DialogRoot v-model:open="isOpen">
     <DialogPortal>
       <!-- Backdrop -->
       <DialogOverlay class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />

@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
-import GlobalSearch from '@/components/GlobalSearch.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
+import { Search } from 'lucide-vue-next'
 
 defineEmits<{
   toggleSidebar: []
+  openCommandPalette: []
 }>()
 
 const auth = useAuthStore()
@@ -30,9 +31,19 @@ async function handleLogout() {
     <!-- Spacer -->
     <div class="flex-1" />
 
-    <!-- Global Search -->
-    <div class="hidden md:block mr-4">
-      <GlobalSearch />
+    <!-- Global Search Trigger -->
+    <div class="hidden md:block mr-4 w-64">
+      <button
+        type="button"
+        class="w-full flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-transparent hover:border-slate-300 dark:hover:border-slate-600"
+        @click="$emit('openCommandPalette')"
+      >
+        <Search class="w-4 h-4" />
+        <span class="flex-1 text-left">Search...</span>
+        <kbd class="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400">
+          <span class="text-xs">⌘</span>K
+        </kbd>
+      </button>
     </div>
 
     <!-- Theme Toggle -->
