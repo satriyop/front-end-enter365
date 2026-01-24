@@ -106,6 +106,12 @@ function handleBackdropClick(event: Event) {
         @pointer-down-outside="handleBackdropClick"
         @escape-key-down="(e) => !closeOnBackdrop && e.preventDefault()"
       >
+        <!-- Visually hidden title for accessibility if not provided -->
+        <DialogTitle v-if="!title" class="sr-only">
+          Dialog
+        </DialogTitle>
+        <DialogDescription v-if="!description" class="sr-only" />
+
         <!-- Header -->
         <div
           v-if="title || showClose"

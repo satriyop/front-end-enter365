@@ -28,8 +28,6 @@ const { data: balance, isLoading: balanceLoading } = useAccountBalance(accountId
 
 // Ledger filters
 const ledgerFilters = ref<LedgerFilters>({
-  page: 1,
-  per_page: 20,
   start_date: undefined,
   end_date: undefined,
 })
@@ -37,8 +35,10 @@ const ledgerFilters = ref<LedgerFilters>({
 // Fetch ledger entries
 const { data: ledgerData, isLoading: ledgerLoading } = useAccountLedger(accountId, ledgerFilters)
 
-const ledgerEntries = computed(() => ledgerData.value?.data ?? [])
-const ledgerPagination = computed(() => ledgerData.value?.meta)
+const ledgerEntries = computed(() => {
+  console.log('AccountDetailPage ledgerData:', ledgerData.value)
+  return ledgerData.value?.entries ?? []
+})
 
 // Delete handling
 const deleteMutation = useDeleteAccount()
@@ -56,14 +56,10 @@ async function handleDelete() {
 }
 
 // Navigate to journal entry
-function viewJournalEntry(journalEntryId: string) {
+function viewJournalEntry(journalEntryId: number) {
   router.push(`/accounting/journal-entries/${journalEntryId}`)
 }
 
-// Pagination
-function goToPage(page: number) {
-  ledgerFilters.value.page = page
-}
 </script>
 
 <template>
@@ -190,7 +186,7 @@ function goToPage(page: number) {
             <div class="flex justify-between">
               <dt class="text-slate-500 dark:text-slate-400">Opening Balance</dt>
               <dd class="font-medium text-slate-900 dark:text-slate-100">
-                {{ formatCurrency(parseFloat(account.opening_balance)) }}
+                {{ formatCurrency(account.opening_balance) }}
               </dd>
             </div>
             <div v-if="account.parent" class="flex justify-between">
@@ -305,28 +301,17 @@ function goToPage(page: number) {
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ parseFloat(entry.debit) > 0 ? formatCurrency(parseFloat(entry.debit)) : '-' }}
+                  {{ entry.debit > 0 ? formatCurrency(entry.debit) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ parseFloat(entry.credit) > 0 ? formatCurrency(parseFloat(entry.credit)) : '-' }}
+                  {{ entry.credit > 0 ? formatCurrency(entry.credit) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(parseFloat(entry.running_balance)) }}
+                  {{ formatCurrency(entry.running_balance) }}
                 </td>
               </tr>
             </tbody>
           </table>
-
-          <!-- Pagination -->
-          <div v-if="ledgerPagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
-            <Pagination
-              :current-page="ledgerPagination.current_page"
-              :total-pages="ledgerPagination.last_page"
-              :total="ledgerPagination.total"
-              :per-page="ledgerPagination.per_page"
-              @page-change="goToPage"
-            />
-          </div>
         </div>
       </Card>
     </template>

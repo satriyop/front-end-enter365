@@ -124,6 +124,10 @@ function getCellValue(item: T, column: ResponsiveColumn<T>): string {
     return column.format(value, item)
   }
 
+  if (value && typeof value === 'object' && 'label' in value) {
+    return String((value as any).label)
+  }
+
   return String(value ?? '')
 }
 
@@ -299,7 +303,7 @@ function isHeaderField(column: ResponsiveColumn<T>): boolean {
           <div v-if="statusField">
             <slot name="mobile-status" :item="item" :status="getFieldValue(item, statusField)">
               <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
-                {{ getFieldValue(item, statusField) }}
+                {{ typeof getFieldValue(item, statusField) === 'object' ? (getFieldValue(item, statusField) as any)?.label : getFieldValue(item, statusField) }}
               </span>
             </slot>
           </div>

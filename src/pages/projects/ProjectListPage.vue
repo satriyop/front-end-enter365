@@ -169,24 +169,24 @@ async function handleDelete() {
           </div>
         </template>
 
-        <!-- Custom cell: Status -->
+        <!-- cell-status -->
         <template #cell-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status.replace('_', ' ') }}
+          <Badge :variant="statusColors[typeof item.status === 'object' ? (item.status as any).value : item.status] || 'default'">
+            {{ typeof item.status === 'object' ? (item.status as any).label : item.status.replace("_", " ") }}
           </Badge>
         </template>
 
-        <!-- Mobile title slot -->
+        <!-- Mobile title -->
         <template #mobile-title="{ item }">
           <span class="text-orange-600 dark:text-orange-400 font-medium">
             {{ item.project_number }}
           </span>
         </template>
 
-        <!-- Mobile status slot -->
+        <!-- Mobile status -->
         <template #mobile-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status.replace('_', ' ') }}
+          <Badge :variant="statusColors[typeof item.status === 'object' ? (item.status as any).value : item.status] || 'default'">
+            {{ typeof item.status === 'object' ? (item.status as any).label : item.status.replace("_", " ") }}
           </Badge>
         </template>
 

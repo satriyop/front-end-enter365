@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import {
   useUsers,
-  useRoles,
   useCreateUser,
   useUpdateUser,
   useDeleteUser,
@@ -11,6 +10,7 @@ import {
   type UserFilters,
   type User,
 } from '@/api/useUsers'
+import { useAllRoles } from '@/api/useRoles'
 import { formatDate } from '@/utils/format'
 import { Button, Input, Select, Badge, Modal, FormField, Pagination, EmptyState, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 
@@ -24,7 +24,7 @@ const filters = ref<UserFilters>({
 })
 
 const { data, isLoading, error } = useUsers(filters)
-const { data: roles } = useRoles()
+const { data: roles } = useAllRoles()
 
 const users = computed(() => data.value?.data ?? [])
 const pagination = computed(() => data.value?.meta)

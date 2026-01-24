@@ -150,8 +150,8 @@ async function handleDelete() {
 
         <!-- Custom cell: Status -->
         <template #cell-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status }}
+          <Badge :variant="statusColors[typeof item.status === 'object' ? (item.status as any).value : item.status] || 'default'">
+            {{ typeof item.status === 'object' ? (item.status as any).label : item.status }}
           </Badge>
         </template>
 
@@ -164,8 +164,8 @@ async function handleDelete() {
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :variant="statusColors[item.status] || 'default'">
-            {{ item.status }}
+          <Badge :variant="statusColors[typeof item.status === 'object' ? (item.status as any).value : item.status] || 'default'">
+            {{ typeof item.status === 'object' ? (item.status as any).label : item.status }}
           </Badge>
         </template>
 

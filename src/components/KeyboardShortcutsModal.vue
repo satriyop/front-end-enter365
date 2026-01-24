@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogClose,
   DialogTitle,
+  DialogDescription,
 } from 'radix-vue'
 import { X, Command, Keyboard } from 'lucide-vue-next'
 import { registeredShortcuts, formatShortcut } from '@/composables/useKeyboardShortcuts'
@@ -115,7 +116,9 @@ function handleOpenChange(value: boolean) {
               <DialogTitle class="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 Keyboard Shortcuts
               </DialogTitle>
-              <p class="text-sm text-slate-500">Navigate faster with keyboard shortcuts</p>
+              <DialogDescription class="text-sm text-slate-500">
+                Navigate faster with keyboard shortcuts
+              </DialogDescription>
             </div>
           </div>
           <DialogClose class="p-2 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800 dark:hover:text-slate-300 transition-colors">

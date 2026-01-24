@@ -7,6 +7,8 @@ import {
   DialogPortal,
   DialogOverlay,
   DialogContent,
+  DialogTitle,
+  DialogDescription,
   ComboboxRoot,
   ComboboxInput,
   ComboboxContent,
@@ -200,6 +202,8 @@ onUnmounted(() => {
 
       <!-- Content -->
       <DialogContent class="fixed left-1/2 top-[20%] z-50 w-full max-w-xl -translate-x-1/2 bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <DialogTitle class="sr-only">Command Palette</DialogTitle>
+        <DialogDescription class="sr-only">Search and execute commands quickly</DialogDescription>
         <ComboboxRoot
           v-model="selectedValue"
           @update:model-value="handleSelect"

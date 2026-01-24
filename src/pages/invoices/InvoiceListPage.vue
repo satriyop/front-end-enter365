@@ -208,12 +208,16 @@ const bulkActions = computed(() => [
 
         <!-- Custom cell: Status badge -->
         <template #cell-status="{ item }">
-          <Badge :status="item.status as any" />
+          <Badge :status="item.status.value as any">
+            {{ item.status.label }}
+          </Badge>
         </template>
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :status="item.status as any" />
+          <Badge :status="item.status.value as any">
+            {{ item.status.label }}
+          </Badge>
         </template>
 
         <!-- Mobile title slot -->

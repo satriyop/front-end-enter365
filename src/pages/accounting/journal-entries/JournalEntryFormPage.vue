@@ -11,7 +11,7 @@ import {
 } from '@/api/useJournalEntries'
 import { useAccountsLookup } from '@/api/useAccounts'
 import { formatCurrency } from '@/utils/format'
-import { Button, Card, Input, Select, useToast } from '@/components/ui'
+import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
 import { ArrowLeft, Save, Loader2, Plus, Trash2, AlertTriangle, CheckCircle } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -269,26 +269,18 @@ async function handleSubmit() {
 
                 <!-- Debit -->
                 <td class="px-4 py-2">
-                  <Input
-                    :model-value="line.debit || ''"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                    class="text-right font-mono"
+                  <CurrencyInput
+                    :model-value="line.debit"
+                    size="sm"
                     @update:model-value="(v) => handleDebitChange(index, Number(v) || 0)"
                   />
                 </td>
 
                 <!-- Credit -->
                 <td class="px-4 py-2">
-                  <Input
-                    :model-value="line.credit || ''"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    placeholder="0.00"
-                    class="text-right font-mono"
+                  <CurrencyInput
+                    :model-value="line.credit"
+                    size="sm"
                     @update:model-value="(v) => handleCreditChange(index, Number(v) || 0)"
                   />
                 </td>

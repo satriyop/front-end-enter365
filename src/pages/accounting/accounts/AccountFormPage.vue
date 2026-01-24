@@ -11,7 +11,7 @@ import {
   useAccountsLookup,
   type CreateAccountData,
 } from '@/api/useAccounts'
-import { Button, Card, Input, Select, useToast } from '@/components/ui'
+import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
 import { ArrowLeft, Save, Loader2 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -334,10 +334,8 @@ const onSubmit = handleSubmit(async (formValues) => {
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Opening Balance
               </label>
-              <Input
-                v-model.number="values.opening_balance"
-                type="number"
-                step="0.01"
+              <CurrencyInput
+                v-model="values.opening_balance"
                 placeholder="0.00"
               />
               <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">

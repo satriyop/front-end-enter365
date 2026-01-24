@@ -21,7 +21,8 @@ import {
   Select,
   Card,
   Alert,
-  useToast
+  useToast,
+  CurrencyInput
 } from '@/components/ui'
 
 const route = useRoute()
@@ -316,12 +317,10 @@ const contactOptions = computed(() => {
                   />
                 </td>
                 <td class="px-3 py-2">
-                  <input
-                    v-model.number="field.value.unit_price"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  <CurrencyInput
+                    v-model="field.value.unit_price"
+                    size="sm"
+                    :min="0"
                   />
                 </td>
                 <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
@@ -356,11 +355,11 @@ const contactOptions = computed(() => {
               <!-- Discount -->
               <div class="flex items-center gap-2">
                 <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Discount</span>
-                <input
-                  v-model.number="form.discount_amount"
-                  type="number"
-                  min="0"
-                  class="w-32 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
+                <CurrencyInput
+                  v-model="form.discount_amount"
+                  size="sm"
+                  class="w-48"
+                  :min="0"
                 />
                 <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
                   -{{ formatCurrency(form.discount_amount) }}

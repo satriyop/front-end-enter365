@@ -498,8 +498,8 @@ function viewInvoice(item: Record<string, unknown>) {
 
               <!-- Status -->
               <template #cell-status="{ item }">
-                <Badge :status="String((item as Record<string, unknown>).status) as 'pending' | 'approved' | 'rejected' | 'converted'">
-                  {{ (item as Record<string, unknown>).status }}
+                <Badge :status="(item as any).status.value">
+                  {{ (item as any).status.label }}
                 </Badge>
               </template>
             </ResponsiveTable>

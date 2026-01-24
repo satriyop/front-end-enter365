@@ -32,7 +32,7 @@ const badgeVariants = cva(
 type BadgeVariants = VariantProps<typeof badgeVariants>
 
 // Domain-specific status types for business logic
-type StatusType =
+export type StatusType =
   | 'draft'
   | 'pending'
   | 'in_progress'
@@ -55,7 +55,7 @@ interface Props {
   /** Visual style variant */
   variant?: NonNullable<BadgeVariants['variant']>
   /** Domain-specific status (overrides variant) */
-  status?: StatusType
+  status?: string | Record<string, any>
   /** Show status dot indicator */
   dot?: boolean
   /** Animate dot with pulse effect */
@@ -71,7 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 // Domain-specific status colors (fixed meaning, don't change with theme)
-const statusStyles: Record<StatusType, { badge: string; dot: string }> = {
+const statusStyles: Record<string, { badge: string; dot: string }> = {
   draft: { badge: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300', dot: 'bg-slate-400' },
   pending: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
   submitted: { badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400', dot: 'bg-amber-500' },
@@ -92,10 +92,11 @@ const statusStyles: Record<StatusType, { badge: string; dot: string }> = {
 }
 
 const badgeClasses = computed(() => {
-  if (props.status && statusStyles[props.status]) {
+  const statusValue = props.status && typeof props.status === 'object' ? props.status.value : props.status
+  if (statusValue && statusStyles[statusValue]) {
     return cn(
       'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors',
-      statusStyles[props.status].badge,
+      statusStyles[statusValue].badge,
       props.class
     )
   }
@@ -104,7 +105,8 @@ const badgeClasses = computed(() => {
 
 const dotClasses = computed(() => {
   if (!props.dot) return ''
-  const style = props.status ? statusStyles[props.status] : null
+  const statusValue = props.status && typeof props.status === 'object' ? props.status.value : props.status
+  const style = statusValue ? statusStyles[statusValue] : null
   const dotColor = style ? style.dot : 'bg-current'
   return cn('h-1.5 w-1.5 rounded-full', dotColor)
 })
