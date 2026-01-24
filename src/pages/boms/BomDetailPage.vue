@@ -357,10 +357,10 @@ function toggleBrandSelection(brandCode: string) {
 }
 
 // Status-based action availability
-const canEdit = computed(() => bom.value?.status === 'draft')
-const canActivate = computed(() => bom.value?.status === 'draft')
-const canDeactivate = computed(() => bom.value?.status === 'active')
-const canDelete = computed(() => bom.value?.status === 'draft')
+const canEdit = computed(() => bom.value?.status.value === 'draft')
+const canActivate = computed(() => bom.value?.status.value === 'draft')
+const canDeactivate = computed(() => bom.value?.status.value === 'active')
+const canDelete = computed(() => bom.value?.status.value === 'draft')
 
 function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'destructive' {
   const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
@@ -430,8 +430,8 @@ const bomItemColumns: ResponsiveColumn[] = [
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ bom.bom_number }}
               </h1>
-              <Badge :variant="getStatusVariant(bom.status)">
-                {{ bom.status }}
+              <Badge :variant="getStatusVariant(bom.status.value)">
+                {{ bom.status.label }}
               </Badge>
               <span v-if="bom.version > 1" class="text-sm text-slate-500 dark:text-slate-400">
                 v{{ bom.version }}
