@@ -43,7 +43,7 @@ const contactIdRef = computed(() => contactId.value ?? 0)
 const { data: existingContact, isLoading: loadingContact } = useContact(contactIdRef)
 
 // Form with Zod validation
-const { values, errors, handleSubmit, setValues, setErrors, meta, validateField } = useForm<ContactFormData>({
+const { values: form, errors, handleSubmit, setValues, setErrors, meta, validateField, defineField } = useForm<ContactFormData>({
   validationSchema: toTypedSchema(contactSchema),
   initialValues: {
     code: '',
@@ -62,6 +62,21 @@ const { values, errors, handleSubmit, setValues, setErrors, meta, validateField 
     is_active: true,
   },
 })
+
+const [code] = defineField('code')
+const [name] = defineField('name')
+const [type] = defineField('type')
+const [email] = defineField('email')
+const [phone] = defineField('phone')
+const [address] = defineField('address')
+const [city] = defineField('city')
+const [province] = defineField('province')
+const [postalCode] = defineField('postal_code')
+const [npwp] = defineField('npwp')
+const [nik] = defineField('nik')
+const [creditLimit] = defineField('credit_limit')
+const [paymentTermDays] = defineField('payment_term_days')
+const [isActive] = defineField('is_active')
 
 // Type options
 const typeOptions = [
@@ -179,7 +194,7 @@ useFormShortcuts({
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Code" required :error="errors.code">
             <Input
-              v-model="values.code"
+              v-model="code"
               placeholder="e.g., CUST001"
               :disabled="isEditing"
               @blur="validateField('code')"
@@ -188,7 +203,7 @@ useFormShortcuts({
 
           <FormField label="Type" required :error="errors.type">
             <Select
-              v-model="values.type"
+              v-model="type"
               :options="typeOptions"
               @blur="validateField('type')"
             />
@@ -196,7 +211,7 @@ useFormShortcuts({
 
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
             <Input
-              v-model="values.name"
+              v-model="name"
               placeholder="Contact or company name"
               @blur="validateField('name')"
             />
@@ -204,8 +219,7 @@ useFormShortcuts({
 
           <FormField label="Email" :error="errors.email">
             <Input
-              :model-value="values.email ?? ''"
-              @update:model-value="values.email = String($event)"
+              v-model="email"
               type="email"
               placeholder="email@example.com"
               @blur="validateField('email')"
@@ -214,8 +228,7 @@ useFormShortcuts({
 
           <FormField label="Phone" :error="errors.phone">
             <Input
-              :model-value="values.phone ?? ''"
-              @update:model-value="values.phone = String($event)"
+              v-model="phone"
               placeholder="08123456789"
               @blur="validateField('phone')"
             />
@@ -232,8 +245,7 @@ useFormShortcuts({
         <div class="space-y-4">
           <FormField label="Street Address" :error="errors.address">
             <Textarea
-              :model-value="values.address ?? ''"
-              @update:model-value="values.address = String($event)"
+              v-model="address"
               :rows="2"
               placeholder="Street address"
             />
@@ -241,15 +253,15 @@ useFormShortcuts({
 
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <FormField label="City" :error="errors.city">
-              <Input :model-value="values.city ?? ''" @update:model-value="values.city = String($event)" placeholder="City" />
+              <Input v-model="city" placeholder="City" />
             </FormField>
 
             <FormField label="Province" :error="errors.province">
-              <Input :model-value="values.province ?? ''" @update:model-value="values.province = String($event)" placeholder="Province" />
+              <Input v-model="province" placeholder="Province" />
             </FormField>
 
             <FormField label="Postal Code" :error="errors.postal_code">
-              <Input :model-value="values.postal_code ?? ''" @update:model-value="values.postal_code = String($event)" placeholder="12345" />
+              <Input v-model="postalCode" placeholder="12345" />
             </FormField>
           </div>
         </div>
@@ -264,8 +276,7 @@ useFormShortcuts({
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="NPWP" :error="errors.npwp">
             <Input
-              :model-value="values.npwp ?? ''"
-              @update:model-value="values.npwp = String($event)"
+              v-model="npwp"
               placeholder="00.000.000.0-000.000"
               @blur="validateField('npwp')"
             />
@@ -273,8 +284,7 @@ useFormShortcuts({
 
           <FormField label="NIK" :error="errors.nik">
             <Input
-              :model-value="values.nik ?? ''"
-              @update:model-value="values.nik = String($event)"
+              v-model="nik"
               placeholder="16-digit NIK"
               @blur="validateField('nik')"
             />
@@ -282,8 +292,7 @@ useFormShortcuts({
 
           <FormField label="Credit Limit" :error="errors.credit_limit">
             <Input
-              :model-value="values.credit_limit ?? 0"
-              @update:model-value="values.credit_limit = Number($event)"
+              v-model.number="creditLimit"
               type="number"
               min="0"
               step="1000000"
@@ -292,8 +301,7 @@ useFormShortcuts({
 
           <FormField label="Payment Terms (days)" :error="errors.payment_term_days">
             <Input
-              :model-value="values.payment_term_days ?? 30"
-              @update:model-value="values.payment_term_days = Number($event)"
+              v-model.number="paymentTermDays"
               type="number"
               min="0"
             />
@@ -310,7 +318,7 @@ useFormShortcuts({
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
             <input
-              v-model="values.is_active"
+              v-model="isActive"
               type="checkbox"
               class="sr-only peer"
             />

@@ -3,8 +3,8 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { computed, type Ref, type ComputedRef } from 'vue'
+import { api, type PaginatedResponse, type ApiRequest, type ApiResponse } from './client'
 import type { components, paths } from './types'
 
 // ============================================
@@ -22,26 +22,26 @@ export interface BomTemplateFilters {
   search?: string
 }
 
-// Handling multipart/form-data for templates
-export type StoreBomTemplateRequest = paths['/bom-templates']['post']['requestBody']['content']['multipart/form-data']
-export type UpdateBomTemplateRequest = paths['/bom-templates/{bomTemplate}']['put']['requestBody']['content']['multipart/form-data']
+// Using ApiRequest utility for automatic content-type mapping
+export type StoreBomTemplateRequest = ApiRequest<paths['/bom-templates']['post'], 'multipart/form-data'>
+export type UpdateBomTemplateRequest = ApiRequest<paths['/bom-templates/{bomTemplate}']['put'], 'multipart/form-data'>
 
-export type StoreBomTemplateItemRequest = paths['/bom-templates/{bomTemplate}/items']['post']['requestBody']['content']['application/json']
-export type UpdateBomTemplateItemRequest = paths['/bom-templates/{bomTemplate}/items/{item}']['patch']['requestBody']['content']['application/json']
+export type StoreBomTemplateItemRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/items']['post']>
+export type UpdateBomTemplateItemRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/items/{item}']['put']>
 
 export interface BomTemplateMetadata {
   categories: Record<string, string>
   item_types: Record<string, string>
 }
 
-// Using paths for custom action responses since Scramble might not have put them in schemas yet
-export type AvailableBrand = paths['/bom-templates/{bomTemplate}/available-brands']['get']['responses']['200']['content']['application/json']['data'][number]
+// Using ApiResponse utility for consistent unwrapping
+export type AvailableBrand = ApiResponse<paths['/bom-templates/{bomTemplate}/available-brands']['get']>[number]
 
-export type CreateBomPreview = paths['/bom-templates/{bomTemplate}/preview-bom']['post']['responses']['200']['content']['application/json']
-export type CreateBomPreviewItem = CreateBomPreview['data'][number]
+export type CreateBomPreview = ApiResponse<paths['/bom-templates/{bomTemplate}/preview-bom']['post']>
+export type CreateBomPreviewItem = CreateBomPreview[number]
 
-export type CreateBomFromTemplateRequest = paths['/bom-templates/{bomTemplate}/create-bom']['post']['requestBody']['content']['application/json']
-export type CreateBomResult = paths['/bom-templates/{bomTemplate}/create-bom']['post']['responses']['201']['content']['application/json']
+export type CreateBomFromTemplateRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/create-bom']['post']>
+export type CreateBomResult = ApiResponse<paths['/bom-templates/{bomTemplate}/create-bom']['post']>
 
 // ============================================
 // Query Hooks
@@ -68,7 +68,7 @@ export function useBomTemplates(filters: Ref<BomTemplateFilters>) {
 /**
  * Fetch single BOM template by ID
  */
-export function useBomTemplate(id: Ref<number | string | null>) {
+export function useBomTemplate(id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>) {
   return useQuery({
     queryKey: computed(() => ['bom-template', id.value]),
     queryFn: async () => {
@@ -112,16 +112,16 @@ export function useActiveTemplates() {
 /**
  * Fetch available brands for a template
  */
-export function useTemplateAvailableBrands(templateId: Ref<number | string | null>) {
+export function useTemplateAvailableBrands(id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>) {
   return useQuery({
-    queryKey: computed(() => ['bom-template', templateId.value, 'brands']),
+    queryKey: computed(() => ['bom-template', id.value, 'brands']),
     queryFn: async () => {
       const response = await api.get<{ data: AvailableBrand[]; meta: any }>(
-        `/bom-templates/${templateId.value}/available-brands`
+        `/bom-templates/${id.value}/available-brands`
       )
       return response.data.data
     },
-    enabled: computed(() => !!templateId.value),
+    enabled: computed(() => !!id.value),
     staleTime: 30 * 1000,
   })
 }
@@ -157,6 +157,7 @@ export function useUpdateBomTemplate() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number | string; data: UpdateBomTemplateRequest }) => {
+      // For multipart/form-data with PUT, we often need method spoofing in Laravel
       const response = await api.post<{ data: BomTemplate }>(`/bom-templates/${id}`, {
         ...data,
         _method: 'PUT'
@@ -264,7 +265,7 @@ export function useUpdateTemplateItem() {
       itemId: number | string
       data: UpdateBomTemplateItemRequest
     }) => {
-      const response = await api.patch<{ data: BomTemplateItem }>(
+      const response = await api.put<{ data: BomTemplateItem }>(
         `/bom-templates/${templateId}/items/${itemId}`,
         data
       )
@@ -304,7 +305,7 @@ export function useReorderTemplateItems() {
         `/bom-templates/${templateId}/items/reorder`,
         { item_ids: itemIds }
       )
-      return response.data.data
+      return response.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['bom-template', variables.templateId] })

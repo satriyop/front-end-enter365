@@ -3,7 +3,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { api } from './client'
+import { api, type ApiRequest } from './client'
 import { createCrudHooks } from './factory'
 import type { components, paths } from './types'
 
@@ -24,7 +24,7 @@ export interface InvoiceFilters {
   date_to?: string
 }
 
-export type CreateInvoiceData = paths['/invoices']['post']['requestBody']['content']['application/json']
+export type CreateInvoiceData = ApiRequest<paths['/invoices']['post']>
 export type CreateInvoiceItem = CreateInvoiceData['items'][number]
 
 // ============================================
@@ -63,7 +63,7 @@ export function useInvoiceStatistics() {
 export function usePostInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/post`)
       return response.data.data
     },
@@ -79,7 +79,7 @@ export function usePostInvoice() {
 export function useVoidInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
+    mutationFn: async ({ id, reason }: { id: number | string; reason?: string }) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/void`, { reason })
       return response.data.data
     },
@@ -93,7 +93,7 @@ export function useVoidInvoice() {
 export function useDuplicateInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/duplicate`)
       return response.data.data
     },
@@ -106,7 +106,7 @@ export function useDuplicateInvoice() {
 export function useSendInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, email }: { id: number; email?: string }) => {
+    mutationFn: async ({ id, email }: { id: number | string; email?: string }) => {
       const response = await api.post<{ data: Invoice }>(`/invoices/${id}/send`, { email })
       return response.data.data
     },

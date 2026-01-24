@@ -141,3 +141,23 @@ export interface PaginatedResponse<T> {
     total: number
   }
 }
+
+/**
+ * Gold Standard OpenAPI Type Utilities
+ * Extract types from OpenAPI paths safely, handling optional request bodies.
+ */
+export type ApiRequest<
+  T extends { requestBody?: any },
+  M extends 'application/json' | 'multipart/form-data' = 'application/json'
+> = T['requestBody'] extends { content: { [K in M]: any } }
+  ? T['requestBody']['content'][M]
+  : T['requestBody'] extends { content: { [K in M]?: any } }
+  ? NonNullable<T['requestBody']['content'][M]>
+  : never
+
+export type ApiResponse<T extends { responses: any }> =
+  T['responses'][200]['content']['application/json'] extends { data: any }
+    ? T['responses'][200]['content']['application/json']['data']
+    : T['responses'][201]['content']['application/json'] extends { data: any }
+    ? T['responses'][201]['content']['application/json']['data']
+    : T['responses'][200]['content']['application/json']

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { api } from './client'
+import { api, type ApiRequest } from './client'
 import { createCrudHooks } from './factory'
 import type { components, paths } from './types'
 
@@ -18,14 +18,14 @@ export interface BomFilters {
   product_id?: number
 }
 
-export type CreateBomData = paths['/boms']['post']['requestBody']['content']['application/json']
-export type UpdateBomData = paths['/boms/{bom}']['patch']['requestBody']['content']['application/json']
+export type CreateBomData = ApiRequest<paths['/boms']['post']>
+export type UpdateBomData = ApiRequest<paths['/boms/{bom}']['put']>
 
 // ============================================
 // CRUD Hooks (via factory)
 // ============================================
 
-const hooks = createCrudHooks<Bom, BomFilters, CreateBomData>({
+const hooks = createCrudHooks<Bom, BomFilters, CreateBomData, UpdateBomData>({
   resourceName: 'boms',
   singularName: 'bom',
   lookupParams: { status: 'active' },

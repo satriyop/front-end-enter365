@@ -10,6 +10,7 @@ import {
   useUpdateAccount,
   useAccountsLookup,
   type CreateAccountData,
+  type Account,
 } from '@/api/useAccounts'
 import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
 import { ArrowLeft, Save, Loader2 } from 'lucide-vue-next'
@@ -28,22 +29,23 @@ const { data: existingAccount, isLoading: accountLoading } = useAccount(
 )
 
 // Fetch accounts for parent dropdown
-const { data: allAccounts, isLoading: accountsLoading } = useAccountsLookup()
+const { data: allAccountsData, isLoading: accountsLoading } = useAccountsLookup()
+const allAccounts = computed(() => (allAccountsData.value as any)?.data as Account[] || [])
 
 // Parent account options (exclude current account and its children if editing)
 const parentOptions = computed(() => {
   const options = [{ value: '', label: 'None (Top Level)' }]
 
-  if (!allAccounts.value) return options
+  if (!allAccounts.value.length) return options
 
   allAccounts.value
-    .filter(acc => {
+    .filter((acc: Account) => {
       // Exclude current account when editing
-      if (isEditing.value && acc.id === accountId.value) return false
+      if (isEditing.value && String(acc.id) === String(accountId.value)) return false
       // Could also exclude children, but that requires tree traversal
       return true
     })
-    .forEach(acc => {
+    .forEach((acc: Account) => {
       options.push({
         value: String(acc.id),
         label: `${acc.code} - ${acc.name}`,
@@ -117,7 +119,7 @@ const accountSchema = z.object({
 type AccountFormValues = z.infer<typeof accountSchema>
 
 // Form setup
-const { values, errors, handleSubmit, setValues, setFieldValue } = useForm<AccountFormValues>({
+const { values: form, errors, handleSubmit, setValues, setFieldValue, defineField } = useForm<AccountFormValues>({
   validationSchema: toTypedSchema(accountSchema),
   initialValues: {
     code: '',
@@ -130,6 +132,15 @@ const { values, errors, handleSubmit, setValues, setFieldValue } = useForm<Accou
     opening_balance: 0,
   },
 })
+
+const [code] = defineField('code')
+const [name] = defineField('name')
+const [type] = defineField('type')
+const [subtype] = defineField('subtype')
+const [description] = defineField('description')
+const [parentId] = defineField('parent_id')
+const [isActive] = defineField('is_active')
+const [openingBalance] = defineField('opening_balance')
 
 // Watch for existing account data
 watch(existingAccount, (account) => {
@@ -168,7 +179,7 @@ const isSubmitting = computed(() =>
 // Form submission
 const onSubmit = handleSubmit(async (formValues) => {
   try {
-    const data: CreateAccountData = {
+    const payload = {
       code: formValues.code,
       name: formValues.name,
       type: formValues.type,
@@ -182,11 +193,11 @@ const onSubmit = handleSubmit(async (formValues) => {
     if (isEditing.value) {
       await updateMutation.mutateAsync({
         id: accountId.value!,
-        data,
+        data: payload as any,
       })
       toast.success('Account updated')
     } else {
-      const result = await createMutation.mutateAsync(data)
+      const result = await createMutation.mutateAsync(payload as any)
       toast.success('Account created')
       router.push(`/accounting/accounts/${result.id}`)
       return
@@ -246,7 +257,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     Account Code <span class="text-red-500">*</span>
                   </label>
                   <Input
-                    v-model="values.code"
+                    v-model="code"
                     placeholder="e.g., 1-1001"
                     :error="errors.code"
                   />
@@ -258,7 +269,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     Account Name <span class="text-red-500">*</span>
                   </label>
                   <Input
-                    v-model="values.name"
+                    v-model="name"
                     placeholder="e.g., Cash in Bank"
                     :error="errors.name"
                   />
@@ -273,7 +284,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     Account Type <span class="text-red-500">*</span>
                   </label>
                   <Select
-                    v-model="values.type"
+                    v-model="type"
                     :options="typeOptions"
                     :error="errors.type"
                   />
@@ -285,7 +296,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     Subtype
                   </label>
                   <Select
-                    v-model="values.subtype"
+                    v-model="subtype"
                     :options="currentSubtypeOptions"
                     placeholder="Select subtype"
                   />
@@ -298,7 +309,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   Parent Account
                 </label>
                 <Select
-                  :model-value="values.parent_id || ''"
+                  :model-value="parentId || ''"
                   :options="parentOptions"
                   :loading="accountsLoading"
                   placeholder="Select parent account"
@@ -315,7 +326,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   Description
                 </label>
                 <textarea
-                  v-model="values.description"
+                  v-model="description"
                   rows="3"
                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   placeholder="Optional description for this account"
@@ -335,7 +346,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                 Opening Balance
               </label>
               <CurrencyInput
-                v-model="values.opening_balance"
+                v-model="openingBalance"
                 placeholder="0.00"
               />
               <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
@@ -356,7 +367,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
             <label class="flex items-center gap-3 cursor-pointer">
               <input
-                v-model="values.is_active"
+                v-model="isActive"
                 type="checkbox"
                 class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
               />

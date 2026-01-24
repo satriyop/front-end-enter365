@@ -7,7 +7,7 @@ import { useProject, useCreateProject, useUpdateProject } from '@/api/useProject
 import { useContactsLookup } from '@/api/useContacts'
 import { projectSchema, type ProjectFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
+import { Button, Input, FormField, Textarea, Select, Card, useToast, CurrencyInput } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,6 +47,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<ProjectFormData>({
   validationSchema: toTypedSchema(projectSchema),
   initialValues: {
@@ -61,6 +62,16 @@ const {
     contract_amount: 0,
   },
 })
+
+const [name] = defineField('name')
+const [contactId] = defineField('contact_id')
+const [description] = defineField('description')
+const [location] = defineField('location')
+const [startDate] = defineField('start_date')
+const [endDate] = defineField('end_date')
+const [priority] = defineField('priority')
+const [budgetAmount] = defineField('budget_amount')
+const [contractAmount] = defineField('contract_amount')
 
 watch(existingProject, (project) => {
   if (project) {
@@ -126,19 +137,19 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Project Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., Solar Installation - Site ABC" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="e.g., Solar Installation - Site ABC" @blur="validateField('name')" />
           </FormField>
           <FormField label="Customer" required :error="errors.contact_id">
-            <Select v-model="form.contact_id" :options="contactOptions" placeholder="Select customer" @update:model-value="validateField('contact_id')" />
+            <Select v-model="contactId" :options="contactOptions" placeholder="Select customer" @update:model-value="validateField('contact_id')" />
           </FormField>
           <FormField label="Priority">
-            <Select v-model="form.priority" :options="priorityOptions" />
+            <Select v-model="priority" :options="priorityOptions" />
           </FormField>
           <FormField label="Location" class="md:col-span-2">
-            <Input v-model="form.location" placeholder="Project site location" />
+            <Input v-model="location" placeholder="Project site location" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea v-model="form.description" :rows="3" placeholder="Project description and scope" />
+            <Textarea v-model="description" :rows="3" placeholder="Project description and scope" />
           </FormField>
         </div>
       </Card>
@@ -149,10 +160,10 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Start Date" required :error="errors.start_date">
-            <Input v-model="form.start_date" type="date" @blur="validateField('start_date')" />
+            <Input v-model="startDate" type="date" @blur="validateField('start_date')" />
           </FormField>
           <FormField label="End Date">
-            <Input v-model="form.end_date" type="date" />
+            <Input v-model="endDate" type="date" />
           </FormField>
         </div>
       </Card>
@@ -163,10 +174,10 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Contract Amount">
-            <Input v-model.number="form.contract_amount" type="number" min="0" step="1000000" />
+            <CurrencyInput v-model="contractAmount" :min="0" />
           </FormField>
           <FormField label="Budget Amount">
-            <Input v-model.number="form.budget_amount" type="number" min="0" step="1000000" />
+            <CurrencyInput v-model="budgetAmount" :min="0" />
           </FormField>
         </div>
       </Card>

@@ -1,7 +1,7 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
-import { api, type PaginatedResponse } from './client'
+import { api, type PaginatedResponse, type ApiRequest } from './client'
 import type { components, paths } from './types'
 
 // ============================================
@@ -19,8 +19,8 @@ export interface AccountFilters {
   parent_id?: number | null
 }
 
-export type CreateAccountData = paths['/accounts']['post']['requestBody']['content']['application/json']
-export type UpdateAccountData = paths['/accounts/{account}']['put']['requestBody']['content']['application/json']
+export type CreateAccountData = ApiRequest<paths['/accounts']['post']>
+export type UpdateAccountData = ApiRequest<paths['/accounts/{account}']['put']>
 
 export type AccountBalance = paths['/accounts/{account}/balance']['get']['responses']['200']['content']['application/json']
 export type AccountLedger = paths['/accounts/{account}/ledger']['get']['responses']['200']['content']['application/json']
@@ -35,7 +35,7 @@ export interface LedgerFilters {
 // CRUD Hooks (via factory)
 // ============================================
 
-const hooks = createCrudHooks<Account, AccountFilters, CreateAccountData>({
+const hooks = createCrudHooks<Account, AccountFilters, CreateAccountData, UpdateAccountData>({
   resourceName: 'accounts',
   lookupParams: { is_active: true, per_page: 500 },
 })
@@ -78,7 +78,7 @@ export function useAccountsTree() {
  * Fetch account balance
  */
 export function useAccountBalance(
-  accountId: Ref<number | string> | ComputedRef<number | string>,
+  accountId: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>,
   asOfDate?: Ref<string | undefined>
 ) {
   return useQuery({
@@ -104,7 +104,7 @@ export function useAccountBalance(
  * Fetch account ledger entries
  */
 export function useAccountLedger(
-  accountId: Ref<number | string> | ComputedRef<number | string>,
+  accountId: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>,
   filters: Ref<LedgerFilters>
 ) {
   return useQuery({

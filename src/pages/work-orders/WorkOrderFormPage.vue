@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
 import { workOrderSchema, type WorkOrderFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
+import { Button, Input, FormField, Textarea, Select, Card, useToast, CurrencyInput } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -73,6 +73,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<WorkOrderFormData>({
   validationSchema: toTypedSchema(workOrderSchema),
   initialValues: {
@@ -91,6 +92,20 @@ const {
     notes: '',
   },
 })
+
+const [type] = defineField('type')
+const [name] = defineField('name')
+const [description] = defineField('description')
+const [productId] = defineField('product_id')
+const [projectId] = defineField('project_id')
+const [quantityOrdered] = defineField('quantity_ordered')
+const [priority] = defineField('priority')
+const [plannedStartDate] = defineField('planned_start_date')
+const [plannedEndDate] = defineField('planned_end_date')
+const [estimatedMaterialCost] = defineField('estimated_material_cost')
+const [estimatedLaborCost] = defineField('estimated_labor_cost')
+const [estimatedOverheadCost] = defineField('estimated_overhead_cost')
+const [notes] = defineField('notes')
 
 // Populate form when editing
 watch(existingWorkOrder, (wo) => {
@@ -114,9 +129,9 @@ watch(existingWorkOrder, (wo) => {
 }, { immediate: true })
 
 const estimatedTotal = computed(() =>
-  (form.estimated_material_cost || 0) +
-  (form.estimated_labor_cost || 0) +
-  (form.estimated_overhead_cost || 0)
+  (estimatedMaterialCost.value || 0) +
+  (estimatedLaborCost.value || 0) +
+  (estimatedOverheadCost.value || 0)
 )
 
 // Mutations
@@ -184,22 +199,22 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Type" required>
-            <Select v-model="form.type" :options="typeOptions" />
+            <Select v-model="type" :options="typeOptions" />
           </FormField>
           <FormField label="Priority">
-            <Select v-model="form.priority" :options="priorityOptions" />
+            <Select v-model="priority" :options="priorityOptions" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly Batch #1" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="e.g., Solar Panel Assembly Batch #1" @blur="validateField('name')" />
           </FormField>
           <FormField label="Product">
-            <Select v-model="form.product_id" :options="productOptions" placeholder="Select product" />
+            <Select v-model="productId" :options="productOptions" placeholder="Select product" />
           </FormField>
           <FormField label="Project">
-            <Select v-model="form.project_id" :options="projectOptions" placeholder="Select project (optional)" />
+            <Select v-model="projectId" :options="projectOptions" placeholder="Select project (optional)" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea v-model="form.description" :rows="3" placeholder="Work order description" />
+            <Textarea v-model="description" :rows="3" placeholder="Work order description" />
           </FormField>
         </div>
       </Card>
@@ -210,13 +225,13 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField label="Quantity Ordered" required :error="errors.quantity_ordered">
-            <Input v-model.number="form.quantity_ordered" type="number" min="1" @blur="validateField('quantity_ordered')" />
+            <Input v-model.number="quantityOrdered" type="number" min="1" @blur="validateField('quantity_ordered')" />
           </FormField>
           <FormField label="Planned Start Date">
-            <Input v-model="form.planned_start_date" type="date" />
+            <Input v-model="plannedStartDate" type="date" />
           </FormField>
           <FormField label="Planned End Date">
-            <Input v-model="form.planned_end_date" type="date" />
+            <Input v-model="plannedEndDate" type="date" />
           </FormField>
         </div>
       </Card>
@@ -227,13 +242,13 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <FormField label="Material Cost">
-            <Input v-model.number="form.estimated_material_cost" type="number" min="0" step="100000" />
+            <CurrencyInput v-model="estimatedMaterialCost" :min="0" />
           </FormField>
           <FormField label="Labor Cost">
-            <Input v-model.number="form.estimated_labor_cost" type="number" min="0" step="100000" />
+            <CurrencyInput v-model="estimatedLaborCost" :min="0" />
           </FormField>
           <FormField label="Overhead Cost">
-            <Input v-model.number="form.estimated_overhead_cost" type="number" min="0" step="100000" />
+            <CurrencyInput v-model="estimatedOverheadCost" :min="0" />
           </FormField>
         </div>
         <div class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
@@ -249,7 +264,7 @@ const onSubmit = handleSubmit(async (formValues) => {
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Notes</h2>
         </template>
         <FormField label="Additional Notes">
-          <Textarea v-model="form.notes" :rows="3" placeholder="Any additional notes or instructions" />
+          <Textarea v-model="notes" :rows="3" placeholder="Any additional notes or instructions" />
         </FormField>
       </Card>
 

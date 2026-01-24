@@ -33,6 +33,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<ProductFormData>({
   validationSchema: toTypedSchema(productSchema),
   initialValues: {
@@ -50,6 +51,19 @@ const {
     min_stock: 0,
   },
 })
+
+const [sku] = defineField('sku')
+const [name] = defineField('name')
+const [description] = defineField('description')
+const [type] = defineField('type')
+const [unit] = defineField('unit')
+const [purchasePrice] = defineField('purchase_price')
+const [sellingPrice] = defineField('selling_price')
+const [taxRate] = defineField('tax_rate')
+const [isTaxable] = defineField('is_taxable')
+const [isActive] = defineField('is_active')
+const [trackInventory] = defineField('track_inventory')
+const [minStock] = defineField('min_stock')
 
 const typeOptions = [
   { value: 'product', label: 'Product' },
@@ -139,19 +153,19 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="SKU" required :error="errors.sku">
-            <Input v-model="form.sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" @blur="validateField('sku')" />
+            <Input v-model="sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" @blur="validateField('sku')" />
           </FormField>
           <FormField label="Type" required :error="errors.type">
-            <Select v-model="form.type" :options="typeOptions" @update:model-value="validateField('type')" />
+            <Select v-model="type" :options="typeOptions" @update:model-value="validateField('type')" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="Product name" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="Product name" @blur="validateField('name')" />
           </FormField>
           <FormField label="Unit" required :error="errors.unit">
-            <Select v-model="form.unit" :options="unitOptions" @update:model-value="validateField('unit')" />
+            <Select v-model="unit" :options="unitOptions" @update:model-value="validateField('unit')" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea v-model="form.description" :rows="3" placeholder="Product description" />
+            <Textarea v-model="description" :rows="3" placeholder="Product description" />
           </FormField>
         </div>
       </Card>
@@ -162,36 +176,36 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Purchase Price">
-            <Input v-model.number="form.purchase_price" type="number" min="0" step="1000" />
+            <Input v-model.number="purchasePrice" type="number" min="0" step="1000" />
           </FormField>
           <FormField label="Selling Price">
-            <Input v-model.number="form.selling_price" type="number" min="0" step="1000" />
+            <Input v-model.number="sellingPrice" type="number" min="0" step="1000" />
           </FormField>
           <FormField label="Tax Rate (%)">
-            <Input v-model.number="form.tax_rate" type="number" min="0" max="100" step="0.5" />
+            <Input v-model.number="taxRate" type="number" min="0" max="100" step="0.5" />
           </FormField>
           <div class="flex items-center gap-4 pt-6">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.is_taxable" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
+              <input v-model="isTaxable" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
               <span class="text-sm text-slate-700 dark:text-slate-300">Taxable</span>
             </label>
           </div>
         </div>
       </Card>
 
-      <Card v-if="form.type === 'product'">
+      <Card v-if="type === 'product'">
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Inventory</h2>
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="flex items-center gap-4">
             <label class="flex items-center gap-2 cursor-pointer">
-              <input v-model="form.track_inventory" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
+              <input v-model="trackInventory" type="checkbox" class="rounded border-slate-300 dark:border-slate-600" />
               <span class="text-sm text-slate-700 dark:text-slate-300">Track Inventory</span>
             </label>
           </div>
           <FormField label="Minimum Stock">
-            <Input v-model.number="form.min_stock" type="number" min="0" :disabled="!form.track_inventory" />
+            <Input v-model.number="minStock" type="number" min="0" :disabled="!trackInventory" />
           </FormField>
         </div>
       </Card>
@@ -203,7 +217,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             <p class="text-sm text-slate-500 dark:text-slate-400">Inactive products won't appear in lookups</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
+            <input v-model="isActive" type="checkbox" class="sr-only peer" />
             <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
           </label>
         </div>
