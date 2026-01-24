@@ -1,16 +1,13 @@
 /**
  * Down Payments API hooks
- *
- * Down Payments track advance payments that can be applied to invoices (receivable) or bills (payable).
- * Status: Active → Fully Applied / Refunded / Cancelled
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { api } from './client'
+import { api, type ApiRequest, type ApiResponse, type PaginatedResponse } from './client'
 import { createCrudHooks } from './factory'
-import type { components } from './types'
+import type { components, paths } from './types'
 import type { MaybeRef } from 'vue'
-import { toValue } from 'vue'
+import { toValue, computed } from 'vue'
 
 // ============================================
 // Types
@@ -20,13 +17,12 @@ export type DownPayment = components['schemas']['DownPaymentResource']
 export type DownPaymentApplication = components['schemas']['DownPaymentApplicationResource']
 
 export type DownPaymentType = 'receivable' | 'payable'
-export type DownPaymentStatus = 'active' | 'fully_applied' | 'refunded' | 'cancelled'
 
 export interface DownPaymentFilters {
   page?: number
   per_page?: number
   type?: DownPaymentType
-  status?: DownPaymentStatus
+  status?: string
   contact_id?: number
   search?: string
   available_only?: boolean
@@ -34,23 +30,14 @@ export interface DownPaymentFilters {
   end_date?: string
 }
 
-export interface CreateDownPaymentData {
-  type: DownPaymentType
-  contact_id: number
-  dp_date: string
-  amount: number
-  payment_method?: string
-  cash_account_id?: number
-  reference?: string
-  description?: string
-  notes?: string
-}
+export type CreateDownPaymentData = ApiRequest<paths['/down-payments']['post']>
+export type UpdateDownPaymentData = ApiRequest<paths['/down-payments/{downPayment}']['put']>
 
 // ============================================
 // CRUD Hooks (via factory)
 // ============================================
 
-const hooks = createCrudHooks<DownPayment, DownPaymentFilters, CreateDownPaymentData>({
+const hooks = createCrudHooks<DownPayment, DownPaymentFilters, CreateDownPaymentData, UpdateDownPaymentData>({
   resourceName: 'down-payments',
   singularName: 'down-payment',
 })
@@ -71,7 +58,7 @@ export function useAvailableDownPayments(contactId: MaybeRef<number>, type: Mayb
     queryFn: async () => {
       const id = toValue(contactId)
       const dpType = toValue(type)
-      const response = await api.get<{ data: DownPayment[] }>('/down-payments/available', {
+      const response = await api.get<PaginatedResponse<DownPayment>>('/down-payments-available', {
         params: { contact_id: id, type: dpType },
       })
       return response.data.data
@@ -89,7 +76,7 @@ export function useDownPaymentApplications(downPaymentId: MaybeRef<number>) {
     queryKey: ['down-payments', downPaymentId, 'applications'],
     queryFn: async () => {
       const id = toValue(downPaymentId)
-      const response = await api.get<{ data: DownPaymentApplication[] }>(`/down-payments/${id}/applications`)
+      const response = await api.get<PaginatedResponse<DownPaymentApplication>>(`/down-payments/${id}/applications`)
       return response.data.data
     },
     enabled: () => toValue(downPaymentId) > 0,
@@ -100,42 +87,20 @@ export function useDownPaymentApplications(downPaymentId: MaybeRef<number>) {
 // Statistics
 // ============================================
 
-export interface DownPaymentStatistics {
-  total_count: number
-  total_amount: number
-  total_applied: number
-  total_remaining: number
-  by_status: {
-    active: number
-    fully_applied: number
-    refunded: number
-    cancelled: number
-  }
-  by_type: {
-    receivable: {
-      count: number
-      amount: number
-      remaining: number
-    }
-    payable: {
-      count: number
-      amount: number
-      remaining: number
-    }
-  }
-}
+export type DownPaymentStatistics = ApiResponse<paths['/down-payments-statistics']['get']>
 
 export function useDownPaymentStatistics(type?: DownPaymentType, startDate?: string, endDate?: string) {
   return useQuery({
     queryKey: ['down-payments', 'statistics', { type, startDate, endDate }],
     queryFn: async () => {
-      const params = new URLSearchParams()
-      if (type) params.append('type', type)
-      if (startDate) params.append('start_date', startDate)
-      if (endDate) params.append('end_date', endDate)
-      const queryString = params.toString()
-      const url = queryString ? `/down-payments-statistics?${queryString}` : '/down-payments-statistics'
-      const response = await api.get<DownPaymentStatistics>(url)
+      const params: Record<string, any> = {}
+      if (type) params.type = type
+      if (startDate) params.start_date = startDate
+      if (endDate) params.end_date = endDate
+      
+      const response = await api.get<DownPaymentStatistics>('/down-payments-statistics', {
+        params
+      })
       return response.data
     },
   })
@@ -145,11 +110,8 @@ export function useDownPaymentStatistics(type?: DownPaymentType, startDate?: str
 // Apply to Invoice
 // ============================================
 
-export interface ApplyToInvoiceData {
-  amount: number
-  applied_date?: string
-  notes?: string
-}
+export type ApplyToInvoiceData = ApiRequest<paths['/down-payments/{downPayment}/apply-to-invoice/{invoice}']['post']>
+export type ApplyToInvoiceResponse = ApiResponse<paths['/down-payments/{downPayment}/apply-to-invoice/{invoice}']['post']>
 
 export function useApplyDownPaymentToInvoice() {
   const queryClient = useQueryClient()
@@ -163,10 +125,7 @@ export function useApplyDownPaymentToInvoice() {
       invoiceId: number
       data: ApplyToInvoiceData
     }) => {
-      const response = await api.post<{
-        application: DownPaymentApplication
-        down_payment: DownPayment
-      }>(`/down-payments/${downPaymentId}/apply-to-invoice/${invoiceId}`, data)
+      const response = await api.post<ApplyToInvoiceResponse>(`/down-payments/${downPaymentId}/apply-to-invoice/${invoiceId}`, data)
       return response.data
     },
     onSuccess: (data, variables) => {
@@ -181,11 +140,8 @@ export function useApplyDownPaymentToInvoice() {
 // Apply to Bill
 // ============================================
 
-export interface ApplyToBillData {
-  amount: number
-  applied_date?: string
-  notes?: string
-}
+export type ApplyToBillData = ApiRequest<paths['/down-payments/{downPayment}/apply-to-bill/{bill}']['post']>
+export type ApplyToBillResponse = ApiResponse<paths['/down-payments/{downPayment}/apply-to-bill/{bill}']['post']>
 
 export function useApplyDownPaymentToBill() {
   const queryClient = useQueryClient()
@@ -199,10 +155,7 @@ export function useApplyDownPaymentToBill() {
       billId: number
       data: ApplyToBillData
     }) => {
-      const response = await api.post<{
-        application: DownPaymentApplication
-        down_payment: DownPayment
-      }>(`/down-payments/${downPaymentId}/apply-to-bill/${billId}`, data)
+      const response = await api.post<ApplyToBillResponse>(`/down-payments/${downPaymentId}/apply-to-bill/${billId}`, data)
       return response.data
     },
     onSuccess: (data, variables) => {
@@ -217,6 +170,8 @@ export function useApplyDownPaymentToBill() {
 // Unapply (Reverse Application)
 // ============================================
 
+export type UnapplyDownPaymentResponse = ApiResponse<paths['/down-payments/{downPayment}/applications/{application}']['delete']>
+
 export function useUnapplyDownPayment() {
   const queryClient = useQueryClient()
   return useMutation({
@@ -227,8 +182,8 @@ export function useUnapplyDownPayment() {
       downPaymentId: number
       applicationId: number
     }) => {
-      const response = await api.post<{ down_payment: DownPayment }>(
-        `/down-payments/${downPaymentId}/unapply/${applicationId}`
+      const response = await api.delete<UnapplyDownPaymentResponse>(
+        `/down-payments/${downPaymentId}/applications/${applicationId}`
       )
       return response.data
     },
@@ -245,21 +200,14 @@ export function useUnapplyDownPayment() {
 // Refund
 // ============================================
 
-export interface RefundDownPaymentData {
-  refund_amount?: number
-  refund_date?: string
-  cash_account_id?: number
-  notes?: string
-}
+export type RefundDownPaymentData = ApiRequest<paths['/down-payments/{downPayment}/refund']['post']>
+export type RefundDownPaymentResponse = ApiResponse<paths['/down-payments/{downPayment}/refund']['post']>
 
 export function useRefundDownPayment() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: RefundDownPaymentData }) => {
-      const response = await api.post<{
-        refund_payment: { id: number; payment_number: string; amount: number }
-        down_payment: DownPayment
-      }>(`/down-payments/${id}/refund`, data)
+      const response = await api.post<RefundDownPaymentResponse>(`/down-payments/${id}/refund`, data)
       return response.data
     },
     onSuccess: (data, variables) => {
@@ -277,7 +225,7 @@ export function useRefundDownPayment() {
 export function useCancelDownPayment() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, reason }: { id: number; reason?: string }) => {
+    mutationFn: async ({ id, reason }: { id: number | string; reason?: string }) => {
       const response = await api.post<{ data: DownPayment }>(`/down-payments/${id}/cancel`, { reason })
       return response.data.data
     },
@@ -293,27 +241,11 @@ export function useCancelDownPayment() {
 // ============================================
 
 export function getDownPaymentStatus(dp: DownPayment): { label: string; color: string } {
-  const statusMap: Record<DownPaymentStatus, { label: string; color: string }> = {
-    active: {
-      label: 'Active',
-      color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    },
-    fully_applied: {
-      label: 'Fully Applied',
-      color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    },
-    refunded: {
-      label: 'Refunded',
-      color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    },
-    cancelled: {
-      label: 'Cancelled',
-      color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    },
+  // Direct use of structured status from backend
+  return {
+    label: dp.status.label,
+    color: dp.status.color,
   }
-
-  const status = (dp.status as DownPaymentStatus) || 'active'
-  return statusMap[status] || statusMap.active
 }
 
 export function getDownPaymentType(dp: DownPayment): { label: string; color: string } {
