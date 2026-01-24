@@ -151,7 +151,7 @@ async function handleDelete() {
         <!-- Custom cell: Status -->
         <template #cell-status="{ item }">
           <Badge :status="item.status">
-            {{ typeof item.status === 'object' ? item.status.label : item.status }}
+            {{ item.status.label }}
           </Badge>
         </template>
 
@@ -165,7 +165,7 @@ async function handleDelete() {
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
           <Badge :status="item.status">
-            {{ typeof item.status === 'object' ? item.status.label : item.status }}
+            {{ item.status.label }}
           </Badge>
         </template>
 
@@ -176,7 +176,7 @@ async function handleDelete() {
               <Button variant="ghost" size="xs">Edit</Button>
             </RouterLink>
             <Button
-              v-if="(typeof item.status === 'object' ? item.status.value : item.status) === 'draft'"
+              v-if="item.status.value === 'draft'"
               variant="ghost"
               size="xs"
               class="text-red-500 hover:text-red-600"

@@ -7083,7 +7083,9 @@ export interface components {
             total_amount: number;
             paid_amount: number;
             outstanding_amount: number;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
+            /** @enum {string} */
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
             journal_entry_id: number | null;
             payable_account_id: number | null;
             contact?: components["schemas"]["ContactResource"];
@@ -7157,7 +7159,9 @@ export interface components {
             total_overhead_cost: number;
             total_cost: number;
             unit_cost: number;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
+            /** @enum {string} */
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
             version: string;
             parent_bom_id: number | null;
             variant_group_id: number | null;
@@ -7517,7 +7521,7 @@ export interface components {
             driver_name: string | null;
             vehicle_number: string | null;
             notes: string | null;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             received_by: string | null;
             delivery_notes: string | null;
             items?: components["schemas"]["DeliveryOrderItemResource"][];
@@ -7598,13 +7602,7 @@ export interface components {
             reference: string | null;
             description: string | null;
             notes: string | null;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             journal_entry_id: number | null;
             refund_payment_id: number | null;
             refunded_at: string | null;
@@ -7689,13 +7687,7 @@ export interface components {
                 name: string;
             };
             receipt_date: string;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             /** @description Supplier references */
             supplier_do_number: string | null;
             supplier_invoice_number: string | null;
@@ -7840,15 +7832,9 @@ export interface components {
                 outstanding_amount: string;
             };
             /** @description Status */
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-                is_terminal: boolean;
-                is_editable: boolean;
-            };
+            status: components["schemas"]["StatusResource"];
+            /** @enum {string} */
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
             /** @description Journal entry */
             journal_entry_id: number | null;
             has_journal_entry: boolean;
@@ -8028,7 +8014,7 @@ export interface components {
         MaterialRequisitionResource: {
             id: number;
             requisition_number: string;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             requested_date: string;
             required_date: string;
             total_items: number;
@@ -8098,13 +8084,7 @@ export interface components {
             id: number;
             run_number: string;
             name: string;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             planning_horizon_start: string | null;
             planning_horizon_end: string | null;
             /** @description Parameters */
@@ -8441,7 +8421,7 @@ export interface components {
             end_date: string;
             actual_start_date: string;
             actual_end_date: string;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             budget_amount: number;
             contract_amount: number;
             total_cost: number;
@@ -8541,7 +8521,7 @@ export interface components {
             expected_date: string;
             reference: string;
             subject: string;
-            status: string;
+            status: components["schemas"]["StatusResource"];
             status_label: string;
             currency: string;
             exchange_rate: number;
@@ -8648,13 +8628,7 @@ export interface components {
             tax_rate: number;
             tax_amount: number;
             total_amount: number;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             items?: components["schemas"]["PurchaseReturnItemResource"][];
             items_count?: number;
             journal_entry_id: number | null;
@@ -8691,6 +8665,8 @@ export interface components {
             };
             activity_type: string;
             description: string | null;
+            outcome: string | null;
+            duration_minutes: number | null;
             created_at: string;
         };
         /** QuotationItemResource */
@@ -8741,7 +8717,7 @@ export interface components {
             selected_variant_id: number | null;
             selected_variant?: components["schemas"]["BomResource"];
             has_selected_variant: boolean;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             status_label: string;
             currency: string;
             exchange_rate: number;
@@ -8962,7 +8938,7 @@ export interface components {
             tax_rate: number;
             tax_amount: number;
             total_amount: number;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             items?: components["schemas"]["SalesReturnItemResource"][];
             items_count?: number;
             journal_entry_id: number | null;
@@ -8992,13 +8968,7 @@ export interface components {
         SolarProposalListResource: {
             id: number;
             proposal_number: string;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             status_label: string;
             contact_id: number;
             contact?: components["schemas"]["ContactResource"];
@@ -9020,7 +8990,7 @@ export interface components {
         SolarProposalResource: {
             id: number;
             proposal_number: string;
-            status: components["schemas"]["DocumentStatus"];
+            status: components["schemas"]["StatusResource"];
             status_label: string;
             /** @description Contact */
             contact_id: number;
@@ -9139,6 +9109,16 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** StatusResource */
+        StatusResource: {
+            value: string;
+            /** @enum {string} */
+            label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            /** @enum {string} */
+            color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
+            is_terminal: boolean;
+            is_editable: boolean;
+        };
         /** StockAdjustmentRequest */
         StockAdjustmentRequest: {
             product_id: number;
@@ -9185,13 +9165,7 @@ export interface components {
                 name: string;
             };
             opname_date: string;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             name: string | null;
             notes: string | null;
             /** @description Workflow tracking */
@@ -10098,10 +10072,16 @@ export interface components {
                 sc_wo_number: string;
                 name: string;
             };
+            gross_amount: number;
+            retention_held: number;
+            other_deductions: number;
             net_amount: number;
             invoice_date: string;
             due_date: string;
-            status: string;
+            status: components["schemas"]["StatusResource"];
+            /** @enum {string} */
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            rejection_reason: string | null;
             notes: string | null;
             created_at: string;
             updated_at: string;
@@ -10113,13 +10093,7 @@ export interface components {
             name: string;
             description: string | null;
             scope_of_work: string | null;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             /** @description Subcontractor */
             subcontractor_id: number;
             subcontractor?: {
@@ -10933,13 +10907,7 @@ export interface components {
             type: string;
             name: string;
             description: string | null;
-            status: {
-                value: string;
-                /** @enum {string} */
-                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-                /** @enum {string} */
-                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            };
+            status: components["schemas"]["StatusResource"];
             priority: string;
             /** @description Quantities */
             quantity_ordered: number;

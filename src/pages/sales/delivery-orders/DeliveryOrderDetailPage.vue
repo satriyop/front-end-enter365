@@ -59,12 +59,12 @@ const deleteMutation = useDeleteDeliveryOrder()
 const duplicateMutation = useDuplicateDeliveryOrder()
 
 // Computed for workflow permissions
-const canConfirm = computed(() => deliveryOrder.value?.status === 'draft')
-const canShip = computed(() => deliveryOrder.value?.status === 'confirmed')
-const canDeliver = computed(() => deliveryOrder.value?.status === 'shipped')
-const canCancel = computed(() => ['draft', 'confirmed'].includes(deliveryOrder.value?.status || ''))
-const canEdit = computed(() => deliveryOrder.value?.status === 'draft')
-const canDelete = computed(() => deliveryOrder.value?.status === 'draft')
+const canConfirm = computed(() => deliveryOrder.value?.status.value === 'draft')
+const canShip = computed(() => deliveryOrder.value?.status.value === 'confirmed')
+const canDeliver = computed(() => deliveryOrder.value?.status.value === 'shipped')
+const canCancel = computed(() => ['draft', 'confirmed'].includes(deliveryOrder.value?.status.value || ''))
+const canEdit = computed(() => deliveryOrder.value?.status.value === 'draft')
+const canDelete = computed(() => deliveryOrder.value?.status.value === 'draft')
 
 // Modals
 const showShipModal = ref(false)
@@ -259,7 +259,7 @@ const deliveryProgress = computed(() => {
     <div v-else-if="deliveryOrder" class="space-y-6">
       <!-- Delivery Progress Banner -->
       <Card
-        v-if="['confirmed', 'shipped'].includes(deliveryOrder.status)"
+        v-if="['confirmed', 'shipped'].includes(deliveryOrder.status.value)"
         class="p-4 bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800"
       >
         <div class="flex items-center justify-between mb-2">

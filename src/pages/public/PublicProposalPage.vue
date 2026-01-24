@@ -270,10 +270,10 @@ onMounted(() => {
           <span
             class="inline-flex px-3 py-1 rounded-full text-sm font-medium mb-4"
             :class="{
-              'bg-blue-100 text-blue-700': proposal.status === 'sent',
-              'bg-green-100 text-green-700': proposal.status === 'accepted',
-              'bg-red-100 text-red-700': proposal.status === 'rejected',
-              'bg-slate-100 text-slate-700': proposal.status === 'expired',
+              'bg-blue-100 text-blue-700': proposal.status.value === 'sent',
+              'bg-green-100 text-green-700': proposal.status.value === 'accepted',
+              'bg-red-100 text-red-700': proposal.status.value === 'rejected',
+              'bg-slate-100 text-slate-700': proposal.status.value === 'expired',
             }"
           >
             {{ proposal.status_label }}
@@ -457,7 +457,7 @@ onMounted(() => {
 
       <!-- Action Buttons -->
       <div
-        v-if="proposal.status === 'sent' && !proposal.is_expired"
+        v-if="proposal.status.value === 'sent' && !proposal.is_expired"
         class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
       >
         <div class="flex items-center gap-2 mb-4">

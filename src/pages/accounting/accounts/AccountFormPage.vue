@@ -148,12 +148,12 @@ watch(existingAccount, (account) => {
     setValues({
       code: account.code,
       name: account.name,
-      type: account.type as AccountFormValues['type'],
+      type: account.type as any,
       subtype: account.subtype || '',
       description: account.description || '',
-      parent_id: account.parent_id,
-      is_active: account.is_active === '1' || account.is_active === 'true' || (typeof account.is_active === 'boolean' && account.is_active),
-      opening_balance: typeof account.opening_balance === 'string' ? parseFloat(account.opening_balance) : (account.opening_balance || 0),
+      parent_id: account.parent_id ? String(account.parent_id) : '',
+      is_active: !!account.is_active,
+      opening_balance: toNumber(account.opening_balance),
     })
   }
 }, { immediate: true })

@@ -220,14 +220,14 @@ function openProgressModal() {
 }
 
 // Permission checks based on status
-const canEdit = computed(() => scwo.value?.status === 'draft')
-const canAssign = computed(() => scwo.value?.status === 'draft')
-const canStart = computed(() => scwo.value?.status === 'assigned')
-const canUpdateProgress = computed(() => scwo.value?.status === 'in_progress')
-const canComplete = computed(() => scwo.value?.status === 'in_progress')
-const canCancel = computed(() => ['draft', 'assigned', 'in_progress'].includes(scwo.value?.status || ''))
-const canCreateInvoice = computed(() => ['in_progress', 'completed'].includes(scwo.value?.status || ''))
-const canDelete = computed(() => scwo.value?.status === 'draft')
+const canEdit = computed(() => scwo.value?.status.value === 'draft')
+const canAssign = computed(() => scwo.value?.status.value === 'draft')
+const canStart = computed(() => scwo.value?.status.value === 'assigned')
+const canUpdateProgress = computed(() => scwo.value?.status.value === 'in_progress')
+const canComplete = computed(() => scwo.value?.status.value === 'in_progress')
+const canCancel = computed(() => ['draft', 'assigned', 'in_progress'].includes(scwo.value?.status.value || ''))
+const canCreateInvoice = computed(() => ['in_progress', 'completed'].includes(scwo.value?.status.value || ''))
+const canDelete = computed(() => scwo.value?.status.value === 'draft')
 
 // Invoice table columns
 const invoiceColumns: ResponsiveColumn[] = [
@@ -372,11 +372,11 @@ function viewInvoice(item: Record<string, unknown>) {
         </div>
       </Card>
 
-      <!-- Progress Banner -->
-      <Card
-        v-if="scwo.status === 'in_progress'"
-        class="mb-6 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-900/20"
-      >
+        <!-- Progress Update Card -->
+        <Card
+          v-if="scwo.status.value === 'in_progress'"
+          class="mb-6 p-4 border-blue-100 dark:border-blue-900 bg-blue-50/30 dark:bg-blue-900/10"
+        >
         <div class="flex items-center gap-3">
           <div class="p-2 bg-purple-100 dark:bg-purple-900/40 rounded-lg">
             <HardHat class="w-5 h-5 text-purple-600 dark:text-purple-400" />

@@ -85,16 +85,17 @@ watch(existingProduct, (product) => {
     setValues({
       sku: product.sku,
       name: product.name,
-      description: product.description || '',
       type: product.type as 'product' | 'service',
+      description: product.description || '',
       unit: product.unit,
       purchase_price: toNumber(product.purchase_price),
       selling_price: toNumber(product.selling_price),
       tax_rate: toNumber(product.tax_rate),
-      is_taxable: product.is_taxable === 'true' || product.is_taxable === '1' || (product.is_taxable as unknown) === true,
-      is_active: product.is_active === 'true' || product.is_active === '1' || (product.is_active as unknown) === true,
-      track_inventory: product.track_inventory === 'true' || product.track_inventory === '1' || (product.track_inventory as unknown) === true,
+      is_taxable: !!product.is_taxable,
+      is_active: !!product.is_active,
+      track_inventory: !!product.track_inventory,
       min_stock: toNumber(product.min_stock),
+      category_id: product.category_id,
     })
   }
 }, { immediate: true })

@@ -157,20 +157,20 @@ function viewJournalEntry(journalEntryId: number) {
             <div class="text-3xl font-bold text-slate-900 dark:text-slate-100">
               {{ formatCurrency(balance.balance) }}
             </div>
-            <div class="mt-3 grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span class="text-slate-500 dark:text-slate-400">Total Debit</span>
-                <div class="font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(balance.debit_total) }}
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Total Debit</span>
+                    <span class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      {{ formatCurrency(balance.total_debit) }}
+                    </span>
+                  </div>
+                  <div>
+                    <span class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Total Credit</span>
+                    <span class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                      {{ formatCurrency(balance.total_credit) }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div>
-                <span class="text-slate-500 dark:text-slate-400">Total Credit</span>
-                <div class="font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(balance.credit_total) }}
-                </div>
-              </div>
-            </div>
             <div class="mt-3 text-xs text-slate-400 dark:text-slate-500">
               As of {{ formatDate(balance.as_of_date) }}
             </div>

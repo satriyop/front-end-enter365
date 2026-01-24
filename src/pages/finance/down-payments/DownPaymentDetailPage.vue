@@ -55,10 +55,10 @@ const unapplyMutation = useUnapplyDownPayment()
 
 // Computed for workflow permissions
 const hasRemaining = computed(() => Number(downPayment.value?.remaining_amount || 0) > 0)
-const canRefund = computed(() => downPayment.value?.status === 'active' && hasRemaining.value)
-const canCancel = computed(() => downPayment.value?.status === 'active' && !downPayment.value?.applications?.length)
-const canEdit = computed(() => downPayment.value?.status === 'active' && !downPayment.value?.applications?.length)
-const canDelete = computed(() => downPayment.value?.status === 'active' && !downPayment.value?.applications?.length)
+const canRefund = computed(() => downPayment.value?.status.value === 'active' && hasRemaining.value)
+const canCancel = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
+const canEdit = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
+const canDelete = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
 
 // Modals
 const showRefundModal = ref(false)
@@ -229,7 +229,7 @@ const usageProgress = computed(() => {
     <!-- Content -->
     <div v-else-if="downPayment" class="space-y-6">
       <!-- Usage Progress -->
-      <Card v-if="downPayment.status === 'active'" class="p-4">
+      <Card v-if="downPayment.status.value === 'active'" class="p-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Usage</span>
           <span class="text-sm text-slate-500 dark:text-slate-400">
@@ -391,7 +391,7 @@ const usageProgress = computed(() => {
                 </td>
                 <td class="py-3 px-4 text-right">
                   <Button
-                    v-if="downPayment.status === 'active'"
+                    v-if="downPayment.status.value === 'active'"
                     variant="ghost"
                     size="xs"
                     @click="openUnapplyModal(Number(app.id))"

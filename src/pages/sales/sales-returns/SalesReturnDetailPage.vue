@@ -55,13 +55,13 @@ const cancelMutation = useCancelSalesReturn()
 const deleteMutation = useDeleteSalesReturn()
 
 // Computed for workflow permissions
-const canSubmit = computed(() => salesReturn.value?.status === 'draft')
-const canApprove = computed(() => salesReturn.value?.status === 'pending')
-const canReject = computed(() => salesReturn.value?.status === 'pending')
-const canComplete = computed(() => salesReturn.value?.status === 'approved')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(salesReturn.value?.status || ''))
-const canEdit = computed(() => salesReturn.value?.status === 'draft')
-const canDelete = computed(() => salesReturn.value?.status === 'draft')
+const canSubmit = computed(() => salesReturn.value?.status.value === 'draft')
+const canApprove = computed(() => salesReturn.value?.status.value === 'pending')
+const canReject = computed(() => salesReturn.value?.status.value === 'pending')
+const canComplete = computed(() => salesReturn.value?.status.value === 'approved')
+const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(salesReturn.value?.status.value || ''))
+const canEdit = computed(() => salesReturn.value?.status.value === 'draft')
+const canDelete = computed(() => salesReturn.value?.status.value === 'draft')
 
 // Modals
 const showRejectModal = ref(false)
@@ -246,11 +246,12 @@ function goBack() {
 
     <!-- Content -->
     <div v-else-if="salesReturn" class="space-y-6">
-      <!-- Rejection Banner -->
-      <Card
-        v-if="salesReturn.status === 'rejected' && salesReturn.rejection_reason"
-        class="p-4 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800"
-      >
+        <!-- Rejection Reason -->
+        <Alert
+          v-if="salesReturn.status.value === 'rejected' && salesReturn.rejection_reason"
+          variant="destructive"
+          class="mb-6"
+        >
         <p class="text-sm font-medium text-red-700 dark:text-red-300">Rejection Reason</p>
         <p class="text-red-600 dark:text-red-400">{{ salesReturn.rejection_reason }}</p>
       </Card>

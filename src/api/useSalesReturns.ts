@@ -217,38 +217,11 @@ export function useCancelSalesReturn() {
 // Helper Functions
 // ============================================
 
-export type SalesReturnStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'rejected' | 'cancelled'
-
 export function getSalesReturnStatus(sr: SalesReturn): { label: string; color: string } {
-  const statusMap: Record<SalesReturnStatus, { label: string; color: string }> = {
-    draft: {
-      label: 'Draft',
-      color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-    },
-    pending: {
-      label: 'Pending Approval',
-      color: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-    },
-    approved: {
-      label: 'Approved',
-      color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    },
-    completed: {
-      label: 'Completed',
-      color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    },
-    rejected: {
-      label: 'Rejected',
-      color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    },
-    cancelled: {
-      label: 'Cancelled',
-      color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    },
+  return {
+    label: sr.status.label,
+    color: sr.status.color,
   }
-
-  const status = (sr.status as SalesReturnStatus) || 'draft'
-  return statusMap[status] || statusMap.draft
 }
 
 export function formatReturnNumber(sr: SalesReturn): string {

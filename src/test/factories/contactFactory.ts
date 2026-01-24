@@ -16,7 +16,7 @@ let contactId = 1
 export function createContact(overrides: Partial<Contact> = {}): Contact {
   const id = contactId++
   return {
-    id: String(id),
+    id: id,
     code: `CUST-${id.toString().padStart(4, '0')}`,
     name: `Contact ${id}`,
     type: 'customer',
@@ -28,11 +28,11 @@ export function createContact(overrides: Partial<Contact> = {}): Contact {
     postal_code: '12345',
     npwp: '',
     nik: '',
-    credit_limit: '0',
-    payment_term_days: '30',
-    is_active: 'true',
-    receivable_balance: '0',
-    payable_balance: '0',
+    credit_limit: 0,
+    payment_term_days: 30,
+    is_active: true,
+    receivable_balance: 0,
+    payable_balance: 0,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides,

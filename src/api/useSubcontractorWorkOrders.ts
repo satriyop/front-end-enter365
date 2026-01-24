@@ -337,14 +337,10 @@ export function useCreateSubcontractorInvoice() {
  * Get status display info
  */
 export function getSubcontractorWorkOrderStatus(scwo: SubcontractorWorkOrder): { label: string; color: string } {
-  const statusMap: Record<string, { label: string; color: string }> = {
-    draft: { label: 'Draft', color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300' },
-    assigned: { label: 'Assigned', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
-    in_progress: { label: 'In Progress', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' },
-    completed: { label: 'Completed', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
-    cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
+  return {
+    label: scwo.status.label,
+    color: scwo.status.color,
   }
-  return statusMap[scwo.status] || { label: scwo.status, color: 'bg-slate-100 text-slate-700' }
 }
 
 /**

@@ -149,8 +149,8 @@ const columns: ResponsiveColumn[] = [
 
         <!-- Custom cell: Status -->
         <template #cell-status="{ item }">
-          <Badge :variant="getStatusVariant(item.status)">
-            {{ item.status_label || (typeof item.status === 'object' ? item.status.label : item.status) }}
+          <Badge :status="item.status">
+            {{ item.status.label }}
           </Badge>
         </template>
 
@@ -163,8 +163,8 @@ const columns: ResponsiveColumn[] = [
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :variant="getStatusVariant(item.status)">
-            {{ item.status_label || (typeof item.status === 'object' ? item.status.label : item.status) }}
+          <Badge :status="item.status">
+            {{ item.status.label }}
           </Badge>
         </template>
 

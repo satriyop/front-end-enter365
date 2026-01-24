@@ -113,13 +113,13 @@ async function handleDelete() {
 }
 
 // Computed flags for action availability
-const canEdit = computed(() => purchaseReturn.value?.status === 'draft')
-const canSubmit = computed(() => purchaseReturn.value?.status === 'draft')
-const canApprove = computed(() => purchaseReturn.value?.status === 'pending')
-const canReject = computed(() => purchaseReturn.value?.status === 'pending')
-const canComplete = computed(() => purchaseReturn.value?.status === 'approved')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(purchaseReturn.value?.status || ''))
-const canDelete = computed(() => purchaseReturn.value?.status === 'draft')
+const canEdit = computed(() => purchaseReturn.value?.status.value === 'draft')
+const canSubmit = computed(() => purchaseReturn.value?.status.value === 'draft')
+const canApprove = computed(() => purchaseReturn.value?.status.value === 'pending')
+const canReject = computed(() => purchaseReturn.value?.status.value === 'pending')
+const canComplete = computed(() => purchaseReturn.value?.status.value === 'approved')
+const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(purchaseReturn.value?.status.value || ''))
+const canDelete = computed(() => purchaseReturn.value?.status.value === 'draft')
 
 // Line items table columns
 const itemColumns: ResponsiveColumn[] = [

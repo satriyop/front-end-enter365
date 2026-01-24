@@ -9,16 +9,17 @@ import { createContact } from './contactFactory'
 import { formatCurrency } from '@/utils/format'
 
 export type Invoice = components['schemas']['InvoiceResource']
+export type Status = components['schemas']['StatusResource']
 
 let invoiceId = 1
 
-const STATUS_MAP: Record<string, Invoice['status']> = {
-  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: '0', is_editable: '1' },
-  sent: { value: 'sent', label: 'Terkirim', color: 'blue', is_terminal: '0', is_editable: '0' },
-  partial: { value: 'partial', label: 'Sebagian', color: 'orange', is_terminal: '0', is_editable: '0' },
-  paid: { value: 'paid', label: 'Lunas', color: 'green', is_terminal: '1', is_editable: '0' },
-  overdue: { value: 'overdue', label: 'Jatuh Tempo', color: 'red', is_terminal: '0', is_editable: '0' },
-  void: { value: 'void', label: 'Dibatalkan', color: 'red', is_terminal: '1', is_editable: '0' },
+const STATUS_MAP: Record<string, Status> = {
+  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: false, is_editable: true },
+  sent: { value: 'sent', label: 'Terkirim', color: 'blue', is_terminal: false, is_editable: false },
+  partial: { value: 'partial', label: 'Sebagian', color: 'indigo', is_terminal: false, is_editable: false },
+  paid: { value: 'paid', label: 'Lunas', color: 'green', is_terminal: true, is_editable: false },
+  overdue: { value: 'overdue', label: 'Jatuh Tempo', color: 'orange', is_terminal: false, is_editable: false },
+  void: { value: 'void', label: 'Dibatalkan', color: 'red', is_terminal: true, is_editable: false },
 }
 
 /**
@@ -35,7 +36,7 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
   const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
 
   return {
-    id: String(id),
+    id: id,
     invoice_number: `INV-2024-${id.toString().padStart(4, '0')}`,
     contact_id: contact.id,
     contact,
@@ -47,14 +48,14 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
     exchange_rate: 1,
     description: `Invoice for ${contact.name}`,
     reference: '',
-    subtotal: String(subtotal),
-    tax_amount: String(taxAmount),
+    subtotal: subtotal,
+    tax_amount: taxAmount,
     tax_rate: 11,
-    discount_amount: '0',
-    total_amount: String(total),
-    paid_amount: '0',
+    discount_amount: 0,
+    total_amount: total,
+    paid_amount: 0,
     outstanding_amount: total,
-    base_currency_total: String(total),
+    base_currency_total: total,
     formatted: {
       subtotal: formatCurrency(subtotal),
       discount_amount: formatCurrency(0),
@@ -64,12 +65,13 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
       outstanding_amount: formatCurrency(total),
     },
     status: STATUS_MAP.draft!,
-    journal_entry_id: '',
+    status_label: 'Draft',
+    journal_entry_id: null,
     has_journal_entry: false,
-    receivable_account_id: '1',
-    reminder_count: '0',
-    last_reminder_at: '',
-    created_by: '1',
+    receivable_account_id: 1,
+    reminder_count: 0,
+    last_reminder_at: null,
+    created_by: 1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     actions: {
@@ -119,11 +121,12 @@ export function createPartiallyPaidInvoice(
   overrides: Partial<Invoice> = {}
 ): Invoice {
   const invoice = createInvoice(overrides)
-  const total = Number(invoice.total_amount)
+  const total = invoice.total_amount
   return {
     ...invoice,
     status: STATUS_MAP.partial!,
-    paid_amount: String(paidAmount),
+    status_label: 'Sebagian',
+    paid_amount: paidAmount,
     outstanding_amount: total - paidAmount,
     ...overrides,
   }
@@ -137,6 +140,7 @@ export function createPaidInvoice(overrides: Partial<Invoice> = {}): Invoice {
   return {
     ...invoice,
     status: STATUS_MAP.paid!,
+    status_label: 'Lunas',
     paid_amount: invoice.total_amount,
     outstanding_amount: 0,
     ...overrides,
@@ -151,6 +155,7 @@ export function createOverdueInvoice(overrides: Partial<Invoice> = {}): Invoice 
   return createInvoice({
     due_date: pastDate.toISOString().split('T')[0],
     status: STATUS_MAP.overdue!,
+    status_label: 'Jatuh Tempo',
     is_overdue: true,
     ...overrides,
   })

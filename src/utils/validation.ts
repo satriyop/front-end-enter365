@@ -175,6 +175,12 @@ export const quotationSchema = z.object({
   notes: z.string().optional().default(''),
   terms_conditions: z.string().optional().default(''),
   items: z.array(quotationItemSchema).min(1, 'At least one item is required'),
+}).refine((data) => {
+  if (!data.quotation_date || !data.valid_until) return true
+  return new Date(data.valid_until) >= new Date(data.quotation_date)
+}, {
+  message: 'Valid until date must be after or equal to quotation date',
+  path: ['valid_until'],
 })
 
 /**
@@ -201,6 +207,12 @@ export const invoiceSchema = z.object({
   discount_amount: z.number().min(0).default(0),
   receivable_account_id: z.number().optional().nullable(),
   items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
+}).refine((data) => {
+  if (!data.invoice_date || !data.due_date) return true
+  return new Date(data.due_date) >= new Date(data.invoice_date)
+}, {
+  message: 'Due date must be after or equal to invoice date',
+  path: ['due_date'],
 })
 
 /**
@@ -378,6 +390,12 @@ export const projectSchema = z.object({
   end_date: z.string().optional().default(''),
   contract_amount: z.number().min(0).default(0),
   budget_amount: z.number().min(0).default(0),
+}).refine((data) => {
+  if (!data.start_date || !data.end_date) return true
+  return new Date(data.end_date) >= new Date(data.start_date)
+}, {
+  message: 'End date must be after or equal to start date',
+  path: ['end_date'],
 })
 
 /**
@@ -439,6 +457,12 @@ export const billSchema = z.object({
   due_date: requiredDate('Due date'),
   description: z.string().optional().nullable(),
   items: z.array(billItemSchema).min(1, 'At least one item is required'),
+}).refine((data) => {
+  if (!data.bill_date || !data.due_date) return true
+  return new Date(data.due_date) >= new Date(data.bill_date)
+}, {
+  message: 'Due date must be after or equal to bill date',
+  path: ['due_date'],
 })
 
 // ============================================
@@ -524,6 +548,12 @@ export const workOrderSchema = z.object({
   estimated_labor_cost: z.number().min(0).default(0),
   estimated_overhead_cost: z.number().min(0).default(0),
   notes: z.string().optional().default(''),
+}).refine((data) => {
+  if (!data.planned_start_date || !data.planned_end_date) return true
+  return new Date(data.planned_end_date) >= new Date(data.planned_start_date)
+}, {
+  message: 'Planned end date must be after or equal to start date',
+  path: ['planned_end_date'],
 })
 
 /**
