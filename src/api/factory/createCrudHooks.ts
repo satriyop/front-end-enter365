@@ -14,25 +14,12 @@ function cleanParams(params: Record<string, unknown>): Record<string, unknown> {
 
 /**
  * Factory function to create standardized CRUD hooks for a resource
- *
- * @example
- * ```ts
- * const contactHooks = createCrudHooks<Contact, ContactFilters, CreateContactData>({
- *   resourceName: 'contacts',
- * })
- *
- * export const useContacts = contactHooks.useList
- * export const useContact = contactHooks.useSingle
- * export const useContactsLookup = contactHooks.useLookup
- * export const useCreateContact = contactHooks.useCreate
- * export const useUpdateContact = contactHooks.useUpdate
- * export const useDeleteContact = contactHooks.useDelete
- * ```
  */
 export function createCrudHooks<
   TResource extends { id: number | string },
   TFilters extends BaseFilters,
-  TCreateData
+  TCreateData,
+  TUpdateData = Partial<TCreateData>
 >(config: CrudHooksConfig) {
   const {
     resourceName,
@@ -53,7 +40,6 @@ export function createCrudHooks<
         queryFn: async () => {
           const params = cleanParams(filters.value as Record<string, unknown>)
           
-          // Format 'include' array as comma-separated string if present
           if (Array.isArray(params.include)) {
             params.include = params.include.join(',')
           }
@@ -70,7 +56,7 @@ export function createCrudHooks<
      * Fetch single item by ID
      */
     useSingle(
-      id: Ref<number | string> | ComputedRef<number | string>,
+      id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>,
       filters?: Ref<TFilters>
     ) {
       return useQuery({
@@ -83,7 +69,6 @@ export function createCrudHooks<
             ? cleanParams(filters.value as Record<string, unknown>)
             : {}
 
-          // Format 'include' array as comma-separated string if present
           if (Array.isArray(params.include)) {
             params.include = params.include.join(',')
           }
@@ -101,14 +86,13 @@ export function createCrudHooks<
      * Fetch lightweight list for dropdowns/selects
      */
     useLookup(params: Record<string, unknown> = {}) {
-      const mergedParams = { per_page: 100, ...lookupParams, ...params }
       return useQuery({
-        queryKey: [resourceName, 'lookup', mergedParams] as const,
+        queryKey: [resourceName, 'lookup', { ...lookupParams, ...params }] as const,
         queryFn: async () => {
           const response = await api.get<PaginatedResponse<TResource>>(endpoint, {
-            params: cleanParams(mergedParams),
+            params: cleanParams({ per_page: 500, ...lookupParams, ...params }),
           })
-          return response.data
+          return response.data.data
         },
         staleTime: lookupStaleTime,
       })
@@ -136,7 +120,7 @@ export function createCrudHooks<
     useUpdate() {
       const queryClient = useQueryClient()
       return useMutation({
-        mutationFn: async ({ id, data }: { id: number | string; data: Partial<TCreateData> }) => {
+        mutationFn: async ({ id, data }: { id: number | string; data: TUpdateData }) => {
           const response = await api.put<{ data: TResource }>(`${endpoint}/${id}`, data)
           return response.data.data
         },

@@ -54,6 +54,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<QuotationFormData>({
   validationSchema: toTypedSchema(quotationSchema),
   initialValues: {
@@ -70,6 +71,17 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [contactId] = defineField('contact_id')
+const [quotationDate] = defineField('quotation_date')
+const [validUntil] = defineField('valid_until')
+const [subject] = defineField('subject')
+const [reference] = defineField('reference')
+const [discountType] = defineField('discount_type')
+const [discountValue] = defineField('discount_value')
+const [taxRate] = defineField('tax_rate')
+const [notes] = defineField('notes')
+const [termsConditions] = defineField('terms_conditions')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<QuotationItemFormData>('items')
@@ -135,10 +147,10 @@ const subtotal = computed(() => {
 })
 
 const discountAmount = computed(() => {
-  if (form.discount_type === 'percentage') {
-    return subtotal.value * ((form.discount_value || 0) / 100)
+  if (discountType.value === 'percentage') {
+    return subtotal.value * ((discountValue.value || 0) / 100)
   }
-  return form.discount_value || 0
+  return discountValue.value || 0
 })
 
 const afterDiscount = computed(() => subtotal.value - discountAmount.value)
@@ -283,7 +295,7 @@ const contactOptions = computed(() => {
           <!-- Customer -->
           <FormField label="Customer" required :error="errors.contact_id">
             <Select
-              v-model="form.contact_id"
+              v-model="contactId"
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
@@ -293,22 +305,22 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="form.reference" placeholder="PO number, etc." />
+            <Input v-model="reference" placeholder="PO number, etc." />
           </FormField>
 
           <!-- Subject -->
           <FormField label="Subject" class="md:col-span-2">
-            <Input v-model="form.subject" placeholder="Quotation subject or title" />
+            <Input v-model="subject" placeholder="Quotation subject or title" />
           </FormField>
 
           <!-- Quotation Date -->
           <FormField label="Quotation Date" required :error="errors.quotation_date">
-            <Input v-model="form.quotation_date" type="date" @blur="validateField('quotation_date')" />
+            <Input v-model="quotationDate" type="date" @blur="validateField('quotation_date')" />
           </FormField>
 
           <!-- Valid Until -->
           <FormField label="Valid Until">
-            <Input v-model="form.valid_until" type="date" />
+            <Input v-model="validUntil" type="date" />
           </FormField>
         </div>
       </Card>
@@ -452,14 +464,14 @@ const contactOptions = computed(() => {
               <div class="flex items-center gap-2">
                 <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Discount</span>
                 <select
-                  v-model="form.discount_type"
+                  v-model="discountType"
                   class="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
                 >
                   <option value="percentage">%</option>
                   <option value="fixed">Rp</option>
                 </select>
                 <input
-                  v-model.number="form.discount_value"
+                  v-model.number="discountValue"
                   type="number"
                   min="0"
                   class="w-24 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
@@ -492,7 +504,7 @@ const contactOptions = computed(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Notes">
             <Textarea
-              v-model="form.notes"
+              v-model="notes"
               :rows="4"
               placeholder="Internal notes or customer remarks"
             />
@@ -500,7 +512,7 @@ const contactOptions = computed(() => {
 
           <FormField label="Terms & Conditions">
             <Textarea
-              v-model="form.terms_conditions"
+              v-model="termsConditions"
               :rows="4"
               placeholder="Payment terms, delivery terms, etc."
             />

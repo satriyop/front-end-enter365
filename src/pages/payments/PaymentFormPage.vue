@@ -35,9 +35,11 @@ const accountOptions = computed(() =>
   (accounts.value ?? []).map(a => ({ value: a.id, label: `${a.code} - ${a.name}` }))
 )
 
-// Contacts lookup based on payment type
-const contactType = computed(() => form.type === 'receive' ? 'customer' : 'supplier')
-const { data: contacts } = useContactsLookup(contactType.value as any)
+// Contacts lookup
+const { data: customers } = useContactsLookup('customer')
+const { data: suppliers } = useContactsLookup('supplier')
+
+const contacts = computed(() => form.type === 'receive' ? customers.value : suppliers.value)
 const contactOptions = computed(() =>
   (contacts.value ?? []).map(c => ({ value: c.id, label: c.name }))
 )
@@ -63,6 +65,7 @@ const {
   handleSubmit,
   setErrors,
   validateField,
+  defineField,
 } = useForm<PaymentFormData>({
   validationSchema: toTypedSchema(paymentSchema),
   initialValues: {
@@ -78,6 +81,15 @@ const {
     payable_id: initialInvoiceId || initialBillId || null,
   },
 })
+
+const [type] = defineField('type')
+const [contactId] = defineField('contact_id')
+const [paymentDate] = defineField('payment_date')
+const [amount] = defineField('amount')
+const [paymentMethod] = defineField('payment_method')
+const [cashAccountId] = defineField('cash_account_id')
+const [reference] = defineField('reference')
+const [notes] = defineField('notes')
 
 const createMutation = useCreatePayment()
 const isSubmitting = computed(() => createMutation.isPending.value)
@@ -114,12 +126,12 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="space-y-4">
           <FormField label="Payment Type" required :error="errors.type">
-            <Select v-model="form.type" :options="typeOptions" @update:model-value="validateField('type')" />
+            <Select v-model="type" :options="typeOptions" @update:model-value="validateField('type')" />
           </FormField>
 
           <FormField label="Contact" required :error="errors.contact_id">
             <Select
-              v-model="form.contact_id"
+              v-model="contactId"
               :options="contactOptions"
               :placeholder="form.type === 'receive' ? 'Select customer' : 'Select vendor'"
               @update:model-value="validateField('contact_id')"
@@ -128,30 +140,30 @@ const onSubmit = handleSubmit(async (formValues) => {
 
           <div class="grid grid-cols-2 gap-4">
             <FormField label="Payment Date" required :error="errors.payment_date">
-              <Input v-model="form.payment_date" type="date" @blur="validateField('payment_date')" />
+              <Input v-model="paymentDate" type="date" @blur="validateField('payment_date')" />
             </FormField>
 
             <FormField label="Amount" required :error="errors.amount">
-              <Input v-model.number="form.amount" type="number" min="0" step="1000" @blur="validateField('amount')" />
+              <Input v-model.number="amount" type="number" min="0" step="1000" @blur="validateField('amount')" />
             </FormField>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <FormField label="Payment Method" required>
-              <Select v-model="form.payment_method" :options="methodOptions" />
+              <Select v-model="paymentMethod" :options="methodOptions" />
             </FormField>
 
             <FormField label="Cash Account" required :error="errors.cash_account_id">
-              <Select v-model="form.cash_account_id" :options="accountOptions" placeholder="Select account" @update:model-value="validateField('cash_account_id')" />
+              <Select v-model="cashAccountId" :options="accountOptions" placeholder="Select account" @update:model-value="validateField('cash_account_id')" />
             </FormField>
           </div>
 
           <FormField label="Reference">
-            <Input v-model="form.reference" placeholder="Check number, transfer reference, etc." />
+            <Input v-model="reference" placeholder="Check number, transfer reference, etc." />
           </FormField>
 
           <FormField label="Notes">
-            <Textarea v-model="form.notes" :rows="2" placeholder="Additional notes" />
+            <Textarea v-model="notes" :rows="2" placeholder="Additional notes" />
           </FormField>
         </div>
       </Card>

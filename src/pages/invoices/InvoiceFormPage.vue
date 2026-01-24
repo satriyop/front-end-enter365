@@ -63,6 +63,7 @@ const {
   setFieldValue,
   setErrors,
   validateField,
+  defineField,
 } = useForm<InvoiceFormData>({
   validationSchema: toTypedSchema(invoiceSchema),
   initialValues: {
@@ -76,6 +77,14 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [contactId] = defineField('contact_id')
+const [invoiceDate] = defineField('invoice_date')
+const [dueDate] = defineField('due_date')
+const [description] = defineField('description')
+const [reference] = defineField('reference')
+const [taxRate] = defineField('tax_rate')
+const [discountAmount] = defineField('discount_amount')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<InvoiceItemFormData>('items')
@@ -228,7 +237,7 @@ const contactOptions = computed(() => {
           <!-- Customer -->
           <FormField label="Customer" required :error="errors.contact_id">
             <Select
-              :model-value="form.contact_id"
+              :model-value="contactId"
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
@@ -238,23 +247,23 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="form.reference" placeholder="PO number, etc." />
+            <Input v-model="reference" placeholder="PO number, etc." />
           </FormField>
 
           <!-- Invoice Date -->
           <FormField label="Invoice Date" required :error="errors.invoice_date">
-            <Input v-model="form.invoice_date" type="date" @blur="validateField('invoice_date')" />
+            <Input v-model="invoiceDate" type="date" @blur="validateField('invoice_date')" />
           </FormField>
 
           <!-- Due Date -->
           <FormField label="Due Date" required :error="errors.due_date">
-            <Input v-model="form.due_date" type="date" @blur="validateField('due_date')" />
+            <Input v-model="dueDate" type="date" @blur="validateField('due_date')" />
           </FormField>
 
           <!-- Description -->
           <FormField label="Description" class="md:col-span-2">
             <Textarea
-              v-model="form.description"
+              v-model="description"
               :rows="2"
               placeholder="Invoice description"
             />
@@ -356,13 +365,13 @@ const contactOptions = computed(() => {
               <div class="flex items-center gap-2">
                 <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Discount</span>
                 <CurrencyInput
-                  v-model="form.discount_amount"
+                  v-model="discountAmount"
                   size="sm"
                   class="w-48"
                   :min="0"
                 />
                 <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
-                  -{{ formatCurrency(form.discount_amount) }}
+                  -{{ formatCurrency(discountAmount || 0) }}
                 </span>
               </div>
 
@@ -370,7 +379,7 @@ const contactOptions = computed(() => {
               <div class="flex items-center gap-2">
                 <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Tax (%)</span>
                 <input
-                  v-model.number="form.tax_rate"
+                  v-model.number="taxRate"
                   type="number"
                   min="0"
                   max="100"
