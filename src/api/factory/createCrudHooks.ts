@@ -51,8 +51,15 @@ export function createCrudHooks<
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         queryKey: computed(() => [resourceName, filters.value]) as any,
         queryFn: async () => {
+          const params = cleanParams(filters.value as Record<string, unknown>)
+          
+          // Format 'include' array as comma-separated string if present
+          if (Array.isArray(params.include)) {
+            params.include = params.include.join(',')
+          }
+
           const response = await api.get<PaginatedResponse<TResource>>(endpoint, {
-            params: cleanParams(filters.value as Record<string, unknown>),
+            params,
           })
           return response.data
         },
@@ -62,12 +69,28 @@ export function createCrudHooks<
     /**
      * Fetch single item by ID
      */
-    useSingle(id: Ref<number | string> | ComputedRef<number | string>) {
+    useSingle(
+      id: Ref<number | string> | ComputedRef<number | string>,
+      filters?: Ref<TFilters>
+    ) {
       return useQuery({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        queryKey: computed(() => [singularName, id.value]) as any,
+        queryKey: computed(() => [singularName, id.value, filters?.value]) as any,
         queryFn: async () => {
-          const response = await api.get<{ data: TResource }>(`${endpoint}/${id.value}`)
+          if (!id.value) return null
+          
+          const params = filters?.value 
+            ? cleanParams(filters.value as Record<string, unknown>)
+            : {}
+
+          // Format 'include' array as comma-separated string if present
+          if (Array.isArray(params.include)) {
+            params.include = params.include.join(',')
+          }
+
+          const response = await api.get<{ data: TResource }>(`${endpoint}/${id.value}`, {
+            params
+          })
           return response.data.data
         },
         enabled: computed(() => !!id.value),
@@ -85,7 +108,7 @@ export function createCrudHooks<
           const response = await api.get<PaginatedResponse<TResource>>(endpoint, {
             params: cleanParams(mergedParams),
           })
-          return response.data.data
+          return response.data
         },
         staleTime: lookupStaleTime,
       })

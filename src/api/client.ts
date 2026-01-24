@@ -77,6 +77,7 @@ api.interceptors.response.use(
     // Handle validation errors (422)
     if (error.response?.status === 422) {
       const data = error.response.data as { errors?: Record<string, string[]>; message?: string }
+      console.error('API Validation Error:', data)
       const validationError = {
         ...error,
         validationErrors: data.errors,
@@ -95,8 +96,19 @@ export function getErrorMessage(error: unknown, fallback = 'An error occurred'):
 
   // Axios error with response
   if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined
+    const data = error.response?.data as { 
+      message?: string; 
+      errors?: Record<string, string[]>;
+      success?: boolean;
+      context?: Record<string, unknown>;
+    } | undefined
     
+    // Check for validation errors (422)
+    if (error.response?.status === 422 && data?.errors) {
+      const firstError = Object.values(data.errors)[0]?.[0]
+      return firstError || data.message || 'Validation failed'
+    }
+
     // Check for specific server error (500)
     if (error.response?.status === 500) {
       return data?.message || 'Server Error: Something went wrong on the server.'
@@ -112,8 +124,8 @@ export function getErrorMessage(error: unknown, fallback = 'An error occurred'):
   }
 
   // Object with message
-  if (typeof error === 'object' && 'message' in error && typeof error.message === 'string') {
-    return error.message
+  if (typeof error === 'object' && error !== null && 'message' in error && typeof (error as any).message === 'string') {
+    return (error as any).message
   }
 
   return fallback

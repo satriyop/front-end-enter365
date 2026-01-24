@@ -21,4 +21,6 @@ export interface BaseFilters {
   page?: number
   per_page?: string | number
   search?: string
+  /** Explicitly load relationships (e.g., ['items', 'contact']) */
+  include?: string[]
 }
