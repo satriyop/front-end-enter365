@@ -6969,16 +6969,16 @@ export interface components {
         };
         /** AccountResource */
         AccountResource: {
-            id: string;
+            id: number;
             code: string;
             name: string;
             type: string;
-            subtype: string;
-            description: string;
-            parent_id: string;
-            is_active: string;
-            is_system: string;
-            opening_balance: string;
+            subtype: string | null;
+            description: string | null;
+            parent_id: number | null;
+            is_active: boolean;
+            is_system: boolean;
+            opening_balance: number;
             current_balance?: string;
             parent?: components["schemas"]["AccountResource"];
             children?: components["schemas"]["AccountResource"][];
@@ -7021,26 +7021,26 @@ export interface components {
         };
         /** BankTransactionResource */
         BankTransactionResource: {
-            id: string;
-            account_id: string;
+            id: number;
+            account_id: number;
             account?: components["schemas"]["AccountResource"];
             transaction_date: string;
             description: string;
-            reference: string;
-            debit: string;
-            credit: string;
+            reference: string | null;
+            debit: number;
+            credit: number;
             net_amount: number;
-            balance: string;
+            balance: number;
             status: string;
             status_label: string;
             is_reconciled: boolean;
-            matched_payment_id: string;
+            matched_payment_id: number | null;
             matched_payment?: components["schemas"]["PaymentResource"];
-            matched_journal_line_id: string;
+            matched_journal_line_id: number | null;
             reconciled_at: string;
-            reconciled_by: string;
-            import_batch: string;
-            external_id: string;
+            reconciled_by: number | null;
+            import_batch: string | null;
+            external_id: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -7093,7 +7093,25 @@ export interface components {
             updated_at: string;
         };
         /** BomItem */
-        BomItem: string[];
+        BomItem: {
+            id: number;
+            bom_id: number;
+            type: string;
+            product_id: number | null;
+            description: string;
+            quantity: string;
+            unit: string | null;
+            unit_cost: number;
+            total_cost: number;
+            waste_percentage: string;
+            sort_order: number;
+            notes: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            component_standard_id: number | null;
+        };
         /** BomItemResource */
         BomItemResource: {
             id: string;
@@ -7161,31 +7179,31 @@ export interface components {
         };
         /** BomTemplateItemResource */
         BomTemplateItemResource: {
-            id: string;
-            template_id: string;
+            id: number;
+            template_id: number;
             type: string;
             type_label: string;
-            component_standard_id: string;
+            component_standard_id: number | null;
             component_standard?: {
-                id: string;
+                id: number;
                 code: string;
                 name: string;
                 category: string;
             };
-            product_id: string;
+            product_id: number | null;
             product?: {
-                id: string;
+                id: number;
                 name: string;
                 sku: string;
-                purchase_price: string;
+                purchase_price: number;
             };
             description: string;
             default_quantity: string;
             unit: string;
-            is_required: string;
-            is_quantity_variable: string;
-            sort_order: string;
-            notes: string;
+            is_required: boolean;
+            is_quantity_variable: boolean;
+            sort_order: number;
+            notes: string | null;
             has_component_standard: boolean;
             has_product: boolean;
             created_at: string;
@@ -7193,18 +7211,18 @@ export interface components {
         };
         /** BomTemplateResource */
         BomTemplateResource: {
-            id: string;
+            id: number;
             code: string;
             name: string;
-            description: string;
-            category: string;
-            category_label: string;
-            thumbnail_path: string;
+            description: string | null;
+            category: string | null;
+            category_label: string | null;
+            thumbnail_path: string | null;
             thumbnail_url: string | null;
-            is_active: string;
-            usage_count: string;
+            is_active: boolean;
+            usage_count: number;
             default_rule_set?: {
-                id: string;
+                id: number;
                 name: string;
                 code: string;
             };
@@ -7216,7 +7234,7 @@ export interface components {
                 overhead_count: number;
             };
             creator?: {
-                id: string;
+                id: number;
                 name: string;
             };
             created_at: string;
@@ -7253,48 +7271,48 @@ export interface components {
         };
         /** BudgetLineResource */
         BudgetLineResource: {
-            id: string;
-            budget_id: string;
-            account_id: string;
+            id: number;
+            budget_id: number;
+            account_id: number;
             account?: {
-                id: string;
+                id: number;
                 code: string;
                 name: string;
                 type: string;
             };
             /** @description Monthly amounts */
-            jan_amount: string;
-            feb_amount: string;
-            mar_amount: string;
-            apr_amount: string;
-            may_amount: string;
-            jun_amount: string;
-            jul_amount: string;
-            aug_amount: string;
-            sep_amount: string;
-            oct_amount: string;
-            nov_amount: string;
-            dec_amount: string;
+            jan_amount: number;
+            feb_amount: number;
+            mar_amount: number;
+            apr_amount: number;
+            may_amount: number;
+            jun_amount: number;
+            jul_amount: number;
+            aug_amount: number;
+            sep_amount: number;
+            oct_amount: number;
+            nov_amount: number;
+            dec_amount: number;
             /** @description Summary */
-            annual_amount: string;
+            annual_amount: number;
             monthly_amounts: number[];
             /** @description Quarterly summary */
             q1_amount: number;
             q2_amount: number;
             q3_amount: number;
             q4_amount: number;
-            notes: string;
+            notes: string | null;
             created_at: string;
             updated_at: string;
         };
         /** BudgetResource */
         BudgetResource: {
-            id: string;
+            id: number;
             name: string;
-            description: string;
-            fiscal_period_id: string;
+            description: string | null;
+            fiscal_period_id: number;
             fiscal_period?: {
-                id: string;
+                id: number;
                 name: string;
                 start_date: string;
                 end_date: string;
@@ -7305,17 +7323,17 @@ export interface components {
             status_label: string;
             is_editable: boolean;
             /** @description Totals */
-            total_revenue: string;
-            total_expense: string;
-            net_budget: string;
+            total_revenue: number;
+            total_expense: number;
+            net_budget: number;
             /** @description Approval info */
-            approved_by: string;
+            approved_by: number | null;
             approved_by_user?: {
-                id: string;
+                id: number;
                 name: string;
             };
             approved_at: string;
-            notes: string;
+            notes: string | null;
             /** @description Lines */
             lines?: components["schemas"]["BudgetLineResource"][];
             lines_count?: number;
@@ -7328,84 +7346,84 @@ export interface components {
         };
         /** CompanyProfileResource */
         CompanyProfileResource: {
-            id: string;
+            id: number;
             name: string;
             slug: string;
-            tagline: string;
-            description: string;
-            founded_year: string;
-            employees_count: string;
+            tagline: string | null;
+            description: string | null;
+            founded_year: number | null;
+            employees_count: string | null;
             /** @description Branding */
-            logo_path: string;
+            logo_path: string | null;
             logo_url: string;
-            cover_image_path: string;
+            cover_image_path: string | null;
             cover_image_url: string;
             primary_color: string;
-            secondary_color: string;
+            secondary_color: string | null;
             /** @description Content arrays */
-            services: string | string[];
-            portfolio: string | string[];
-            team: string | string[];
-            certifications: string | string[];
-            social_links: string | string[];
+            services: unknown[] | null | string[];
+            portfolio: unknown[] | null | string[];
+            team: string | null | string[];
+            certifications: unknown[] | null | string[];
+            social_links: unknown[] | null | string[];
             /** @description Contact */
-            email: string;
-            phone: string;
-            address: string;
-            website: string;
+            email: string | null;
+            phone: string | null;
+            address: string | null;
+            website: string | null;
             /** @description Custom domain */
-            custom_domain: string;
+            custom_domain: string | null;
             public_url: string;
             /** @description Status */
-            is_active: string;
+            is_active: boolean;
             /** @description Timestamps */
             created_at: string;
             updated_at: string;
         };
         /** ComponentBrandMappingResource */
         ComponentBrandMappingResource: {
-            id: string;
-            component_standard_id: string;
+            id: number;
+            component_standard_id: number;
             brand: string;
             brand_label: string;
-            product_id: string;
+            product_id: number;
             product?: {
-                id: string;
+                id: number;
                 name: string;
                 sku: string;
-                purchase_price: string;
-                selling_price: string;
-                current_stock: string;
+                purchase_price: number;
+                selling_price: number;
+                current_stock: number;
             };
             brand_sku: string;
-            is_preferred: string;
-            is_verified: string;
+            is_preferred: boolean;
+            is_verified: boolean;
             price_factor: number;
-            variant_specs: string;
-            notes: string;
-            verified_by: string;
+            variant_specs: unknown[] | null;
+            notes: string | null;
+            verified_by: number | null;
             verified_at: string;
             created_at: string;
             updated_at: string;
         };
         /** ComponentStandardResource */
         ComponentStandardResource: {
-            id: string;
+            id: number;
             code: string;
             name: string;
             category: string;
             category_label: string;
-            subcategory: string;
-            specifications: string;
-            standard: string;
-            description: string;
+            subcategory: string | null;
+            specifications: unknown[];
+            standard: string | null;
+            description: string | null;
             unit: string;
-            is_active: string;
+            is_active: boolean;
             brand_mappings?: components["schemas"]["ComponentBrandMappingResource"][];
             available_brands?: unknown[];
             brand_count?: number;
             creator?: {
-                id: string;
+                id: number;
                 name: string;
             };
             created_at: string;
@@ -7517,6 +7535,12 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /**
+         * DocumentStatus
+         * @description Centralized document status enum for all document types. Replaces scattered STATUS_* constants across models for type safety, centralized labels, and workflow validation.
+         * @enum {string}
+         */
+        DocumentStatus: "draft" | "cancelled" | "submitted" | "approved" | "rejected" | "completed" | "converted" | "expired" | "sent" | "partial" | "paid" | "overdue" | "received" | "fully_applied" | "refunded" | "active" | "inactive" | "confirmed" | "in_progress" | "processing" | "applied" | "issued" | "assigned" | "counting" | "reviewed" | "shipped" | "delivered" | "receiving" | "planning" | "on_hold" | "accepted" | "archived";
         /** DownPaymentApplicationResource */
         DownPaymentApplicationResource: {
             id: string;
@@ -7570,7 +7594,11 @@ export interface components {
             reference: string;
             description: string;
             notes: string;
-            status: string;
+            status: {
+                value: string;
+                label: string;
+                color: string;
+            };
             journal_entry_id: string;
             refund_payment_id: string;
             refunded_at: string;
@@ -7586,18 +7614,18 @@ export interface components {
         };
         /** FiscalPeriodResource */
         FiscalPeriodResource: {
-            id: string;
+            id: number;
             name: string;
             start_date: string;
             end_date: string;
-            is_closed: string;
-            is_locked: string;
+            is_closed: boolean;
+            is_locked: boolean;
             is_open: boolean;
             closed_at: string;
-            closed_by: string;
-            closing_entry_id: string;
-            retained_earnings_amount: string;
-            closing_notes: string;
+            closed_by: number | null;
+            closing_entry_id: number | null;
+            retained_earnings_amount: number | null;
+            closing_notes: string | null;
             closing_entry?: components["schemas"]["JournalEntryResource"];
             created_at: string;
             updated_at: string;
@@ -7655,7 +7683,11 @@ export interface components {
                 name: string;
             };
             receipt_date: string;
-            status: string;
+            status: {
+                value: string;
+                label: string;
+                color: string;
+            };
             /** @description Supplier references */
             supplier_do_number: string;
             supplier_invoice_number: string;
@@ -7765,12 +7797,12 @@ export interface components {
         };
         /** InvoiceResource */
         InvoiceResource: {
-            id: string;
+            id: number;
             invoice_number: string;
-            reference: string;
-            description: string;
+            reference: string | null;
+            description: string | null;
             /** @description Contact */
-            contact_id: string;
+            contact_id: number;
             contact?: components["schemas"]["ContactResource"];
             /** @description Dates */
             invoice_date: string;
@@ -7782,14 +7814,14 @@ export interface components {
             currency: string;
             exchange_rate: number;
             /** @description Amounts (raw integers for calculations) */
-            subtotal: string;
-            discount_amount: string;
+            subtotal: number;
+            discount_amount: number;
             tax_rate: number;
-            tax_amount: string;
-            total_amount: string;
-            paid_amount: string;
+            tax_amount: number;
+            total_amount: number;
+            paid_amount: number;
             outstanding_amount: number;
-            base_currency_total: string;
+            base_currency_total: number;
             /** @description Formatted amounts (for display) */
             formatted: {
                 subtotal: string;
@@ -7802,17 +7834,19 @@ export interface components {
             /** @description Status */
             status: {
                 value: string;
-                label: string;
-                color: string;
-                is_terminal: string;
-                is_editable: string;
+                /** @enum {string} */
+                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                /** @enum {string} */
+                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
+                is_terminal: boolean;
+                is_editable: boolean;
             };
             /** @description Journal entry */
-            journal_entry_id: string;
+            journal_entry_id: number | null;
             has_journal_entry: boolean;
             journal_entry?: components["schemas"]["JournalEntryResource"];
             /** @description Receivable account */
-            receivable_account_id: string;
+            receivable_account_id: number | null;
             /** @description Items */
             items?: components["schemas"]["InvoiceItemResource"][];
             item_count?: string;
@@ -7824,7 +7858,7 @@ export interface components {
                 current_status: {
                     value: string;
                     /** @enum {string} */
-                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
                     /** @enum {string} */
                     color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
                     is_terminal: boolean;
@@ -7857,9 +7891,9 @@ export interface components {
                 can_mark_as_partial: boolean;
             };
             /** @description Metadata */
-            reminder_count: string;
+            reminder_count: number;
             last_reminder_at: string;
-            created_by: string;
+            created_by: number | null;
             created_at: string;
             updated_at: string;
             /** @description Links (for HATEOAS-style responses) */
@@ -7869,28 +7903,28 @@ export interface components {
         };
         /** JournalEntryLineResource */
         JournalEntryLineResource: {
-            id: string;
-            journal_entry_id: string;
-            account_id: string;
-            description: string;
-            debit: string;
-            credit: string;
+            id: number;
+            journal_entry_id: number;
+            account_id: number;
+            description: string | null;
+            debit: number;
+            credit: number;
             account?: components["schemas"]["AccountResource"];
             created_at: string;
             updated_at: string;
         };
         /** JournalEntryResource */
         JournalEntryResource: {
-            id: string;
+            id: number;
             entry_number: string;
             entry_date: string;
             description: string;
-            reference: string;
-            source_type: string;
-            source_id: string;
-            fiscal_period_id: string;
-            is_posted: string;
-            is_reversed: string;
+            reference: string | null;
+            source_type: string | null;
+            source_id: number | null;
+            fiscal_period_id: number | null;
+            is_posted: boolean;
+            is_reversed: boolean;
             total_debit: number;
             total_credit: number;
             is_balanced: boolean;
@@ -7898,7 +7932,7 @@ export interface components {
             fiscal_period?: components["schemas"]["FiscalPeriodResource"];
             reversed_by?: components["schemas"]["JournalEntryResource"];
             reversal_of?: components["schemas"]["JournalEntryResource"];
-            created_by: string;
+            created_by: number | null;
             created_at: string;
             updated_at: string;
         };
@@ -8177,7 +8211,30 @@ export interface components {
             updated_at: string;
         };
         /** PlnTariff */
-        PlnTariff: string[];
+        PlnTariff: {
+            id: number;
+            category_code: string;
+            category_name: string;
+            customer_type: string;
+            power_va_min: number;
+            power_va_max: number | null;
+            rate_per_kwh: number;
+            capacity_charge: number | null;
+            minimum_charge: number | null;
+            peak_rate_per_kwh: number | null;
+            off_peak_rate_per_kwh: number | null;
+            peak_hours: string | null;
+            is_active: boolean;
+            /** Format: date-time */
+            effective_from: string | null;
+            /** Format: date-time */
+            effective_until: string | null;
+            notes: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+        };
         /** PlnTariffResource */
         PlnTariffResource: {
             id: string;
@@ -8203,7 +8260,47 @@ export interface components {
             notes: string;
         };
         /** Product */
-        Product: string[];
+        Product: {
+            id: number;
+            sku: string;
+            name: string;
+            description: string | null;
+            type: string;
+            category_id: number | null;
+            unit: string;
+            purchase_price: number;
+            selling_price: number;
+            tax_rate: string;
+            is_taxable: boolean;
+            track_inventory: boolean;
+            min_stock: number;
+            current_stock: number;
+            inventory_account_id: number | null;
+            cogs_account_id: number | null;
+            sales_account_id: number | null;
+            purchase_account_id: number | null;
+            is_active: boolean;
+            is_purchasable: boolean;
+            is_sellable: boolean;
+            barcode: string | null;
+            brand: string | null;
+            custom_fields: unknown[] | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            /** Format: date-time */
+            deleted_at: string | null;
+            reorder_point: number;
+            safety_stock: number;
+            lead_time_days: number;
+            min_order_qty: string;
+            order_multiple: string;
+            max_stock: number | null;
+            default_supplier_id: number | null;
+            abc_class: string;
+            procurement_type: string;
+        };
         /** ProductCategoryResource */
         ProductCategoryResource: {
             id: string;
@@ -8702,8 +8799,6 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
-        /** QuotationVariantOption */
-        QuotationVariantOption: string[];
         /** QuotationVariantOptionResource */
         QuotationVariantOptionResource: {
             id: string;
@@ -8983,18 +9078,18 @@ export interface components {
         };
         /** SpecValidationRuleResource */
         SpecValidationRuleResource: {
-            id: string;
-            rule_set_id: string;
+            id: number;
+            rule_set_id: number;
             category: string;
             category_label: string;
             spec_key: string;
             validation_type: string;
             validation_type_label: string;
-            threshold_value: string;
+            threshold_value: string | null;
             severity: string;
             severity_label: string;
-            message: string;
-            sort_order: string;
+            message: string | null;
+            sort_order: number;
             description: string;
             requires_threshold: boolean;
             created_at: string;
@@ -9004,17 +9099,17 @@ export interface components {
         SpecValidationRuleSet: Record<string, never>;
         /** SpecValidationRuleSetResource */
         SpecValidationRuleSetResource: {
-            id: string;
+            id: number;
             code: string;
             name: string;
-            description: string;
-            is_default: string;
-            is_active: string;
+            description: string | null;
+            is_default: boolean;
+            is_active: boolean;
             rules?: components["schemas"]["SpecValidationRuleResource"][];
             rules_count?: number;
             boms_count?: number;
             creator?: {
-                id: string;
+                id: number;
                 name: string;
             };
             created_at: string;
@@ -9068,57 +9163,63 @@ export interface components {
         };
         /** StockOpnameResource */
         StockOpnameResource: {
-            id: string;
+            id: number;
             opname_number: string;
-            warehouse_id: string;
+            warehouse_id: number;
             warehouse?: {
-                id: string;
+                id: number;
                 code: string;
                 name: string;
             };
             opname_date: string;
-            status: string;
-            name: string;
-            notes: string;
+            status: {
+                value: string;
+                /** @enum {string} */
+                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                /** @enum {string} */
+                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
+            };
+            name: string | null;
+            notes: string | null;
             /** @description Workflow tracking */
-            counted_by: string;
+            counted_by: number | null;
             counted_by_user?: {
-                id: string;
+                id: number;
                 name: string;
             };
             counting_started_at: string;
-            reviewed_by: string;
+            reviewed_by: number | null;
             reviewed_by_user?: {
-                id: string;
+                id: number;
                 name: string;
             };
             reviewed_at: string;
-            approved_by: string;
+            approved_by: number | null;
             approved_by_user?: {
-                id: string;
+                id: number;
                 name: string;
             };
             approved_at: string;
             completed_at: string;
             cancelled_at: string;
             /** @description Summary */
-            total_items: string;
-            total_counted: string;
-            counting_progress: string;
-            total_variance_qty: string;
-            total_variance_value: string;
+            total_items: number;
+            total_counted: number;
+            counting_progress: number;
+            total_variance_qty: number;
+            total_variance_value: number;
             /** @description Items */
             items?: components["schemas"]["StockOpnameItemResource"][];
-            items_count?: string;
+            items_count?: string | number;
             /** @description Workflow permissions */
-            can_edit: string;
-            can_delete: string;
-            can_start_counting: string;
-            can_submit_for_review: string;
-            can_approve: string;
-            can_reject: string;
-            can_cancel: string;
-            created_by: string;
+            can_edit: boolean;
+            can_delete: boolean;
+            can_start_counting: boolean;
+            can_submit_for_review: boolean;
+            can_approve: boolean;
+            can_reject: boolean;
+            can_cancel: boolean;
+            created_by: number | null;
             created_at: string;
             updated_at: string;
         };
@@ -9176,21 +9277,36 @@ export interface components {
         /** StoreBillRequest */
         StoreBillRequest: {
             contact_id: number;
+            subject?: string | null;
+            reference?: string | null;
+            currency?: string | null;
+            exchange_rate?: number | null;
+            /** @enum {string|null} */
+            discount_type?: "percentage" | "fixed" | null;
+            discount_value?: number | null;
+            tax_rate?: number | null;
+            notes?: string | null;
+            terms_conditions?: string | null;
             vendor_invoice_number?: string | null;
             /** Format: date-time */
             bill_date: string;
             /** Format: date-time */
             due_date: string;
             description?: string | null;
-            reference?: string | null;
-            tax_rate?: number;
-            discount_amount?: number;
+            /** @description Override common description */
+            discount_amount?: number | null;
+            /** @description Override common discount_value */
             payable_account_id?: number | null;
             items: {
+                product_id?: number | null;
                 description: string;
                 quantity: number;
-                unit?: string;
+                unit?: string | null;
                 unit_price: number;
+                discount_percent?: number | null;
+                tax_rate?: number | null;
+                notes?: string | null;
+                sort_order?: number | null;
                 expense_account_id?: number | null;
             }[];
         };
@@ -9468,20 +9584,36 @@ export interface components {
         /** StoreInvoiceRequest */
         StoreInvoiceRequest: {
             contact_id: number;
+            subject?: string | null;
+            reference?: string | null;
+            currency?: string | null;
+            exchange_rate?: number | null;
+            /** @enum {string|null} */
+            discount_type?: "percentage" | "fixed" | null;
+            discount_value?: number | null;
+            tax_rate?: number | null;
+            notes?: string | null;
+            terms_conditions?: string | null;
             /** Format: date-time */
             invoice_date: string;
             /** Format: date-time */
             due_date: string;
             description?: string | null;
-            reference?: string | null;
-            tax_rate?: number;
-            discount_amount?: number;
+            /** @description Override common description */
+            discount_amount?: number | null;
+            /** @description Override common discount_value */
             receivable_account_id?: number | null;
             items: {
+                product_id?: number | null;
                 description: string;
                 quantity: number;
-                unit?: string;
+                unit?: string | null;
                 unit_price: number;
+                discount_percent?: number | null;
+                tax_rate?: number | null;
+                notes?: string | null;
+                sort_order?: number | null;
+                /** @description Override common unit (make nullable) */
                 revenue_account_id?: number | null;
             }[];
         };
@@ -9604,12 +9736,8 @@ export interface components {
         /** StorePurchaseOrderRequest */
         StorePurchaseOrderRequest: {
             contact_id: number;
-            /** Format: date-time */
-            po_date: string;
-            /** Format: date-time */
-            expected_date?: string | null;
-            reference?: string | null;
             subject?: string | null;
+            reference?: string | null;
             currency?: string | null;
             exchange_rate?: number | null;
             /** @enum {string|null} */
@@ -9618,6 +9746,10 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
+            /** Format: date-time */
+            po_date: string;
+            /** Format: date-time */
+            expected_date?: string | null;
             shipping_address?: string | null;
             items: {
                 product_id?: number | null;
@@ -9627,8 +9759,8 @@ export interface components {
                 unit_price: number;
                 discount_percent?: number | null;
                 tax_rate?: number | null;
-                sort_order?: number | null;
                 notes?: string | null;
+                sort_order?: number | null;
             }[];
         };
         /** StorePurchaseReturnRequest */
@@ -9697,12 +9829,8 @@ export interface components {
         /** StoreQuotationRequest */
         StoreQuotationRequest: {
             contact_id: number;
-            /** Format: date-time */
-            quotation_date: string;
-            /** Format: date-time */
-            valid_until?: string | null;
-            reference?: string | null;
             subject?: string | null;
+            reference?: string | null;
             currency?: string | null;
             exchange_rate?: number | null;
             /** @enum {string|null} */
@@ -9711,6 +9839,10 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
+            /** Format: date-time */
+            quotation_date: string;
+            /** Format: date-time */
+            valid_until?: string | null;
             items: {
                 product_id?: number | null;
                 description: string;
@@ -9719,8 +9851,8 @@ export interface components {
                 unit_price: number;
                 discount_percent?: number | null;
                 tax_rate?: number | null;
-                sort_order?: number | null;
                 notes?: string | null;
+                sort_order?: number | null;
             }[];
         };
         /** StoreRecurringTemplateRequest */
@@ -10068,23 +10200,36 @@ export interface components {
         };
         /** UpdateBillRequest */
         UpdateBillRequest: {
-            contact_id?: number;
+            contact_id?: number | null;
+            subject?: string | null;
+            reference?: string | null;
+            currency?: string | null;
+            exchange_rate?: number | null;
+            /** @enum {string|null} */
+            discount_type?: "percentage" | "fixed" | null;
+            discount_value?: number | null;
+            tax_rate?: number | null;
+            notes?: string | null;
+            terms_conditions?: string | null;
             vendor_invoice_number?: string | null;
             /** Format: date-time */
             bill_date?: string;
             /** Format: date-time */
             due_date?: string;
             description?: string | null;
-            reference?: string | null;
-            tax_rate?: number;
-            discount_amount?: number;
+            discount_amount?: number | null;
             payable_account_id?: number | null;
             items?: {
+                product_id?: number | null;
+                description?: string;
+                quantity?: number;
+                unit?: string | null;
+                unit_price?: number;
+                discount_percent?: number | null;
+                tax_rate?: number | null;
+                notes?: string | null;
+                sort_order?: number | null;
                 id?: number | null;
-                description: string;
-                quantity: number;
-                unit?: string;
-                unit_price: number;
                 expense_account_id?: number | null;
             }[];
         };
@@ -10320,22 +10465,35 @@ export interface components {
         };
         /** UpdateInvoiceRequest */
         UpdateInvoiceRequest: {
-            contact_id?: number;
+            contact_id?: number | null;
+            subject?: string | null;
+            reference?: string | null;
+            currency?: string | null;
+            exchange_rate?: number | null;
+            /** @enum {string|null} */
+            discount_type?: "percentage" | "fixed" | null;
+            discount_value?: number | null;
+            tax_rate?: number | null;
+            notes?: string | null;
+            terms_conditions?: string | null;
             /** Format: date-time */
             invoice_date?: string;
             /** Format: date-time */
             due_date?: string;
             description?: string | null;
-            reference?: string | null;
-            tax_rate?: number;
-            discount_amount?: number;
+            discount_amount?: number | null;
             receivable_account_id?: number | null;
             items?: {
+                product_id?: number | null;
+                description?: string;
+                quantity?: number;
+                unit?: string | null;
+                unit_price?: number;
+                discount_percent?: number | null;
+                tax_rate?: number | null;
+                notes?: string | null;
+                sort_order?: number | null;
                 id?: number | null;
-                description: string;
-                quantity: number;
-                unit?: string;
-                unit_price: number;
                 revenue_account_id?: number | null;
             }[];
         };
@@ -10425,12 +10583,8 @@ export interface components {
         /** UpdatePurchaseOrderRequest */
         UpdatePurchaseOrderRequest: {
             contact_id?: number;
-            /** Format: date-time */
-            po_date?: string;
-            /** Format: date-time */
-            expected_date?: string;
-            reference?: string | null;
             subject?: string | null;
+            reference?: string | null;
             currency?: string | null;
             exchange_rate?: number | null;
             /** @enum {string|null} */
@@ -10439,6 +10593,10 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
+            /** Format: date-time */
+            po_date?: string;
+            /** Format: date-time */
+            expected_date?: string;
             shipping_address?: string | null;
             items?: {
                 product_id?: number | null;
@@ -10448,8 +10606,8 @@ export interface components {
                 unit_price?: number;
                 discount_percent?: number | null;
                 tax_rate?: number | null;
-                sort_order?: number | null;
                 notes?: string | null;
+                sort_order?: number | null;
             }[];
         };
         /** UpdatePurchaseReturnRequest */
@@ -10478,12 +10636,8 @@ export interface components {
         /** UpdateQuotationRequest */
         UpdateQuotationRequest: {
             contact_id?: number;
-            /** Format: date-time */
-            quotation_date?: string;
-            /** Format: date-time */
-            valid_until?: string;
-            reference?: string | null;
             subject?: string | null;
+            reference?: string | null;
             currency?: string | null;
             exchange_rate?: number | null;
             /** @enum {string|null} */
@@ -10492,6 +10646,10 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
+            /** Format: date-time */
+            quotation_date?: string;
+            /** Format: date-time */
+            valid_until?: string;
             items?: {
                 product_id?: number | null;
                 description?: string;
@@ -10500,8 +10658,8 @@ export interface components {
                 unit_price?: number;
                 discount_percent?: number | null;
                 tax_rate?: number | null;
-                sort_order?: number | null;
                 notes?: string | null;
+                sort_order?: number | null;
             }[];
         };
         /** UpdateRecurringTemplateRequest */
@@ -10707,13 +10865,13 @@ export interface components {
         };
         /** UserResource */
         UserResource: {
-            id: string;
+            id: number;
             name: string;
             email: string;
             email_verified_at: string;
-            is_active: string;
+            is_active: boolean;
             roles?: {
-                id: string;
+                id: number;
                 name: string;
                 display_name: string;
             }[];
@@ -10775,15 +10933,17 @@ export interface components {
         };
         /** WorkOrderResource */
         WorkOrderResource: {
-            id: string;
+            id: number;
             wo_number: string;
             type: string;
             name: string;
-            description: string;
+            description: string | null;
             status: {
                 value: string;
-                label: string;
-                color: string;
+                /** @enum {string} */
+                label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                /** @enum {string} */
+                color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
             };
             priority: string;
             /** @description Quantities */
@@ -10797,43 +10957,43 @@ export interface components {
             actual_start_date: string;
             actual_end_date: string;
             /** @description Costs */
-            estimated_material_cost: string;
-            estimated_labor_cost: string;
-            estimated_overhead_cost: string;
-            estimated_total_cost: string;
-            actual_material_cost: string;
-            actual_labor_cost: string;
-            actual_overhead_cost: string;
-            actual_total_cost: string;
-            cost_variance: string;
-            notes: string;
+            estimated_material_cost: number;
+            estimated_labor_cost: number;
+            estimated_overhead_cost: number;
+            estimated_total_cost: number;
+            actual_material_cost: number;
+            actual_labor_cost: number;
+            actual_overhead_cost: number;
+            actual_total_cost: number;
+            cost_variance: number;
+            notes: string | null;
             /** @description Relationships */
-            project_id: string;
+            project_id: number | null;
             project?: {
-                id: string;
+                id: number;
                 project_number: string;
                 name: string;
             } | null;
-            bom_id: string;
+            bom_id: number | null;
             bom?: {
-                id: string;
+                id: number;
                 bom_number: string;
                 name: string;
             } | null;
-            product_id: string;
+            product_id: number | null;
             product?: {
-                id: string;
+                id: number;
                 sku: string;
                 name: string;
             } | null;
-            warehouse_id: string;
+            warehouse_id: number | null;
             warehouse?: {
-                id: string;
+                id: number;
                 name: string;
             } | null;
-            parent_work_order_id: string;
+            parent_work_order_id: number | null;
             parent_work_order?: {
-                id: string;
+                id: number;
                 wo_number: string;
                 name: string;
             } | null;
@@ -10845,7 +11005,7 @@ export interface components {
                 current_status: {
                     value: string;
                     /** @enum {string} */
-                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
                     /** @enum {string} */
                     color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
                     is_terminal: boolean;
@@ -10882,7 +11042,7 @@ export interface components {
             started_at: string;
             completed_at: string;
             cancelled_at: string;
-            cancellation_reason: string;
+            cancellation_reason: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -10950,12 +11110,7 @@ export type $defs = Record<string, never>;
 export interface operations {
     "accounts.index": {
         parameters: {
-            query?: {
-                type?: string;
-                is_active?: boolean;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -11160,7 +11315,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        account_id: string;
+                        account_id: number;
                         code: string;
                         name: string;
                         type: string;
@@ -11194,13 +11349,13 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        account_id: string;
+                        account_id: number;
                         code: string;
                         name: string;
                         type: string;
                         start_date: unknown;
                         end_date: unknown;
-                        opening_balance: string;
+                        opening_balance: number;
                         entries: string[];
                     };
                 };
@@ -11931,9 +12086,9 @@ export interface operations {
                         suggestions: {
                             /** @enum {string} */
                             type: "payment";
-                            id: string;
+                            id: number;
                             number: string;
-                            amount: string;
+                            amount: number;
                             date: string;
                             description: string;
                         }[];
@@ -12518,9 +12673,9 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            bom_id: string;
+                            bom_id: number;
                             bom_number: string;
-                            product_id: string;
+                            product_id: number;
                             quantity_to_produce: unknown;
                             materials: [
                                 {
@@ -13003,7 +13158,7 @@ export interface operations {
                             }
                         ] | string[];
                         meta: {
-                            template_id: string;
+                            template_id: number;
                             template_code: string;
                             items_with_standard: number;
                         };
@@ -13060,7 +13215,7 @@ export interface operations {
                             }
                         ];
                         report: {
-                            template_id: string;
+                            template_id: number;
                             template_code: string;
                             target_brand: unknown;
                             total_items: number;
@@ -13105,7 +13260,7 @@ export interface operations {
                         message: "BOM berhasil dibuat dari template.";
                         data: components["schemas"]["BomResource"];
                         report: {
-                            template_id: string;
+                            template_id: number;
                             template_code: string;
                             target_brand: string | null;
                             total_items: number;
@@ -13128,7 +13283,7 @@ export interface operations {
                                         unit: string | "pcs";
                                         /** @enum {integer} */
                                         unit_cost: 0;
-                                        notes: string;
+                                        notes: string | null;
                                     };
                                     product: null;
                                     /** @enum {string} */
@@ -13139,13 +13294,13 @@ export interface operations {
                                     bom_item_data: {
                                         type: string;
                                         product_id: null;
-                                        component_standard_id: string;
+                                        component_standard_id: number | null;
                                         description: string;
                                         quantity: (string | null) | number;
                                         unit: string | "pcs";
                                         /** @enum {integer} */
                                         unit_cost: 0;
-                                        notes: string;
+                                        notes: string | null;
                                     };
                                     product: null;
                                     /** @enum {string} */
@@ -13156,12 +13311,12 @@ export interface operations {
                                     bom_item_data: {
                                         type: string;
                                         product_id: string;
-                                        component_standard_id: string;
+                                        component_standard_id: number | null;
                                         description: string;
                                         quantity: (string | null) | number;
                                         unit: string | (string | "pcs");
                                         unit_cost: string | 0;
-                                        notes: string;
+                                        notes: string | null;
                                     };
                                     product: {
                                         id: string;
@@ -13178,13 +13333,13 @@ export interface operations {
                                     bom_item_data: {
                                         type: string;
                                         product_id: null;
-                                        component_standard_id: string;
+                                        component_standard_id: number | null;
                                         description: string;
                                         quantity: (string | null) | number;
                                         unit: string | "pcs";
                                         /** @enum {integer} */
                                         unit_cost: 0;
-                                        notes: string;
+                                        notes: string | null;
                                     };
                                     product: null;
                                     notes: string;
@@ -13194,12 +13349,12 @@ export interface operations {
                                     bom_item_data: {
                                         type: string;
                                         product_id: string;
-                                        component_standard_id: string;
+                                        component_standard_id: number | null;
                                         description: string;
                                         quantity: (string | null) | number;
                                         unit: string | (string | "pcs");
                                         unit_cost: string | 0;
-                                        notes: string;
+                                        notes: string | null;
                                     };
                                     product: {
                                         id: string;
@@ -13215,20 +13370,20 @@ export interface operations {
                                     status: "using_product";
                                     bom_item_data: {
                                         type: string;
-                                        product_id: string;
-                                        component_standard_id: string;
+                                        product_id: number;
+                                        component_standard_id: number | null;
                                         description: string;
                                         quantity: (string | null) | number;
                                         unit: string | (string | "pcs");
-                                        unit_cost: string | 0;
-                                        notes: string;
+                                        unit_cost: number | 0;
+                                        notes: string | null;
                                     };
                                     product: {
-                                        id: string;
+                                        id: number;
                                         name: string;
                                         sku: string;
-                                        brand: string;
-                                        purchase_price: string;
+                                        brand: string | null;
+                                        purchase_price: number;
                                     };
                                     /** @enum {string} */
                                     notes: "Menggunakan produk spesifik dari template";
@@ -13431,28 +13586,28 @@ export interface operations {
                         data: {
                             product: components["schemas"]["Product"];
                             variants: {
-                                id: string;
+                                id: number;
                                 bom_number: string;
                                 name: string;
-                                variant_name: string;
-                                variant_label: string;
-                                is_primary: string;
-                                status: string;
+                                variant_name: string | null;
+                                variant_label: string | null;
+                                is_primary: boolean;
+                                status: components["schemas"]["DocumentStatus"];
                                 cost_breakdown: {
                                     material: {
-                                        amount: string;
+                                        amount: number;
                                         percentage: number;
                                     };
                                     labor: {
-                                        amount: string;
+                                        amount: number;
                                         percentage: number;
                                     };
                                     overhead: {
-                                        amount: string;
+                                        amount: number;
                                         percentage: number;
                                     };
-                                    total: string;
-                                    unit_cost: string;
+                                    total: number;
+                                    unit_cost: number;
                                 };
                                 items: string[][];
                             }[];
@@ -13508,12 +13663,12 @@ export interface operations {
                         data: {
                             product: components["schemas"]["Product"];
                             variants: {
-                                id: string;
-                                variant_name: string;
-                                variant_label: string;
-                                is_primary: string;
-                                total_cost: string;
-                                unit_cost: string;
+                                id: number;
+                                variant_name: string | null;
+                                variant_label: string | null;
+                                is_primary: boolean;
+                                total_cost: number;
+                                unit_cost: number;
                             }[];
                             item_comparison: {
                                 [key: string]: unknown;
@@ -14206,7 +14361,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         budget: {
-                            id: string;
+                            id: number;
                             name: string;
                             fiscal_period: string;
                         };
@@ -14238,7 +14393,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         budget: {
-                            id: string;
+                            id: number;
                             name: string;
                             fiscal_period: string;
                         };
@@ -14298,9 +14453,9 @@ export interface operations {
                             fiscal_period: string;
                         };
                         annual: {
-                            budget_revenue: string;
-                            budget_expense: string;
-                            budget_net: string;
+                            budget_revenue: number;
+                            budget_expense: number;
+                            budget_net: number;
                         };
                         ytd: {
                             through_month: string;
@@ -14343,7 +14498,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         budget: {
-                            id: string;
+                            id: number;
                             name: string;
                         };
                         month: number | null;
@@ -14753,10 +14908,10 @@ export interface operations {
                     "application/json": {
                         data: components["schemas"]["ComponentBrandMappingResource"][];
                         source_product: {
-                            id: string;
+                            id: number;
                             name: string;
                             sku: string;
-                            brand: string;
+                            brand: string | null;
                         };
                     };
                 };
@@ -15150,24 +15305,24 @@ export interface operations {
                     "application/json": {
                         data: {
                             current: {
-                                product_id: string;
+                                product_id: number | null;
                                 product_name: string;
                                 product_sku: string;
-                                unit_cost: string;
+                                unit_cost: number;
                                 brand: string;
-                                component_standard_id: string;
+                                component_standard_id: number | null;
                                 brand_label: string | null;
                             };
                             alternatives: string;
                             has_standard: boolean;
                         } | {
                             current: {
-                                product_id: string;
+                                product_id: number | null;
                                 product_name: string;
                                 product_sku: string;
-                                unit_cost: string;
+                                unit_cost: number;
                                 brand: null;
-                                component_standard_id: string;
+                                component_standard_id: number | null;
                             };
                             alternatives: string[];
                             has_standard: boolean;
@@ -15241,11 +15396,11 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            id: string;
+                            id: number;
                             name: string;
                             sku: string;
-                            brand: string;
-                            purchase_price: string;
+                            brand: string | null;
+                            purchase_price: number;
                         }[];
                         meta: {
                             total: number;
@@ -15277,10 +15432,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            product_id: string;
+                            product_id: number;
                             product_name: string;
                             product_sku: string;
-                            product_brand: string;
+                            product_brand: string | null;
                             parsed_specs: {
                                 category: string;
                                 subcategory: string;
@@ -16001,7 +16156,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        contact_id: string;
+                        contact_id: number;
                         name: string;
                         type: string;
                         receivable_balance: number | null;
@@ -16031,9 +16186,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        contact_id: string;
+                        contact_id: number;
                         name: string;
-                        credit_limit: string;
+                        credit_limit: number;
                         receivable_balance: number;
                         available_credit: number;
                         credit_utilization_percent: number;
@@ -16082,16 +16237,16 @@ export interface operations {
                             end_date: unknown;
                         };
                         receivables: {
-                            outstanding: string | 0;
-                            outstanding_count: string | 0;
-                            overdue: string | 0;
-                            overdue_count: string | 0;
+                            outstanding: number;
+                            outstanding_count: number;
+                            overdue: number;
+                            overdue_count: number;
                         };
                         payables: {
-                            outstanding: string | 0;
-                            outstanding_count: string | 0;
-                            overdue: string | 0;
-                            overdue_count: string | 0;
+                            outstanding: number;
+                            outstanding_count: number;
+                            overdue: number;
+                            overdue_count: number;
                         };
                         cash_position: {
                             /** @enum {integer} */
@@ -16412,16 +16567,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "deliveryOrder.confirm": {
@@ -16450,16 +16595,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "deliveryOrder.ship": {
@@ -16571,16 +16706,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "deliveryOrder.updateProgress": {
@@ -16888,16 +17013,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "downPayment.applyToInvoice": {
@@ -17006,8 +17121,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        message: string;
-                    } | {
                         /** @enum {string} */
                         message: "Application does not belong to this down payment.";
                     };
@@ -17040,9 +17153,9 @@ export interface operations {
                         /** @enum {string} */
                         message: "Down payment refunded successfully.";
                         refund_payment: {
-                            id: string;
+                            id: number;
                             payment_number: string;
-                            amount: string;
+                            amount: number;
                         };
                         down_payment: components["schemas"]["DownPaymentResource"];
                     };
@@ -17085,16 +17198,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "downPayment.applications": {
@@ -18195,16 +18298,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "goodsReceiptNote.createFromPurchaseOrder": {
@@ -18318,16 +18411,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "goodsReceiptNote.complete": {
@@ -18356,16 +18439,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "goodsReceiptNote.cancel": {
@@ -18394,16 +18467,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "goodsReceiptNote.forPurchaseOrder": {
@@ -18630,11 +18693,11 @@ export interface operations {
                 content: {
                     "application/json": {
                         product: {
-                            id: string;
+                            id: number;
                             sku: string;
                             name: string;
                             unit: string;
-                            current_stock: string;
+                            current_stock: number;
                         };
                         warehouse: {
                             id: string;
@@ -19056,14 +19119,7 @@ export interface operations {
     };
     "journalEntry.index": {
         parameters: {
-            query?: {
-                is_posted?: boolean;
-                source_type?: string;
-                start_date?: string;
-                end_date?: string;
-                search?: string;
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -19416,16 +19472,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "materialRequisition.approve": {
@@ -19453,16 +19499,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "materialRequisition.issue": {
@@ -19527,16 +19563,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "mrp-runs.index": {
@@ -19870,7 +19896,7 @@ export interface operations {
                         /** @enum {string} */
                         message: "Saran berhasil dikonversi ke Purchase Order.";
                         purchase_order: {
-                            id: string;
+                            id: number;
                             po_number: string;
                         };
                     };
@@ -19901,7 +19927,7 @@ export interface operations {
                         /** @enum {string} */
                         message: "Saran berhasil dikonversi ke Work Order.";
                         work_order: {
-                            id: string;
+                            id: number;
                             wo_number: string;
                         };
                     };
@@ -19938,7 +19964,7 @@ export interface operations {
                         /** @enum {string} */
                         message: "Saran berhasil dikonversi ke Subcontractor Work Order.";
                         subcontractor_work_order: {
-                            id: string;
+                            id: number;
                             sc_wo_number: string;
                         };
                     };
@@ -20656,15 +20682,15 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            id: string;
+                            id: number;
                             sku: string;
                             name: string;
                             unit: string;
-                            purchase_price: string;
-                            selling_price: string;
+                            purchase_price: number;
+                            selling_price: number;
                             selling_price_with_tax: string;
                             tax_rate: string;
-                            is_taxable: string;
+                            is_taxable: boolean;
                         }[];
                     };
                 };
@@ -21081,16 +21107,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "project.createFromQuotation": {
@@ -21235,16 +21251,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "project.complete": {
@@ -21272,16 +21278,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "project.cancel": {
@@ -21605,21 +21601,21 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            project_id: string;
+                            project_id: number;
                             project_number: string;
-                            status: string;
+                            status: components["schemas"]["DocumentStatus"];
                             progress: string;
                             budget: {
-                                amount: string;
+                                amount: number;
                                 utilization: number;
                                 variance: number;
                                 is_over: boolean;
                             };
                             financials: {
-                                contract_amount: string;
-                                total_cost: string;
-                                total_revenue: string;
-                                gross_profit: string;
+                                contract_amount: number;
+                                total_cost: number;
+                                total_revenue: number;
+                                gross_profit: number;
                                 profit_margin: string;
                             };
                             cost_breakdown: {
@@ -21710,10 +21706,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            id: string;
+                            id: number;
                             name: string;
                             slug: string;
-                            tagline: string;
+                            tagline: string | null;
                             logo_url: string;
                             primary_color: string;
                             public_url: string;
@@ -22236,16 +22232,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseOrder.approve": {
@@ -22273,16 +22259,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseOrder.reject": {
@@ -22417,16 +22393,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseOrder.duplicate": {
@@ -22657,16 +22623,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseReturn.submit": {
@@ -22695,16 +22651,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseReturn.approve": {
@@ -22733,16 +22679,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseReturn.reject": {
@@ -22806,16 +22742,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseReturn.cancel": {
@@ -22850,16 +22776,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "purchaseReturn.createFromBill": {
@@ -23161,16 +23077,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "quotation.approve": {
@@ -23198,16 +23104,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "quotation.reject": {
@@ -23338,16 +23234,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "quotation.convertToInvoice": {
@@ -23377,21 +23263,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                        /** @enum {string} */
-                        error_code: "VARIANT_NOT_SELECTED";
-                        available_variants: components["schemas"]["QuotationVariantOption"][];
-                        /** @enum {string} */
-                        suggestion: "Gunakan POST /api/v1/quotations/{id}/select-variant untuk memilih varian.";
-                    };
-                };
-            };
         };
     };
     "quotation.duplicate": {
@@ -23539,10 +23410,10 @@ export interface operations {
                     "application/json": {
                         data: components["schemas"]["QuotationVariantOptionResource"][];
                         meta: {
-                            quotation_id: string;
+                            quotation_id: number;
                             quotation_number: string;
-                            variant_group_id: string;
-                            selected_variant_id: string;
+                            variant_group_id: number | null;
+                            selected_variant_id: number | null;
                             has_selected_variant: boolean;
                         };
                     };
@@ -23661,14 +23532,14 @@ export interface operations {
                     "application/json": {
                         data: {
                             quotation: {
-                                id: string;
+                                id: number;
                                 quotation_number: string;
-                                subject: string;
+                                subject: string | null;
                                 contact: {
-                                    id: string;
+                                    id: number;
                                     name: string;
                                 } | null;
-                                selected_variant_id: string;
+                                selected_variant_id: number | null;
                             };
                             options: string | string[];
                             price_range: string | null;
@@ -24578,7 +24449,7 @@ export interface operations {
                     "application/json": {
                         report_name: string;
                         contact: {
-                            id: string;
+                            id: number;
                             code: string;
                             name: string;
                         };
@@ -25065,7 +24936,7 @@ export interface operations {
                         /** @enum {string} */
                         report_name: "Item Outstanding Rekonsiliasi";
                         account: {
-                            id: string;
+                            id: number;
                             code: string;
                             name: string;
                         };
@@ -25218,7 +25089,7 @@ export interface operations {
                         /** @enum {string} */
                         report_name: "Detail HPP Produk";
                         product: {
-                            id: string;
+                            id: number;
                             sku: string;
                             name: string;
                         };
@@ -25471,7 +25342,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         role: {
-                            id: string;
+                            id: number;
                             name: string;
                             display_name: string;
                         };
@@ -25620,16 +25491,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "salesReturn.submit": {
@@ -25658,16 +25519,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "salesReturn.approve": {
@@ -25696,16 +25547,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "salesReturn.reject": {
@@ -25769,16 +25610,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "salesReturn.cancel": {
@@ -25813,16 +25644,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "salesReturn.createFromInvoice": {
@@ -26304,16 +26125,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     calculateSolarProposal: {
@@ -26341,16 +26152,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     attachSolarVariants: {
@@ -26444,16 +26245,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     acceptSolarProposal: {
@@ -26549,16 +26340,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     downloadSolarProposalPdf: {
@@ -27063,9 +26844,7 @@ export interface operations {
     };
     "stock-opnames.index": {
         parameters: {
-            query?: {
-                per_page?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -27225,16 +27004,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.generateItems": {
@@ -27263,16 +27032,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.addItem": {
@@ -27375,16 +27134,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.startCounting": {
@@ -27413,16 +27162,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.submitForReview": {
@@ -27451,16 +27190,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.approve": {
@@ -27489,16 +27218,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.reject": {
@@ -27562,16 +27281,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "stockOpname.varianceReport": {
@@ -27594,11 +27303,11 @@ export interface operations {
                     "application/json": {
                         data: {
                             stock_opname: {
-                                id: string;
+                                id: number;
                                 opname_number: string;
                                 warehouse: string;
                                 opname_date: string;
-                                status: string;
+                                status: components["schemas"]["DocumentStatus"];
                             };
                             summary: {
                                 total_items: number;
@@ -27784,7 +27493,7 @@ export interface operations {
                         /** @enum {string} */
                         message: "Invoice berhasil dikonversi ke bill.";
                         bill: {
-                            id: string;
+                            id: number;
                             bill_number: string;
                         };
                     };
@@ -28162,13 +27871,13 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            id: string;
+                            id: number;
                             name: string;
-                            phone: string;
-                            email: string;
-                            subcontractor_services: string;
-                            hourly_rate: string;
-                            daily_rate: string;
+                            phone: string | null;
+                            email: string | null;
+                            subcontractor_services: unknown[] | null;
+                            hourly_rate: number | null;
+                            daily_rate: number | null;
                             active_work_orders_count: string;
                             completed_work_orders_count: string;
                         }[];
@@ -28758,7 +28467,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         warehouse: {
-                            id: string;
+                            id: number;
                             code: string;
                             name: string;
                         };
@@ -28768,13 +28477,13 @@ export interface operations {
                             total_value: string;
                         };
                         stocks: {
-                            product_id: string;
+                            product_id: number;
                             product_sku: string;
                             product_name: string;
                             unit: string;
-                            quantity: string;
-                            average_cost: string;
-                            total_value: string;
+                            quantity: number;
+                            average_cost: number;
+                            total_value: number;
                         }[];
                     };
                 };
@@ -28943,16 +28652,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "workOrder.createForProject": {
@@ -29116,16 +28815,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "workOrder.start": {
@@ -29153,16 +28842,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "workOrder.complete": {
@@ -29190,16 +28869,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "workOrder.cancel": {
@@ -29337,25 +29006,25 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            work_order_id: string;
+                            work_order_id: number;
                             wo_number: string;
                             estimated: {
-                                material: string;
-                                labor: string;
-                                overhead: string;
-                                total: string;
+                                material: number;
+                                labor: number;
+                                overhead: number;
+                                total: number;
                             };
                             actual: {
-                                material: string;
-                                labor: string;
-                                overhead: string;
-                                total: string;
+                                material: number;
+                                labor: number;
+                                overhead: number;
+                                total: number;
                             };
                             variance: {
                                 material: string;
                                 labor: string;
                                 overhead: string;
-                                total: string;
+                                total: number;
                             };
                             variance_percentage: number | 0;
                         };
@@ -29385,7 +29054,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            work_order_id: string;
+                            work_order_id: number;
                             wo_number: string;
                             materials: [
                                 {

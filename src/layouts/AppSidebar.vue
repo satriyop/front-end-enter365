@@ -82,6 +82,7 @@ const navigation: NavGroup[] = [
     label: 'Inventory',
     items: [
       { name: 'Stock', path: '/inventory', icon: '📦', permission: 'inventory.view' },
+      { name: 'Stock Opname', path: '/inventory/opnames', icon: '⚖️', permission: 'inventory.view' },
       { name: 'Products', path: '/products', icon: '🏷️', permission: 'products.view' },
       { name: 'BOMs', path: '/boms', icon: '📐', permission: 'boms.view' },
       { name: 'Variant Groups', path: '/boms/variant-groups', icon: '🔄', permission: 'boms.view' },

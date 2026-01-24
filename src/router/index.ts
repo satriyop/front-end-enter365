@@ -311,6 +311,24 @@ const router = createRouter({
           meta: { breadcrumb: 'Inventory' }
         },
         {
+          path: 'inventory/opnames',
+          name: 'stock-opnames',
+          component: () => import('@/pages/inventory/StockOpnameListPage.vue'),
+          meta: { breadcrumb: 'Stock Opname' }
+        },
+        {
+          path: 'inventory/opnames/new',
+          name: 'stock-opname-new',
+          component: () => import('@/pages/inventory/StockOpnameFormPage.vue'),
+          meta: { breadcrumb: 'New Opname' }
+        },
+        {
+          path: 'inventory/opnames/:id',
+          name: 'stock-opname-detail',
+          component: () => import('@/pages/inventory/StockOpnameDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Opname #${route.params.id}` }
+        },
+        {
           path: 'inventory/movements',
           name: 'inventory-movements',
           component: () => import('@/pages/inventory/StockMovementsPage.vue'),
