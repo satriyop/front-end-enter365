@@ -231,8 +231,8 @@ const itemColumns: ResponsiveColumn[] = [
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ formatPONumber(po) }}
               </h1>
-              <Badge :class="getPurchaseOrderStatus(po).color">
-                {{ getPurchaseOrderStatus(po).label }}
+              <Badge :status="po.status">
+                {{ po.status_label }}
               </Badge>
             </div>
             <p class="text-slate-500 dark:text-slate-400">{{ po.contact?.name }}</p>

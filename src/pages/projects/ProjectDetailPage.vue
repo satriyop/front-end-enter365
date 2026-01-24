@@ -86,8 +86,8 @@ async function handleDelete() {
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ project.project_number }}</h1>
-            <Badge :variant="statusColors[project.status] || 'default'">
-              {{ project.status }}
+            <Badge :status="project.status">
+              {{ project.status.label }}
             </Badge>
             <Badge v-if="project.priority" :variant="priorityColors[project.priority] || 'default'">
               {{ project.priority }}
@@ -98,11 +98,11 @@ async function handleDelete() {
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
-          <RouterLink v-if="project.status === 'draft'" :to="`/projects/${project.id}/edit`">
+          <RouterLink v-if="project.status.value === 'draft'" :to="`/projects/${project.id}/edit`">
             <Button variant="secondary">Edit</Button>
           </RouterLink>
           <Button
-            v-if="project.status === 'draft' || project.status === 'planning'"
+            v-if="project.status.value === 'draft' || project.status.value === 'planning'"
            
             @click="handleStart"
             :loading="startMutation.isPending.value"
@@ -110,7 +110,7 @@ async function handleDelete() {
             Start Project
           </Button>
           <Button
-            v-if="project.status === 'in_progress'"
+            v-if="project.status.value === 'in_progress'"
             variant="success"
             @click="handleComplete"
             :loading="completeMutation.isPending.value"
@@ -118,7 +118,7 @@ async function handleDelete() {
             Complete
           </Button>
           <Button
-            v-if="project.status !== 'completed' && project.status !== 'cancelled'"
+            v-if="project.status.value !== 'completed' && project.status.value !== 'cancelled'"
             variant="destructive"
             @click="handleCancel"
             :loading="cancelMutation.isPending.value"
@@ -126,7 +126,7 @@ async function handleDelete() {
             Cancel
           </Button>
           <Button
-            v-if="project.status === 'draft'"
+            v-if="project.status.value === 'draft'"
             variant="ghost"
             @click="handleDelete"
             :loading="deleteMutation.isPending.value"
@@ -246,7 +246,7 @@ async function handleDelete() {
           </Card>
 
           <!-- Quick Actions -->
-          <Card v-if="project.status === 'in_progress'">
+          <Card v-if="project.status.value === 'in_progress'">
             <div class="space-y-2">
               <RouterLink :to="`/work-orders/new?project_id=${project.id}`">
                 <Button variant="secondary" class="w-full">Create Work Order</Button>

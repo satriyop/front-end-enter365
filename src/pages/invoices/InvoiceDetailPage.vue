@@ -145,7 +145,9 @@ const itemColumns: ResponsiveColumn[] = [
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ invoice.invoice_number }}
               </h1>
-              <Badge :status="invoice.status.value as any" />
+              <Badge :status="invoice.status">
+                {{ invoice.status_label }}
+              </Badge>
             </div>
             <p class="text-slate-500 dark:text-slate-400">{{ invoice.contact?.name }}</p>
           </div>

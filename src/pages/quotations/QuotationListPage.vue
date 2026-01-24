@@ -57,7 +57,8 @@ const statusOptions = [
 
 // Map status to Badge status prop
 type BadgeStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'expired' | 'converted'
-function getStatusLabel(status: string): string {
+function getStatusLabel(status: any): string {
+  if (status && typeof status === 'object') return status.label
   const labels: Record<string, string> = {
     draft: 'Draft',
     submitted: 'Pending',
@@ -195,15 +196,15 @@ const columns: ResponsiveColumn[] = [
 
         <!-- Custom cell: Status badge -->
         <template #cell-status="{ item }">
-          <Badge :status="item.status as BadgeStatus" dot>
-            {{ getStatusLabel(item.status) }}
+          <Badge :status="item.status" dot>
+            {{ item.status_label || getStatusLabel(item.status) }}
           </Badge>
         </template>
 
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
-          <Badge :status="item.status as BadgeStatus" dot>
-            {{ getStatusLabel(item.status) }}
+          <Badge :status="item.status" dot>
+            {{ item.status_label || getStatusLabel(item.status) }}
           </Badge>
         </template>
 

@@ -142,8 +142,8 @@ const netAmount = computed(() => {
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ formatSCInvoiceNumber(invoice) }}
               </h1>
-              <Badge :class="getSubcontractorInvoiceStatus(invoice).color">
-                {{ getSubcontractorInvoiceStatus(invoice).label }}
+              <Badge :status="invoice.status">
+                {{ invoice.status_label }}
               </Badge>
             </div>
             <p v-if="invoice.subcontractor" class="text-slate-500 dark:text-slate-400">

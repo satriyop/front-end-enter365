@@ -283,7 +283,8 @@ export function getDeliveryOrderStatus(dorder: DeliveryOrder): { label: string; 
     },
   }
 
-  const status = (dorder.status as DeliveryOrderStatus) || 'draft'
+  const statusValue = dorder.status && typeof dorder.status === 'object' ? dorder.status.value : dorder.status
+  const status = (statusValue as DeliveryOrderStatus) || 'draft'
   return statusMap[status] || statusMap.draft
 }
 

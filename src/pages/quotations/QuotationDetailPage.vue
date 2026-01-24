@@ -174,7 +174,9 @@ const itemColumns: ResponsiveColumn[] = [
               <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">
                 {{ quotation.full_number }}
               </h1>
-              <Badge :status="quotation.status as any" />
+              <Badge :status="quotation.status">
+                {{ quotation.status_label }}
+              </Badge>
             </div>
             <p class="text-slate-500 dark:text-slate-400">{{ quotation.contact?.name }}</p>
           </div>
@@ -477,7 +479,7 @@ const itemColumns: ResponsiveColumn[] = [
         <PrintableDocument
           type="quotation"
           :number="quotation.full_number"
-          :status="quotation.status"
+          :status="quotation.status.value"
           :date="quotation.quotation_date"
           :valid-until="quotation.valid_until"
           :reference="quotation.reference"

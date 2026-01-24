@@ -76,7 +76,9 @@ const itemColumns: ResponsiveColumn[] = [
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ bill.bill_number }}</h1>
-            <Badge :status="bill.status as any" />
+            <Badge :status="bill.status">
+              {{ bill.status_label }}
+            </Badge>
           </div>
           <p class="text-slate-500 dark:text-slate-400">{{ bill.contact?.name }}</p>
         </div>

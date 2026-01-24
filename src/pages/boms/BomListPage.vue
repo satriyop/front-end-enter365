@@ -32,13 +32,14 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' },
 ]
 
-function getStatusVariant(status: string): 'default' | 'success' | 'warning' | 'destructive' {
+function getStatusVariant(status: any): 'default' | 'success' | 'warning' | 'destructive' {
+  const statusValue = status && typeof status === 'object' ? status.value : status
   const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
     draft: 'default',
     active: 'success',
     inactive: 'warning',
   }
-  return map[status] || 'default'
+  return map[statusValue] || 'default'
 }
 
 // Table columns with mobile priorities
@@ -149,7 +150,7 @@ const columns: ResponsiveColumn[] = [
         <!-- Custom cell: Status -->
         <template #cell-status="{ item }">
           <Badge :variant="getStatusVariant(item.status)">
-            {{ item.status }}
+            {{ item.status_label || (typeof item.status === 'object' ? item.status.label : item.status) }}
           </Badge>
         </template>
 
@@ -163,7 +164,7 @@ const columns: ResponsiveColumn[] = [
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
           <Badge :variant="getStatusVariant(item.status)">
-            {{ item.status }}
+            {{ item.status_label || (typeof item.status === 'object' ? item.status.label : item.status) }}
           </Badge>
         </template>
 
