@@ -58,6 +58,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<SubcontractorWorkOrderFormData>({
   validationSchema: toTypedSchema(subcontractorWorkOrderSchema),
   initialValues: {
@@ -75,6 +76,19 @@ const {
     notes: '',
   },
 })
+
+const [name] = defineField('name')
+const [workOrderId] = defineField('work_order_id')
+const [projectId] = defineField('project_id')
+const [description] = defineField('description')
+const [scopeOfWork] = defineField('scope_of_work')
+const [agreedAmount] = defineField('agreed_amount')
+const [retentionPercent] = defineField('retention_percent')
+const [scheduledStartDate] = defineField('scheduled_start_date')
+const [scheduledEndDate] = defineField('scheduled_end_date')
+const [workLocation] = defineField('work_location')
+const [locationAddress] = defineField('location_address')
+const [notes] = defineField('notes')
 
 // Populate form when editing
 watch(existingScwo, (scwo) => {
@@ -158,27 +172,27 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="Work order name" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="Work order name" @blur="validateField('name')" />
           </FormField>
           <FormField label="Related Work Order">
             <Select
-              v-model="form.work_order_id"
+              v-model="workOrderId"
               :options="workOrderOptions"
               placeholder="Select work order (optional)"
             />
           </FormField>
           <FormField label="Related Project">
             <Select
-              v-model="form.project_id"
+              v-model="projectId"
               :options="projectOptions"
               placeholder="Select project (optional)"
             />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea :model-value="form.description ?? ''" @update:model-value="(v: string) => form.description = v" :rows="2" placeholder="Brief description" />
+            <Textarea v-model="description" :rows="2" placeholder="Brief description" />
           </FormField>
           <FormField label="Scope of Work" required :error="errors.scope_of_work" class="md:col-span-2">
-            <Textarea :model-value="form.scope_of_work ?? ''" @update:model-value="(v: string) => form.scope_of_work = v" :rows="4" placeholder="Detailed scope of work" @blur="validateField('scope_of_work')" />
+            <Textarea v-model="scopeOfWork" :rows="4" placeholder="Detailed scope of work" @blur="validateField('scope_of_work')" />
           </FormField>
         </div>
       </Card>
@@ -189,10 +203,10 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Agreed Amount" required :error="errors.agreed_amount">
-            <CurrencyInput v-model="form.agreed_amount" @blur="validateField('agreed_amount')" />
+            <CurrencyInput v-model="agreedAmount" @blur="validateField('agreed_amount')" />
           </FormField>
           <FormField label="Retention %" :error="errors.retention_percent">
-            <Input v-model.number="form.retention_percent" type="number" min="0" max="100" step="0.5" placeholder="0" />
+            <Input v-model.number="retentionPercent" type="number" min="0" max="100" step="0.5" placeholder="0" />
           </FormField>
         </div>
       </Card>
@@ -203,19 +217,19 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Scheduled Start Date" required :error="errors.scheduled_start_date">
-            <Input v-model="form.scheduled_start_date" type="date" @blur="validateField('scheduled_start_date')" />
+            <Input v-model="scheduledStartDate" type="date" @blur="validateField('scheduled_start_date')" />
           </FormField>
           <FormField label="Scheduled End Date" required :error="errors.scheduled_end_date">
-            <Input v-model="form.scheduled_end_date" type="date" @blur="validateField('scheduled_end_date')" />
+            <Input v-model="scheduledEndDate" type="date" @blur="validateField('scheduled_end_date')" />
           </FormField>
           <FormField label="Work Location">
-            <Input :model-value="form.work_location ?? ''" @update:model-value="(v) => form.work_location = String(v)" placeholder="Location name" />
+            <Input v-model="workLocation" placeholder="Location name" />
           </FormField>
           <FormField label="Location Address">
-            <Input :model-value="form.location_address ?? ''" @update:model-value="(v) => form.location_address = String(v)" placeholder="Full address" />
+            <Input v-model="locationAddress" placeholder="Full address" />
           </FormField>
           <FormField label="Notes" class="md:col-span-2">
-            <Textarea :model-value="form.notes ?? ''" @update:model-value="(v: string) => form.notes = v" :rows="2" placeholder="Additional notes" />
+            <Textarea v-model="notes" :rows="2" placeholder="Additional notes" />
           </FormField>
         </div>
       </Card>

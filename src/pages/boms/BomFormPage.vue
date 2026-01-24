@@ -71,6 +71,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<BomFormData>({
   validationSchema: toTypedSchema(bomSchema),
   initialValues: {
@@ -83,6 +84,13 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [name] = defineField('name')
+const [productId] = defineField('product_id')
+const [outputQuantity] = defineField('output_quantity')
+const [outputUnit] = defineField('output_unit')
+const [description] = defineField('description')
+const [notes] = defineField('notes')
 
 // Field array for items
 const { fields: itemFields, push: pushItem, remove: removeItemField } = useFieldArray<BomItemFormData>('items')
@@ -229,12 +237,12 @@ const onSubmit = handleSubmit(async (formValues) => {
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField label="BOM Name" required :error="errors.name" class="md:col-span-2">
-              <Input v-model="form.name" placeholder="e.g., Solar Panel Assembly 450W" @blur="validateField('name')" />
+              <Input v-model="name" placeholder="e.g., Solar Panel Assembly 450W" @blur="validateField('name')" />
             </FormField>
 
             <FormField label="Output Product" required :error="errors.product_id">
               <Select
-                v-model="form.product_id"
+                v-model="productId"
                 :options="productOptions"
                 placeholder="Select product"
                 @update:model-value="validateField('product_id')"
@@ -243,15 +251,15 @@ const onSubmit = handleSubmit(async (formValues) => {
 
             <div class="grid grid-cols-2 gap-4">
               <FormField label="Output Quantity" required :error="errors.output_quantity">
-                <Input v-model.number="form.output_quantity" type="number" min="0.0001" step="0.0001" @blur="validateField('output_quantity')" />
+                <Input v-model.number="outputQuantity" type="number" min="0.0001" step="0.0001" @blur="validateField('output_quantity')" />
               </FormField>
               <FormField label="Unit">
-                <Select v-model="form.output_unit" :options="unitOptions" />
+                <Select v-model="outputUnit" :options="unitOptions" />
               </FormField>
             </div>
 
             <FormField label="Description" class="md:col-span-2">
-              <Input v-model="form.description" placeholder="Optional description" />
+              <Input v-model="description" placeholder="Optional description" />
             </FormField>
           </div>
         </Card>
@@ -378,7 +386,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">Notes</h2>
           </template>
           <textarea
-            v-model="form.notes"
+            v-model="notes"
             rows="3"
             class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             placeholder="Additional notes..."

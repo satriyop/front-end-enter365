@@ -42,6 +42,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<ComponentStandardFormData>({
   validationSchema: toTypedSchema(componentStandardSchema),
   initialValues: {
@@ -55,6 +56,14 @@ const {
     specifications: [],
   },
 })
+
+const [code] = defineField('code')
+const [name] = defineField('name')
+const [category] = defineField('category')
+const [subcategory] = defineField('subcategory')
+const [standard] = defineField('standard')
+const [unit] = defineField('unit')
+const [isActive] = defineField('is_active')
 
 // Field array for specifications
 const { fields: specFields, push: pushSpec, remove: removeSpec } = useFieldArray<SpecificationField>('specifications')
@@ -259,7 +268,7 @@ function formatSpecLabel(key: string): string {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Code" required :error="errors.code">
             <Input
-              v-model="form.code"
+              v-model="code"
               placeholder="e.g., MCB-16A-1P-C"
               :disabled="isEditing"
               @blur="validateField('code')"
@@ -269,19 +278,19 @@ function formatSpecLabel(key: string): string {
             </template>
           </FormField>
           <FormField label="IEC Standard">
-            <Input v-model="form.standard" placeholder="e.g., IEC 60898" />
+            <Input v-model="standard" placeholder="e.g., IEC 60898" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="e.g., MCB 16A 1P Curve C 6kA" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="e.g., MCB 16A 1P Curve C 6kA" @blur="validateField('name')" />
           </FormField>
           <FormField label="Category" required :error="errors.category">
-            <Select v-model="form.category" :options="categoryOptions" placeholder="Select category" @update:model-value="validateField('category')" />
+            <Select v-model="category" :options="categoryOptions" placeholder="Select category" @update:model-value="validateField('category')" />
           </FormField>
           <FormField label="Subcategory">
-            <Select v-model="form.subcategory" :options="subcategoryOptions" />
+            <Select v-model="subcategory" :options="subcategoryOptions" />
           </FormField>
           <FormField label="Unit" required :error="errors.unit">
-            <Select v-model="form.unit" :options="unitOptions" @update:model-value="validateField('unit')" />
+            <Select v-model="unit" :options="unitOptions" @update:model-value="validateField('unit')" />
           </FormField>
         </div>
       </Card>
@@ -352,7 +361,7 @@ function formatSpecLabel(key: string): string {
             <p class="text-sm text-slate-500 dark:text-slate-400">Inactive standards won't be used in BOM swapping</p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
+            <input v-model="isActive" type="checkbox" class="sr-only peer" />
             <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
           </label>
         </div>

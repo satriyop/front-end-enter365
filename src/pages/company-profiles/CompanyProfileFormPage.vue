@@ -55,6 +55,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<CompanyProfileFormData>({
   validationSchema: toTypedSchema(companyProfileSchema),
   initialValues: {
@@ -77,6 +78,21 @@ const {
     is_active: true,
   },
 })
+
+const [name] = defineField('name')
+const [slug] = defineField('slug')
+const [tagline] = defineField('tagline')
+const [description] = defineField('description')
+const [foundedYear] = defineField('founded_year')
+const [employeesCount] = defineField('employees_count')
+const [primaryColor] = defineField('primary_color')
+const [secondaryColor] = defineField('secondary_color')
+const [email] = defineField('email')
+const [phone] = defineField('phone')
+const [address] = defineField('address')
+const [website] = defineField('website')
+const [customDomain] = defineField('custom_domain')
+const [isActive] = defineField('is_active')
 
 // Field arrays for dynamic sections
 const { fields: serviceFields, push: pushService, remove: removeServiceField } = useFieldArray<ServiceItemFormData>('services')
@@ -346,32 +362,32 @@ useFormShortcuts({
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Company Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="form.name" placeholder="PT Example Company" @blur="validateField('name')" />
+            <Input v-model="name" placeholder="PT Example Company" @blur="validateField('name')" />
           </FormField>
 
           <FormField label="URL Slug" required :error="errors.slug">
-            <Input v-model="form.slug" placeholder="example-company" />
-            <p class="text-xs text-slate-500 mt-1">Used in the public URL: /profile/{{ form.slug || 'slug' }}</p>
+            <Input v-model="slug" placeholder="example-company" />
+            <p class="text-xs text-slate-500 mt-1">Used in the public URL: /profile/{{ slug || 'slug' }}</p>
           </FormField>
 
           <FormField label="Custom Domain">
-            <Input v-model="form.custom_domain" placeholder="example.com" />
+            <Input v-model="customDomain" placeholder="example.com" />
           </FormField>
 
           <FormField label="Tagline" class="md:col-span-2">
-            <Input v-model="form.tagline" placeholder="Your company tagline" />
+            <Input v-model="tagline" placeholder="Your company tagline" />
           </FormField>
 
           <FormField label="Description" class="md:col-span-2">
-            <Textarea v-model="form.description" :rows="4" placeholder="About your company..." />
+            <Textarea v-model="description" :rows="4" placeholder="About your company..." />
           </FormField>
 
           <FormField label="Founded Year">
-            <Input v-model.number="form.founded_year" type="number" placeholder="2015" />
+            <Input v-model.number="foundedYear" type="number" placeholder="2015" />
           </FormField>
 
           <FormField label="Employees Count">
-            <Input v-model="form.employees_count" placeholder="50-100" />
+            <Input v-model="employeesCount" placeholder="50-100" />
           </FormField>
         </div>
       </Card>
@@ -388,22 +404,22 @@ useFormShortcuts({
             <FormField label="Primary Color">
               <div class="flex items-center gap-2">
                 <input
-                  v-model="form.primary_color"
+                  v-model="primaryColor"
                   type="color"
                   class="w-12 h-10 rounded border border-slate-300 dark:border-slate-600 cursor-pointer"
                 />
-                <Input v-model="form.primary_color" placeholder="#FF7A3D" class="flex-1" />
+                <Input v-model="primaryColor" placeholder="#FF7A3D" class="flex-1" />
               </div>
             </FormField>
 
             <FormField label="Secondary Color">
               <div class="flex items-center gap-2">
                 <input
-                  v-model="form.secondary_color"
+                  v-model="secondaryColor"
                   type="color"
                   class="w-12 h-10 rounded border border-slate-300 dark:border-slate-600 cursor-pointer"
                 />
-                <Input v-model="form.secondary_color" placeholder="#FF5100" class="flex-1" />
+                <Input v-model="secondaryColor" placeholder="#FF5100" class="flex-1" />
               </div>
             </FormField>
           </div>
@@ -649,19 +665,19 @@ useFormShortcuts({
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Email">
-            <Input v-model="form.email" type="email" placeholder="info@company.com" />
+            <Input v-model="email" type="email" placeholder="info@company.com" />
           </FormField>
 
           <FormField label="Phone">
-            <Input v-model="form.phone" placeholder="+62 21 1234567" />
+            <Input v-model="phone" placeholder="+62 21 1234567" />
           </FormField>
 
           <FormField label="Website">
-            <Input v-model="form.website" placeholder="https://company.com" />
+            <Input v-model="website" placeholder="https://company.com" />
           </FormField>
 
           <FormField label="Address" class="md:col-span-2">
-            <Textarea v-model="form.address" :rows="2" placeholder="Company address" />
+            <Textarea v-model="address" :rows="2" placeholder="Company address" />
           </FormField>
         </div>
       </Card>
@@ -676,7 +692,7 @@ useFormShortcuts({
             </p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">
-            <input v-model="form.is_active" type="checkbox" class="sr-only peer" />
+            <input v-model="isActive" type="checkbox" class="sr-only peer" />
             <div
               class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"
             />

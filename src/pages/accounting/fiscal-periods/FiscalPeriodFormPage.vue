@@ -32,7 +32,7 @@ const fiscalPeriodSchema = z.object({
 type FiscalPeriodFormValues = z.infer<typeof fiscalPeriodSchema>
 
 // Form setup
-const { values, errors, handleSubmit, setFieldValue } = useForm<FiscalPeriodFormValues>({
+const { values: form, errors, handleSubmit, setFieldValue, defineField } = useForm<FiscalPeriodFormValues>({
   validationSchema: toTypedSchema(fiscalPeriodSchema),
   initialValues: {
     name: '',
@@ -41,23 +41,27 @@ const { values, errors, handleSubmit, setFieldValue } = useForm<FiscalPeriodForm
   },
 })
 
+const [name] = defineField('name')
+const [startDate] = defineField('start_date')
+const [endDate] = defineField('end_date')
+
 // Auto-generate name based on dates
-watch([() => values.start_date, () => values.end_date], ([start, end]) => {
-  if (start && end && !values.name) {
-    const startDate = new Date(start)
-    const endDate = new Date(end)
+watch([startDate, endDate], ([start, end]) => {
+  if (start && end && !name.value) {
+    const startDateObj = new Date(start)
+    const endDateObj = new Date(end)
 
     // Generate name like "2024" for yearly or "Jan-Dec 2024" for partial
-    const startYear = startDate.getFullYear()
-    const endYear = endDate.getFullYear()
+    const startYear = startDateObj.getFullYear()
+    const endYear = endDateObj.getFullYear()
 
     if (startYear === endYear) {
-      const startMonth = startDate.toLocaleDateString('en-US', { month: 'short' })
-      const endMonth = endDate.toLocaleDateString('en-US', { month: 'short' })
+      const startMonth = startDateObj.toLocaleDateString('en-US', { month: 'short' })
+      const endMonth = endDateObj.toLocaleDateString('en-US', { month: 'short' })
 
       // Check if it's a full year
-      const isFullYear = startDate.getMonth() === 0 && startDate.getDate() === 1 &&
-        endDate.getMonth() === 11 && endDate.getDate() === 31
+      const isFullYear = startDateObj.getMonth() === 0 && startDateObj.getDate() === 1 &&
+        endDateObj.getMonth() === 11 && endDateObj.getDate() === 31
 
       if (isFullYear) {
         setFieldValue('name', `Fiscal Year ${startYear}`)
@@ -161,7 +165,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     Start Date <span class="text-red-500">*</span>
                   </label>
                   <Input
-                    v-model="values.start_date"
+                    v-model="startDate"
                     type="date"
                     :error="errors.start_date"
                   />
@@ -173,7 +177,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     End Date <span class="text-red-500">*</span>
                   </label>
                   <Input
-                    v-model="values.end_date"
+                    v-model="endDate"
                     type="date"
                     :error="errors.end_date"
                   />
@@ -187,7 +191,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   Period Name <span class="text-red-500">*</span>
                 </label>
                 <Input
-                  v-model="values.name"
+                  v-model="name"
                   placeholder="e.g., Fiscal Year 2024"
                   :error="errors.name"
                 />

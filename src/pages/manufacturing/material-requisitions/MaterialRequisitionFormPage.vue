@@ -67,6 +67,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<MaterialRequisitionFormData>({
   validationSchema: toTypedSchema(materialRequisitionSchema),
   initialValues: {
@@ -77,6 +78,11 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [workOrderId] = defineField('work_order_id')
+const [warehouseId] = defineField('warehouse_id')
+const [requiredDate] = defineField('required_date')
+const [notes] = defineField('notes')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<MaterialRequisitionItemFormData>('items')
@@ -185,7 +191,7 @@ const onSubmit = handleSubmit(async (formValues) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Work Order" required :error="errors.work_order_id">
             <Select
-              v-model="form.work_order_id"
+              v-model="workOrderId"
               :options="workOrderOptions"
               placeholder="Select work order"
               :disabled="isEditing"
@@ -194,18 +200,18 @@ const onSubmit = handleSubmit(async (formValues) => {
           </FormField>
           <FormField label="Warehouse" required :error="errors.warehouse_id">
             <Select
-              v-model="form.warehouse_id"
+              v-model="warehouseId"
               :options="warehouseOptions"
               placeholder="Select warehouse"
               @update:model-value="validateField('warehouse_id')"
             />
           </FormField>
           <FormField label="Required Date" required :error="errors.required_date">
-            <Input v-model="form.required_date" type="date" @blur="validateField('required_date')" />
+            <Input v-model="requiredDate" type="date" @blur="validateField('required_date')" />
           </FormField>
           <div></div>
           <FormField label="Notes" class="md:col-span-2">
-            <Textarea :model-value="form.notes ?? ''" @update:model-value="(v: string) => form.notes = v" :rows="2" placeholder="Additional notes" />
+            <Textarea v-model="notes" :rows="2" placeholder="Additional notes" />
           </FormField>
         </div>
       </Card>

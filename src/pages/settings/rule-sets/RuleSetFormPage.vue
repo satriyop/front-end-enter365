@@ -37,6 +37,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<RuleSetFormData>({
   validationSchema: toTypedSchema(ruleSetSchema),
   initialValues: {
@@ -47,6 +48,12 @@ const {
     is_active: true,
   },
 })
+
+const [code] = defineField('code')
+const [name] = defineField('name')
+const [description] = defineField('description')
+const [isDefault] = defineField('is_default')
+const [isActive] = defineField('is_active')
 
 // Populate form when editing
 watch(existingRuleSet, (ruleSet) => {
@@ -145,9 +152,9 @@ function generateCode() {
         <div class="space-y-4">
           <FormField label="Name" required :error="errors.name">
             <Input
-              v-model="form.name"
+              v-model="name"
               placeholder="e.g., Standard IEC Validation"
-              @blur="() => { validateField('name'); !form.code && generateCode() }"
+              @blur="() => { validateField('name'); !code && generateCode() }"
             />
           </FormField>
 
@@ -159,7 +166,7 @@ function generateCode() {
           >
             <div class="flex gap-2">
               <Input
-                v-model="form.code"
+                v-model="code"
                 placeholder="e.g., STANDARD_IEC"
                 class="flex-1 font-mono"
                 @blur="validateField('code')"
@@ -172,7 +179,7 @@ function generateCode() {
 
           <FormField label="Description" :error="errors.description">
             <textarea
-              v-model="form.description"
+              v-model="description"
               rows="3"
               class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               placeholder="Describe what this rule set validates..."
@@ -189,7 +196,7 @@ function generateCode() {
         <div class="space-y-4">
           <label class="flex items-center gap-3 cursor-pointer">
             <input
-              v-model="form.is_active"
+              v-model="isActive"
               type="checkbox"
               class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
             />
@@ -203,7 +210,7 @@ function generateCode() {
 
           <label class="flex items-center gap-3 cursor-pointer">
             <input
-              v-model="form.is_default"
+              v-model="isDefault"
               type="checkbox"
               class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
             />

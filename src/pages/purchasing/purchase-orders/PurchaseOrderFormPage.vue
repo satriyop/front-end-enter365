@@ -550,7 +550,7 @@ const contactOptions = computed(() => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Notes">
             <Textarea
-              v-model="form.notes"
+              v-model="notes"
               :rows="4"
               placeholder="Internal notes or vendor remarks"
             />
@@ -558,7 +558,7 @@ const contactOptions = computed(() => {
 
           <FormField label="Terms & Conditions">
             <Textarea
-              v-model="form.terms_conditions"
+              v-model="termsConditions"
               :rows="4"
               placeholder="Payment terms, delivery terms, etc."
             />

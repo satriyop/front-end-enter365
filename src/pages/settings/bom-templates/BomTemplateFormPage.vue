@@ -39,6 +39,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<BomTemplateFormData>({
   validationSchema: toTypedSchema(bomTemplateSchema),
   initialValues: {
@@ -51,6 +52,14 @@ const {
     is_active: true,
   },
 })
+
+const [code] = defineField('code')
+const [name] = defineField('name')
+const [description] = defineField('description')
+const [category] = defineField('category')
+const [defaultOutputUnit] = defineField('default_output_unit')
+const [defaultRuleSetId] = defineField('default_rule_set_id')
+const [isActive] = defineField('is_active')
 
 // Populate form when editing
 watch(existingTemplate, (template) => {
@@ -187,9 +196,9 @@ function generateCode() {
         <div class="space-y-4">
           <FormField label="Name" required :error="errors.name">
             <Input
-              v-model="form.name"
+              v-model="name"
               placeholder="e.g., Standard Panel 100A"
-              @blur="() => { validateField('name'); !form.code && generateCode() }"
+              @blur="() => { validateField('name'); !code && generateCode() }"
             />
           </FormField>
 
@@ -201,7 +210,7 @@ function generateCode() {
           >
             <div class="flex gap-2">
               <Input
-                v-model="form.code"
+                v-model="code"
                 placeholder="e.g., PANEL_100A"
                 class="flex-1 font-mono"
                 @blur="validateField('code')"
@@ -213,12 +222,12 @@ function generateCode() {
           </FormField>
 
           <FormField label="Category" required :error="errors.category">
-            <Select v-model="form.category" :options="categoryOptions" @update:model-value="validateField('category')" />
+            <Select v-model="category" :options="categoryOptions" @update:model-value="validateField('category')" />
           </FormField>
 
           <FormField label="Description">
             <textarea
-              v-model="form.description"
+              v-model="description"
               rows="3"
               class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
               placeholder="Describe what this template is for..."
@@ -234,14 +243,13 @@ function generateCode() {
 
         <div class="space-y-4">
           <FormField label="Default Output Unit" hint="Unit for the finished product">
-            <Select v-model="form.default_output_unit" :options="unitOptions" />
+            <Select v-model="defaultOutputUnit" :options="unitOptions" />
           </FormField>
 
           <FormField label="Validation Rule Set" hint="Applied when creating BOMs from this template">
             <Select
-              :model-value="form.default_rule_set_id ? String(form.default_rule_set_id) : ''"
+              v-model="defaultRuleSetId"
               :options="ruleSetOptions"
-              @update:model-value="(v: string | number | null) => setValues({ default_rule_set_id: v ? Number(v) : null })"
             />
           </FormField>
         </div>
@@ -254,7 +262,7 @@ function generateCode() {
 
         <label class="flex items-center gap-3 cursor-pointer">
           <input
-            v-model="form.is_active"
+            v-model="isActive"
             type="checkbox"
             class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
           />
