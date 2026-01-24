@@ -28,6 +28,7 @@ import {
   Card,
   Alert,
   useToast,
+  CurrencyInput,
 } from '@/components/ui'
 
 const route = useRoute()
@@ -59,6 +60,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<PurchaseOrderFormData>({
   validationSchema: toTypedSchema(purchaseOrderSchema),
   initialValues: {
@@ -78,6 +80,20 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [contactId] = defineField('contact_id')
+const [poDate] = defineField('po_date')
+const [expectedDate] = defineField('expected_date')
+const [reference] = defineField('reference')
+const [subject] = defineField('subject')
+const [currency] = defineField('currency')
+const [exchangeRate] = defineField('exchange_rate')
+const [discountType] = defineField('discount_type')
+const [discountValue] = defineField('discount_value')
+const [taxRate] = defineField('tax_rate')
+const [notes] = defineField('notes')
+const [termsConditions] = defineField('terms_conditions')
+const [shippingAddress] = defineField('shipping_address')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<PurchaseOrderItemFormData>('items')
@@ -146,10 +162,10 @@ const subtotal = computed(() => {
 })
 
 const discountAmount = computed(() => {
-  if (form.discount_type === 'percentage') {
-    return subtotal.value * ((form.discount_value || 0) / 100)
+  if (discountType.value === 'percentage') {
+    return subtotal.value * ((discountValue.value || 0) / 100)
   }
-  return form.discount_value || 0
+  return discountValue.value || 0
 })
 
 const afterDiscount = computed(() => subtotal.value - discountAmount.value)
@@ -310,7 +326,7 @@ const contactOptions = computed(() => {
           <!-- Vendor -->
           <FormField label="Vendor" required :error="errors.contact_id">
             <Select
-              v-model="form.contact_id"
+              v-model="contactId"
               :options="contactOptions"
               placeholder="Select vendor..."
               :loading="loadingContacts"
@@ -320,28 +336,28 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="form.reference" placeholder="Vendor quote number, etc." />
+            <Input v-model="reference" placeholder="Vendor quote number, etc." />
           </FormField>
 
           <!-- Subject -->
           <FormField label="Subject" class="md:col-span-2">
-            <Input v-model="form.subject" placeholder="Order description or title" />
+            <Input v-model="subject" placeholder="Order description or title" />
           </FormField>
 
           <!-- PO Date -->
           <FormField label="PO Date" required :error="errors.po_date">
-            <Input v-model="form.po_date" type="date" @blur="validateField('po_date')" />
+            <Input v-model="poDate" type="date" @blur="validateField('po_date')" />
           </FormField>
 
           <!-- Expected Date -->
           <FormField label="Expected Delivery Date">
-            <Input v-model="form.expected_date" type="date" />
+            <Input v-model="expectedDate" type="date" />
           </FormField>
 
           <!-- Shipping Address -->
           <FormField label="Shipping Address" class="md:col-span-2">
             <Textarea
-              v-model="form.shipping_address"
+              v-model="shippingAddress"
               :rows="2"
               placeholder="Delivery address for this order"
             />
@@ -428,12 +444,10 @@ const contactOptions = computed(() => {
                   />
                 </td>
                 <td class="px-3 py-2">
-                  <input
-                    v-model.number="field.value.unit_price"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                  <CurrencyInput
+                    v-model="field.value.unit_price"
+                    size="sm"
+                    :min="0"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -487,16 +501,25 @@ const contactOptions = computed(() => {
               <div class="flex items-center gap-2">
                 <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Discount</span>
                 <select
-                  v-model="form.discount_type"
+                  v-model="discountType"
                   class="px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm"
                 >
                   <option value="percentage">%</option>
                   <option value="fixed">Rp</option>
                 </select>
+                <CurrencyInput
+                  v-if="discountType === 'fixed'"
+                  v-model="discountValue"
+                  size="sm"
+                  class="w-32"
+                  :min="0"
+                />
                 <input
-                  v-model.number="form.discount_value"
+                  v-else
+                  v-model.number="discountValue"
                   type="number"
                   min="0"
+                  max="100"
                   class="w-24 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
                 />
                 <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">

@@ -8,7 +8,7 @@ import { toNumber } from '@/utils/format'
 import { useContactsLookup } from '@/api/useContacts'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
+import { Button, Input, FormField, Textarea, Select, Card, useToast, CurrencyInput } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -52,6 +52,7 @@ const {
   setValues,
   setErrors,
   validateField,
+  defineField,
 } = useForm<BillFormData>({
   validationSchema: toTypedSchema(billSchema),
   initialValues: {
@@ -63,6 +64,12 @@ const {
     items: [createEmptyItem()],
   },
 })
+
+const [contactId] = defineField('contact_id')
+const [vendorInvoiceNumber] = defineField('vendor_invoice_number')
+const [billDate] = defineField('bill_date')
+const [dueDate] = defineField('due_date')
+const [description] = defineField('description')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<BillItemFormData>('items')
@@ -183,23 +190,23 @@ const onSubmit = handleSubmit(async (formValues) => {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Vendor" required :error="errors.contact_id">
             <Select
-              v-model="form.contact_id"
+              v-model="contactId"
               :options="contactOptions"
               placeholder="Select vendor"
               @update:model-value="validateField('contact_id')"
             />
           </FormField>
           <FormField label="Vendor Invoice #">
-            <Input :model-value="form.vendor_invoice_number ?? ''" @update:model-value="(v) => form.vendor_invoice_number = String(v)" placeholder="Vendor's invoice number" />
+            <Input v-model="vendorInvoiceNumber" placeholder="Vendor's invoice number" />
           </FormField>
           <FormField label="Bill Date" required :error="errors.bill_date">
-            <Input v-model="form.bill_date" type="date" @blur="validateField('bill_date')" />
+            <Input v-model="billDate" type="date" @blur="validateField('bill_date')" />
           </FormField>
           <FormField label="Due Date" required :error="errors.due_date">
-            <Input v-model="form.due_date" type="date" @blur="validateField('due_date')" />
+            <Input v-model="dueDate" type="date" @blur="validateField('due_date')" />
           </FormField>
           <FormField label="Description" class="md:col-span-2">
-            <Textarea :model-value="form.description ?? ''" @update:model-value="(v: string) => form.description = v" :rows="2" placeholder="Bill description" />
+            <Textarea v-model="description" :rows="2" placeholder="Bill description" />
           </FormField>
         </div>
       </Card>
@@ -224,7 +231,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Unit Price</label>
-              <Input v-model.number="field.value.unit_price" type="number" min="0" step="1000" />
+              <CurrencyInput v-model="field.value.unit_price" size="sm" :min="0" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
