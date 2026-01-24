@@ -73,7 +73,7 @@ async function handleConvert() {
   try {
     const result = await convertMutation.mutateAsync(quotationId.value)
     toast.success('Invoice created successfully')
-    router.push(`/invoices/${result.invoice_id}`)
+    router.push(`/invoices/${result.invoice.id}`)
   } catch (error) {
     toast.error(getErrorMessage(error, 'Failed to convert to invoice'))
   }
@@ -103,12 +103,12 @@ async function handleDelete() {
 }
 
 // Status-based action availability
-const canEdit = computed(() => quotation.value?.status === 'draft')
-const canSubmit = computed(() => quotation.value?.status === 'draft')
-const canApprove = computed(() => quotation.value?.status === 'submitted')
-const canReject = computed(() => quotation.value?.status === 'submitted')
-const canConvert = computed(() => quotation.value?.status === 'approved')
-const canDelete = computed(() => quotation.value?.status === 'draft')
+const canEdit = computed(() => quotation.value?.status.value === 'draft')
+const canSubmit = computed(() => quotation.value?.status.value === 'draft')
+const canApprove = computed(() => quotation.value?.status.value === 'submitted')
+const canReject = computed(() => quotation.value?.status.value === 'submitted')
+const canConvert = computed(() => quotation.value?.status.value === 'approved')
+const canDelete = computed(() => quotation.value?.status.value === 'draft')
 
 // Print functionality
 function handlePrint() {

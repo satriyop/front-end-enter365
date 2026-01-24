@@ -137,7 +137,8 @@ export function getSubcontractorInvoiceStatus(invoice: SubcontractorInvoice): { 
     rejected: { label: 'Rejected', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
     converted: { label: 'Converted', color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' },
   }
-  return statusMap[invoice.status] || { label: invoice.status, color: 'bg-slate-100 text-slate-700' }
+  const statusValue = invoice.status && typeof invoice.status === 'object' ? invoice.status.value : invoice.status
+  return statusMap[statusValue] || { label: statusValue, color: 'bg-slate-100 text-slate-700' }
 }
 
 /**

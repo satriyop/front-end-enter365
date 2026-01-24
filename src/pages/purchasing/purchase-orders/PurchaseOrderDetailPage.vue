@@ -351,7 +351,7 @@ const itemColumns: ResponsiveColumn[] = [
 
       <!-- Receiving Progress Banner -->
       <Card
-        v-if="po.status === 'partial' || po.status === 'approved'"
+        v-if="po.status.value === 'partial' || po.status.value === 'approved'"
         class="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20"
       >
         <div class="flex items-center gap-3">

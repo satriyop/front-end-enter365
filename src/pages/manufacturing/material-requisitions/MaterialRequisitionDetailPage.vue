@@ -147,10 +147,10 @@ function setMaxQuantity(index: number) {
 }
 
 // Permission checks based on status
-const canApprove = computed(() => mr.value?.status === 'pending')
-const canIssue = computed(() => mr.value?.status === 'approved' || mr.value?.status === 'partial')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(mr.value?.status || ''))
-const canDelete = computed(() => mr.value?.status === 'draft')
+const canApprove = computed(() => mr.value?.status.value === 'pending')
+const canIssue = computed(() => mr.value?.status.value === 'approved' || mr.value?.status.value === 'partial')
+const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(mr.value?.status.value || ''))
+const canDelete = computed(() => mr.value?.status.value === 'draft')
 
 // Line items table columns
 const itemColumns: ResponsiveColumn[] = [

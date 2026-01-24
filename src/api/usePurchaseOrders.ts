@@ -278,7 +278,8 @@ export function getPurchaseOrderStatus(po: PurchaseOrder): { label: string; colo
     },
   }
 
-  const status = (po.status as PurchaseOrderStatus) || 'draft'
+  const statusValue = po.status && typeof po.status === 'object' ? po.status.value : po.status
+  const status = (statusValue as PurchaseOrderStatus) || 'draft'
   return statusMap[status] || statusMap.draft
 }
 

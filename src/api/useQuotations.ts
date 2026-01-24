@@ -145,8 +145,12 @@ export function useConvertToInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (id: number | string) => {
-      const response = await api.post<{ data: components['schemas']['InvoiceResource'] }>(`/quotations/${id}/convert-to-invoice`)
-      return response.data.data
+      const response = await api.post<{ 
+        message: string, 
+        invoice: components['schemas']['InvoiceResource'],
+        quotation: Quotation 
+      }>(`/quotations/${id}/convert-to-invoice`)
+      return response.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] })

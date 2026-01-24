@@ -76,24 +76,22 @@ const itemColumns: ResponsiveColumn[] = [
         <div>
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ bill.bill_number }}</h1>
-            <Badge :variant="statusColors[bill.status] || 'default'">
-              {{ bill.status }}
-            </Badge>
+            <Badge :status="bill.status as any" />
           </div>
           <p class="text-slate-500 dark:text-slate-400">{{ bill.contact?.name }}</p>
         </div>
         <div class="flex gap-2">
           <Button variant="ghost" @click="router.back()">Back</Button>
-          <Button v-if="bill.status === 'draft'" @click="handlePost" :loading="postMutation.isPending.value">
+          <Button v-if="bill.status.value === 'draft'" @click="handlePost" :loading="postMutation.isPending.value">
             Post Bill
           </Button>
-          <RouterLink v-if="bill.status === 'draft'" :to="`/bills/${bill.id}/edit`">
+          <RouterLink v-if="bill.status.value === 'draft'" :to="`/bills/${bill.id}/edit`">
             <Button variant="secondary">Edit</Button>
           </RouterLink>
-          <Button v-if="bill.status === 'posted'" variant="destructive" @click="handleVoid" :loading="voidMutation.isPending.value">
+          <Button v-if="bill.status.value === 'posted'" variant="destructive" @click="handleVoid" :loading="voidMutation.isPending.value">
             Void
           </Button>
-          <Button v-if="bill.status === 'draft'" variant="destructive" @click="handleDelete" :loading="deleteMutation.isPending.value">
+          <Button v-if="bill.status.value === 'draft'" variant="destructive" @click="handleDelete" :loading="deleteMutation.isPending.value">
             Delete
           </Button>
         </div>
@@ -199,7 +197,7 @@ const itemColumns: ResponsiveColumn[] = [
             </dl>
           </Card>
 
-          <Card v-if="toNumber(bill.outstanding_amount) > 0 && bill.status !== 'draft'">
+          <Card v-if="toNumber(bill.outstanding_amount) > 0 && bill.status.value !== 'draft'">
             <RouterLink :to="`/payments/new?type=pay&bill_id=${bill.id}`">
               <Button class="w-full">Record Payment</Button>
             </RouterLink>

@@ -99,9 +99,9 @@ async function handleConvertToBill() {
 }
 
 // Permission checks based on status
-const canApprove = computed(() => invoice.value?.status === 'pending')
-const canReject = computed(() => invoice.value?.status === 'pending')
-const canConvert = computed(() => invoice.value?.status === 'approved')
+const canApprove = computed(() => invoice.value?.status.value === 'pending')
+const canReject = computed(() => invoice.value?.status.value === 'pending')
+const canConvert = computed(() => invoice.value?.status.value === 'approved')
 
 // Calculate net amount
 const netAmount = computed(() => {

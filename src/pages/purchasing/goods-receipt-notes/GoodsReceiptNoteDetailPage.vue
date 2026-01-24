@@ -184,7 +184,7 @@ const isFullyReceived = computed(() => {
           <div class="flex flex-wrap gap-2">
             <!-- Start Receiving (draft) -->
             <Button
-              v-if="grn.status === 'draft'"
+              v-if="grn.status.value === 'draft'"
               size="sm"
               :loading="startReceivingMutation.isPending.value"
               @click="handleStartReceiving"
@@ -229,7 +229,7 @@ const isFullyReceived = computed(() => {
 
       <!-- Receiving Progress Banner -->
       <Card
-        v-if="grn.status === 'receiving'"
+        v-if="grn.status.value === 'receiving'"
         class="mb-6 border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/20"
       >
         <div class="flex items-center gap-3">

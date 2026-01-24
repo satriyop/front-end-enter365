@@ -210,7 +210,8 @@ export function getGRNStatus(grn: GoodsReceiptNote): { label: string; color: str
     },
   }
 
-  const status = (grn.status as GRNStatus) || 'draft'
+  const statusValue = grn.status && typeof grn.status === 'object' ? grn.status.value : grn.status
+  const status = (statusValue as GRNStatus) || 'draft'
   return statusMap[status] || statusMap.draft
 }
 

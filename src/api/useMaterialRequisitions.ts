@@ -163,7 +163,8 @@ export function getMaterialRequisitionStatus(mr: MaterialRequisition): { label: 
     issued: { label: 'Issued', color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' },
     cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' },
   }
-  return statusMap[mr.status] || { label: mr.status, color: 'bg-slate-100 text-slate-700' }
+  const statusValue = mr.status && typeof mr.status === 'object' ? mr.status.value : mr.status
+  return statusMap[statusValue] || { label: statusValue, color: 'bg-slate-100 text-slate-700' }
 }
 
 /**
