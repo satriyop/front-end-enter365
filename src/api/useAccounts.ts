@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
 import { api, type PaginatedResponse } from './client'
@@ -16,38 +16,19 @@ export interface AccountFilters {
   search?: string
   type?: 'asset' | 'liability' | 'equity' | 'revenue' | 'expense'
   is_active?: boolean
-  parent_id?: string | null
+  parent_id?: number | null
 }
 
 export type CreateAccountData = paths['/accounts']['post']['requestBody']['content']['application/json']
+export type UpdateAccountData = paths['/accounts/{account}']['put']['requestBody']['content']['application/json']
 
-export interface AccountBalance {
-  account_id: string
-  account_code: string
-  account_name: string
-  debit_total: string
-  credit_total: string
-  balance: string
-  as_of_date: string
-}
-
-export interface LedgerEntry {
-  id: string
-  date: string
-  entry_number: string
-  description: string
-  reference: string | null
-  debit: string
-  credit: string
-  running_balance: string
-  journal_entry_id: string
-}
+export type AccountBalance = paths['/accounts/{account}/balance']['get']['responses']['200']['content']['application/json']
+export type AccountLedger = paths['/accounts/{account}/ledger']['get']['responses']['200']['content']['application/json']
+export type LedgerEntry = AccountLedger['entries'][number]
 
 export interface LedgerFilters {
   start_date?: string
   end_date?: string
-  page?: number
-  per_page?: number
 }
 
 // ============================================
@@ -103,15 +84,17 @@ export function useAccountBalance(
   return useQuery({
     queryKey: computed(() => ['account', accountId.value, 'balance', asOfDate?.value]),
     queryFn: async () => {
+      if (!accountId.value) return null
+
       const params: Record<string, string> = {}
       if (asOfDate?.value) {
         params.as_of_date = asOfDate.value
       }
-      const response = await api.get<{ data: AccountBalance }>(
+      const response = await api.get<AccountBalance>(
         `/accounts/${accountId.value}/balance`,
         { params }
       )
-      return response.data.data
+      return response.data || null
     },
     enabled: computed(() => !!accountId.value),
   })
@@ -127,11 +110,18 @@ export function useAccountLedger(
   return useQuery({
     queryKey: computed(() => ['account', accountId.value, 'ledger', filters.value]),
     queryFn: async () => {
-      const response = await api.get<PaginatedResponse<LedgerEntry>>(
-        `/accounts/${accountId.value}/ledger`,
-        { params: filters.value }
+      if (!accountId.value) return null
+
+      // Clean params: remove undefined or empty strings
+      const params = Object.fromEntries(
+        Object.entries(filters.value).filter(([, v]) => v !== undefined && v !== '')
       )
-      return response.data
+
+      const response = await api.get<AccountLedger>(
+        `/accounts/${accountId.value}/ledger`,
+        { params }
+      )
+      return response.data || null
     },
     enabled: computed(() => !!accountId.value),
   })

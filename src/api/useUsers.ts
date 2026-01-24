@@ -1,28 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 import { api, type PaginatedResponse } from './client'
+import type { components } from './types'
 
 // ============================================
 // Types
 // ============================================
 
-export interface Role {
-  id: number
-  name: string
-  display_name: string
-}
-
-export interface User {
-  id: number
-  name: string
-  email: string
-  email_verified_at: string | null
-  is_active: boolean
-  roles?: Role[]
-  permissions?: string[]
-  created_at: string
-  updated_at: string
-}
+export type User = components['schemas']['UserResource']
+export type Role = components['schemas']['RoleResource']
 
 export interface UserFilters {
   page?: number
@@ -76,24 +62,10 @@ export function useUser(id: Ref<number>) {
   return useQuery({
     queryKey: computed(() => ['user', id.value]),
     queryFn: async () => {
-      const response = await api.get<{ user: User }>(`/users/${id.value}`)
-      return response.data.user
-    },
-    enabled: computed(() => !!id.value && id.value > 0),
-  })
-}
-
-/**
- * Fetch all roles
- */
-export function useRoles() {
-  return useQuery({
-    queryKey: ['roles'],
-    queryFn: async () => {
-      const response = await api.get<{ data: Role[] }>('/roles')
+      const response = await api.get<{ data: User }>(`/users/${id.value}`)
       return response.data.data
     },
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    enabled: computed(() => !!id.value && id.value > 0),
   })
 }
 
@@ -109,8 +81,8 @@ export function useCreateUser() {
 
   return useMutation({
     mutationFn: async (data: CreateUserInput) => {
-      const response = await api.post<{ user: User; message: string }>('/users', data)
-      return response.data.user
+      const response = await api.post<{ data: User; message: string }>('/users', data)
+      return response.data.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
@@ -126,8 +98,8 @@ export function useUpdateUser() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: UpdateUserInput }) => {
-      const response = await api.put<{ user: User; message: string }>(`/users/${id}`, data)
-      return response.data.user
+      const response = await api.put<{ data: User; message: string }>(`/users/${id}`, data)
+      return response.data.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
@@ -160,8 +132,8 @@ export function useToggleUserActive() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      const response = await api.post<{ user: User; message: string }>(`/users/${id}/toggle-active`)
-      return response.data.user
+      const response = await api.post<{ data: User; message: string }>(`/users/${id}/toggle-active`)
+      return response.data.data
     },
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ['users'] })
@@ -193,8 +165,8 @@ export function useAssignRoles() {
 
   return useMutation({
     mutationFn: async ({ id, roles }: { id: number; roles: number[] }) => {
-      const response = await api.post<{ user: User; message: string }>(`/users/${id}/roles`, { roles })
-      return response.data.user
+      const response = await api.post<{ data: User; message: string }>(`/users/${id}/roles`, { roles })
+      return response.data.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['users'] })

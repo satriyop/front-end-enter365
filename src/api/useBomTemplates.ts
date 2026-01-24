@@ -1,64 +1,18 @@
+/**
+ * BOM Templates API hooks
+ */
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 import { api, type PaginatedResponse } from './client'
-import type { Bom } from './useBoms'
+import type { components, paths } from './types'
 
 // ============================================
 // Types
 // ============================================
 
-export interface BomTemplateItem {
-  id: number
-  template_id: number
-  type: 'material' | 'labor' | 'overhead'
-  component_standard_id: number | null
-  component_standard?: {
-    id: number
-    code: string
-    name: string
-    category: string
-    category_label: string
-  }
-  product_id: number | null
-  product?: {
-    id: number
-    name: string
-    sku: string
-    purchase_price: number
-  }
-  description: string
-  default_quantity: number
-  unit: string
-  is_required: boolean
-  is_quantity_variable: boolean
-  notes: string | null
-  sort_order: number
-  created_at: string
-  updated_at: string
-}
-
-export interface BomTemplate {
-  id: number
-  code: string
-  name: string
-  description: string | null
-  category: string
-  category_label: string
-  default_output_unit: string
-  is_active: boolean
-  default_rule_set_id: number | null
-  default_rule_set?: {
-    id: number
-    code: string
-    name: string
-  }
-  usage_count: number
-  items_count?: number
-  items?: BomTemplateItem[]
-  creator?: { id: number; name: string }
-  created_at: string
-  updated_at: string
-}
+export type BomTemplate = components['schemas']['BomTemplateResource']
+export type BomTemplateItem = components['schemas']['BomTemplateItemResource']
 
 export interface BomTemplateFilters {
   page?: number
@@ -68,97 +22,26 @@ export interface BomTemplateFilters {
   search?: string
 }
 
-export interface BomTemplateInput {
-  code: string
-  name: string
-  description?: string
-  category: string
-  default_output_unit?: string
-  default_rule_set_id?: number | null
-  is_active?: boolean
-}
+// Handling multipart/form-data for templates
+export type StoreBomTemplateRequest = paths['/bom-templates']['post']['requestBody']['content']['multipart/form-data']
+export type UpdateBomTemplateRequest = paths['/bom-templates/{bomTemplate}']['put']['requestBody']['content']['multipart/form-data']
 
-export interface BomTemplateItemInput {
-  type: 'material' | 'labor' | 'overhead'
-  component_standard_id?: number | null
-  product_id?: number | null
-  description: string
-  default_quantity: number
-  unit: string
-  is_required?: boolean
-  is_quantity_variable?: boolean
-  notes?: string
-}
+export type StoreBomTemplateItemRequest = paths['/bom-templates/{bomTemplate}/items']['post']['requestBody']['content']['application/json']
+export type UpdateBomTemplateItemRequest = paths['/bom-templates/{bomTemplate}/items/{item}']['patch']['requestBody']['content']['application/json']
 
 export interface BomTemplateMetadata {
   categories: Record<string, string>
   item_types: Record<string, string>
-  units: string[]
-  rule_sets: Array<{ id: number; code: string; name: string; is_default: boolean }>
 }
 
-export interface AvailableBrand {
-  code: string
-  name: string
-  coverage: number
-  coverage_percent: number
-}
+// Using paths for custom action responses since Scramble might not have put them in schemas yet
+export type AvailableBrand = paths['/bom-templates/{bomTemplate}/available-brands']['get']['responses']['200']['content']['application/json']['data'][number]
 
-export interface CreateBomPreviewItem {
-  template_item_id: number
-  type: string
-  description: string
-  quantity: number
-  unit: string
-  unit_cost: number
-  product: { id: number; name: string; sku: string; brand: string; purchase_price: number } | null
-  component_standard: { id: number; code: string; name: string } | null
-  status: 'resolved' | 'no_mapping' | 'using_product'
-  notes: string | null
-  is_required: boolean
-  is_quantity_variable: boolean
-}
+export type CreateBomPreview = paths['/bom-templates/{bomTemplate}/preview-bom']['post']['responses']['200']['content']['application/json']
+export type CreateBomPreviewItem = CreateBomPreview['data'][number]
 
-export interface CreateBomPreview {
-  items: CreateBomPreviewItem[]
-  report: {
-    template_id: number
-    template_code: string
-    target_brand: string | null
-    total_items: number
-    resolved: number
-    no_mapping: number
-    using_product: number
-  }
-}
-
-export interface CreateBomInput {
-  product_id: number
-  target_brand?: string
-  name?: string
-  notes?: string
-  output_quantity?: number
-  quantity_overrides?: Record<number, number>
-}
-
-export interface CreateBomResult {
-  bom: Bom
-  report: {
-    template_id: number
-    template_code: string
-    target_brand: string | null
-    total_items: number
-    resolved: number
-    no_mapping: number
-    using_product: number
-    items: Array<{
-      status: string
-      bom_item_data: Record<string, unknown>
-      product: Record<string, unknown> | null
-      notes: string | null
-    }>
-  }
-}
+export type CreateBomFromTemplateRequest = paths['/bom-templates/{bomTemplate}/create-bom']['post']['requestBody']['content']['application/json']
+export type CreateBomResult = paths['/bom-templates/{bomTemplate}/create-bom']['post']['responses']['201']['content']['application/json']
 
 // ============================================
 // Query Hooks
@@ -185,14 +68,14 @@ export function useBomTemplates(filters: Ref<BomTemplateFilters>) {
 /**
  * Fetch single BOM template by ID
  */
-export function useBomTemplate(id: Ref<number>) {
+export function useBomTemplate(id: Ref<number | string | null>) {
   return useQuery({
     queryKey: computed(() => ['bom-template', id.value]),
     queryFn: async () => {
       const response = await api.get<{ data: BomTemplate }>(`/bom-templates/${id.value}`)
       return response.data.data
     },
-    enabled: computed(() => !!id.value && id.value > 0),
+    enabled: computed(() => !!id.value),
   })
 }
 
@@ -229,16 +112,16 @@ export function useActiveTemplates() {
 /**
  * Fetch available brands for a template
  */
-export function useTemplateAvailableBrands(templateId: Ref<number>) {
+export function useTemplateAvailableBrands(templateId: Ref<number | string | null>) {
   return useQuery({
     queryKey: computed(() => ['bom-template', templateId.value, 'brands']),
     queryFn: async () => {
-      const response = await api.get<{ data: AvailableBrand[] }>(
+      const response = await api.get<{ data: AvailableBrand[]; meta: any }>(
         `/bom-templates/${templateId.value}/available-brands`
       )
       return response.data.data
     },
-    enabled: computed(() => !!templateId.value && templateId.value > 0),
+    enabled: computed(() => !!templateId.value),
     staleTime: 30 * 1000,
   })
 }
@@ -254,8 +137,10 @@ export function useCreateBomTemplate() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (data: BomTemplateInput) => {
-      const response = await api.post<{ data: BomTemplate }>('/bom-templates', data)
+    mutationFn: async (data: StoreBomTemplateRequest) => {
+      const response = await api.post<{ data: BomTemplate }>('/bom-templates', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       return response.data.data
     },
     onSuccess: () => {
@@ -271,8 +156,13 @@ export function useUpdateBomTemplate() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<BomTemplateInput> }) => {
-      const response = await api.put<{ data: BomTemplate }>(`/bom-templates/${id}`, data)
+    mutationFn: async ({ id, data }: { id: number | string; data: UpdateBomTemplateRequest }) => {
+      const response = await api.post<{ data: BomTemplate }>(`/bom-templates/${id}`, {
+        ...data,
+        _method: 'PUT'
+      }, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      })
       return response.data.data
     },
     onSuccess: (_, variables) => {
@@ -289,7 +179,7 @@ export function useDeleteBomTemplate() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: number) => {
+    mutationFn: async (id: number | string) => {
       await api.delete(`/bom-templates/${id}`)
     },
     onSuccess: () => {
@@ -305,8 +195,9 @@ export function useDuplicateBomTemplate() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: number) => {
-      const response = await api.post<{ data: BomTemplate }>(`/bom-templates/${id}/duplicate`)
+    mutationFn: async (params: { id: number | string; code: string; name?: string }) => {
+      const { id, ...data } = params
+      const response = await api.post<{ data: BomTemplate }>(`/bom-templates/${id}/duplicate`, data)
       return response.data.data
     },
     onSuccess: () => {
@@ -322,8 +213,8 @@ export function useToggleTemplateActive() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (id: number) => {
-      const response = await api.post<{ data: BomTemplate }>(`/bom-templates/${id}/toggle-active`)
+    mutationFn: async (id: number | string) => {
+      const response = await api.post<{ data: BomTemplate; message: string }>(`/bom-templates/${id}/toggle-active`)
       return response.data.data
     },
     onSuccess: (_, id) => {
@@ -344,7 +235,7 @@ export function useAddTemplateItem() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ templateId, data }: { templateId: number; data: BomTemplateItemInput }) => {
+    mutationFn: async ({ templateId, data }: { templateId: number | string; data: StoreBomTemplateItemRequest }) => {
       const response = await api.post<{ data: BomTemplateItem }>(
         `/bom-templates/${templateId}/items`,
         data
@@ -369,11 +260,11 @@ export function useUpdateTemplateItem() {
       itemId,
       data
     }: {
-      templateId: number
-      itemId: number
-      data: Partial<BomTemplateItemInput>
+      templateId: number | string
+      itemId: number | string
+      data: UpdateBomTemplateItemRequest
     }) => {
-      const response = await api.put<{ data: BomTemplateItem }>(
+      const response = await api.patch<{ data: BomTemplateItem }>(
         `/bom-templates/${templateId}/items/${itemId}`,
         data
       )
@@ -392,7 +283,7 @@ export function useDeleteTemplateItem() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ templateId, itemId }: { templateId: number; itemId: number }) => {
+    mutationFn: async ({ templateId, itemId }: { templateId: number | string; itemId: number | string }) => {
       await api.delete(`/bom-templates/${templateId}/items/${itemId}`)
     },
     onSuccess: (_, variables) => {
@@ -408,12 +299,12 @@ export function useReorderTemplateItems() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ templateId, itemIds }: { templateId: number; itemIds: number[] }) => {
+    mutationFn: async ({ templateId, itemIds }: { templateId: number | string; itemIds: number[] }) => {
       const response = await api.post<{ message: string; data: BomTemplate }>(
         `/bom-templates/${templateId}/items/reorder`,
         { item_ids: itemIds }
       )
-      return response.data
+      return response.data.data
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['bom-template', variables.templateId] })
@@ -434,14 +325,14 @@ export function usePreviewCreateBom() {
       templateId,
       data
     }: {
-      templateId: number
-      data: Partial<CreateBomInput>
+      templateId: number | string
+      data: { target_brand?: string; quantity_overrides?: Record<number, number> }
     }) => {
-      const response = await api.post<{ data: CreateBomPreview }>(
+      const response = await api.post<CreateBomPreview>(
         `/bom-templates/${templateId}/preview-bom`,
         data
       )
-      return response.data.data
+      return response.data
     },
   })
 }
@@ -457,10 +348,10 @@ export function useCreateBomFromTemplate() {
       templateId,
       data
     }: {
-      templateId: number
-      data: CreateBomInput
+      templateId: number | string
+      data: CreateBomFromTemplateRequest
     }) => {
-      const response = await api.post<{ message: string; data: CreateBomResult }>(
+      const response = await api.post<CreateBomResult>(
         `/bom-templates/${templateId}/create-bom`,
         data
       )

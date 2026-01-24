@@ -74,7 +74,7 @@ export function useReverseJournalEntry() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (params: { id: number | string; reversal_date?: string; description?: string }) => {
+    mutationFn: async (params: { id: number | string; description?: string }) => {
       const { id, ...data } = params
       const response = await api.post<{ data: JournalEntry }>(
         `/journal-entries/${id}/reverse`,
