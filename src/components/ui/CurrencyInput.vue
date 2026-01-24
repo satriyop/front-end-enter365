@@ -30,6 +30,7 @@ const attrs = useAttrs()
 
 // Internal display value (formatted string)
 const displayValue = ref('')
+const isFocused = ref(false)
 
 const sizeClasses: Record<InputSize, string> = {
   sm: 'h-8 text-sm px-3',
@@ -39,7 +40,7 @@ const sizeClasses: Record<InputSize, string> = {
 
 const inputClasses = computed(() =>
   cn(
-    'w-full rounded-r-sm border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-150 text-right tabular-nums',
+    'flex-1 w-full rounded-r-sm border bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 transition-colors duration-150 text-right tabular-nums min-w-0',
     'placeholder:text-slate-400 dark:placeholder:text-slate-500',
     'focus:outline-none focus:ring-1',
     sizeClasses[props.size],
@@ -92,19 +93,27 @@ function parseNumber(value: string): number | null {
 watch(
   () => props.modelValue,
   (newValue) => {
-    displayValue.value = formatNumber(newValue)
+    if (!isFocused.value) {
+      displayValue.value = formatNumber(newValue)
+    }
   },
   { immediate: true }
 )
 
 function handleInput(event: Event) {
   const target = event.target as HTMLInputElement
-  // Allow only numbers and dots
   const cleanValue = target.value.replace(/[^\d.]/g, '')
-  target.value = cleanValue
+  
+  if (target.value !== cleanValue) {
+    target.value = cleanValue
+  }
+  
+  displayValue.value = cleanValue
+  emit('update:modelValue', parseNumber(cleanValue))
 }
 
 function handleBlur(event: Event) {
+  isFocused.value = false
   const target = event.target as HTMLInputElement
   let value = parseNumber(target.value)
 
@@ -123,6 +132,7 @@ function handleBlur(event: Event) {
 }
 
 function handleFocus(event: Event) {
+  isFocused.value = true
   const target = event.target as HTMLInputElement
   // Select all text on focus for easy replacement
   target.select()
@@ -130,7 +140,7 @@ function handleFocus(event: Event) {
 </script>
 
 <template>
-  <div class="flex">
+  <div class="flex w-full">
     <!-- Currency prefix -->
     <span :class="addonClasses">
       {{ currency }}

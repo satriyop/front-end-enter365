@@ -22,7 +22,8 @@ import {
   Select,
   Card,
   Alert,
-  useToast
+  useToast,
+  CurrencyInput
 } from '@/components/ui'
 
 const route = useRoute()
@@ -180,11 +181,12 @@ function handleRemoveItem(index: number) {
 function onProductSelect(index: number, productId: number | null) {
   if (productId && products.value) {
     const product = products.value.find(p => toNumber(p.id) === productId)
-    if (product && form.items?.[index]) {
-      form.items[index].description = product.name
-      form.items[index].unit = product.unit
-      form.items[index].unit_price = toNumber(product.selling_price)
-      form.items[index].tax_rate = toNumber(product.tax_rate)
+    if (product && itemFields.value[index]) {
+      const item = itemFields.value[index].value
+      item.description = product.name
+      item.unit = product.unit
+      item.unit_price = toNumber(product.selling_price)
+      item.tax_rate = toNumber(product.tax_rate)
     }
   }
 }
@@ -403,12 +405,10 @@ const contactOptions = computed(() => {
                   />
                 </td>
                 <td class="px-3 py-2">
-                  <input
-                    v-model.number="field.value.unit_price"
-                    type="number"
-                    min="0"
-                    step="1000"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                  <CurrencyInput
+                    v-model="field.value.unit_price"
+                    size="sm"
+                    :min="0"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -470,10 +470,19 @@ const contactOptions = computed(() => {
                   <option value="percentage">%</option>
                   <option value="fixed">Rp</option>
                 </select>
+                <CurrencyInput
+                  v-if="discountType === 'fixed'"
+                  v-model="discountValue"
+                  size="sm"
+                  class="w-32"
+                  :min="0"
+                />
                 <input
+                  v-else
                   v-model.number="discountValue"
                   type="number"
                   min="0"
+                  max="100"
                   class="w-24 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
                 />
                 <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
