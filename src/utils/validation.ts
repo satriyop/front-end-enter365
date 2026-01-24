@@ -78,12 +78,51 @@ export const currencySchema = z
   .min(0, 'Amount cannot be negative')
 
 /**
+ * Unit price schema
+ */
+export const unitPriceSchema = z
+  .number({ invalid_type_error: 'Must be a number' })
+  .min(0, 'Price cannot be negative')
+
+/**
+ * Quantity schema
+ */
+export const quantitySchema = z
+  .number({ invalid_type_error: 'Must be a number' })
+  .min(0.0001, 'Quantity must be at least 0.0001')
+
+/**
  * Percentage (0-100)
  */
 export const percentageSchema = z
   .number()
   .min(0, 'Percentage cannot be negative')
   .max(100, 'Percentage cannot exceed 100')
+
+/**
+ * Subject schema (max 255)
+ */
+export const subjectSchema = z.string().max(255, 'Subject is too long').optional().default('')
+
+/**
+ * Reference schema (max 100)
+ */
+export const referenceSchema = z.string().max(100, 'Reference is too long').optional().default('')
+
+/**
+ * Notes schema (max 2000)
+ */
+export const notesSchema = z.string().max(2000, 'Notes are too long').optional().default('')
+
+/**
+ * Item notes schema (max 500)
+ */
+export const itemNotesSchema = z.string().max(500, 'Item notes are too long').optional().default('')
+
+/**
+ * Description schema (max 500)
+ */
+export const descriptionSchema = z.string().max(500, 'Description is too long').optional().default('')
 
 /**
  * Date string (YYYY-MM-DD)
@@ -107,20 +146,20 @@ export const requiredDate = (field: string) =>
  * Note: Uses empty strings instead of null for form compatibility
  */
 export const contactSchema = z.object({
-  code: requiredString('Code'),
-  name: requiredString('Name'),
+  code: requiredString('Code').max(50),
+  name: requiredString('Name').max(255),
   type: z.enum(['customer', 'supplier', 'both'], {
     errorMap: () => ({ message: 'Please select a type' }),
   }),
-  email: z.string().email('Invalid email address').or(z.literal('')).optional(),
-  phone: z.string().regex(/^(\+62|62|0)8[1-9][0-9]{7,10}$/, 'Invalid phone number').or(z.literal('')).optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  province: z.string().optional(),
-  postal_code: z.string().optional(),
-  npwp: z.string().regex(/^\d{2}\.\d{3}\.\d{3}\.\d-\d{3}\.\d{3}$/, 'Invalid NPWP format').or(z.literal('')).optional(),
-  nik: z.string().regex(/^\d{16}$/, 'NIK must be 16 digits').or(z.literal('')).optional(),
-  credit_limit: z.number().min(0).optional(),
+  email: emailSchema,
+  phone: phoneSchema,
+  address: z.string().max(500).optional(),
+  city: z.string().max(100).optional(),
+  province: z.string().max(100).optional(),
+  postal_code: z.string().max(10).optional(),
+  npwp: npwpSchema,
+  nik: nikSchema,
+  credit_limit: currencySchema.optional(),
   payment_term_days: z.number().int().min(0).max(365).optional(),
   is_active: z.boolean().default(true),
 })
@@ -129,20 +168,20 @@ export const contactSchema = z.object({
  * Product form schema
  */
 export const productSchema = z.object({
-  sku: requiredString('SKU'),
-  name: requiredString('Name'),
+  sku: requiredString('SKU').max(50),
+  name: requiredString('Name').max(255),
   type: z.enum(['product', 'service'], {
     errorMap: () => ({ message: 'Please select a type' }),
   }),
-  description: z.string().optional().default(''),
-  unit: requiredString('Unit'),
-  purchase_price: z.number().min(0, 'Price cannot be negative').default(0),
-  selling_price: z.number().min(0, 'Price cannot be negative').default(0),
+  description: z.string().max(500).optional().default(''),
+  unit: requiredString('Unit').max(20),
+  purchase_price: unitPriceSchema.default(0),
+  selling_price: unitPriceSchema.default(0),
   tax_rate: percentageSchema.default(11),
   is_taxable: z.boolean().default(true),
   is_active: z.boolean().default(true),
   track_inventory: z.boolean().default(true),
-  min_stock: z.number().int().min(0, 'Minimum stock cannot be negative').default(0),
+  min_stock: z.number().min(0, 'Minimum stock cannot be negative').default(0),
   category_id: z.number().optional().nullable(),
 })
 
@@ -151,13 +190,13 @@ export const productSchema = z.object({
  */
 export const quotationItemSchema = z.object({
   product_id: z.number().optional().nullable(),
-  description: z.string().default(''),
-  quantity: z.number().default(1),
-  unit: z.string().default('pcs'),
-  unit_price: z.number().default(0),
-  discount_percent: z.number().min(0).max(100).default(0),
-  tax_rate: z.number().min(0).max(100).default(11),
-  notes: z.string().optional().default(''),
+  description: requiredString('Description').max(500),
+  quantity: quantitySchema.default(1),
+  unit: z.string().max(20).default('pcs'),
+  unit_price: unitPriceSchema.default(0),
+  discount_percent: percentageSchema.default(0),
+  tax_rate: percentageSchema.default(11),
+  notes: itemNotesSchema,
 })
 
 /**
@@ -167,13 +206,13 @@ export const quotationSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
   quotation_date: requiredDate('Quotation date'),
   valid_until: z.string().optional().default(''),
-  subject: z.string().optional().default(''),
-  reference: z.string().optional().default(''),
+  subject: subjectSchema,
+  reference: referenceSchema,
   discount_type: z.enum(['percentage', 'fixed']).default('percentage'),
   discount_value: z.number().min(0).default(0),
-  tax_rate: z.number().min(0).max(100).default(11),
-  notes: z.string().optional().default(''),
-  terms_conditions: z.string().optional().default(''),
+  tax_rate: percentageSchema.default(11),
+  notes: notesSchema,
+  terms_conditions: z.string().max(5000, 'Terms are too long').optional().default(''),
   items: z.array(quotationItemSchema).min(1, 'At least one item is required'),
 }).refine((data) => {
   if (!data.quotation_date || !data.valid_until) return true
@@ -187,10 +226,10 @@ export const quotationSchema = z.object({
  * Invoice item schema
  */
 export const invoiceItemSchema = z.object({
-  description: z.string().default(''),
-  quantity: z.number().default(1),
-  unit: z.string().default('pcs'),
-  unit_price: z.number().default(0),
+  description: requiredString('Description').max(500),
+  quantity: quantitySchema.default(1),
+  unit: z.string().max(20).default('pcs'),
+  unit_price: unitPriceSchema.default(0),
   revenue_account_id: z.number().optional().nullable(),
 })
 
@@ -201,10 +240,10 @@ export const invoiceSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
   invoice_date: requiredDate('Invoice date'),
   due_date: requiredDate('Due date'),
-  description: z.string().optional().default(''),
-  reference: z.string().optional().default(''),
-  tax_rate: z.number().min(0).max(100).default(11),
-  discount_amount: z.number().min(0).default(0),
+  description: descriptionSchema,
+  reference: referenceSchema,
+  tax_rate: percentageSchema.default(11),
+  discount_amount: currencySchema.default(0),
   receivable_account_id: z.number().optional().nullable(),
   items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
 }).refine((data) => {
@@ -439,12 +478,12 @@ export const bomTemplateSchema = z.object({
  * Bill item schema
  */
 export const billItemSchema = z.object({
-  description: z.string().default(''),
-  quantity: z.number().default(1),
-  unit: z.string().default('pcs'),
-  unit_price: z.number().default(0),
-  discount_percent: z.number().min(0).max(100).default(0),
-  tax_rate: z.number().min(0).max(100).default(11),
+  description: requiredString('Description').max(500),
+  quantity: quantitySchema.default(1),
+  unit: z.string().max(20).default('pcs'),
+  unit_price: unitPriceSchema.default(0),
+  discount_percent: percentageSchema.default(0),
+  tax_rate: percentageSchema.default(11),
 })
 
 /**
@@ -452,10 +491,10 @@ export const billItemSchema = z.object({
  */
 export const billSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a vendor' }).positive('Please select a vendor'),
-  vendor_invoice_number: z.string().optional().nullable(),
+  vendor_invoice_number: z.string().max(100).optional().nullable(),
   bill_date: requiredDate('Bill date'),
   due_date: requiredDate('Due date'),
-  description: z.string().optional().nullable(),
+  description: descriptionSchema,
   items: z.array(billItemSchema).min(1, 'At least one item is required'),
 }).refine((data) => {
   if (!data.bill_date || !data.due_date) return true

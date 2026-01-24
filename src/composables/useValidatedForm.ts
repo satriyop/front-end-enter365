@@ -90,6 +90,8 @@ export function setServerErrors(
 
   for (const [field, messages] of Object.entries(errors)) {
     if (messages.length > 0) {
+      // Handle array dot notation (e.g. items.0.description)
+      // VeeValidate handles this correctly when set as a string key
       formattedErrors[field] = messages[0]
     }
   }

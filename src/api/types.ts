@@ -7932,6 +7932,11 @@ export interface components {
         };
         /** JsonResource */
         JsonResource: string;
+        /** LabelValueResource */
+        LabelValueResource: {
+            value: string;
+            label: string;
+        };
         /** LoginRequest */
         LoginRequest: {
             /** Format: email */
@@ -8710,7 +8715,7 @@ export interface components {
             is_expired: boolean;
             reference: string | null;
             subject: string | null;
-            quotation_type: string;
+            quotation_type: components["schemas"]["LabelValueResource"];
             is_multi_option: boolean;
             variant_group_id: number | null;
             variant_group?: components["schemas"]["BomVariantGroupResource"];
@@ -8745,12 +8750,12 @@ export interface components {
             assigned_to: number | null;
             assigned_user?: components["schemas"]["UserResource"];
             follow_up_count: number;
-            priority: string;
+            priority: components["schemas"]["LabelValueResource"];
             priority_label: string;
             needs_follow_up: boolean;
             days_since_last_contact: number | null;
             /** @description Win/Loss outcome */
-            outcome: string | null;
+            outcome: components["schemas"]["LabelValueResource"];
             outcome_label: string | null;
             won_reason: string | null;
             lost_reason: string | null;
