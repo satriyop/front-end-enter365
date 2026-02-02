@@ -74,7 +74,7 @@ export function useSalesReturnsForInvoice(invoiceId: MaybeRef<number>) {
     queryKey: ['sales-returns', 'for-invoice', invoiceId],
     queryFn: async () => {
       const id = toValue(invoiceId)
-      const response = await api.get<{ data: SalesReturn[] }>(`/invoices/${id}/returns`)
+      const response = await api.get<{ data: SalesReturn[] }>(`/invoices/${id}/sales-returns`)
       return response.data.data
     },
     enabled: () => toValue(invoiceId) > 0,
@@ -96,7 +96,7 @@ export function useCreateSalesReturnFromInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ invoiceId, data }: { invoiceId: number; data: CreateFromInvoiceData }) => {
-      const response = await api.post<{ data: SalesReturn }>(`/invoices/${invoiceId}/return`, data)
+      const response = await api.post<{ data: SalesReturn }>(`/invoices/${invoiceId}/create-sales-return`, data)
       return response.data.data
     },
     onSuccess: (data) => {

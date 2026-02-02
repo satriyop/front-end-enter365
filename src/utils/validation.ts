@@ -534,6 +534,37 @@ export const deliveryOrderSchema = z.object({
 })
 
 // ============================================
+// Sales Return Schemas
+// ============================================
+
+/**
+ * Sales return item schema
+ */
+export const salesReturnItemSchema = z.object({
+  product_id: z.number().optional().nullable(),
+  description: requiredString('Description').max(255),
+  quantity: quantitySchema.default(1),
+  unit: z.string().max(20).default('pcs'),
+  unit_price: unitPriceSchema.default(0),
+  condition: z.enum(['good', 'damaged', 'defective']).optional(),
+  notes: z.string().max(255).optional().default(''),
+})
+
+/**
+ * Sales return form schema
+ */
+export const salesReturnSchema = z.object({
+  contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
+  invoice_id: z.number().optional().nullable(),
+  warehouse_id: z.number().optional().nullable(),
+  return_date: requiredDate('Return date'),
+  reason: z.string().optional().default(''),
+  tax_rate: percentageSchema.default(11),
+  notes: z.string().max(1000).optional().default(''),
+  items: z.array(salesReturnItemSchema).min(1, 'At least one item is required'),
+})
+
+// ============================================
 // Purchase Order Schemas
 // ============================================
 
@@ -713,6 +744,10 @@ export type WorkOrderFormData = z.infer<typeof workOrderSchema>
 // Delivery Order
 export type DeliveryOrderItemFormData = z.infer<typeof deliveryOrderItemSchema>
 export type DeliveryOrderFormData = z.infer<typeof deliveryOrderSchema>
+
+// Sales Return
+export type SalesReturnItemFormData = z.infer<typeof salesReturnItemSchema>
+export type SalesReturnFormData = z.infer<typeof salesReturnSchema>
 
 // Purchase Order
 export type PurchaseOrderItemFormData = z.infer<typeof purchaseOrderItemSchema>

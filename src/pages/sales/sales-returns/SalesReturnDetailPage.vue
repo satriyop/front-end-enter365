@@ -37,7 +37,7 @@ import {
 } from 'radix-vue'
 
 // UI Components
-import { Button, Badge, Card, Modal, Input } from '@/components/ui'
+import { Button, Badge, Card, Modal, Input, Alert } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,10 +56,10 @@ const deleteMutation = useDeleteSalesReturn()
 
 // Computed for workflow permissions
 const canSubmit = computed(() => salesReturn.value?.status.value === 'draft')
-const canApprove = computed(() => salesReturn.value?.status.value === 'pending')
-const canReject = computed(() => salesReturn.value?.status.value === 'pending')
+const canApprove = computed(() => salesReturn.value?.status.value === 'submitted')
+const canReject = computed(() => salesReturn.value?.status.value === 'submitted')
 const canComplete = computed(() => salesReturn.value?.status.value === 'approved')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(salesReturn.value?.status.value || ''))
+const canCancel = computed(() => ['draft', 'submitted'].includes(salesReturn.value?.status.value || ''))
 const canEdit = computed(() => salesReturn.value?.status.value === 'draft')
 const canDelete = computed(() => salesReturn.value?.status.value === 'draft')
 
