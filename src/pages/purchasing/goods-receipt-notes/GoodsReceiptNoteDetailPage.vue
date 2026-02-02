@@ -365,7 +365,7 @@ const isFullyReceived = computed(() => {
               <!-- Actions -->
               <template #actions="{ item }">
                 <Button
-                  v-if="grn.status === 'receiving'"
+                  v-if="grn.status.value === 'receiving'"
                   variant="ghost"
                   size="xs"
                   @click.stop="openItemModal(item)"

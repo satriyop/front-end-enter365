@@ -393,7 +393,7 @@ const itemColumns: ResponsiveColumn[] = [
               <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
-                <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(quotation.total) }}</dd>
+                <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(quotation.total_amount) }}</dd>
               </div>
             </dl>
           </div>
@@ -491,7 +491,7 @@ const itemColumns: ResponsiveColumn[] = [
           :subtotal="quotation.subtotal"
           :discount-amount="quotation.discount_amount"
           :tax-amount="quotation.tax_amount"
-          :total="quotation.total"
+          :total="quotation.total_amount"
           :notes="quotation.notes"
           :terms-conditions="quotation.terms_conditions"
         />

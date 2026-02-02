@@ -39,8 +39,8 @@ const reversalDescription = ref('')
 const status = computed(() => entry.value ? getJournalEntryStatus(entry.value) : null)
 
 // Check if entry can be modified
-const isPosted = computed(() => entry.value?.is_posted === '1' || entry.value?.is_posted === 'true' || (typeof entry.value?.is_posted === 'boolean' && entry.value.is_posted))
-const isReversed = computed(() => entry.value?.is_reversed === '1' || entry.value?.is_reversed === 'true' || (typeof entry.value?.is_reversed === 'boolean' && entry.value.is_reversed))
+const isPosted = computed(() => !!entry.value?.is_posted)
+const isReversed = computed(() => !!entry.value?.is_reversed)
 
 const canDelete = computed(() => entry.value && !isPosted.value && !isReversed.value)
 const canPost = computed(() => entry.value && !isPosted.value && !isReversed.value && entry.value.is_balanced)

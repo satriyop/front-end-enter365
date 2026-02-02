@@ -102,7 +102,7 @@ watch(existingContact, (contact) => {
       nik: contact.nik || '',
       credit_limit: toNumber(contact.credit_limit),
       payment_term_days: toNumber(contact.payment_term_days),
-      is_active: contact.is_active === 'true' || contact.is_active === '1' || (contact.is_active as unknown) === true,
+      is_active: !!contact.is_active,
     })
   }
 }, { immediate: true })

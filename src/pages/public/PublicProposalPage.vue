@@ -5,60 +5,14 @@ import { formatCurrency, formatNumber, formatPercent, formatDate, formatSolarOff
 import Button from '@/components/ui/Button.vue'
 import PaybackChart from '@/components/charts/PaybackChart.vue'
 import MonthlyBillChart from '@/components/charts/MonthlyBillChart.vue'
+import { type SolarProposal } from '@/api/useSolarProposals'
 import { Check, X, Sun, Leaf, TrendingUp, Calendar, AlertCircle } from 'lucide-vue-next'
-
-// Types
-interface Proposal {
-  id: number
-  proposal_number: string
-  status: string
-  status_label: string
-  contact: {
-    name: string
-    email?: string
-    phone?: string
-  }
-  site_name: string
-  site_address: string
-  province: string
-  city: string
-  system_capacity_kwp: number
-  annual_production_kwh: number
-  monthly_production_kwh: number
-  monthly_consumption_kwh: number
-  electricity_rate: number
-  solar_offset_percent: number
-  system_cost: number
-  payback_years: number
-  roi_percent: number
-  first_year_savings: number
-  total_lifetime_savings: number
-  co2_offset_tons: number
-  trees_equivalent: number
-  valid_until: string
-  days_until_expiry: number | null
-  is_expired: boolean
-  can_accept: boolean
-  can_reject: boolean
-  financial_analysis?: {
-    yearly_projections?: Array<{
-      year: number
-      savings: number
-      cumulative_savings: number
-    }>
-  }
-  environmental_impact?: {
-    co2_offset_tons_per_year: number
-    trees_equivalent: number
-    cars_equivalent: number
-  }
-}
 
 const route = useRoute()
 const token = computed(() => route.params.token as string)
 
 // State
-const proposal = ref<Proposal | null>(null)
+const proposal = ref<SolarProposal | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 const isSubmitting = ref(false)
@@ -68,7 +22,7 @@ const actionSuccess = ref<'accepted' | 'rejected' | null>(null)
 
 // Chart data computed - Payback Chart
 const paybackChartData = computed(() => {
-  const projections = proposal.value?.financial_analysis?.yearly_projections
+  const projections = (proposal.value?.financial_analysis as any)?.yearly_projections
   const systemCost = proposal.value?.system_cost || 0
 
   if (!projections || projections.length === 0) {

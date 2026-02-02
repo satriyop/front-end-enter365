@@ -74,7 +74,7 @@ function getStatusLabel(status: any): string {
 const columns: ResponsiveColumn[] = [
   { key: 'quotation_number', label: 'Quotation #', mobilePriority: 1 },
   { key: 'contact.name', label: 'Customer', mobilePriority: 2 },
-  { key: 'total', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'total_amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
   { key: 'status', label: 'Status', showInMobile: false },
   { key: 'valid_until', label: 'Valid Until', showInMobile: false, format: (v) => formatDate(v as string) },
 ]
