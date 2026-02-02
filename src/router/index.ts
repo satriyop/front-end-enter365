@@ -112,7 +112,7 @@ const router = createRouter({
         {
           path: 'sales/delivery-orders/new',
           name: 'delivery-order-new',
-          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderListPage.vue'),
+          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderFormPage.vue'),
           meta: { breadcrumb: 'New Delivery Order' }
         },
         {
@@ -120,6 +120,12 @@ const router = createRouter({
           name: 'delivery-order-detail',
           component: () => import('@/pages/sales/delivery-orders/DeliveryOrderDetailPage.vue'),
           meta: { breadcrumb: (route) => `DO #${route.params.id}` }
+        },
+        {
+          path: 'sales/delivery-orders/:id/edit',
+          name: 'delivery-order-edit',
+          component: () => import('@/pages/sales/delivery-orders/DeliveryOrderFormPage.vue'),
+          meta: { breadcrumb: 'Edit Delivery Order' }
         },
         // Sales - Sales Returns routes
         {

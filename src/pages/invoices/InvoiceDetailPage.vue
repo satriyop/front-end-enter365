@@ -8,11 +8,13 @@ import {
   useDuplicateInvoice,
   useDeleteInvoice,
 } from '@/api/useInvoices'
+import { useCreateDeliveryOrderFromInvoice, type CreateFromInvoiceData } from '@/api/useDeliveryOrders'
+import { useWarehousesLookup } from '@/api/useInventory'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, Card, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Button, Badge, Modal, Card, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
-import { FileText } from 'lucide-vue-next'
+import { FileText, Truck } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -29,11 +31,41 @@ const voidMutation = useVoidInvoice()
 const duplicateMutation = useDuplicateInvoice()
 const deleteMutation = useDeleteInvoice()
 
+// Create DO
+const createDOMutation = useCreateDeliveryOrderFromInvoice()
+const { data: warehouses, isLoading: loadingWarehouses } = useWarehousesLookup()
+
 // Modal states
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const showPrintPreview = ref(false)
+const showCreateDOModal = ref(false)
 const voidReason = ref('')
+
+// Create DO form
+const doFormData = ref<CreateFromInvoiceData>({
+  do_date: new Date().toISOString().split('T')[0],
+  warehouse_id: undefined,
+  shipping_address: '',
+  shipping_method: '',
+  notes: '',
+})
+
+const canCreateDeliveryOrder = computed(() => {
+  const status = invoice.value?.status?.value
+  return status === 'sent' || status === 'partial' || status === 'paid'
+})
+
+const warehouseOptions = computed(() => {
+  if (!warehouses.value) return []
+  return [
+    { value: '', label: 'No warehouse' },
+    ...warehouses.value.map(w => ({
+      value: w.id,
+      label: w.name || `Warehouse #${w.id}`,
+    })),
+  ]
+})
 
 // Action handlers
 async function handlePost() {
@@ -74,6 +106,27 @@ async function handleDelete() {
     router.push('/invoices')
   } catch {
     toast.error('Failed to delete invoice')
+  }
+}
+
+async function handleCreateDO() {
+  try {
+    const payload: CreateFromInvoiceData = {
+      ...doFormData.value,
+      warehouse_id: doFormData.value.warehouse_id || undefined,
+      shipping_address: doFormData.value.shipping_address || undefined,
+      shipping_method: doFormData.value.shipping_method || undefined,
+      notes: doFormData.value.notes || undefined,
+    }
+    const newDO = await createDOMutation.mutateAsync({
+      invoiceId: invoiceId.value,
+      data: payload,
+    })
+    showCreateDOModal.value = false
+    toast.success('Delivery order created')
+    router.push(`/sales/delivery-orders/${newDO.id}`)
+  } catch {
+    toast.error('Failed to create delivery order')
   }
 }
 
@@ -358,6 +411,15 @@ const itemColumns: ResponsiveColumn[] = [
                   Record Payment
                 </Button>
               </RouterLink>
+              <Button
+                v-if="canCreateDeliveryOrder"
+                variant="secondary"
+                class="w-full"
+                @click="showCreateDOModal = true"
+              >
+                <Truck class="w-4 h-4 mr-2" />
+                Create Delivery Order
+              </Button>
               <Button variant="secondary" class="w-full">
                 Send Invoice
               </Button>
@@ -428,6 +490,54 @@ const itemColumns: ResponsiveColumn[] = [
           @click="handleDelete"
         >
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Create Delivery Order Modal -->
+    <Modal :open="showCreateDOModal" title="Create Delivery Order" @update:open="showCreateDOModal = $event">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Create a delivery order from this invoice. Items will be copied automatically.
+      </p>
+      <div class="space-y-4">
+        <FormField label="DO Date">
+          <Input v-model="doFormData.do_date" type="date" />
+        </FormField>
+        <FormField label="Warehouse">
+          <Select
+            :model-value="doFormData.warehouse_id"
+            :options="warehouseOptions"
+            placeholder="Select warehouse..."
+            :loading="loadingWarehouses"
+            @update:model-value="(v) => { doFormData.warehouse_id = v ? Number(v) : undefined }"
+          />
+        </FormField>
+        <FormField label="Shipping Address">
+          <Textarea
+            v-model="doFormData.shipping_address"
+            :rows="2"
+            placeholder="Delivery address"
+          />
+        </FormField>
+        <FormField label="Shipping Method">
+          <Input v-model="doFormData.shipping_method" placeholder="e.g. Courier, Self-pickup" />
+        </FormField>
+        <FormField label="Notes">
+          <Textarea
+            v-model="doFormData.notes"
+            :rows="2"
+            placeholder="Additional notes"
+          />
+        </FormField>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showCreateDOModal = false">Cancel</Button>
+        <Button
+          :loading="createDOMutation.isPending.value"
+          @click="handleCreateDO"
+        >
+          <Truck class="w-4 h-4 mr-2" />
+          Create Delivery Order
         </Button>
       </template>
     </Modal>
