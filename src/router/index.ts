@@ -137,7 +137,7 @@ const router = createRouter({
         {
           path: 'sales/sales-returns/new',
           name: 'sales-return-new',
-          component: () => import('@/pages/sales/sales-returns/SalesReturnListPage.vue'),
+          component: () => import('@/pages/sales/sales-returns/SalesReturnFormPage.vue'),
           meta: { breadcrumb: 'New Sales Return' }
         },
         {
@@ -145,6 +145,12 @@ const router = createRouter({
           name: 'sales-return-detail',
           component: () => import('@/pages/sales/sales-returns/SalesReturnDetailPage.vue'),
           meta: { breadcrumb: (route) => `Return #${route.params.id}` }
+        },
+        {
+          path: 'sales/sales-returns/:id/edit',
+          name: 'sales-return-edit',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnFormPage.vue'),
+          meta: { breadcrumb: 'Edit Sales Return' }
         },
         // Contact routes
         {

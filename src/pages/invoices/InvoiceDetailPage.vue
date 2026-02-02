@@ -9,12 +9,13 @@ import {
   useDeleteInvoice,
 } from '@/api/useInvoices'
 import { useCreateDeliveryOrderFromInvoice, type CreateFromInvoiceData } from '@/api/useDeliveryOrders'
+import { useCreateSalesReturnFromInvoice, type CreateFromInvoiceData as SRCreateFromInvoiceData } from '@/api/useSalesReturns'
 import { useWarehousesLookup } from '@/api/useInventory'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
-import { FileText, Truck } from 'lucide-vue-next'
+import { FileText, Truck, RotateCcw } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,11 +36,15 @@ const deleteMutation = useDeleteInvoice()
 const createDOMutation = useCreateDeliveryOrderFromInvoice()
 const { data: warehouses, isLoading: loadingWarehouses } = useWarehousesLookup()
 
+// Create SR
+const createSRMutation = useCreateSalesReturnFromInvoice()
+
 // Modal states
 const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const showPrintPreview = ref(false)
 const showCreateDOModal = ref(false)
+const showCreateSRModal = ref(false)
 const voidReason = ref('')
 
 // Create DO form
@@ -55,6 +60,28 @@ const canCreateDeliveryOrder = computed(() => {
   const status = invoice.value?.status?.value
   return status === 'sent' || status === 'partial' || status === 'paid'
 })
+
+// Create SR form
+const srFormData = ref<SRCreateFromInvoiceData>({
+  return_date: new Date().toISOString().split('T')[0],
+  warehouse_id: undefined,
+  reason: '',
+  notes: '',
+})
+
+const canCreateSalesReturn = computed(() => {
+  const status = invoice.value?.status?.value
+  return status === 'sent' || status === 'partial' || status === 'paid'
+})
+
+const reasonOptions = [
+  { value: '', label: 'Select reason...' },
+  { value: 'damaged', label: 'Barang Rusak' },
+  { value: 'wrong_item', label: 'Barang Salah' },
+  { value: 'quality_issue', label: 'Masalah Kualitas' },
+  { value: 'customer_request', label: 'Permintaan Pelanggan' },
+  { value: 'other', label: 'Lainnya' },
+]
 
 const warehouseOptions = computed(() => {
   if (!warehouses.value) return []
@@ -127,6 +154,26 @@ async function handleCreateDO() {
     router.push(`/sales/delivery-orders/${newDO.id}`)
   } catch {
     toast.error('Failed to create delivery order')
+  }
+}
+
+async function handleCreateSR() {
+  try {
+    const payload: SRCreateFromInvoiceData = {
+      ...srFormData.value,
+      warehouse_id: srFormData.value.warehouse_id || undefined,
+      reason: srFormData.value.reason || undefined,
+      notes: srFormData.value.notes || undefined,
+    }
+    const newSR = await createSRMutation.mutateAsync({
+      invoiceId: invoiceId.value,
+      data: payload,
+    })
+    showCreateSRModal.value = false
+    toast.success('Sales return created')
+    router.push(`/sales/sales-returns/${newSR.id}`)
+  } catch {
+    toast.error('Failed to create sales return')
   }
 }
 
@@ -420,6 +467,15 @@ const itemColumns: ResponsiveColumn[] = [
                 <Truck class="w-4 h-4 mr-2" />
                 Create Delivery Order
               </Button>
+              <Button
+                v-if="canCreateSalesReturn"
+                variant="secondary"
+                class="w-full"
+                @click="showCreateSRModal = true"
+              >
+                <RotateCcw class="w-4 h-4 mr-2" />
+                Create Sales Return
+              </Button>
               <Button variant="secondary" class="w-full">
                 Send Invoice
               </Button>
@@ -538,6 +594,52 @@ const itemColumns: ResponsiveColumn[] = [
         >
           <Truck class="w-4 h-4 mr-2" />
           Create Delivery Order
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Create Sales Return Modal -->
+    <Modal :open="showCreateSRModal" title="Create Sales Return" @update:open="showCreateSRModal = $event">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Create a sales return from this invoice. Items will be copied automatically.
+      </p>
+      <div class="space-y-4">
+        <FormField label="Return Date">
+          <Input v-model="srFormData.return_date" type="date" />
+        </FormField>
+        <FormField label="Warehouse">
+          <Select
+            :model-value="srFormData.warehouse_id"
+            :options="warehouseOptions"
+            placeholder="Select warehouse..."
+            :loading="loadingWarehouses"
+            @update:model-value="(v) => { srFormData.warehouse_id = v ? Number(v) : undefined }"
+          />
+        </FormField>
+        <FormField label="Reason">
+          <Select
+            :model-value="srFormData.reason"
+            :options="reasonOptions"
+            placeholder="Select reason..."
+            @update:model-value="(v) => { srFormData.reason = String(v) }"
+          />
+        </FormField>
+        <FormField label="Notes">
+          <Textarea
+            v-model="srFormData.notes"
+            :rows="2"
+            placeholder="Additional notes"
+          />
+        </FormField>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showCreateSRModal = false">Cancel</Button>
+        <Button
+          :loading="createSRMutation.isPending.value"
+          @click="handleCreateSR"
+        >
+          <RotateCcw class="w-4 h-4 mr-2" />
+          Create Sales Return
         </Button>
       </template>
     </Modal>
