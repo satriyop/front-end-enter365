@@ -18,8 +18,11 @@ async function handleSubmit() {
   error.value = ''
 
   try {
+    console.log('[LoginPage] Submitting login form...')
     await auth.login(form)
+    console.log('[LoginPage] Login completed successfully')
   } catch (e: unknown) {
+    console.error('[LoginPage] Login failed:', e)
     error.value = getErrorMessage(e, 'Login failed')
   } finally {
     loading.value = false

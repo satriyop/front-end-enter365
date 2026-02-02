@@ -783,16 +783,61 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, _from, next) => {
+router.beforeEach((to, from, next) => {
   const auth = useAuthStore()
+  
+  // Check both store and localStorage for token (store might not be reactive in guard)
+  const hasToken = !!auth.token || !!localStorage.getItem('token')
+  const isAuthenticated = auth.isAuthenticated || hasToken
+  
+  console.log('[Router Guard] Navigation:', {
+    to: to.path,
+    toName: to.name,
+    from: from.path,
+    fromName: from.name,
+    requiresAuth: to.meta.requiresAuth,
+    guest: to.meta.guest,
+    isAuthenticated: isAuthenticated,
+    storeIsAuthenticated: auth.isAuthenticated,
+    hasToken: hasToken,
+    localStorageToken: !!localStorage.getItem('token'),
+    query: to.query
+  })
 
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ name: 'login', query: { redirect: to.fullPath } })
-  } else if (to.meta.guest && auth.isAuthenticated) {
-    next({ name: 'dashboard' })
-  } else {
-    next()
+  // If route requires auth but user is not authenticated
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    console.log('[Router Guard] Route requires auth but user not authenticated, redirecting to login')
+    // Only redirect to login if we're not already there
+    if (to.name !== 'login') {
+      next({ name: 'login', query: { redirect: to.fullPath } })
+    } else {
+      next()
+    }
+    return
   }
+
+  // If user is authenticated and trying to access guest route (like login)
+  if (to.meta.guest && isAuthenticated) {
+    console.log('[Router Guard] User authenticated on guest route, redirecting')
+    // If we're on login page and authenticated, redirect to dashboard or redirect target
+    if (to.name === 'login') {
+      const redirect = to.query.redirect as string
+      if (redirect) {
+        console.log('[Router Guard] Redirecting to:', redirect)
+        next(redirect)
+      } else {
+        console.log('[Router Guard] Redirecting to dashboard')
+        next({ name: 'dashboard' })
+      }
+      return
+    }
+    // For other guest routes, allow access if authenticated
+    next()
+    return
+  }
+
+  console.log('[Router Guard] Allowing navigation')
+  next()
 })
 
 export default router
