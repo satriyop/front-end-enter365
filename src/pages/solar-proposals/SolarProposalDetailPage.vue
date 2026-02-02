@@ -80,7 +80,7 @@ const canSend = computed(() => proposal.value?.can_send)
 const canAccept = computed(() => proposal.value?.can_accept)
 const canReject = computed(() => proposal.value?.can_reject)
 const canConvert = computed(() => proposal.value?.can_convert)
-const canDelete = computed(() => proposal.value?.status === 'draft')
+const canDelete = computed(() => proposal.value?.status.value === 'draft')
 
 // Action handlers
 async function handleSend() {
@@ -737,7 +737,7 @@ const electricityRate = computed(() => toNumber(proposal.value?.electricity_rate
           </Card>
 
           <!-- Public Link (after sent) -->
-          <Card v-if="proposal.public_url && proposal.status !== 'draft'">
+          <Card v-if="proposal.public_url && proposal.status.value !== 'draft'">
             <template #header>
               <h3 class="font-medium text-slate-900 dark:text-slate-100">Customer Link</h3>
             </template>

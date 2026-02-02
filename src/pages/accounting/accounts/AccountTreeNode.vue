@@ -22,17 +22,8 @@ const hasChildren = computed(() => (props.account.children?.length ?? 0) > 0)
 // Ensure ID comparison handles string/number mismatch by forcing string
 const isExpanded = computed(() => props.expandedNodes.has(String(props.account.id)))
 
-const isActive = computed(() => 
-  props.account.is_active === '1' || 
-  props.account.is_active === 'true' || 
-  (typeof props.account.is_active === 'boolean' && props.account.is_active)
-)
-
-const isSystem = computed(() => 
-  props.account.is_system === '1' || 
-  props.account.is_system === 'true' || 
-  (typeof props.account.is_system === 'boolean' && props.account.is_system)
-)
+const isActive = computed(() => !!props.account.is_active)
+const isSystem = computed(() => !!props.account.is_system)
 </script>
 
 <template>

@@ -267,9 +267,9 @@ const filteredPreviewItems = computed(() => {
     const searchLower = itemSearch.value.toLowerCase().trim()
     items = items.filter(item =>
       item.description?.toLowerCase().includes(searchLower) ||
-      item.product?.name?.toLowerCase().includes(searchLower) ||
-      item.product?.sku?.toLowerCase().includes(searchLower) ||
-      item.component_standard?.code?.toLowerCase().includes(searchLower)
+      (item.product as any)?.name?.toLowerCase().includes(searchLower) ||
+      (item.product as any)?.sku?.toLowerCase().includes(searchLower) ||
+      (item.component_standard as any)?.code?.toLowerCase().includes(searchLower)
     )
   }
 
@@ -561,11 +561,11 @@ async function loadPreview() {
       data: {
         target_brand: selectedBrand.value || undefined,
         quantity_overrides: Object.keys(quantityOverrides.value).length > 0
-          ? quantityOverrides.value
+          ? quantityOverrides.value as any
           : undefined,
       }
     })
-    previewItems.value = result.items
+    previewItems.value = result.data
     previewReport.value = result.report
   } catch (err: unknown) {
     const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to load preview'
@@ -605,11 +605,11 @@ async function createBom() {
         notes: bomNotes.value.trim() || undefined,
         output_quantity: Math.min(Math.max(outputQuantity.value, MIN_QUANTITY), MAX_QUANTITY),
         quantity_overrides: Object.keys(quantityOverrides.value).length > 0
-          ? quantityOverrides.value
+          ? quantityOverrides.value as any
           : undefined,
       }
     })
-    createdBomId.value = result.data.bom.id
+    createdBomId.value = result.data.id
     markAsSaved() // Clear unsaved changes guard
     clearDraft() // Clear localStorage draft
     if (selectedTemplateId.value) {

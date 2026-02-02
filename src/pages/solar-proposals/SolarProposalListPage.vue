@@ -216,9 +216,9 @@ const statusOptions = [
             <td class="px-6 py-4">
               <span
                 class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="getStatusClass(proposal.status)"
+                :class="getStatusClass(proposal.status.value)"
               >
-                {{ getStatusLabel(proposal.status) }}
+                {{ getStatusLabel(proposal.status.value) }}
               </span>
             </td>
             <td class="px-6 py-4 text-slate-500 dark:text-slate-400">
@@ -236,7 +236,7 @@ const statusOptions = [
                   <Eye class="w-4 h-4" />
                 </Button>
                 <Button
-                  v-if="proposal.status === 'draft'"
+                  v-if="proposal.status.value === 'draft'"
                   as="router-link"
                   :to="`/solar-proposals/${proposal.id}/edit`"
                   variant="ghost"

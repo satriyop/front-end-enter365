@@ -63,8 +63,11 @@ export function createService(overrides: Partial<Product> = {}): Product {
   return createProduct({
     type: 'service',
     type_label: 'Jasa',
-    track_inventory: 'false',
-    current_stock: '0',
+    track_inventory: false,
+    current_stock: 0,
+    min_stock: 0,
+    purchase_price: 0,
+    selling_price: 0,
     ...overrides,
   })
 }
@@ -74,9 +77,9 @@ export function createService(overrides: Partial<Product> = {}): Product {
  */
 export function createLowStockProduct(overrides: Partial<Product> = {}): Product {
   return createProduct({
-    current_stock: '5',
-    min_stock: '10',
-    is_low_stock: 'true',
+    current_stock: 5,
+    min_stock: 10,
+    is_low_stock: true,
     ...overrides,
   })
 }

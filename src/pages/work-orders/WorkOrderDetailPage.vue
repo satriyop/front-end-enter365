@@ -120,10 +120,10 @@ function formatPercent(value: string | number | undefined): string {
               {{ workOrder.status.label }}
             </Badge>
             <Badge v-if="workOrder.type" variant="info">
-              {{ typeLabels[workOrder.type] || workOrder.type }}
+              {{ typeLabels[workOrder.type.value] || workOrder.type.label }}
             </Badge>
-            <Badge v-if="workOrder.priority" :variant="priorityColors[workOrder.priority] || 'default'">
-              {{ workOrder.priority }}
+            <Badge v-if="workOrder.priority" :variant="priorityColors[workOrder.priority.value] || 'default'">
+              {{ workOrder.priority.label }}
             </Badge>
           </div>
           <p class="text-lg text-slate-700 dark:text-slate-300">{{ workOrder.name }}</p>
@@ -195,7 +195,7 @@ function formatPercent(value: string | number | undefined): string {
               </div>
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Type</dt>
-                <dd class="text-slate-900 dark:text-slate-100">{{ typeLabels[workOrder.type] || workOrder.type }}</dd>
+                <dd class="text-slate-900 dark:text-slate-100">{{ typeLabels[workOrder.type.value] || workOrder.type.label }}</dd>
               </div>
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Product</dt>

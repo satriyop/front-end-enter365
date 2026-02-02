@@ -66,8 +66,8 @@ const proposals = computed(() => proposalsData.value?.data ?? [])
 const statusCounts = computed(() => {
   const counts = { draft: 0, sent: 0, accepted: 0, rejected: 0, expired: 0, converted: 0 }
   proposals.value.forEach((p) => {
-    if (counts[p.status as keyof typeof counts] !== undefined) {
-      counts[p.status as keyof typeof counts]++
+    if (counts[p.status.value as keyof typeof counts] !== undefined) {
+      counts[p.status.value as keyof typeof counts]++
     }
   })
   return counts
@@ -90,12 +90,11 @@ const conversionMetrics = computed(() => {
 })
 
 // Financial metrics
-const financialMetrics = computed(() => {
+  const financialMetrics = computed(() => {
   const validProposals = proposals.value.filter((p) => p.system_cost && toNumber(p.system_cost) > 0)
   const wonProposals = proposals.value.filter(
-    (p) => (p.status === 'accepted' || p.status === 'converted') && p.system_cost
+    (p) => (p.status.value === 'accepted' || p.status.value === 'converted') && p.system_cost
   )
-
   const totalValue = validProposals.reduce((sum, p) => sum + toNumber(p.system_cost), 0)
   const wonValue = wonProposals.reduce((sum, p) => sum + toNumber(p.system_cost), 0)
   const avgValue = validProposals.length > 0 ? totalValue / validProposals.length : 0
@@ -130,13 +129,13 @@ const monthlyTrends = computed(() => {
 
     months[key].created++
 
-    if (['sent', 'accepted', 'rejected', 'converted'].includes(p.status)) {
+    if (['sent', 'accepted', 'rejected', 'converted'].includes(p.status.value)) {
       months[key].sent++
     }
-    if (p.status === 'accepted' || p.status === 'converted') {
+    if (p.status.value === 'accepted' || p.status.value === 'converted') {
       months[key].won++
     }
-    if (p.status === 'rejected') {
+    if (p.status.value === 'rejected') {
       months[key].lost++
     }
   })
@@ -191,7 +190,7 @@ const sizeDistribution = computed(() => {
       return size >= bracket.min && size < bracket.max
     })
 
-    const won = inBracket.filter((p) => p.status === 'accepted' || p.status === 'converted')
+    const won = inBracket.filter((p) => p.status.value === 'accepted' || p.status.value === 'converted')
 
     return {
       ...bracket,

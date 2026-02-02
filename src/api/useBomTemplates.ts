@@ -37,11 +37,43 @@ export interface BomTemplateMetadata {
 // Using ApiResponse utility for consistent unwrapping
 export type AvailableBrand = ApiResponse<paths['/bom-templates/{bomTemplate}/available-brands']['get']>[number]
 
-export type CreateBomPreview = ApiResponse<paths['/bom-templates/{bomTemplate}/preview-bom']['post']>
-export type CreateBomPreviewItem = CreateBomPreview[number]
+export interface CreateBomPreview {
+  data: Array<{
+    template_item_id: number
+    type: string
+    description: string
+    quantity: number
+    unit: string
+    unit_cost: number
+    product: components['schemas']['ProductResource'] | null
+    component_standard: components['schemas']['ComponentStandardResource'] | null
+    status: string
+    notes: string | null
+    is_required: boolean
+    is_quantity_variable: boolean
+  }>
+  report: {
+    total_items: number
+    resolved: number
+    using_product: number
+    no_mapping: number
+  }
+}
+
+export type CreateBomPreviewItem = CreateBomPreview['data'][number]
 
 export type CreateBomFromTemplateRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/create-bom']['post']>
-export type CreateBomResult = ApiResponse<paths['/bom-templates/{bomTemplate}/create-bom']['post']>
+
+export interface CreateBomResult {
+  message: string
+  data: components['schemas']['BomResource']
+  report: {
+    total_items: number
+    resolved: number
+    using_product: number
+    no_mapping: number
+  }
+}
 
 // ============================================
 // Query Hooks

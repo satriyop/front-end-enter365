@@ -7936,6 +7936,11 @@ export interface components {
         LabelValueResource: {
             value: string;
             label: string;
+        } | {
+            /** @enum {string} */
+            value: "";
+            /** @enum {string} */
+            label: "";
         };
         /** LoginRequest */
         LoginRequest: {
@@ -10909,11 +10914,11 @@ export interface components {
         WorkOrderResource: {
             id: number;
             wo_number: string;
-            type: string;
+            type: components["schemas"]["LabelValueResource"];
             name: string;
             description: string | null;
             status: components["schemas"]["StatusResource"];
-            priority: string;
+            priority: components["schemas"]["LabelValueResource"];
             /** @description Quantities */
             quantity_ordered: number;
             quantity_completed: number;
@@ -17140,7 +17145,9 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: unknown[];
+                        data: {
+                            [key: string]: unknown;
+                        };
                         headers: {
                             /** @enum {string} */
                             code: "Kode";

@@ -9,6 +9,7 @@ import { createContact } from './contactFactory'
 
 export type Quotation = components['schemas']['QuotationResource']
 export type Status = components['schemas']['StatusResource']
+export type LabelValue = components['schemas']['LabelValueResource']
 
 let quotationId = 1
 
@@ -19,6 +20,24 @@ const statusMap: Record<string, Status> = {
   rejected: { value: 'rejected', label: 'Ditolak', color: 'red', is_terminal: false, is_editable: false },
   expired: { value: 'expired', label: 'Kedaluwarsa', color: 'orange', is_terminal: true, is_editable: false },
   converted: { value: 'converted', label: 'Dikonversi', color: 'blue', is_terminal: true, is_editable: false },
+}
+
+const typeMap: Record<string, LabelValue> = {
+  single: { value: 'single', label: 'Single' },
+  multi_option: { value: 'multi_option', label: 'Multi Option' },
+  standard: { value: 'single', label: 'Standard' },
+}
+
+const priorityMap: Record<string, LabelValue> = {
+  low: { value: 'low', label: 'Low' },
+  medium: { value: 'medium', label: 'Medium' },
+  high: { value: 'high', label: 'High' },
+  urgent: { value: 'urgent', label: 'Urgent' },
+}
+
+const outcomeMap: Record<string, LabelValue> = {
+  won: { value: 'won', label: 'Won' },
+  lost: { value: 'lost', label: 'Lost' },
 }
 
 /**
@@ -47,7 +66,7 @@ export function createQuotation(overrides: Partial<Quotation> = {}): Quotation {
     is_expired: false,
     reference: '',
     subject: `Quotation for ${contact.name}`,
-    quotation_type: 'standard',
+    quotation_type: typeMap.single!,
     is_multi_option: false,
     variant_group_id: null,
     selected_variant_id: null,
@@ -66,6 +85,31 @@ export function createQuotation(overrides: Partial<Quotation> = {}): Quotation {
     base_currency_total: total,
     notes: '',
     terms_conditions: '',
+    submitted_at: '',
+    submitted_by: null,
+    approved_at: '',
+    approved_by: null,
+    rejected_at: '',
+    rejected_by: null,
+    rejection_reason: null,
+    next_follow_up_at: '',
+    last_contacted_at: '',
+    assigned_to: null,
+    follow_up_count: 0,
+    priority: priorityMap.medium!,
+    priority_label: 'Normal',
+    needs_follow_up: false,
+    days_since_last_contact: null,
+    outcome: { value: '', label: '' },
+    outcome_label: null,
+    won_reason: null,
+    lost_reason: null,
+    lost_to_competitor: null,
+    outcome_notes: null,
+    outcome_at: '',
+    converted_to_invoice_id: null,
+    converted_at: '',
+    original_quotation_id: null,
     created_by: 1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
@@ -76,7 +120,7 @@ export function createQuotation(overrides: Partial<Quotation> = {}): Quotation {
     can_convert: false,
     can_revise: false,
     follow_up_count: 0,
-    priority: 'medium',
+    priority: priorityMap.medium!,
     priority_label: 'Normal',
     needs_follow_up: false,
     ...overrides,
