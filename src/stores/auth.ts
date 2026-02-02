@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { api } from '@/api/client'
 import router from '@/router'
 
@@ -54,15 +54,42 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Actions
   async function login(credentials: LoginCredentials) {
+    console.log('[Auth] Starting login...')
+    
     const response = await api.post<{ token: string; user: User }>('/auth/login', credentials)
+    console.log('[Auth] Login API response received')
 
+    // Set token and user immediately
     token.value = response.data.token
     user.value = response.data.user
     localStorage.setItem('token', response.data.token)
+    console.log('[Auth] Token and user set, isAuthenticated:', isAuthenticated.value)
 
-    // Redirect to intended page or dashboard
+    // Get redirect target before navigation
     const redirect = router.currentRoute.value.query.redirect as string
-    router.push(redirect || '/')
+    const targetPath = redirect || '/'
+    console.log('[Auth] Redirect target:', targetPath)
+
+    // Wait for Vue reactivity to fully propagate
+    // This ensures the navigation guard sees the updated auth state
+    await nextTick()
+    console.log('[Auth] After nextTick, isAuthenticated:', isAuthenticated.value)
+    
+    // Additional delay to ensure Pinia store reactivity is fully propagated
+    await new Promise(resolve => setTimeout(resolve, 100))
+    console.log('[Auth] After delay, isAuthenticated:', isAuthenticated.value)
+
+    // Use hard redirect to ensure it works regardless of router guard timing
+    // The router guard now checks localStorage directly, so this should work
+    console.log('[Auth] Using router.replace to:', targetPath)
+    try {
+      await router.replace(targetPath)
+      console.log('[Auth] Router navigation successful')
+    } catch (error) {
+      console.warn('[Auth] Router navigation failed, using window.location:', error)
+      // Fallback to hard redirect
+      window.location.href = targetPath
+    }
   }
 
   async function logout() {
@@ -80,9 +107,9 @@ export const useAuthStore = defineStore('auth', () => {
     if (!token.value) return
 
     try {
-      const response = await api.get<{ user: User }>('/auth/me')
-      // API returns { user: UserResource }
-      user.value = response.data.user
+      const response = await api.get<{ data: User }>('/auth/me')
+      // API returns { data: UserResource } (Laravel API Resource wrapping)
+      user.value = response.data.data
     } catch {
       // Token invalid, logout
       await logout()
