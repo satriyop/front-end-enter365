@@ -254,7 +254,7 @@ function goBack() {
         >
         <p class="text-sm font-medium text-red-700 dark:text-red-300">Rejection Reason</p>
         <p class="text-red-600 dark:text-red-400">{{ salesReturn.rejection_reason }}</p>
-      </Card>
+      </Alert>
 
       <!-- Info Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
