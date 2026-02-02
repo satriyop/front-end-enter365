@@ -51,9 +51,9 @@ const typeOptions = [
 
 const methodOptions = [
   { value: 'cash', label: 'Cash' },
-  { value: 'bank_transfer', label: 'Bank Transfer' },
+  { value: 'transfer', label: 'Bank Transfer' },
   { value: 'check', label: 'Check' },
-  { value: 'credit_card', label: 'Credit Card' },
+  { value: 'giro', label: 'Giro' },
 ]
 
 const today = new Date().toISOString().split('T')[0] as string
@@ -73,12 +73,12 @@ const {
     contact_id: undefined as unknown as number,
     payment_date: today,
     amount: 0,
-    payment_method: 'bank_transfer',
+    payment_method: 'transfer',
     cash_account_id: undefined as unknown as number,
     reference: '',
     notes: '',
-    payable_type: initialInvoiceId ? 'invoice' : (initialBillId ? 'bill' : null),
-    payable_id: initialInvoiceId || initialBillId || null,
+    invoice_id: initialInvoiceId || null,
+    bill_id: initialBillId || null,
   },
 })
 

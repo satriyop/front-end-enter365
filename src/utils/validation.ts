@@ -447,12 +447,12 @@ export const paymentSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a contact' }).positive('Please select a contact'),
   payment_date: requiredDate('Payment date'),
   amount: z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0'),
-  payment_method: z.string().default('bank_transfer'),
+  payment_method: z.string().default('transfer'),
   cash_account_id: z.number({ required_error: 'Cash account is required' }).positive('Please select a cash account'),
   reference: z.string().optional().default(''),
   notes: z.string().optional().default(''),
-  payable_type: z.string().optional().nullable(),
-  payable_id: z.number().optional().nullable(),
+  invoice_id: z.number().optional().nullable(),
+  bill_id: z.number().optional().nullable(),
 })
 
 /**

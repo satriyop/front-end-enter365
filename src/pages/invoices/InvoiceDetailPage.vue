@@ -347,7 +347,7 @@ const itemColumns: ResponsiveColumn[] = [
           </Card>
 
           <!-- Quick Actions -->
-          <Card v-if="invoice.status.value === 'posted' || invoice.status.value === 'partial'">
+          <Card v-if="invoice.status.value === 'sent' || invoice.status.value === 'partial'">
             <template #header>
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Quick Actions</h2>
             </template>
