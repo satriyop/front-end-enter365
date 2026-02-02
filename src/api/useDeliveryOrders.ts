@@ -96,7 +96,7 @@ export function useCreateDeliveryOrderFromInvoice() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ invoiceId, data }: { invoiceId: number; data: CreateFromInvoiceData }) => {
-      const response = await api.post<{ data: DeliveryOrder }>(`/invoices/${invoiceId}/delivery-order`, data)
+      const response = await api.post<{ data: DeliveryOrder }>(`/invoices/${invoiceId}/create-delivery-order`, data)
       return response.data.data
     },
     onSuccess: (data) => {
@@ -260,32 +260,20 @@ export function useDuplicateDeliveryOrder() {
 export type DeliveryOrderStatus = 'draft' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled'
 
 export function getDeliveryOrderStatus(dorder: DeliveryOrder): { label: string; color: string } {
-  const statusMap: Record<DeliveryOrderStatus, { label: string; color: string }> = {
-    draft: {
-      label: 'Draft',
-      color: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
-    },
-    confirmed: {
-      label: 'Confirmed',
-      color: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-    },
-    shipped: {
-      label: 'Shipped',
-      color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-    },
-    delivered: {
-      label: 'Delivered',
-      color: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-    },
-    cancelled: {
-      label: 'Cancelled',
-      color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
-    },
+  const colorMap: Record<DeliveryOrderStatus, string> = {
+    draft: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+    confirmed: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+    shipped: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
+    delivered: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
+    cancelled: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
   }
 
-  const statusValue = dorder.status && typeof dorder.status === 'object' ? dorder.status.value : dorder.status
-  const status = (statusValue as DeliveryOrderStatus) || 'draft'
-  return statusMap[status] || statusMap.draft
+  const statusObj = dorder.status && typeof dorder.status === 'object' ? dorder.status : null
+  const statusValue = (statusObj?.value || dorder.status || 'draft') as DeliveryOrderStatus
+  const label = statusObj?.label || statusValue
+  const color = colorMap[statusValue] || colorMap.draft
+
+  return { label, color }
 }
 
 export function formatDONumber(dorder: DeliveryOrder): string {

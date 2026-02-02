@@ -505,6 +505,35 @@ export const billSchema = z.object({
 })
 
 // ============================================
+// Delivery Order Schemas
+// ============================================
+
+/**
+ * Delivery order item schema
+ */
+export const deliveryOrderItemSchema = z.object({
+  product_id: z.number().optional().nullable(),
+  description: requiredString('Description').max(255),
+  quantity: quantitySchema.default(1),
+  unit: z.string().max(20).default('pcs'),
+  notes: z.string().max(255).optional().default(''),
+})
+
+/**
+ * Delivery order form schema
+ */
+export const deliveryOrderSchema = z.object({
+  contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
+  invoice_id: z.number().optional().nullable(),
+  warehouse_id: z.number().optional().nullable(),
+  do_date: requiredDate('DO date'),
+  shipping_address: z.string().max(500).optional().default(''),
+  shipping_method: z.string().optional().default(''),
+  notes: z.string().max(1000).optional().default(''),
+  items: z.array(deliveryOrderItemSchema).min(1, 'At least one item is required'),
+})
+
+// ============================================
 // Purchase Order Schemas
 // ============================================
 
@@ -680,6 +709,10 @@ export type BillFormData = z.infer<typeof billSchema>
 export type BomItemFormData = z.infer<typeof bomItemSchema>
 export type BomFormData = z.infer<typeof bomSchema>
 export type WorkOrderFormData = z.infer<typeof workOrderSchema>
+
+// Delivery Order
+export type DeliveryOrderItemFormData = z.infer<typeof deliveryOrderItemSchema>
+export type DeliveryOrderFormData = z.infer<typeof deliveryOrderSchema>
 
 // Purchase Order
 export type PurchaseOrderItemFormData = z.infer<typeof purchaseOrderItemSchema>
