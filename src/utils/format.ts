@@ -8,6 +8,7 @@ export type NumericValue = number | string | null | undefined
 export function toNumber(value: NumericValue): number {
   if (value == null) return 0
   if (typeof value === 'string') return parseFloat(value) || 0
+  if (isNaN(value)) return 0
   return value
 }
 

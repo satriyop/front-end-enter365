@@ -160,11 +160,11 @@ watch(existingAccount, (account) => {
 
 // Current subtype options based on selected type
 const currentSubtypeOptions = computed(() => {
-  return subtypeOptions[values.type] || []
+  return subtypeOptions[form.type] || []
 })
 
 // Reset subtype when type changes
-watch(() => values.type, () => {
+watch(() => form.type, () => {
   setFieldValue('subtype', '')
 })
 

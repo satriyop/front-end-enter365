@@ -27,6 +27,7 @@ const {
   handleSubmit: handleProfileSubmit,
   setErrors: setProfileErrors,
   validateField: validateProfileField,
+  resetForm: resetProfileForm,
 } = useForm<ProfileUpdateFormData>({
   validationSchema: toTypedSchema(profileUpdateSchema),
   initialValues: {
@@ -35,11 +36,15 @@ const {
   },
 })
 
-// Sync profile form when auth user changes
+// Sync profile form when auth user changes (resetForm clears stale validation errors)
 watch(() => auth.user, (user) => {
   if (user) {
-    profileValues.name = user.name || ''
-    profileValues.email = user.email || ''
+    resetProfileForm({
+      values: {
+        name: user.name || '',
+        email: user.email || '',
+      },
+    })
   }
 }, { immediate: true })
 
