@@ -114,7 +114,7 @@ export function useCreateGRNFromPO() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] })
-      queryClient.setQueryData(['goods-receipt-note', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['goods-receipt-note', data.id] })
     },
   })
 }
@@ -132,7 +132,7 @@ export function useStartReceiving() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
-      queryClient.setQueryData(['goods-receipt-note', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['goods-receipt-note', data.id] })
     },
   })
 }
@@ -148,7 +148,7 @@ export function useCompleteGRN() {
       queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.setQueryData(['goods-receipt-note', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['goods-receipt-note', data.id] })
     },
   })
 }
@@ -162,7 +162,7 @@ export function useCancelGRN() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
-      queryClient.setQueryData(['goods-receipt-note', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['goods-receipt-note', data.id] })
     },
   })
 }

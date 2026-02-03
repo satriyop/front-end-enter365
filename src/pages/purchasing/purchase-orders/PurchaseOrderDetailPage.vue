@@ -7,14 +7,14 @@ import {
   useApprovePurchaseOrder,
   useRejectPurchaseOrder,
   useCancelPurchaseOrder,
-  useReceivePurchaseOrder,
   useConvertPurchaseOrderToBill,
   useDuplicatePurchaseOrder,
   useDeletePurchaseOrder,
   getPurchaseOrderStatus,
   formatPONumber,
-  type ReceiveItemData,
 } from '@/api/usePurchaseOrders'
+import { useCreateGRNFromPO, type CreateFromPOData } from '@/api/useGoodsReceiptNotes'
+import { useWarehousesLookup } from '@/api/useInventory'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
 import {
@@ -24,7 +24,7 @@ import {
   CheckCircle,
   XCircle,
   Ban,
-  Package,
+  ClipboardList,
   FileText,
   Copy,
   Trash2,
@@ -33,7 +33,7 @@ import {
 } from 'lucide-vue-next'
 
 // UI Components
-import { Button, Badge, Card, Modal, Input, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Button, Badge, Card, Modal, Input, Select, FormField, Textarea, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,7 +49,7 @@ const submitMutation = useSubmitPurchaseOrder()
 const approveMutation = useApprovePurchaseOrder()
 const rejectMutation = useRejectPurchaseOrder()
 const cancelMutation = useCancelPurchaseOrder()
-const receiveMutation = useReceivePurchaseOrder()
+const createGrnMutation = useCreateGRNFromPO()
 const convertMutation = useConvertPurchaseOrderToBill()
 const duplicateMutation = useDuplicatePurchaseOrder()
 const deleteMutation = useDeletePurchaseOrder()
@@ -57,23 +57,31 @@ const deleteMutation = useDeletePurchaseOrder()
 // Modal states
 const showRejectModal = ref(false)
 const showCancelModal = ref(false)
-const showReceiveModal = ref(false)
+const showCreateGrnModal = ref(false)
 const showDeleteModal = ref(false)
 const rejectReason = ref('')
 const cancelReason = ref('')
 
-// Receive items state
-const receiveItems = ref<ReceiveItemData[]>([])
+// Create GRN state
+const { data: warehouses, isLoading: loadingWarehouses } = useWarehousesLookup()
 
-function initReceiveItems() {
-  if (!po.value?.items) return
-  receiveItems.value = po.value.items
-    .filter(item => Number(item.quantity_remaining) > 0)
-    .map(item => ({
-      item_id: Number(item.id),
-      quantity: 0,
-    }))
-}
+const grnFormData = ref<CreateFromPOData>({
+  warehouse_id: 0,
+  receipt_date: new Date().toISOString().split('T')[0],
+  supplier_do_number: '',
+  notes: '',
+})
+
+const warehouseOptions = computed(() => {
+  if (!warehouses.value) return []
+  return [
+    { value: '', label: 'Select warehouse...' },
+    ...warehouses.value.map(w => ({
+      value: w.id,
+      label: w.name || `Warehouse #${w.id}`,
+    })),
+  ]
+})
 
 // Action handlers
 async function handleSubmit() {
@@ -124,19 +132,25 @@ async function handleCancel() {
   }
 }
 
-async function handleReceive() {
-  const itemsToReceive = receiveItems.value.filter(item => item.quantity > 0)
-  if (itemsToReceive.length === 0) {
-    toast.error('Please enter quantities to receive')
+async function handleCreateGrn() {
+  if (!grnFormData.value.warehouse_id) {
+    toast.error('Please select a warehouse')
     return
   }
   try {
-    await receiveMutation.mutateAsync({ id: poId.value, items: itemsToReceive })
-    showReceiveModal.value = false
-    receiveItems.value = []
-    toast.success('Items received successfully')
+    const result = await createGrnMutation.mutateAsync({
+      purchaseOrderId: poId.value,
+      data: {
+        ...grnFormData.value,
+        supplier_do_number: grnFormData.value.supplier_do_number || undefined,
+        notes: grnFormData.value.notes || undefined,
+      },
+    })
+    showCreateGrnModal.value = false
+    toast.success('Goods receipt note created')
+    router.push(`/purchasing/goods-receipt-notes/${result.id}`)
   } catch (err) {
-    toast.error(getErrorMessage(err, 'Failed to receive items'))
+    toast.error(getErrorMessage(err, 'Failed to create goods receipt note'))
   }
 }
 
@@ -168,26 +182,6 @@ async function handleDelete() {
     router.push('/purchasing/purchase-orders')
   } catch (err) {
     toast.error(getErrorMessage(err, 'Failed to delete purchase order'))
-  }
-}
-
-// Open receive modal
-function openReceiveModal() {
-  initReceiveItems()
-  showReceiveModal.value = true
-}
-
-// Get remaining quantity for an item
-function getRemainingQuantity(itemId: number | string): number {
-  const item = po.value?.items?.find(i => i.id === itemId)
-  return item ? Number(item.quantity_remaining) : 0
-}
-
-// Set max quantity for receive
-function setMaxQuantity(index: number, itemId: number | string) {
-  const item = receiveItems.value[index]
-  if (item) {
-    item.quantity = getRemainingQuantity(itemId)
   }
 }
 
@@ -300,15 +294,15 @@ const itemColumns: ResponsiveColumn[] = [
               Reject
             </Button>
 
-            <!-- Receive Items (approved/partial) -->
+            <!-- Create GRN (approved/partial) -->
             <Button
               v-if="po.can_receive"
               variant="secondary"
               size="sm"
-              @click="openReceiveModal"
+              @click="showCreateGrnModal = true"
             >
-              <Package class="w-4 h-4 mr-1" />
-              Receive Items
+              <ClipboardList class="w-4 h-4 mr-1" />
+              Create GRN
             </Button>
 
             <!-- Convert to Bill (received) -->
@@ -668,54 +662,43 @@ const itemColumns: ResponsiveColumn[] = [
       </template>
     </Modal>
 
-    <!-- Receive Items Modal -->
-    <Modal :open="showReceiveModal" title="Receive Items" size="lg" @update:open="showReceiveModal = $event">
+    <!-- Create GRN Modal -->
+    <Modal :open="showCreateGrnModal" title="Create Goods Receipt Note" @update:open="showCreateGrnModal = $event">
       <p class="text-slate-600 dark:text-slate-400 mb-4">
-        Enter the quantities received for each item.
+        Create a goods receipt note from this purchase order. Items will be copied automatically.
       </p>
-
       <div class="space-y-4">
-        <div
-          v-for="(receiveItem, index) in receiveItems"
-          :key="receiveItem.item_id"
-          class="flex items-center gap-4 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg"
-        >
-          <div class="flex-1">
-            <p class="font-medium text-slate-900 dark:text-slate-100">
-              {{ po?.items?.find(i => Number(i.id) === receiveItem.item_id)?.description }}
-            </p>
-            <p class="text-sm text-slate-500 dark:text-slate-400">
-              Remaining: {{ getRemainingQuantity(receiveItem.item_id) }}
-              {{ po?.items?.find(i => Number(i.id) === receiveItem.item_id)?.unit }}
-            </p>
-          </div>
-          <div class="flex items-center gap-2">
-            <Input
-              v-model.number="receiveItem.quantity"
-              type="number"
-              class="w-24"
-              :min="0"
-              :max="getRemainingQuantity(receiveItem.item_id)"
-            />
-            <Button
-              variant="ghost"
-              size="xs"
-              @click="setMaxQuantity(index, receiveItem.item_id)"
-            >
-              Max
-            </Button>
-          </div>
-        </div>
+        <FormField label="Warehouse" required>
+          <Select
+            :model-value="grnFormData.warehouse_id"
+            :options="warehouseOptions"
+            placeholder="Select warehouse..."
+            :loading="loadingWarehouses"
+            @update:model-value="(v) => { grnFormData.warehouse_id = v ? Number(v) : 0 }"
+          />
+        </FormField>
+        <FormField label="Receipt Date">
+          <Input v-model="grnFormData.receipt_date" type="date" />
+        </FormField>
+        <FormField label="Supplier DO Number">
+          <Input v-model="grnFormData.supplier_do_number" placeholder="Supplier delivery order number" />
+        </FormField>
+        <FormField label="Notes">
+          <Textarea
+            v-model="grnFormData.notes"
+            :rows="2"
+            placeholder="Additional notes"
+          />
+        </FormField>
       </div>
-
       <template #footer>
-        <Button variant="ghost" @click="showReceiveModal = false">Cancel</Button>
+        <Button variant="ghost" @click="showCreateGrnModal = false">Cancel</Button>
         <Button
-          :loading="receiveMutation.isPending.value"
-          @click="handleReceive"
+          :loading="createGrnMutation.isPending.value"
+          @click="handleCreateGrn"
         >
-          <Package class="w-4 h-4 mr-1" />
-          Receive Items
+          <ClipboardList class="w-4 h-4 mr-1" />
+          Create GRN
         </Button>
       </template>
     </Modal>

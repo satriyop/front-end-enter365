@@ -53,11 +53,6 @@ export interface CreatePurchaseOrderItem {
   notes?: string
 }
 
-export interface ReceiveItemData {
-  item_id: number
-  quantity: number
-}
-
 // ============================================
 // CRUD Hooks (via factory)
 // ============================================
@@ -168,23 +163,6 @@ export function useCancelPurchaseOrder() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['purchase-orders'] })
-      queryClient.setQueryData(['purchase-order', data.id], data)
-    },
-  })
-}
-
-export function useReceivePurchaseOrder() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ id, items }: { id: number; items: ReceiveItemData[] }) => {
-      const response = await api.post<{ data: PurchaseOrder }>(`/purchase-orders/${id}/receive`, {
-        items,
-      })
-      return response.data.data
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['purchase-orders'] })
-      queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
       queryClient.setQueryData(['purchase-order', data.id], data)
     },
   })
