@@ -150,7 +150,7 @@ export function useSubmitSalesReturn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sales-returns'] })
-      queryClient.setQueryData(['sales-return', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['sales-return', data.id] })
     },
   })
 }
@@ -164,7 +164,7 @@ export function useApproveSalesReturn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sales-returns'] })
-      queryClient.setQueryData(['sales-return', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['sales-return', data.id] })
     },
   })
 }
@@ -178,7 +178,7 @@ export function useRejectSalesReturn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sales-returns'] })
-      queryClient.setQueryData(['sales-return', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['sales-return', data.id] })
     },
   })
 }
@@ -192,9 +192,9 @@ export function useCompleteSalesReturn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sales-returns'] })
+      queryClient.invalidateQueries({ queryKey: ['sales-return', data.id] })
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
       queryClient.invalidateQueries({ queryKey: ['inventory'] })
-      queryClient.setQueryData(['sales-return', data.id], data)
     },
   })
 }
@@ -208,7 +208,7 @@ export function useCancelSalesReturn() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['sales-returns'] })
-      queryClient.setQueryData(['sales-return', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['sales-return', data.id] })
     },
   })
 }
