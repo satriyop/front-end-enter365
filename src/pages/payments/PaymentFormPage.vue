@@ -16,7 +16,8 @@ const router = useRouter()
 const toast = useToast()
 
 // Get query params for pre-filling
-const initialType = (route.query.type as string) || 'receive'
+const rawType = (route.query.type as string) || 'receive'
+const initialType = rawType === 'pay' ? 'send' : rawType
 const initialInvoiceId = route.query.invoice_id ? Number(route.query.invoice_id) : null
 const initialBillId = route.query.bill_id ? Number(route.query.bill_id) : null
 
@@ -46,7 +47,7 @@ const contactOptions = computed(() =>
 
 const typeOptions = [
   { value: 'receive', label: 'Receive Payment (from Customer)' },
-  { value: 'pay', label: 'Make Payment (to Vendor)' },
+  { value: 'send', label: 'Make Payment (to Vendor)' },
 ]
 
 const methodOptions = [
@@ -69,7 +70,7 @@ const {
 } = useForm<PaymentFormData>({
   validationSchema: toTypedSchema(paymentSchema),
   initialValues: {
-    type: initialType as 'receive' | 'pay',
+    type: initialType as 'receive' | 'send',
     contact_id: undefined as unknown as number,
     payment_date: today,
     amount: 0,

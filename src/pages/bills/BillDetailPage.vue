@@ -200,7 +200,7 @@ const itemColumns: ResponsiveColumn[] = [
           </Card>
 
           <Card v-if="toNumber(bill.outstanding_amount) > 0 && bill.status.value !== 'draft'">
-            <RouterLink :to="`/payments/new?type=pay&bill_id=${bill.id}`">
+            <RouterLink :to="`/payments/new?type=send&bill_id=${bill.id}`">
               <Button class="w-full">Record Payment</Button>
             </RouterLink>
           </Card>

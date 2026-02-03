@@ -441,7 +441,7 @@ export const projectSchema = z.object({
  * Payment form schema
  */
 export const paymentSchema = z.object({
-  type: z.enum(['receive', 'pay'], {
+  type: z.enum(['receive', 'send'], {
     errorMap: () => ({ message: 'Please select payment type' }),
   }),
   contact_id: z.number({ required_error: 'Please select a contact' }).positive('Please select a contact'),

@@ -16,7 +16,7 @@ export type Payment = components['schemas']['PaymentResource']
 export interface PaymentFilters {
   page?: number
   per_page?: number
-  type?: 'receive' | 'pay'
+  type?: 'receive' | 'send'
   contact_id?: number
   search?: string
   date_from?: string
@@ -24,7 +24,7 @@ export interface PaymentFilters {
 }
 
 export interface CreatePaymentData {
-  type: 'receive' | 'pay'
+  type: 'receive' | 'send'
   contact_id: number
   payment_date: string
   amount: number
