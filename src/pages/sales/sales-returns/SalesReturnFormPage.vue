@@ -237,7 +237,7 @@ const warehouseOptions = computed(() => {
     </div>
 
     <!-- Form -->
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <!-- Header Info Card -->
       <Card>
         <template #header>

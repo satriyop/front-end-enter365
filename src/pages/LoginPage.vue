@@ -41,6 +41,7 @@ async function handleSubmit() {
 
       <!-- Form -->
       <form
+        novalidate
         class="bg-card rounded-xl shadow-sm border border-border p-8"
         @submit.prevent="handleSubmit"
       >

@@ -1355,7 +1355,7 @@ function getPercentage(value: number, total: number): number {
                   type="number"
                   :min="MIN_QUANTITY"
                   :max="MAX_QUANTITY"
-                  step="1"
+                  step="any"
                   :class="validation.outputQuantity.success ? 'border-green-500 focus:ring-green-500' : ''"
                 />
                 <CheckCircle2

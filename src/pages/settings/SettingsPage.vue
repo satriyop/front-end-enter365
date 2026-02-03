@@ -149,7 +149,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     </div>
 
     <!-- Profile Tab -->
-    <form v-if="activeTab === 'profile'" @submit.prevent="onProfileSubmit" class="space-y-6">
+    <form v-if="activeTab === 'profile'" novalidate @submit.prevent="onProfileSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Profile Information</h2>
@@ -226,7 +226,7 @@ const isPasswordSaving = computed(() => updatePasswordMutation.isPending.value)
     </form>
 
     <!-- Password Tab -->
-    <form v-if="activeTab === 'password'" @submit.prevent="onPasswordSubmit" class="space-y-6">
+    <form v-if="activeTab === 'password'" novalidate @submit.prevent="onPasswordSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Change Password</h2>

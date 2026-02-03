@@ -798,7 +798,7 @@ const steps = computed(() => [
     </div>
 
     <!-- Step Content -->
-    <form v-else @submit.prevent="handleSubmit">
+    <form v-else novalidate @submit.prevent="handleSubmit">
       <!-- Step 1: Site & Customer Information -->
       <div v-show="currentStep === 1" class="space-y-6">
         <!-- Customer Selection Card -->

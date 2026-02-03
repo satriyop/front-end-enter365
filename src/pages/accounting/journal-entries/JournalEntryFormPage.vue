@@ -176,7 +176,7 @@ async function handleSubmit() {
     </div>
 
     <!-- Form -->
-    <form @submit.prevent="handleSubmit">
+    <form novalidate @submit.prevent="handleSubmit">
       <!-- Header Info -->
       <Card class="mb-6">
         <template #header>

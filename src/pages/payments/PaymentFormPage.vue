@@ -119,7 +119,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       <Button variant="ghost" @click="router.back()">Cancel</Button>
     </div>
 
-    <form @submit.prevent="onSubmit" class="space-y-6">
+    <form novalidate @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Payment Details</h2>

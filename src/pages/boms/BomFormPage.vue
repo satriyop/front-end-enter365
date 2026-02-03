@@ -228,7 +228,7 @@ const onSubmit = handleSubmit(async (formValues) => {
         <p class="text-slate-500 dark:text-slate-400">Define materials, labor, and overhead costs for production</p>
       </div>
 
-      <form @submit.prevent="onSubmit" class="space-y-6">
+      <form novalidate @submit.prevent="onSubmit" class="space-y-6">
         <!-- Basic Info -->
         <Card>
           <template #header>
@@ -251,7 +251,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
             <div class="grid grid-cols-2 gap-4">
               <FormField label="Output Quantity" required :error="errors.output_quantity">
-                <Input v-model.number="outputQuantity" type="number" min="0.0001" step="0.0001" @blur="validateField('output_quantity')" />
+                <Input v-model.number="outputQuantity" type="number" min="0.0001" step="any" @blur="validateField('output_quantity')" />
               </FormField>
               <FormField label="Unit">
                 <Select v-model="outputUnit" :options="unitOptions" />
@@ -306,7 +306,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     label="Quantity"
                     class="md:col-span-1"
                   >
-                    <Input v-model.number="field.value.quantity" type="number" min="0" step="0.0001" />
+                    <Input v-model.number="field.value.quantity" type="number" min="0" step="any" />
                   </FormField>
 
                   <FormField label="Unit" class="md:col-span-1">
@@ -317,7 +317,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                     label="Unit Cost"
                     class="md:col-span-1"
                   >
-                    <Input v-model.number="field.value.unit_cost" type="number" min="0" step="1" />
+                    <Input v-model.number="field.value.unit_cost" type="number" min="0" step="any" />
                   </FormField>
                 </div>
 

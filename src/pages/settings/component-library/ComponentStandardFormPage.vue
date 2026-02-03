@@ -259,7 +259,7 @@ function formatSpecLabel(key: string): string {
       <div class="text-slate-500 dark:text-slate-400">Loading component standard...</div>
     </div>
 
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <!-- Basic Information -->
       <Card>
         <template #header>

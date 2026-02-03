@@ -60,7 +60,7 @@ onMounted(() => {
       <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">New Stock Opname</h1>
     </div>
 
-    <form @submit.prevent="handleSubmit">
+    <form novalidate @submit.prevent="handleSubmit">
       <Card class="space-y-6">
         <!-- Warehouse Selection -->
         <div class="space-y-2">

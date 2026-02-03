@@ -240,7 +240,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     </div>
 
     <!-- Form -->
-    <form v-else @submit="onSubmit">
+    <form v-else novalidate @submit="onSubmit">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Form -->
         <div class="lg:col-span-2 space-y-6">

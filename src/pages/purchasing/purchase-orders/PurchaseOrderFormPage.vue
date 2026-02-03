@@ -315,7 +315,7 @@ const contactOptions = computed(() => {
     </Alert>
 
     <!-- Form -->
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <!-- Header Info Card -->
       <Card>
         <template #header>
@@ -431,7 +431,7 @@ const contactOptions = computed(() => {
                     v-model.number="field.value.quantity"
                     type="number"
                     min="0.0001"
-                    step="1"
+                    step="any"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   />
                 </td>

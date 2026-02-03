@@ -165,7 +165,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       <div class="text-slate-500 dark:text-slate-400">Loading work order...</div>
     </div>
 
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>

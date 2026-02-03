@@ -192,7 +192,7 @@ const emptyColspan = computed(() => {
                 type="number"
                 :model-value="item.quantity"
                 min="0"
-                step="1"
+                step="any"
                 :disabled="disabled"
                 class="w-full text-right"
                 @input="handleUpdate(index, 'quantity', $event)"

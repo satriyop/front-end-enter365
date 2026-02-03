@@ -222,7 +222,7 @@ function handleClose() {
     description="Generate a quotation based on a Bill of Materials with custom pricing"
     @update:open="handleClose"
   >
-    <form class="space-y-6" @submit.prevent="handleSubmit">
+    <form novalidate class="space-y-6" @submit.prevent="handleSubmit">
       <!-- BOM Selection -->
       <FormField
         label="Bill of Materials"

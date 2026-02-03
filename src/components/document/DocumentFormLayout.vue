@@ -73,7 +73,7 @@ function handleSubmit() {
       <Loader2 class="h-8 w-8 animate-spin text-muted-foreground" />
     </div>
 
-    <form @submit.prevent="handleSubmit">
+    <form novalidate @submit.prevent="handleSubmit">
       <!-- Header -->
       <div class="mb-6">
         <div class="flex items-center justify-between">

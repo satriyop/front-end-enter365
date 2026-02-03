@@ -143,7 +143,7 @@ function generateCode() {
     </div>
 
     <!-- Form -->
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <Card>
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Basic Information</h2>

@@ -574,7 +574,7 @@ export const salesReturnSchema = z.object({
 export const purchaseOrderItemSchema = z.object({
   product_id: z.number().optional().nullable(),
   description: z.string().default(''),
-  quantity: z.number().default(1),
+  quantity: quantitySchema.default(1),
   unit: z.string().default('pcs'),
   unit_price: z.number().default(0),
   discount_percent: z.number().min(0).max(100).default(0),
@@ -609,7 +609,7 @@ export const bomItemSchema = z.object({
   type: z.enum(['material', 'labor', 'overhead']).default('material'),
   product_id: z.number().optional().nullable(),
   description: z.string().default(''),
-  quantity: z.number().default(1),
+  quantity: quantitySchema.default(1),
   unit: z.string().default('unit'),
   unit_cost: z.number().default(0),
   waste_percentage: z.number().min(0).max(100).default(0),

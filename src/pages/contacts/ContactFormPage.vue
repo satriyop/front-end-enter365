@@ -184,7 +184,7 @@ useFormShortcuts({
     <PageSkeleton v-if="isEditing && loadingContact" type="form" />
 
     <!-- Form -->
-    <form v-else @submit.prevent="onSubmit" class="space-y-6">
+    <form v-else novalidate @submit.prevent="onSubmit" class="space-y-6">
       <!-- Basic Information -->
       <Card>
         <template #header>

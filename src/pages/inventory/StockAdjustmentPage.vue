@@ -154,7 +154,7 @@ async function handleSubmit() {
       <Button variant="ghost" @click="router.push('/inventory')">Cancel</Button>
     </div>
 
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form novalidate @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Adjustment Type -->
       <Card>
         <template #header>
