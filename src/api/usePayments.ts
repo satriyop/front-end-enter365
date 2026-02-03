@@ -23,18 +23,7 @@ export interface PaymentFilters {
   date_to?: string
 }
 
-export interface CreatePaymentData {
-  type: 'receive' | 'send'
-  contact_id: number
-  payment_date: string
-  amount: number
-  payment_method: string
-  cash_account_id: number
-  reference?: string
-  notes?: string
-  payable_type?: string
-  payable_id?: number
-}
+export type CreatePaymentData = components['schemas']['StorePaymentRequest']
 
 // ============================================
 // CRUD Hooks (via factory)
