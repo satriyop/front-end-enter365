@@ -27,28 +27,7 @@ export interface GoodsReceiptNoteFilters {
   end_date?: string
 }
 
-export interface CreateGoodsReceiptNoteData {
-  purchase_order_id: number
-  warehouse_id: number
-  receipt_date?: string
-  supplier_do_number?: string
-  supplier_invoice_number?: string
-  vehicle_number?: string
-  driver_name?: string
-  notes?: string
-  items?: CreateGoodsReceiptNoteItem[]
-}
-
-export interface CreateGoodsReceiptNoteItem {
-  purchase_order_item_id: number
-  quantity_ordered: number
-  quantity_received?: number
-  quantity_rejected?: number
-  rejection_reason?: string
-  quality_notes?: string
-  lot_number?: string
-  expiry_date?: string
-}
+export type CreateGoodsReceiptNoteData = components['schemas']['StoreGoodsReceiptNoteRequest']
 
 export interface UpdateGoodsReceiptNoteItemData {
   quantity_received?: number

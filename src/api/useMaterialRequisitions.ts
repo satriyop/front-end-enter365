@@ -34,29 +34,10 @@ export interface MaterialRequisitionFilters {
 export type MaterialRequisitionStatus = 'draft' | 'pending' | 'approved' | 'partial' | 'issued' | 'cancelled'
 
 // Create types
-export interface CreateMaterialRequisitionData {
-  work_order_id: number
-  warehouse_id: number
-  required_date: string
-  notes?: string
-  items: {
-    work_order_item_id: number
-    quantity_requested: number
-    notes?: string
-  }[]
-}
+export type CreateMaterialRequisitionData = components['schemas']['StoreMaterialRequisitionRequest']
 
 // Update types
-export interface UpdateMaterialRequisitionData {
-  required_date?: string
-  notes?: string
-  items?: {
-    id?: number
-    work_order_item_id: number
-    quantity_requested: number
-    notes?: string
-  }[]
-}
+export type UpdateMaterialRequisitionData = components['schemas']['UpdateMaterialRequisitionRequest']
 
 // Issue items data
 export interface IssueItemsData {

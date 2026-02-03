@@ -15,22 +15,7 @@ export interface ContactFilters {
   is_active?: boolean
 }
 
-export interface CreateContactData {
-  code: string
-  name: string
-  type: 'customer' | 'supplier' | 'both'
-  email?: string | null
-  phone?: string | null
-  address?: string | null
-  city?: string | null
-  province?: string | null
-  postal_code?: string | null
-  npwp?: string | null
-  nik?: string | null
-  credit_limit?: number
-  payment_term_days?: number
-  is_active?: boolean
-}
+export type CreateContactData = components['schemas']['StoreContactRequest']
 
 // ============================================
 // CRUD Hooks (via factory)

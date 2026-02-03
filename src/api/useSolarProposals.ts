@@ -29,34 +29,9 @@ export interface SolarProposalFilters {
   date_to?: string
 }
 
-export interface CreateSolarProposalData {
-  contact_id: number
-  site_name?: string
-  site_address?: string
-  province?: string
-  city?: string
-  latitude?: number | null
-  longitude?: number | null
-  roof_area_m2?: number | null
-  roof_type?: 'flat' | 'sloped' | 'carport'
-  roof_orientation?: 'north' | 'south' | 'east' | 'west'
-  roof_tilt_degrees?: number | null
-  shading_percentage?: number | null
-  monthly_consumption_kwh?: number | null
-  pln_tariff_category?: string
-  electricity_rate?: number | null
-  tariff_escalation_percent?: number | null
-  peak_sun_hours?: number | null
-  solar_irradiance?: number | null
-  performance_ratio?: number | null
-  variant_group_id?: number | null
-  selected_bom_id?: number | null
-  system_capacity_kwp?: number | null
-  valid_until?: string
-  notes?: string
-}
+export type CreateSolarProposalData = components['schemas']['StoreSolarProposalRequest']
 
-export interface UpdateSolarProposalData extends Partial<CreateSolarProposalData> {}
+export type UpdateSolarProposalData = components['schemas']['UpdateSolarProposalRequest']
 
 export interface SolarProposalStatistics {
   total: number

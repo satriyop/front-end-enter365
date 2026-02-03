@@ -34,15 +34,7 @@ export interface SubcontractorInvoiceFilters {
 export type SubcontractorInvoiceStatus = 'pending' | 'approved' | 'rejected' | 'converted'
 
 // Update types
-export interface UpdateSubcontractorInvoiceData {
-  invoice_date?: string
-  due_date?: string
-  gross_amount?: number
-  retention_held?: number
-  other_deductions?: number
-  description?: string
-  notes?: string
-}
+export type UpdateSubcontractorInvoiceData = components['schemas']['UpdateSubcontractorInvoiceRequest']
 
 // CRUD hooks via factory
 const hooks = createCrudHooks<SubcontractorInvoice, SubcontractorInvoiceFilters, UpdateSubcontractorInvoiceData>({

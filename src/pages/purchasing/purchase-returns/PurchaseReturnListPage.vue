@@ -43,7 +43,7 @@ const {
 const statusOptions = [
   { value: '', label: 'All Status' },
   { value: 'draft', label: 'Draft' },
-  { value: 'pending', label: 'Pending Approval' },
+  { value: 'submitted', label: 'Pending Approval' },
   { value: 'approved', label: 'Approved' },
   { value: 'completed', label: 'Completed' },
   { value: 'rejected', label: 'Rejected' },

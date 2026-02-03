@@ -150,11 +150,11 @@ const onSubmit = handleSubmit(async (formValues) => {
 
   try {
     if (isEditing.value && deliveryOrderId.value) {
-      await updateMutation.mutateAsync({ id: deliveryOrderId.value, data: payload })
+      await updateMutation.mutateAsync({ id: deliveryOrderId.value, data: payload as any })
       toast.success('Delivery order updated successfully')
       router.push(`/sales/delivery-orders/${deliveryOrderId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(payload)
+      const result = await createMutation.mutateAsync(payload as any)
       toast.success('Delivery order created successfully')
       router.push(`/sales/delivery-orders/${result.id}`)
     }

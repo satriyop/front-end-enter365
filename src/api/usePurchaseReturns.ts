@@ -19,7 +19,7 @@ export type PurchaseReturnItem = components['schemas']['PurchaseReturnItemResour
 export interface PurchaseReturnFilters {
   page?: number
   per_page?: number
-  status?: 'draft' | 'pending' | 'approved' | 'completed' | 'rejected' | 'cancelled'
+  status?: 'draft' | 'submitted' | 'approved' | 'completed' | 'rejected' | 'cancelled'
   search?: string
   contact_id?: number
   bill_id?: number
@@ -27,25 +27,9 @@ export interface PurchaseReturnFilters {
   end_date?: string
 }
 
-export interface CreatePurchaseReturnData {
-  contact_id: number
-  bill_id?: number
-  warehouse_id?: number
-  return_date: string
-  reason?: string
-  notes?: string
-  tax_rate?: number
-  items: CreatePurchaseReturnItem[]
-}
+export type CreatePurchaseReturnData = components['schemas']['StorePurchaseReturnRequest']
 
-export interface CreatePurchaseReturnItem {
-  product_id?: number | null
-  description: string
-  quantity: number
-  unit?: string
-  unit_price: number
-  tax_rate?: number
-}
+export type CreatePurchaseReturnItem = CreatePurchaseReturnData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)

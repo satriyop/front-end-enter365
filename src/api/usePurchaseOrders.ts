@@ -24,34 +24,9 @@ export interface PurchaseOrderFilters {
   date_to?: string
 }
 
-export interface CreatePurchaseOrderData {
-  contact_id: number
-  po_date: string
-  expected_date?: string
-  reference?: string
-  subject?: string
-  currency?: string
-  exchange_rate?: number
-  discount_type?: 'percentage' | 'fixed'
-  discount_value?: number
-  tax_rate?: number
-  notes?: string
-  terms_conditions?: string
-  shipping_address?: string
-  items: CreatePurchaseOrderItem[]
-}
+export type CreatePurchaseOrderData = components['schemas']['StorePurchaseOrderRequest']
 
-export interface CreatePurchaseOrderItem {
-  product_id?: number | null
-  description: string
-  quantity: number
-  unit?: string
-  unit_price: number
-  discount_percent?: number
-  tax_rate?: number
-  sort_order?: number
-  notes?: string
-}
+export type CreatePurchaseOrderItem = CreatePurchaseOrderData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)

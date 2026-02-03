@@ -30,34 +30,10 @@ export interface SubcontractorWorkOrderFilters {
 export type SubcontractorWorkOrderStatus = 'draft' | 'assigned' | 'in_progress' | 'completed' | 'cancelled'
 
 // Create types
-export interface CreateSubcontractorWorkOrderData {
-  work_order_id?: number
-  project_id?: number
-  name: string
-  description?: string
-  scope_of_work: string
-  agreed_amount: number
-  retention_percent?: number
-  scheduled_start_date: string
-  scheduled_end_date: string
-  work_location?: string
-  location_address?: string
-  notes?: string
-}
+export type CreateSubcontractorWorkOrderData = components['schemas']['StoreSubcontractorWorkOrderRequest']
 
 // Update types
-export interface UpdateSubcontractorWorkOrderData {
-  name?: string
-  description?: string
-  scope_of_work?: string
-  agreed_amount?: number
-  retention_percent?: number
-  scheduled_start_date?: string
-  scheduled_end_date?: string
-  work_location?: string
-  location_address?: string
-  notes?: string
-}
+export type UpdateSubcontractorWorkOrderData = components['schemas']['UpdateSubcontractorWorkOrderRequest']
 
 // Assign data
 export interface AssignSubcontractorData {

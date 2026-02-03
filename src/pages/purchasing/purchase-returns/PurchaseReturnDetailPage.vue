@@ -115,10 +115,10 @@ async function handleDelete() {
 // Computed flags for action availability
 const canEdit = computed(() => purchaseReturn.value?.status.value === 'draft')
 const canSubmit = computed(() => purchaseReturn.value?.status.value === 'draft')
-const canApprove = computed(() => purchaseReturn.value?.status.value === 'pending')
-const canReject = computed(() => purchaseReturn.value?.status.value === 'pending')
+const canApprove = computed(() => purchaseReturn.value?.status.value === 'submitted')
+const canReject = computed(() => purchaseReturn.value?.status.value === 'submitted')
 const canComplete = computed(() => purchaseReturn.value?.status.value === 'approved')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(purchaseReturn.value?.status.value || ''))
+const canCancel = computed(() => ['draft', 'submitted', 'approved'].includes(purchaseReturn.value?.status.value || ''))
 const canDelete = computed(() => purchaseReturn.value?.status.value === 'draft')
 
 // Line items table columns

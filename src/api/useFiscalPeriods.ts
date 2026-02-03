@@ -18,11 +18,7 @@ export interface FiscalPeriodFilters {
   year?: number
 }
 
-export interface CreateFiscalPeriodData {
-  name: string
-  start_date: string
-  end_date: string
-}
+export type CreateFiscalPeriodData = components['schemas']['StoreFiscalPeriodRequest']
 
 export interface ClosingChecklistItem {
   id: string

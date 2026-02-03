@@ -31,23 +31,9 @@ export interface DeliveryOrderFilters {
   end_date?: string
 }
 
-export interface CreateDeliveryOrderData {
-  contact_id: number
-  invoice_id?: number
-  warehouse_id?: number
-  do_date: string
-  shipping_address?: string
-  shipping_method?: string
-  notes?: string
-  items: CreateDeliveryOrderItem[]
-}
+export type CreateDeliveryOrderData = components['schemas']['StoreDeliveryOrderRequest']
 
-export interface CreateDeliveryOrderItem {
-  product_id?: number | null
-  description: string
-  quantity: number
-  unit?: string
-}
+export type CreateDeliveryOrderItem = CreateDeliveryOrderData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)

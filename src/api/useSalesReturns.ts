@@ -30,25 +30,9 @@ export interface SalesReturnFilters {
   end_date?: string
 }
 
-export interface CreateSalesReturnData {
-  contact_id: number
-  invoice_id?: number
-  warehouse_id?: number
-  return_date: string
-  reason?: string
-  notes?: string
-  tax_rate?: number
-  items: CreateSalesReturnItem[]
-}
+export type CreateSalesReturnData = components['schemas']['StoreSalesReturnRequest']
 
-export interface CreateSalesReturnItem {
-  product_id?: number | null
-  description: string
-  quantity: number
-  unit?: string
-  unit_price: number
-  tax_rate?: number
-}
+export type CreateSalesReturnItem = CreateSalesReturnData['items'][number]
 
 // ============================================
 // CRUD Hooks (via factory)

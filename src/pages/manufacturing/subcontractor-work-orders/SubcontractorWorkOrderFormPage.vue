@@ -137,7 +137,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       toast.success('Subcontractor work order updated')
       router.push(`/manufacturing/subcontractor-work-orders/${scwoId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(payload)
+      const result = await createMutation.mutateAsync(payload as any)
       toast.success('Subcontractor work order created')
       router.push(`/manufacturing/subcontractor-work-orders/${result.id}`)
     }
