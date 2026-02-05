@@ -6,6 +6,7 @@ import {
   useSubmitQuotation,
   useApproveQuotation,
   useRejectQuotation,
+  useReviseQuotation,
   useConvertToInvoice,
   useDuplicateQuotation,
   useDeleteQuotation,
@@ -29,6 +30,7 @@ const { data: quotation, isLoading, error } = useQuotation(quotationId)
 const submitMutation = useSubmitQuotation()
 const approveMutation = useApproveQuotation()
 const rejectMutation = useRejectQuotation()
+const reviseMutation = useReviseQuotation()
 const convertMutation = useConvertToInvoice()
 const duplicateMutation = useDuplicateQuotation()
 const deleteMutation = useDeleteQuotation()
@@ -89,6 +91,16 @@ async function handleDuplicate() {
   }
 }
 
+async function handleRevise() {
+  try {
+    const revised = await reviseMutation.mutateAsync(quotationId.value)
+    toast.success('New revision created')
+    router.push(`/quotations/${revised.id}/edit`)
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to create revision'))
+  }
+}
+
 async function handleDelete() {
   const confirmed = await deleteConfirmRef.value?.open()
   if (!confirmed) return
@@ -107,6 +119,10 @@ const canEdit = computed(() => quotation.value?.status.value === 'draft')
 const canSubmit = computed(() => quotation.value?.status.value === 'draft')
 const canApprove = computed(() => quotation.value?.status.value === 'submitted')
 const canReject = computed(() => quotation.value?.status.value === 'submitted')
+const canRevise = computed(() => {
+  const status = quotation.value?.status.value
+  return status === 'cancelled' || status === 'rejected'
+})
 const canConvert = computed(() => quotation.value?.status.value === 'approved')
 const canDelete = computed(() => quotation.value?.status.value === 'draft')
 
@@ -248,12 +264,23 @@ const itemColumns: ResponsiveColumn[] = [
             <!-- Convert to Invoice (approved only) -->
             <Button
               v-if="canConvert"
-             
+
               size="sm"
               :loading="convertMutation.isPending.value"
               @click="handleConvert"
             >
               Convert to Invoice
+            </Button>
+
+            <!-- Revise (cancelled/rejected only) -->
+            <Button
+              v-if="canRevise"
+              variant="secondary"
+              size="sm"
+              :loading="reviseMutation.isPending.value"
+              @click="handleRevise"
+            >
+              Revise
             </Button>
 
             <!-- Delete (draft only) -->

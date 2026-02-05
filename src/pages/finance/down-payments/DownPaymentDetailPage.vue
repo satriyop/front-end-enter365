@@ -7,10 +7,14 @@ import {
   useCancelDownPayment,
   useDeleteDownPayment,
   useUnapplyDownPayment,
+  useApplyDownPaymentToInvoice,
+  useApplyDownPaymentToBill,
   getDownPaymentStatus,
   getDownPaymentType,
   formatDPNumber,
 } from '@/api/useDownPayments'
+import { useInvoices } from '@/api/useInvoices'
+import { useBills } from '@/api/useBills'
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format'
 import {
   ArrowLeft,
@@ -26,6 +30,7 @@ import {
   FileText,
   BookOpen,
   Undo2,
+  CircleDollarSign,
 } from 'lucide-vue-next'
 import {
   DropdownMenuRoot,
@@ -37,7 +42,7 @@ import {
 } from 'radix-vue'
 
 // UI Components
-import { Button, Badge, Card, Modal, Input } from '@/components/ui'
+import { Button, Badge, Card, Modal, Input, Select, FormField } from '@/components/ui'
 
 const route = useRoute()
 const router = useRouter()
@@ -51,10 +56,44 @@ const refundMutation = useRefundDownPayment()
 const cancelMutation = useCancelDownPayment()
 const deleteMutation = useDeleteDownPayment()
 const unapplyMutation = useUnapplyDownPayment()
+const applyToInvoiceMutation = useApplyDownPaymentToInvoice()
+const applyToBillMutation = useApplyDownPaymentToBill()
+
+// Fetch unpaid invoices/bills for apply modal
+const contactId = computed(() => downPayment.value?.contact_id || 0)
+const isReceivable = computed(() => downPayment.value?.type === 'receivable')
+
+// For receivable DPs, fetch unpaid invoices
+const invoiceFilters = computed(() => ({
+  contact_id: contactId.value,
+  status: 'posted' as const, // Only posted invoices can receive payments
+  per_page: 100,
+}))
+const { data: invoicesData } = useInvoices(invoiceFilters)
+
+// For payable DPs, fetch unpaid bills
+const billFilters = computed(() => ({
+  contact_id: contactId.value,
+  status: 'posted',
+  per_page: 100,
+}))
+const { data: billsData } = useBills(billFilters)
+
+// Filter to only show documents with outstanding amounts
+const unpaidInvoices = computed(() => {
+  if (!invoicesData.value?.data) return []
+  return invoicesData.value.data.filter(inv => Number(inv.outstanding_amount) > 0)
+})
+
+const unpaidBills = computed(() => {
+  if (!billsData.value?.data) return []
+  return billsData.value.data.filter(bill => Number(bill.outstanding_amount) > 0)
+})
 
 // Computed for workflow permissions
 const hasRemaining = computed(() => Number(downPayment.value?.remaining_amount || 0) > 0)
 const canRefund = computed(() => downPayment.value?.status.value === 'active' && hasRemaining.value)
+const canApply = computed(() => downPayment.value?.status.value === 'active' && hasRemaining.value)
 const canCancel = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
 const canEdit = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
 const canDelete = computed(() => downPayment.value?.status.value === 'active' && !downPayment.value?.applications?.length)
@@ -64,6 +103,7 @@ const showRefundModal = ref(false)
 const showCancelModal = ref(false)
 const showDeleteModal = ref(false)
 const showUnapplyModal = ref(false)
+const showApplyModal = ref(false)
 const selectedApplicationId = ref<number | null>(null)
 
 // Form data - using API schema field names
@@ -74,10 +114,65 @@ const refundData = ref({
 })
 const cancelReason = ref('')
 
+// Apply form data
+const applyData = ref({
+  document_id: null as number | null,
+  amount: 0,
+  applied_date: new Date().toISOString().split('T')[0],
+})
+
 // Initialize refund amount when modal opens
 function openRefundModal() {
   refundData.value.amount = Number(downPayment.value?.remaining_amount || 0)
   showRefundModal.value = true
+}
+
+// Initialize apply modal
+function openApplyModal() {
+  applyData.value = {
+    document_id: null,
+    amount: 0,
+    applied_date: new Date().toISOString().split('T')[0],
+  }
+  showApplyModal.value = true
+}
+
+// Get selected document for apply
+const selectedDocument = computed(() => {
+  if (!applyData.value.document_id) return null
+  if (isReceivable.value) {
+    return unpaidInvoices.value.find(inv => inv.id === applyData.value.document_id)
+  } else {
+    return unpaidBills.value.find(bill => bill.id === applyData.value.document_id)
+  }
+})
+
+// Max amount that can be applied
+const maxApplyAmount = computed(() => {
+  const remaining = Number(downPayment.value?.remaining_amount || 0)
+  const outstanding = Number(selectedDocument.value?.outstanding_amount || 0)
+  return Math.min(remaining, outstanding)
+})
+
+// Document options for dropdown
+const documentOptions = computed(() => {
+  const docs = isReceivable.value ? unpaidInvoices.value : unpaidBills.value
+  return [
+    { value: '', label: 'Select document...' },
+    ...docs.map(doc => ({
+      value: doc.id,
+      label: `${(doc as any).invoice_number || (doc as any).bill_number} - ${formatCurrency(Number(doc.outstanding_amount))} outstanding`,
+    })),
+  ]
+})
+
+// When document changes, set default amount
+function onDocumentChange(value: string | number | null) {
+  applyData.value.document_id = value ? Number(value) : null
+  // Set amount to max possible
+  if (applyData.value.document_id) {
+    applyData.value.amount = maxApplyAmount.value
+  }
 }
 
 // Workflow actions
@@ -110,6 +205,35 @@ async function handleUnapply() {
     })
     showUnapplyModal.value = false
     selectedApplicationId.value = null
+  }
+}
+
+async function handleApply() {
+  if (!applyData.value.document_id || !applyData.value.amount) return
+
+  try {
+    if (isReceivable.value) {
+      await applyToInvoiceMutation.mutateAsync({
+        downPaymentId: id.value,
+        invoiceId: applyData.value.document_id,
+        data: {
+          amount: applyData.value.amount,
+          applied_date: applyData.value.applied_date,
+        },
+      })
+    } else {
+      await applyToBillMutation.mutateAsync({
+        downPaymentId: id.value,
+        billId: applyData.value.document_id,
+        data: {
+          amount: applyData.value.amount,
+          applied_date: applyData.value.applied_date,
+        },
+      })
+    }
+    showApplyModal.value = false
+  } catch {
+    // Error handling is done by mutation
   }
 }
 
@@ -152,6 +276,15 @@ const usageProgress = computed(() => {
 
       <!-- Actions -->
       <div v-if="downPayment" class="flex items-center gap-2">
+        <!-- Apply -->
+        <Button
+          v-if="canApply"
+          @click="openApplyModal"
+        >
+          <CircleDollarSign class="w-4 h-4 mr-2" />
+          Apply to {{ isReceivable ? 'Invoice' : 'Bill' }}
+        </Button>
+
         <!-- Refund -->
         <Button
           v-if="canRefund"
@@ -545,6 +678,74 @@ const usageProgress = computed(() => {
           <Button variant="destructive" @click="handleDelete" :disabled="deleteMutation.isPending.value">
             <Trash2 class="w-4 h-4 mr-2" />
             Delete
+          </Button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Apply Modal -->
+    <Modal
+      :open="showApplyModal"
+      :title="`Apply to ${isReceivable ? 'Invoice' : 'Bill'}`"
+      @close="showApplyModal = false"
+    >
+      <div class="space-y-4">
+        <p class="text-slate-600 dark:text-slate-400">
+          Apply this down payment to an outstanding {{ isReceivable ? 'invoice' : 'bill' }}.
+        </p>
+
+        <div class="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div class="flex justify-between text-sm">
+            <span class="text-slate-500 dark:text-slate-400">Available Balance</span>
+            <span class="font-medium text-green-600 dark:text-green-400">
+              {{ formatCurrency(Number(downPayment?.remaining_amount) || 0) }}
+            </span>
+          </div>
+        </div>
+
+        <FormField :label="isReceivable ? 'Invoice' : 'Bill'">
+          <Select
+            :model-value="applyData.document_id ?? ''"
+            :options="documentOptions"
+            @update:model-value="onDocumentChange"
+          />
+        </FormField>
+
+        <div v-if="selectedDocument" class="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-600 dark:text-slate-400">Outstanding Amount</span>
+            <span class="font-medium text-slate-900 dark:text-slate-100">
+              {{ formatCurrency(Number(selectedDocument.outstanding_amount) || 0) }}
+            </span>
+          </div>
+        </div>
+
+        <FormField label="Amount to Apply">
+          <Input
+            v-model.number="applyData.amount"
+            type="number"
+            :max="maxApplyAmount"
+            min="0"
+            step="0.01"
+          />
+          <p v-if="selectedDocument" class="text-xs text-slate-500 mt-1">
+            Max: {{ formatCurrency(maxApplyAmount) }}
+          </p>
+        </FormField>
+
+        <FormField label="Application Date">
+          <Input v-model="applyData.applied_date" type="date" />
+        </FormField>
+      </div>
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <Button variant="outline" @click="showApplyModal = false">Cancel</Button>
+          <Button
+            @click="handleApply"
+            :disabled="!applyData.document_id || !applyData.amount || applyToInvoiceMutation.isPending.value || applyToBillMutation.isPending.value"
+          >
+            <CircleDollarSign class="w-4 h-4 mr-2" />
+            Apply {{ formatCurrency(applyData.amount) }}
           </Button>
         </div>
       </template>

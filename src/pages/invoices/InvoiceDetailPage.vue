@@ -7,7 +7,9 @@ import {
   useVoidInvoice,
   useDuplicateInvoice,
   useDeleteInvoice,
+  useSendInvoice,
 } from '@/api/useInvoices'
+import { useMakeInvoiceRecurring, frequencyOptions, type MakeRecurringData } from '@/api/useRecurringTemplates'
 import { useCreateDeliveryOrderFromInvoice, type CreateFromInvoiceData } from '@/api/useDeliveryOrders'
 import { useCreateSalesReturnFromInvoice, type CreateFromInvoiceData as SRCreateFromInvoiceData } from '@/api/useSalesReturns'
 import { useWarehousesLookup } from '@/api/useInventory'
@@ -15,7 +17,7 @@ import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
-import { FileText, Truck, RotateCcw } from 'lucide-vue-next'
+import { FileText, Truck, RotateCcw, Send, Repeat } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -31,6 +33,8 @@ const postMutation = usePostInvoice()
 const voidMutation = useVoidInvoice()
 const duplicateMutation = useDuplicateInvoice()
 const deleteMutation = useDeleteInvoice()
+const sendMutation = useSendInvoice()
+const makeRecurringMutation = useMakeInvoiceRecurring()
 
 // Create DO
 const createDOMutation = useCreateDeliveryOrderFromInvoice()
@@ -45,7 +49,21 @@ const showDeleteModal = ref(false)
 const showPrintPreview = ref(false)
 const showCreateDOModal = ref(false)
 const showCreateSRModal = ref(false)
+const showRecurringModal = ref(false)
 const voidReason = ref('')
+
+// Recurring form data
+const today = new Date().toISOString().split('T')[0] || ''
+const recurringFormData = ref<MakeRecurringData>({
+  name: '',
+  frequency: 'monthly',
+  interval: 1,
+  start_date: today,
+  end_date: null,
+  occurrences_limit: null,
+  auto_post: false,
+  auto_send: false,
+})
 
 // Create DO form
 const doFormData = ref<CreateFromInvoiceData>({
@@ -136,6 +154,48 @@ async function handleDelete() {
   }
 }
 
+async function handleSend() {
+  try {
+    await sendMutation.mutateAsync({ id: invoiceId.value })
+    toast.success('Invoice marked as sent')
+  } catch {
+    toast.error('Failed to send invoice')
+  }
+}
+
+function openRecurringModal() {
+  recurringFormData.value = {
+    name: `Recurring - ${invoice.value?.invoice_number}`,
+    frequency: 'monthly',
+    interval: 1,
+    start_date: new Date().toISOString().split('T')[0] || '',
+    end_date: null,
+    occurrences_limit: null,
+    auto_post: false,
+    auto_send: false,
+  }
+  showRecurringModal.value = true
+}
+
+async function handleMakeRecurring() {
+  try {
+    await makeRecurringMutation.mutateAsync({
+      invoiceId: invoiceId.value,
+      data: recurringFormData.value,
+    })
+    showRecurringModal.value = false
+    toast.success('Recurring template created')
+  } catch {
+    toast.error('Failed to create recurring template')
+  }
+}
+
+// Frequency options for dropdown
+const frequencySelectOptions = [
+  { value: '', label: 'Select frequency...' },
+  ...frequencyOptions.map(f => ({ value: f.value, label: f.label })),
+]
+
 async function handleCreateDO() {
   try {
     const payload: CreateFromInvoiceData = {
@@ -182,6 +242,15 @@ const canEdit = computed(() => invoice.value?.actions?.can_edit)
 const canPost = computed(() => invoice.value?.actions?.can_post)
 const canVoid = computed(() => invoice.value?.actions?.can_cancel)
 const canDelete = computed(() => invoice.value?.actions?.can_delete)
+const canSend = computed(() => {
+  const status = invoice.value?.status?.value
+  // Can send if posted (not yet sent) - once sent, status changes to 'sent'
+  return status === 'posted'
+})
+const canMakeRecurring = computed(() => {
+  const status = invoice.value?.status?.value
+  return status === 'posted' || status === 'sent' || status === 'partial'
+})
 
 // Print functionality
 function handlePrint() {
@@ -282,12 +351,24 @@ const itemColumns: ResponsiveColumn[] = [
             <!-- Post (draft only) -->
             <Button
               v-if="canPost"
-             
+
               size="sm"
               :loading="postMutation.isPending.value"
               @click="handlePost"
             >
               Post Invoice
+            </Button>
+
+            <!-- Send (posted, not yet sent) -->
+            <Button
+              v-if="canSend"
+              variant="secondary"
+              size="sm"
+              :loading="sendMutation.isPending.value"
+              @click="handleSend"
+            >
+              <Send class="w-4 h-4 mr-2" />
+              Mark as Sent
             </Button>
 
             <!-- Void (posted/partial) -->
@@ -476,8 +557,24 @@ const itemColumns: ResponsiveColumn[] = [
                 <RotateCcw class="w-4 h-4 mr-2" />
                 Create Sales Return
               </Button>
-              <Button variant="secondary" class="w-full">
-                Send Invoice
+              <Button
+                v-if="canSend"
+                variant="secondary"
+                class="w-full"
+                :loading="sendMutation.isPending.value"
+                @click="handleSend"
+              >
+                <Send class="w-4 h-4 mr-2" />
+                Mark as Sent
+              </Button>
+              <Button
+                v-if="canMakeRecurring"
+                variant="secondary"
+                class="w-full"
+                @click="openRecurringModal"
+              >
+                <Repeat class="w-4 h-4 mr-2" />
+                Make Recurring
               </Button>
               <Button
                 variant="ghost"
@@ -681,6 +778,104 @@ const itemColumns: ResponsiveColumn[] = [
         <Button variant="ghost" @click="showPrintPreview = false">Cancel</Button>
         <Button :loading="isPrinting" @click="handlePrint">
           Print
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Make Recurring Modal -->
+    <Modal
+      :open="showRecurringModal"
+      title="Make Invoice Recurring"
+      @update:open="showRecurringModal = $event"
+    >
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Create a recurring template from this invoice. New invoices will be generated automatically based on the schedule.
+      </p>
+      <div class="space-y-4">
+        <FormField label="Template Name">
+          <Input
+            :model-value="recurringFormData.name || ''"
+            placeholder="e.g., Monthly Subscription"
+            @update:model-value="(v) => recurringFormData.name = String(v) || null"
+          />
+        </FormField>
+
+        <div class="grid grid-cols-2 gap-4">
+          <FormField label="Frequency">
+            <Select
+              :model-value="recurringFormData.frequency"
+              :options="frequencySelectOptions"
+              @update:model-value="(v) => recurringFormData.frequency = v as any"
+            />
+          </FormField>
+          <FormField label="Every" hint="Generate every N periods">
+            <Input
+              v-model.number="recurringFormData.interval"
+              type="number"
+              min="1"
+              max="12"
+            />
+          </FormField>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <FormField label="Start Date">
+            <Input v-model="recurringFormData.start_date" type="date" />
+          </FormField>
+          <FormField label="End Date" hint="Optional">
+            <Input
+              :model-value="recurringFormData.end_date ?? ''"
+              type="date"
+              @update:model-value="(v) => recurringFormData.end_date = (v as string) || null"
+            />
+          </FormField>
+        </div>
+
+        <FormField label="Max Occurrences" hint="Leave empty for unlimited">
+          <Input
+            :model-value="recurringFormData.occurrences_limit || ''"
+            type="number"
+            min="1"
+            placeholder="Unlimited"
+            @update:model-value="(v) => recurringFormData.occurrences_limit = v ? Number(v) : null"
+          />
+        </FormField>
+
+        <!-- Auto options -->
+        <div class="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              v-model="recurringFormData.auto_post"
+              type="checkbox"
+              class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+            />
+            <div>
+              <span class="text-sm font-medium text-slate-900 dark:text-slate-100">Auto-post invoices</span>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Automatically post generated invoices</p>
+            </div>
+          </label>
+
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              v-model="recurringFormData.auto_send"
+              type="checkbox"
+              class="w-4 h-4 rounded border-slate-300 dark:border-slate-600 text-primary focus:ring-primary"
+            />
+            <div>
+              <span class="text-sm font-medium text-slate-900 dark:text-slate-100">Auto-send to customer</span>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Send invoice email automatically after posting</p>
+            </div>
+          </label>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showRecurringModal = false">Cancel</Button>
+        <Button
+          :loading="makeRecurringMutation.isPending.value"
+          @click="handleMakeRecurring"
+        >
+          <Repeat class="w-4 h-4 mr-2" />
+          Create Recurring Template
         </Button>
       </template>
     </Modal>
