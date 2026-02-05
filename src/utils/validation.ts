@@ -3,49 +3,56 @@ import { z } from 'zod'
 // ============================================
 // Common Zod Schemas for Indonesian Business
 // ============================================
+//
+// IMPORTANT: Form schemas should NOT use .nullable() for string fields.
+// - Forms work with empty strings "", not null
+// - Use .optional() or .optional().default('') for optional string fields
+// - Only use .nullable() for foreign key IDs (e.g., contact_id, warehouse_id)
+//   because these genuinely can be null in the database
+//
+// Pattern:
+//   String fields:     .optional()              → string | undefined ✓
+//   Foreign key IDs:   .optional().nullable()   → number | null | undefined ✓
+//
 
 /**
- * Indonesian phone number validation
- * Accepts: 08xx, +628xx, 628xx formats
+ * Indonesian phone number validation (for forms - no nullable)
+ * Accepts: 08xx, +628xx, 628xx formats, or empty string
  */
 export const phoneSchema = z
   .string()
   .regex(/^(\+62|62|0)8[1-9][0-9]{7,10}$/, 'Invalid phone number format')
   .or(z.literal(''))
   .optional()
-  .nullable()
 
 /**
- * Indonesian NPWP (Tax ID) validation
- * Format: XX.XXX.XXX.X-XXX.XXX
+ * Indonesian NPWP (Tax ID) validation (for forms - no nullable)
+ * Format: XX.XXX.XXX.X-XXX.XXX or empty string
  */
 export const npwpSchema = z
   .string()
   .regex(/^\d{2}\.\d{3}\.\d{3}\.\d-\d{3}\.\d{3}$/, 'Invalid NPWP format (XX.XXX.XXX.X-XXX.XXX)')
   .or(z.literal(''))
   .optional()
-  .nullable()
 
 /**
- * Indonesian NIK (ID Card) validation
- * 16 digits
+ * Indonesian NIK (ID Card) validation (for forms - no nullable)
+ * 16 digits or empty string
  */
 export const nikSchema = z
   .string()
   .regex(/^\d{16}$/, 'NIK must be 16 digits')
   .or(z.literal(''))
   .optional()
-  .nullable()
 
 /**
- * Email validation
+ * Email validation (for forms - no nullable)
  */
 export const emailSchema = z
   .string()
   .email('Invalid email address')
   .or(z.literal(''))
   .optional()
-  .nullable()
 
 /**
  * Required string
@@ -175,14 +182,40 @@ export const productSchema = z.object({
   }),
   description: z.string().max(500).optional().default(''),
   unit: requiredString('Unit').max(20),
+  // Pricing
   purchase_price: unitPriceSchema.default(0),
   selling_price: unitPriceSchema.default(0),
   tax_rate: percentageSchema.default(11),
   is_taxable: z.boolean().default(true),
-  is_active: z.boolean().default(true),
+  // Inventory
   track_inventory: z.boolean().default(true),
   min_stock: z.number().min(0, 'Minimum stock cannot be negative').default(0),
+  // Category & additional info
   category_id: z.number().optional().nullable(),
+  barcode: z.string().max(100).optional().default(''),
+  brand: z.string().max(100).optional().default(''),
+  // Sales & purchasing options
+  is_sellable: z.boolean().default(true),
+  is_purchasable: z.boolean().default(true),
+  // Account mapping (for products with inventory tracking)
+  inventory_account_id: z.number().optional().nullable(),
+  cogs_account_id: z.number().optional().nullable(),
+  sales_account_id: z.number().optional().nullable(),
+  purchase_account_id: z.number().optional().nullable(),
+  // Status
+  is_active: z.boolean().default(true),
+})
+
+/**
+ * Product Category form schema
+ */
+export const productCategorySchema = z.object({
+  code: z.string().max(50).optional().default(''),
+  name: requiredString('Name').max(100),
+  description: z.string().max(500).optional().default(''),
+  parent_id: z.number().optional().nullable(),
+  is_active: z.boolean().default(true),
+  sort_order: z.number().int().min(0).default(0),
 })
 
 /**
@@ -341,7 +374,7 @@ export const solarProposalStep3Schema = z.object({
  */
 export const solarProposalStep4Schema = z.object({
   valid_until: requiredDate('Valid until date'),
-  notes: z.string().optional().nullable(),
+  notes: z.string().optional().default(''),
 })
 
 /**
@@ -384,9 +417,24 @@ export const ruleSetSchema = z.object({
     .min(1, 'Code is required')
     .regex(/^[A-Z0-9_-]+$/, 'Code must be uppercase letters, numbers, hyphens, or underscores'),
   name: requiredString('Name'),
-  description: z.string().optional().nullable(),
+  description: z.string().optional().default(''),
   is_active: z.boolean().default(true),
   is_default: z.boolean().default(false),
+})
+
+/**
+ * Warehouse form schema
+ * Note: String fields use .optional() (not .nullable()) for form compatibility
+ */
+export const warehouseSchema = z.object({
+  code: z.string().max(20, 'Code must be 20 characters or less').optional().default(''),
+  name: requiredString('Name').max(100, 'Name must be 100 characters or less'),
+  address: z.string().max(500, 'Address is too long').optional().default(''),
+  phone: z.string().max(20, 'Phone number is too long').optional().default(''),
+  contact_person: z.string().max(100, 'Contact person name is too long').optional().default(''),
+  is_default: z.boolean().default(false),
+  is_active: z.boolean().default(true),
+  notes: z.string().max(2000, 'Notes are too long').optional().default(''),
 })
 
 /**
@@ -457,6 +505,7 @@ export const paymentSchema = z.object({
 
 /**
  * BOM Template form schema
+ * Note: default_output_unit removed - not supported by API
  */
 export const bomTemplateSchema = z.object({
   code: z.string()
@@ -465,7 +514,6 @@ export const bomTemplateSchema = z.object({
   name: requiredString('Name'),
   description: z.string().optional().default(''),
   category: requiredString('Category'),
-  default_output_unit: z.string().default('unit'),
   default_rule_set_id: z.number().optional().nullable(),
   is_active: z.boolean().default(true),
 })
@@ -491,7 +539,7 @@ export const billItemSchema = z.object({
  */
 export const billSchema = z.object({
   contact_id: z.number({ required_error: 'Please select a vendor' }).positive('Please select a vendor'),
-  vendor_invoice_number: z.string().max(100).optional().nullable(),
+  vendor_invoice_number: z.string().max(100).optional().default(''),
   bill_date: requiredDate('Bill date'),
   due_date: requiredDate('Due date'),
   description: descriptionSchema,
@@ -726,6 +774,7 @@ export type SolarProposalFormData = z.infer<typeof solarProposalSchema>
 export type ProfileUpdateFormData = z.infer<typeof profileUpdateSchema>
 export type PasswordChangeFormData = z.infer<typeof passwordChangeSchema>
 export type RuleSetFormData = z.infer<typeof ruleSetSchema>
+export type WarehouseFormData = z.infer<typeof warehouseSchema>
 export type SpecificationItemData = z.infer<typeof specificationItemSchema>
 export type ComponentStandardFormData = z.infer<typeof componentStandardSchema>
 
@@ -758,6 +807,7 @@ export type ServiceItemFormData = z.infer<typeof serviceItemSchema>
 export type PortfolioItemFormData = z.infer<typeof portfolioItemSchema>
 export type CertificationItemFormData = z.infer<typeof certificationItemSchema>
 export type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
+export type ProductCategoryFormData = z.infer<typeof productCategorySchema>
 
 // ============================================
 // Manufacturing Schemas

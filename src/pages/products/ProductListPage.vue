@@ -1,8 +1,11 @@
 <script setup lang="ts">
-import { useProducts, useDeleteProduct, type ProductFilters, type Product } from '@/api/useProducts'
+import { computed } from 'vue'
+import { useProducts, useDeleteProduct, useExportProductPriceList, type ProductFilters, type Product } from '@/api/useProducts'
+import { useProductCategoriesLookup } from '@/api/useProductCategories'
 import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
+import { Download, Plus } from 'lucide-vue-next'
 
 const toast = useToast()
 
@@ -23,9 +26,18 @@ const {
     page: 1,
     per_page: 10,
     type: undefined,
+    category_id: undefined,
     search: '',
   },
 })
+
+// Lookups
+const { data: categories } = useProductCategoriesLookup()
+
+const categoryOptions = computed(() => [
+  { value: '', label: 'All Categories' },
+  ...(categories.value?.map(c => ({ value: String(c.id), label: c.name })) ?? []),
+])
 
 const typeOptions = [
   { value: '', label: 'All Types' },
@@ -56,46 +68,74 @@ async function handleDelete() {
     toast.error('Failed to delete product')
   }
 }
+
+// Export price list
+const exportMutation = useExportProductPriceList()
+
+async function handleExportPriceList() {
+  try {
+    await exportMutation.mutateAsync()
+    toast.success('Price list exported')
+  } catch {
+    toast.error('Failed to export price list')
+  }
+}
+
+function handleCategoryChange(value: string | number | null) {
+  const numValue = value ? Number(value) : undefined
+  updateFilter('category_id', numValue)
+}
 </script>
 
 <template>
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Products</h1>
-        <p class="text-slate-500 dark:text-slate-400">Manage products and services</p>
+        <h1 class="text-2xl font-semibold text-foreground">Products</h1>
+        <p class="text-muted-foreground">Manage products and services</p>
       </div>
-      <RouterLink to="/products/new">
-        <Button>
-          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Product
+      <div class="flex gap-2">
+        <Button variant="secondary" :loading="exportMutation.isPending.value" @click="handleExportPriceList">
+          <Download class="w-4 h-4 mr-2" />
+          Export Price List
         </Button>
-      </RouterLink>
+        <RouterLink to="/products/new">
+          <Button>
+            <Plus class="w-4 h-4 mr-2" />
+            New Product
+          </Button>
+        </RouterLink>
+      </div>
     </div>
 
-    <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">
+    <div class="bg-card rounded-xl border border-border p-4 mb-6">
       <div class="flex flex-wrap gap-4">
         <div class="flex-1 min-w-[200px]">
           <Input
             :model-value="filters.search"
-            placeholder="Search by name, SKU..."
+            placeholder="Search by name, SKU, barcode..."
             @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
           <Select v-model="filters.type" :options="typeOptions" placeholder="All Types" />
         </div>
+        <div class="w-48">
+          <Select
+            :model-value="filters.category_id ? String(filters.category_id) : ''"
+            :options="categoryOptions"
+            @update:model-value="handleCategoryChange"
+          />
+        </div>
       </div>
     </div>
 
-    <div v-if="error" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
-      <p class="text-red-500">Failed to load products</p>
+    <div v-if="error" class="bg-card rounded-xl border border-border p-8 text-center">
+      <p class="text-destructive">Failed to load products</p>
     </div>
 
-    <div v-else-if="isLoading" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-8 text-center">
-      <div class="flex items-center justify-center gap-2 text-slate-500 dark:text-slate-400">
+    <div v-else-if="isLoading" class="bg-card rounded-xl border border-border p-8 text-center">
+      <div class="flex items-center justify-center gap-2 text-muted-foreground">
         <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
@@ -104,7 +144,7 @@ async function handleDelete() {
       </div>
     </div>
 
-    <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
+    <div v-else-if="isEmpty" class="bg-card rounded-xl border border-border">
       <EmptyState
         title="No products found"
         description="Add products to manage your inventory"
@@ -113,7 +153,7 @@ async function handleDelete() {
       />
     </div>
 
-    <div v-else class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+    <div v-else class="bg-card rounded-xl border border-border overflow-hidden">
       <ResponsiveTable
         :items="products"
         :columns="columns"
@@ -124,14 +164,17 @@ async function handleDelete() {
       >
         <!-- Custom cell: SKU -->
         <template #cell-sku="{ item }">
-          <span class="font-mono text-sm text-slate-600 dark:text-slate-400">{{ item.sku }}</span>
+          <span class="font-mono text-sm text-muted-foreground">{{ item.sku }}</span>
         </template>
 
         <!-- Custom cell: Name with link styling -->
         <template #cell-name="{ item }">
-          <span class="text-orange-600 hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 font-medium">
+          <span class="text-primary hover:text-primary/80 font-medium">
             {{ item.name }}
           </span>
+          <div v-if="item.category" class="text-xs text-muted-foreground">
+            {{ item.category.name }}
+          </div>
         </template>
 
         <!-- Custom cell: Type badge -->
@@ -148,7 +191,7 @@ async function handleDelete() {
 
         <!-- Mobile title slot -->
         <template #mobile-title="{ item }">
-          <span class="text-orange-600 dark:text-orange-400 font-medium">
+          <span class="text-primary font-medium">
             {{ item.name }}
           </span>
         </template>
@@ -166,7 +209,7 @@ async function handleDelete() {
         </template>
       </ResponsiveTable>
 
-      <div v-if="pagination" class="px-6 py-4 border-t border-slate-200 dark:border-slate-700">
+      <div v-if="pagination" class="px-6 py-4 border-t border-border">
         <Pagination
           :current-page="pagination.current_page"
           :total-pages="pagination.last_page"
@@ -178,7 +221,7 @@ async function handleDelete() {
     </div>
 
     <Modal :open="deleteConfirmation.showModal.value" title="Delete Product" size="sm" @update:open="deleteConfirmation.showModal.value = $event">
-      <p class="text-slate-600 dark:text-slate-400">Are you sure you want to delete this product?</p>
+      <p class="text-muted-foreground">Are you sure you want to delete this product? This action cannot be undone.</p>
       <template #footer>
         <Button variant="ghost" @click="deleteConfirmation.cancelDelete()">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">Delete</Button>

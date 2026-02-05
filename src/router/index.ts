@@ -690,6 +690,56 @@ const router = createRouter({
           component: () => import('@/pages/settings/bom-templates/BomTemplateFormPage.vue'),
           meta: { breadcrumb: 'Edit Template' }
         },
+        // Warehouse routes (under settings)
+        {
+          path: 'settings/warehouses',
+          name: 'warehouses',
+          component: () => import('@/pages/settings/warehouses/WarehouseListPage.vue'),
+          meta: { breadcrumb: 'Warehouses' }
+        },
+        {
+          path: 'settings/warehouses/new',
+          name: 'warehouse-new',
+          component: () => import('@/pages/settings/warehouses/WarehouseFormPage.vue'),
+          meta: { breadcrumb: 'New Warehouse' }
+        },
+        {
+          path: 'settings/warehouses/:id',
+          name: 'warehouse-detail',
+          component: () => import('@/pages/settings/warehouses/WarehouseDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Warehouse #${route.params.id}` }
+        },
+        {
+          path: 'settings/warehouses/:id/edit',
+          name: 'warehouse-edit',
+          component: () => import('@/pages/settings/warehouses/WarehouseFormPage.vue'),
+          meta: { breadcrumb: 'Edit Warehouse' }
+        },
+        // Product Category routes (under settings)
+        {
+          path: 'settings/product-categories',
+          name: 'product-categories',
+          component: () => import('@/pages/settings/product-categories/ProductCategoryListPage.vue'),
+          meta: { breadcrumb: 'Product Categories' }
+        },
+        {
+          path: 'settings/product-categories/new',
+          name: 'product-category-new',
+          component: () => import('@/pages/settings/product-categories/ProductCategoryFormPage.vue'),
+          meta: { breadcrumb: 'New Category' }
+        },
+        {
+          path: 'settings/product-categories/:id',
+          name: 'product-category-detail',
+          component: () => import('@/pages/settings/product-categories/ProductCategoryDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Category #${route.params.id}` }
+        },
+        {
+          path: 'settings/product-categories/:id/edit',
+          name: 'product-category-edit',
+          component: () => import('@/pages/settings/product-categories/ProductCategoryFormPage.vue'),
+          meta: { breadcrumb: 'Edit Category' }
+        },
         // BOM routes
         {
           path: 'boms',
