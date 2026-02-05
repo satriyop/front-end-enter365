@@ -40,7 +40,7 @@ const paybackChartData = computed(() => {
 
   // Calculate cumulative cash flow starting from -investment
   let cumulative = -systemCost
-  return projections.map((p) => {
+  return projections.map((p: { savings: number }) => {
     cumulative += p.savings
     return cumulative
   })
@@ -233,7 +233,7 @@ onMounted(() => {
             {{ proposal.status_label }}
           </span>
           <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">{{ proposal.proposal_number }}</h2>
-          <p class="text-slate-600 dark:text-slate-400">Untuk {{ proposal.contact.name }}</p>
+          <p class="text-slate-600 dark:text-slate-400">Untuk {{ proposal.contact?.name }}</p>
         </div>
 
         <div class="grid grid-cols-2 gap-4 text-sm">

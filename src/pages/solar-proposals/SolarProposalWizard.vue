@@ -640,7 +640,7 @@ async function handleSubmit() {
     latitude: form.value.latitude,
     longitude: form.value.longitude,
     roof_area_m2: form.value.roof_area_m2,
-    roof_polygon: form.value.roof_polygon,
+    roof_polygon: form.value.roof_polygon as any, // GeoJSON coordinates type differs from OpenAPI schema
     roof_type: form.value.roof_type,
     roof_orientation: form.value.roof_orientation,
     roof_tilt_degrees: form.value.roof_tilt_degrees,
@@ -691,7 +691,7 @@ async function handleSaveAsDraft() {
     latitude: form.value.latitude,
     longitude: form.value.longitude,
     roof_area_m2: form.value.roof_area_m2,
-    roof_polygon: form.value.roof_polygon,
+    roof_polygon: form.value.roof_polygon as any, // GeoJSON coordinates type differs from OpenAPI schema
     roof_type: form.value.roof_type,
     roof_orientation: form.value.roof_orientation,
     roof_tilt_degrees: form.value.roof_tilt_degrees,

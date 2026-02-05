@@ -37,14 +37,11 @@ const statusOptions = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
-  draft: 'default',
-  confirmed: 'info',
-  in_progress: 'warning',
-  on_hold: 'destructive',
-  completed: 'success',
-  cancelled: 'destructive',
-}
+// Status uses Badge status prop which maps internally
+// const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
+//   draft: 'default', confirmed: 'info', in_progress: 'warning',
+//   on_hold: 'destructive', completed: 'success', cancelled: 'destructive',
+// }
 
 // Table columns with mobile priorities
 const columns: ResponsiveColumn[] = [

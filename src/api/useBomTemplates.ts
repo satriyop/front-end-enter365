@@ -22,12 +22,11 @@ export interface BomTemplateFilters {
   search?: string
 }
 
-// Using ApiRequest utility for automatic content-type mapping
-export type StoreBomTemplateRequest = ApiRequest<paths['/bom-templates']['post'], 'multipart/form-data'>
-export type UpdateBomTemplateRequest = ApiRequest<paths['/bom-templates/{bomTemplate}']['put'], 'multipart/form-data'>
-
-export type StoreBomTemplateItemRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/items']['post']>
-export type UpdateBomTemplateItemRequest = ApiRequest<paths['/bom-templates/{bomTemplate}/items/{item}']['put']>
+// Use Scramble-generated request types directly
+export type StoreBomTemplateRequest = components['schemas']['StoreBomTemplateRequest']
+export type UpdateBomTemplateRequest = components['schemas']['UpdateBomTemplateRequest']
+export type StoreBomTemplateItemRequest = components['schemas']['StoreBomTemplateItemRequest']
+export type UpdateBomTemplateItemRequest = components['schemas']['UpdateBomTemplateItemRequest']
 
 export interface BomTemplateMetadata {
   categories: Record<string, string>

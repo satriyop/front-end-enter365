@@ -16,15 +16,6 @@ const postMutation = usePostBill()
 const voidMutation = useVoidBill()
 const deleteMutation = useDeleteBill()
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
-  draft: 'default',
-  posted: 'info',
-  partial: 'warning',
-  paid: 'success',
-  overdue: 'destructive',
-  voided: 'destructive',
-}
-
 async function handlePost() {
   if (!confirm('Post this bill? This will create journal entries.')) return
   try {

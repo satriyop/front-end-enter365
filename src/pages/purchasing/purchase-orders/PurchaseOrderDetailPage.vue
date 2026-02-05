@@ -10,7 +10,6 @@ import {
   useConvertPurchaseOrderToBill,
   useDuplicatePurchaseOrder,
   useDeletePurchaseOrder,
-  getPurchaseOrderStatus,
   formatPONumber,
 } from '@/api/usePurchaseOrders'
 import { useCreateGRNFromPO, type CreateFromPOData } from '@/api/useGoodsReceiptNotes'
@@ -449,7 +448,7 @@ const itemColumns: ResponsiveColumn[] = [
 
               <!-- Line Total -->
               <template #cell-line_total="{ item }">
-                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(item.line_total) }}</span>
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency((item as any).line_total) }}</span>
               </template>
 
               <!-- Mobile title -->

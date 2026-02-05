@@ -14,12 +14,12 @@ export type Status = components['schemas']['StatusResource']
 let invoiceId = 1
 
 const STATUS_MAP: Record<string, Status> = {
-  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: false, is_editable: true },
-  sent: { value: 'sent', label: 'Terkirim', color: 'blue', is_terminal: false, is_editable: false },
-  partial: { value: 'partial', label: 'Sebagian', color: 'indigo', is_terminal: false, is_editable: false },
-  paid: { value: 'paid', label: 'Lunas', color: 'green', is_terminal: true, is_editable: false },
-  overdue: { value: 'overdue', label: 'Jatuh Tempo', color: 'orange', is_terminal: false, is_editable: false },
-  void: { value: 'void', label: 'Dibatalkan', color: 'red', is_terminal: true, is_editable: false },
+  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: 'false', is_editable: 'true' },
+  sent: { value: 'sent', label: 'Terkirim', color: 'blue', is_terminal: 'false', is_editable: 'false' },
+  partial: { value: 'partial', label: 'Sebagian', color: 'indigo', is_terminal: 'false', is_editable: 'false' },
+  paid: { value: 'paid', label: 'Lunas', color: 'green', is_terminal: 'true', is_editable: 'false' },
+  overdue: { value: 'overdue', label: 'Jatuh Tempo', color: 'orange', is_terminal: 'false', is_editable: 'false' },
+  void: { value: 'void', label: 'Dibatalkan', color: 'red', is_terminal: 'true', is_editable: 'false' },
 }
 
 /**
@@ -70,7 +70,7 @@ export function createInvoice(overrides: Partial<Invoice> = {}): Invoice {
     has_journal_entry: false,
     receivable_account_id: 1,
     reminder_count: 0,
-    last_reminder_at: null,
+    last_reminder_at: '',
     created_by: 1,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),

@@ -43,7 +43,7 @@ const contactIdRef = computed(() => contactId.value ?? 0)
 const { data: existingContact, isLoading: loadingContact } = useContact(contactIdRef)
 
 // Form with Zod validation
-const { values: form, errors, handleSubmit, setValues, setErrors, meta, validateField, defineField } = useForm<ContactFormData>({
+const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineField } = useForm<ContactFormData>({
   validationSchema: toTypedSchema(contactSchema),
   initialValues: {
     code: '',

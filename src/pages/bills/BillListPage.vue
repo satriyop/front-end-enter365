@@ -36,15 +36,6 @@ const statusOptions = [
   { value: 'overdue', label: 'Overdue' },
 ]
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
-  draft: 'default',
-  posted: 'info',
-  partial: 'warning',
-  paid: 'success',
-  overdue: 'destructive',
-  voided: 'destructive',
-}
-
 // Table columns with mobile priorities
 const columns: ResponsiveColumn[] = [
   { key: 'bill_number', label: 'Bill #', mobilePriority: 1 },

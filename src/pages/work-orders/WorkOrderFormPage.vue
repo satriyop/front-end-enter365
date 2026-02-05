@@ -67,7 +67,6 @@ const today = new Date().toISOString().split('T')[0]!
 
 // Form with VeeValidate
 const {
-  values: form,
   errors,
   handleSubmit,
   setValues,
@@ -111,13 +110,13 @@ const [notes] = defineField('notes')
 watch(existingWorkOrder, (wo) => {
   if (wo) {
     setValues({
-      type: (wo.type as 'production' | 'assembly' | 'installation' | 'maintenance') || 'production',
+      type: ((wo.type?.value || wo.type) as 'production' | 'assembly' | 'installation' | 'maintenance') || 'production',
       name: wo.name || '',
       description: wo.description || '',
       product_id: wo.product_id ? Number(wo.product_id) : null,
       project_id: wo.project_id ? Number(wo.project_id) : null,
       quantity_ordered: wo.quantity_ordered || 1,
-      priority: (wo.priority as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
+      priority: ((wo.priority?.value || wo.priority) as 'low' | 'medium' | 'high' | 'urgent') || 'medium',
       planned_start_date: wo.planned_start_date || today,
       planned_end_date: wo.planned_end_date || '',
       estimated_material_cost: Number(wo.estimated_material_cost) || 0,

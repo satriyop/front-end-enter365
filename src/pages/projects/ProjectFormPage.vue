@@ -41,7 +41,6 @@ const today = new Date().toISOString().split('T')[0] as string
 
 // Form with VeeValidate
 const {
-  values: form,
   errors,
   handleSubmit,
   setValues,

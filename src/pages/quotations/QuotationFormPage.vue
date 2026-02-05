@@ -80,7 +80,7 @@ const [subject] = defineField('subject')
 const [reference] = defineField('reference')
 const [discountType] = defineField('discount_type')
 const [discountValue] = defineField('discount_value')
-const [taxRate] = defineField('tax_rate')
+const [_taxRate] = defineField('tax_rate')
 const [notes] = defineField('notes')
 const [termsConditions] = defineField('terms_conditions')
 

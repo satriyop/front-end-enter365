@@ -2,11 +2,10 @@
  * Stock Opnames API hooks
  */
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
 import { createCrudHooks } from './factory'
-import type { components, paths } from './types'
-import type { Ref } from 'vue'
+import type { components } from './types'
 
 // ============================================
 // Types
@@ -24,8 +23,9 @@ export interface StockOpnameFilters {
   include?: string[]
 }
 
-export type CreateStockOpnameData = paths['/stock-opnames']['post']['requestBody']['content']['application/json']
-export type UpdateStockOpnameData = paths['/stock-opnames/{stockOpname}']['put']['requestBody']['content']['application/json']
+// Use Scramble-generated request types directly
+export type CreateStockOpnameData = components['schemas']['StoreStockOpnameRequest']
+export type UpdateStockOpnameData = components['schemas']['UpdateStockOpnameRequest']
 
 // ============================================
 // CRUD Hooks (via factory)

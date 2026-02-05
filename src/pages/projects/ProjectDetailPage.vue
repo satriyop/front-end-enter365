@@ -17,14 +17,11 @@ const completeMutation = useCompleteProject()
 const cancelMutation = useCancelProject()
 const deleteMutation = useDeleteProject()
 
-const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
-  draft: 'default',
-  planning: 'info',
-  in_progress: 'warning',
-  on_hold: 'destructive',
-  completed: 'success',
-  cancelled: 'destructive',
-}
+// Status colors mapping for Badge component if needed
+// const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
+//   draft: 'default', planning: 'info', in_progress: 'warning',
+//   on_hold: 'destructive', completed: 'success', cancelled: 'destructive',
+// }
 
 const priorityColors: Record<string, 'default' | 'info' | 'warning' | 'destructive'> = {
   low: 'default',

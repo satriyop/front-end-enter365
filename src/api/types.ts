@@ -4106,23 +4106,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/purchase-orders/{purchaseOrder}/receive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Receive items for a PO */
-        post: operations["purchaseOrder.receive"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/purchase-orders/{purchaseOrder}/convert-to-bill": {
         parameters: {
             query?: never;
@@ -6557,16 +6540,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /**
-         * Display a listing of users.
-         *     Only admin can list all users
-         */
+        /** Display a listing of users */
         get: operations["users.index"];
         put?: never;
-        /**
-         * Store a newly created user.
-         *     Only admin can create users
-         */
+        /** Store a newly created user */
         post: operations["users.store"];
         delete?: never;
         options?: never;
@@ -6586,10 +6563,7 @@ export interface paths {
         /** Update the specified user */
         put: operations["users.update"];
         post?: never;
-        /**
-         * Remove the specified user.
-         *     Only admin can delete users
-         */
+        /** Remove the specified user */
         delete: operations["users.destroy"];
         options?: never;
         head?: never;
@@ -6622,10 +6596,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Assign roles to user.
-         *     Only admin can assign roles
-         */
+        /** Assign roles to user */
         post: operations["user.assignRoles"];
         delete?: never;
         options?: never;
@@ -6642,10 +6613,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /**
-         * Toggle user active status.
-         *     Only admin can toggle status
-         */
+        /** Toggle user active status */
         post: operations["user.toggleActive"];
         delete?: never;
         options?: never;
@@ -6965,6 +6933,12 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptMappingSuggestionRequest */
+        AcceptMappingSuggestionRequest: {
+            component_standard_id: number;
+            brand_sku?: string | null;
+            is_preferred?: boolean | null;
+        };
         /** AcceptSolarProposalRequest */
         AcceptSolarProposalRequest: {
             selected_bom_id?: number | null;
@@ -6986,6 +6960,17 @@ export interface components {
             children?: components["schemas"]["AccountResource"][];
             created_at: string;
             updated_at: string;
+        };
+        /** AddBomToVariantGroupRequest */
+        AddBomToVariantGroupRequest: {
+            bom_id: number;
+            variant_name?: string | null;
+            variant_label?: string | null;
+            is_primary_variant?: boolean | null;
+        };
+        /** ApplyCostOptimizationRequest */
+        ApplyCostOptimizationRequest: {
+            item_ids?: number[] | null;
         };
         /** ApplyDownPaymentRequest */
         ApplyDownPaymentRequest: {
@@ -7033,8 +7018,7 @@ export interface components {
             credit: number;
             net_amount: number;
             balance: number;
-            status: string;
-            status_label: string;
+            status: components["schemas"]["StatusResource"];
             is_reconciled: boolean;
             matched_payment_id: number | null;
             matched_payment?: components["schemas"]["PaymentResource"];
@@ -7092,7 +7076,7 @@ export interface components {
             items?: components["schemas"]["BillItemResource"][];
             journal_entry?: components["schemas"]["JournalEntryResource"];
             payments?: components["schemas"]["PaymentResource"][];
-            created_by: number | null;
+            created_by: number;
             created_at: string;
             updated_at: string;
         };
@@ -7260,7 +7244,7 @@ export interface components {
             name: string;
             description: string | null;
             comparison_notes: string | null;
-            status: string;
+            status: components["schemas"]["StatusResource"];
             created_by: number | null;
             creator?: {
                 id: number;
@@ -7327,8 +7311,7 @@ export interface components {
             };
             type: string;
             type_label: string;
-            status: string;
-            status_label: string;
+            status: components["schemas"]["StatusResource"];
             is_editable: boolean;
             /** @description Totals */
             total_revenue: number;
@@ -7347,6 +7330,20 @@ export interface components {
             lines_count?: number;
             created_at: string;
             updated_at: string;
+        };
+        /**
+         * BudgetStatus
+         * @enum {string}
+         */
+        BudgetStatus: "draft" | "approved" | "closed";
+        /** BulkAcceptSuggestionsRequest */
+        BulkAcceptSuggestionsRequest: {
+            mappings: {
+                product_id: number;
+                component_standard_id: number;
+                brand_sku?: string | null;
+                is_preferred?: boolean | null;
+            }[];
         };
         /** CancelQuotationRequest */
         CancelQuotationRequest: {
@@ -7451,8 +7448,22 @@ export interface components {
             postal_code: string | null;
             npwp: string | null;
             nik: string | null;
+            /** @description Payment terms */
             credit_limit: number;
+            currency: string;
             payment_term_days: number;
+            early_discount_percent: string;
+            early_discount_days: number;
+            /** @description Bank account details */
+            bank_name: string | null;
+            bank_account_number: string | null;
+            bank_account_name: string | null;
+            /** @description Subcontractor fields */
+            is_subcontractor: boolean;
+            subcontractor_services: unknown[] | null;
+            hourly_rate: number | null;
+            daily_rate: number | null;
+            notes: string | null;
             is_active: boolean;
             receivable_balance?: string;
             payable_balance?: string;
@@ -7468,6 +7479,14 @@ export interface components {
             notes?: string | null;
             output_quantity?: number | null;
             quantity_overrides?: number[] | null;
+        };
+        /** CreateVariantFromBomRequest */
+        CreateVariantFromBomRequest: {
+            source_bom_id: number;
+            variant_name: string;
+            variant_label?: string | null;
+            name?: string | null;
+            is_primary_variant?: boolean | null;
         };
         /** DeliveryOrderItemResource */
         DeliveryOrderItemResource: {
@@ -7634,6 +7653,11 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** GenerateBrandVariantsRequest */
+        GenerateBrandVariantsRequest: {
+            group_name?: string | null;
+            brands: string[];
+        };
         /** GoodsReceiptNoteItemResource */
         GoodsReceiptNoteItemResource: {
             id: number;
@@ -7727,7 +7751,7 @@ export interface components {
         };
         /** IndonesiaSolarDataResource */
         IndonesiaSolarDataResource: {
-            id: string;
+            id: number;
             province: string;
             city: string;
             latitude: number;
@@ -7777,20 +7801,20 @@ export interface components {
         };
         /** InvoiceItemResource */
         InvoiceItemResource: {
-            id: string;
-            invoice_id: string;
+            id: number;
+            invoice_id: number;
             description: string;
             quantity: number;
             unit: string;
-            unit_price: string;
+            unit_price: number;
             discount_percent: number;
-            discount_amount: string;
+            discount_amount: number;
             tax_rate: number;
-            tax_amount: string;
-            line_total: string;
-            sort_order: string;
-            notes: string;
-            revenue_account_id: string;
+            tax_amount: number;
+            line_total: number;
+            sort_order: number;
+            notes: string | null;
+            revenue_account_id: number | null;
             revenue_account?: components["schemas"]["AccountResource"];
             created_at: string;
             updated_at: string;
@@ -7809,7 +7833,9 @@ export interface components {
             due_date: string;
             days_until_due: number;
             is_overdue: boolean;
-            days_overdue?: number;
+            ""?: {
+                days_overdue: number;
+            } | string[];
             /** @description Currency */
             currency: string;
             exchange_rate: number;
@@ -7887,7 +7913,7 @@ export interface components {
             /** @description Metadata */
             reminder_count: number;
             last_reminder_at: string;
-            created_by: number | null;
+            created_by: number;
             created_at: string;
             updated_at: string;
             /** @description Links (for HATEOAS-style responses) */
@@ -8131,7 +8157,7 @@ export interface components {
             /** @description Suggestion type and action */
             suggestion_type: string;
             action: string;
-            status: string;
+            status: components["schemas"]["StatusResource"];
             priority: string;
             /** @description Product */
             product_id: number;
@@ -8260,6 +8286,10 @@ export interface components {
             effective_from: string | null;
             effective_until: string | null;
             notes: string | null;
+        };
+        /** PreviewSwapBrandRequest */
+        PreviewSwapBrandRequest: {
+            target_brand: string;
         };
         /** Product */
         Product: {
@@ -8483,7 +8513,7 @@ export interface components {
             };
             down_payment_id: number | null;
             down_payment?: {
-                id: string;
+                id: number;
                 dp_number: string;
             };
             milestone_name: string | null;
@@ -8521,65 +8551,65 @@ export interface components {
         };
         /** PurchaseOrderResource */
         PurchaseOrderResource: {
-            id: string;
+            id: number;
             po_number: string;
-            revision: string;
+            revision: number;
             full_number: string;
-            contact_id: string;
+            contact_id: number;
             contact?: components["schemas"]["ContactResource"];
             po_date: string;
             expected_date: string;
-            reference: string;
-            subject: string;
+            reference: string | null;
+            subject: string | null;
             status: components["schemas"]["StatusResource"];
             status_label: string;
             currency: string;
             exchange_rate: number;
-            subtotal: string;
-            discount_type: string;
+            subtotal: number;
+            discount_type: string | null;
             discount_value: number;
-            discount_amount: string;
+            discount_amount: number;
             tax_rate: number;
-            tax_amount: string;
-            total: string;
-            base_currency_total: string;
-            notes: string;
-            terms_conditions: string;
-            shipping_address: string;
+            tax_amount: number;
+            total_amount: number;
+            base_currency_total: number;
+            notes: string | null;
+            terms_conditions: string | null;
+            shipping_address: string | null;
             /** @description Receiving info */
-            receiving_progress: string;
-            is_fully_received: string;
-            has_received_items: string;
+            receiving_progress: number;
+            is_fully_received: boolean;
+            has_received_items: boolean;
             first_received_at: string;
             fully_received_at: string;
             /** @description Workflow info */
             submitted_at: string;
-            submitted_by: string;
+            submitted_by: number | null;
             approved_at: string;
-            approved_by: string;
+            approved_by: number | null;
             rejected_at: string;
-            rejected_by: string;
-            rejection_reason: string;
+            rejected_by: number | null;
+            rejection_reason: string | null;
             cancelled_at: string;
-            cancelled_by: string;
-            cancellation_reason: string;
-            converted_to_bill_id: string;
+            cancelled_by: number | null;
+            cancellation_reason: string | null;
+            converted_to_bill_id: number | null;
             converted_at: string;
-            original_po_id: string;
+            original_po_id: number | null;
             /** @description Permissions */
-            can_edit: string;
-            can_submit: string;
-            can_approve: string;
-            can_reject: string;
-            can_cancel: string;
-            can_receive: string;
-            can_convert: string;
-            can_revise: string;
+            can_edit: boolean;
+            can_submit: boolean;
+            can_approve: boolean;
+            can_reject: boolean;
+            can_cancel: boolean;
+            can_receive: boolean;
+            can_convert: boolean;
+            can_revise: boolean;
             /** @description Relations */
             items?: components["schemas"]["PurchaseOrderItemResource"][];
             revisions?: components["schemas"]["PurchaseOrderResource"][];
             converted_bill?: components["schemas"]["BillResource"];
-            created_by: string;
+            created_by: number;
             created_at: string;
             updated_at: string;
         };
@@ -8664,6 +8694,11 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** QuickSwapItemRequest */
+        QuickSwapItemRequest: {
+            product_id: number;
+            reason?: string | null;
+        };
         /** QuotationActivityResource */
         QuotationActivityResource: {
             id: number;
@@ -8737,7 +8772,7 @@ export interface components {
             discount_amount: number;
             tax_rate: number;
             tax_amount: number;
-            total: number;
+            total_amount: number;
             base_currency_total: number;
             notes: string | null;
             terms_conditions: string | null;
@@ -8793,7 +8828,7 @@ export interface components {
                     difference: number;
                 };
             } | null;
-            created_by: number | null;
+            created_by: number;
             created_at: string;
             updated_at: string;
         };
@@ -8878,6 +8913,13 @@ export interface components {
             payment_method?: "bank_transfer" | "cash" | "check" | "giro" | "credit_card";
             cash_account_id?: number;
             notes?: string | null;
+        };
+        /** ReorderVariantsRequest */
+        ReorderVariantsRequest: {
+            order: {
+                bom_id: number;
+                sort_order: number;
+            }[];
         };
         /** RoleResource */
         RoleResource: {
@@ -9122,12 +9164,10 @@ export interface components {
         /** StatusResource */
         StatusResource: {
             value: string;
-            /** @enum {string} */
-            label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
-            /** @enum {string} */
-            color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
-            is_terminal: boolean;
-            is_editable: boolean;
+            label: string;
+            color: string;
+            is_terminal: string;
+            is_editable: string;
         };
         /** StockAdjustmentRequest */
         StockAdjustmentRequest: {
@@ -9514,9 +9554,23 @@ export interface components {
             postal_code?: string | null;
             npwp?: string | null;
             nik?: string | null;
+            /** @description Payment terms */
             credit_limit?: number;
+            currency?: string;
             payment_term_days?: number;
+            early_discount_percent?: number | null;
+            early_discount_days?: number | null;
+            /** @description Bank account details */
+            bank_name?: string | null;
+            bank_account_number?: string | null;
+            bank_account_name?: string | null;
+            /** @description Subcontractor fields */
+            is_subcontractor?: boolean;
+            hourly_rate?: number | null;
+            daily_rate?: number | null;
+            notes?: string | null;
             is_active?: boolean;
+            subcontractor_services?: string[] | null;
         };
         /** StoreDeliveryOrderRequest */
         StoreDeliveryOrderRequest: {
@@ -10165,6 +10219,16 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** SuggestMappingsBatchRequest */
+        SuggestMappingsBatchRequest: {
+            product_ids: number[];
+        };
+        /** SwapBrandRequest */
+        SwapBrandRequest: {
+            target_brand: string;
+            create_variant?: boolean | null;
+            variant_group_id?: number | null;
+        };
         /** UpdateAccountRequest */
         UpdateAccountRequest: {
             code?: string;
@@ -10393,9 +10457,23 @@ export interface components {
             postal_code?: string | null;
             npwp?: string | null;
             nik?: string | null;
+            /** @description Payment terms */
             credit_limit?: number;
+            currency?: string;
             payment_term_days?: number;
+            early_discount_percent?: number | null;
+            early_discount_days?: number | null;
+            /** @description Bank account details */
+            bank_name?: string | null;
+            bank_account_number?: string | null;
+            bank_account_name?: string | null;
+            /** @description Subcontractor fields */
+            is_subcontractor?: boolean;
+            hourly_rate?: number | null;
+            daily_rate?: number | null;
+            notes?: string | null;
             is_active?: boolean;
+            subcontractor_services?: string[] | null;
         };
         /** UpdateDeliveryOrderRequest */
         UpdateDeliveryOrderRequest: {
@@ -10802,8 +10880,6 @@ export interface components {
             location_address?: string | null;
             notes?: string | null;
         };
-        /** UpdateUserRequest */
-        UpdateUserRequest: Record<string, never>;
         /** UpdateWarehouseRequest */
         UpdateWarehouseRequest: {
             code?: string | null;
@@ -11127,6 +11203,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "accounts.store": {
@@ -11154,6 +11231,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -11181,6 +11259,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11212,6 +11291,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -11240,28 +11320,14 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /**
-             * @description An error
-             *
-             *     An error
-             */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example Tidak bisa menghapus akun sistem.
-                         */
-                        message: string;
-                    } | {
-                        /**
-                         * @description Error overview.
-                         * @example Tidak bisa menghapus akun yang sudah digunakan dalam jurnal.
-                         */
                         message: string;
                     };
                 };
@@ -11300,6 +11366,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11346,6 +11413,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11400,6 +11468,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "attachment.store": {
@@ -11427,6 +11496,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -11445,15 +11515,22 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        categories: [
-                            "Faktur PDF",
-                            "Kwitansi",
-                            "Kontrak",
-                            "Surat Jalan",
-                            "Rekening Koran",
-                            "Dokumen Pajak",
-                            "Lainnya"
-                        ];
+                        categories: {
+                            /** @enum {string} */
+                            invoice_pdf: "Faktur PDF";
+                            /** @enum {string} */
+                            receipt: "Kwitansi";
+                            /** @enum {string} */
+                            contract: "Kontrak";
+                            /** @enum {string} */
+                            delivery_note: "Surat Jalan";
+                            /** @enum {string} */
+                            bank_statement: "Rekening Koran";
+                            /** @enum {string} */
+                            tax_document: "Dokumen Pajak";
+                            /** @enum {string} */
+                            other: "Lainnya";
+                        };
                     };
                 };
             };
@@ -11484,6 +11561,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11511,6 +11589,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11535,6 +11614,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11589,6 +11669,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -11638,8 +11719,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Logout berhasil.";
+                        data: null;
                     };
                 };
             };
@@ -11661,8 +11744,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Logout dari semua perangkat berhasil.";
+                        data: null;
                     };
                 };
             };
@@ -11678,13 +11763,14 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description `UserResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"];
                     };
                 };
             };
@@ -11929,8 +12015,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Tidak dapat menghapus transaksi yang sudah direkonsiliasi.";
+                        message: string;
                     };
                 };
             };
@@ -12134,6 +12219,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "bills.store": {
@@ -12161,6 +12247,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -12188,6 +12275,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -12219,6 +12307,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -12241,12 +12330,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Tagihan berhasil dihapus.";
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12254,7 +12345,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         message: string;
+                        errors: string;
                     };
                 };
             };
@@ -12284,6 +12377,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12291,7 +12385,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         message: string;
+                        errors: string;
                     };
                 };
             };
@@ -12313,19 +12409,19 @@ export interface operations {
             };
         };
         responses: {
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Template recurring berhasil dibuat dari tagihan.";
-                        data: components["schemas"]["RecurringTemplateResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -12376,6 +12472,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "boms.store": {
@@ -12403,6 +12500,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -12430,6 +12528,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -12461,6 +12560,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -12489,6 +12589,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12526,6 +12627,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12563,6 +12665,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12601,6 +12704,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -12627,6 +12731,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -12666,6 +12771,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -12695,6 +12801,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "bomTemplate.index": {
@@ -13255,6 +13362,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "bom-variant-groups.store": {
@@ -13282,6 +13390,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -13309,6 +13418,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -13340,6 +13450,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13368,6 +13479,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -13445,6 +13557,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -13507,6 +13620,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -13522,12 +13636,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    bom_id: number;
-                    variant_name?: string | null;
-                    variant_label?: string | null;
-                    is_primary_variant?: boolean | null;
-                };
+                "application/json": components["schemas"]["AddBomToVariantGroupRequest"];
             };
         };
         responses: {
@@ -13544,6 +13653,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13574,6 +13684,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -13614,6 +13725,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -13639,12 +13751,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    order: {
-                        bom_id: number;
-                        sort_order: number;
-                    }[];
-                };
+                "application/json": components["schemas"]["ReorderVariantsRequest"];
             };
         };
         responses: {
@@ -13661,6 +13768,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13677,13 +13785,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    source_bom_id: number;
-                    variant_name: string;
-                    variant_label?: string | null;
-                    name?: string | null;
-                    is_primary_variant?: boolean | null;
-                };
+                "application/json": components["schemas"]["CreateVariantFromBomRequest"];
             };
         };
         responses: {
@@ -13700,6 +13802,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13756,6 +13859,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "budgets.store": {
@@ -13783,6 +13887,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -13810,6 +13915,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -13842,6 +13948,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13870,6 +13977,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -13913,6 +14021,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13948,6 +14057,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -13978,6 +14088,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -14017,6 +14128,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -14059,6 +14171,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -14098,6 +14211,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -14144,6 +14258,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -14177,6 +14292,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14231,6 +14347,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14255,7 +14372,7 @@ export interface operations {
                         budget: {
                             name: string;
                             type: string;
-                            status: string;
+                            status: components["schemas"]["BudgetStatus"];
                             fiscal_period: string;
                         };
                         annual: {
@@ -14282,6 +14399,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14314,6 +14432,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14719,6 +14838,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14746,6 +14866,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -14772,6 +14893,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "componentCrossReference.compareBrands": {
@@ -14821,6 +14943,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -14836,9 +14959,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    target_brand: string;
-                };
+                "application/json": components["schemas"]["PreviewSwapBrandRequest"];
             };
         };
         responses: {
@@ -14898,6 +15019,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -14914,11 +15036,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    target_brand: string;
-                    create_variant?: boolean | null;
-                    variant_group_id?: number | null;
-                };
+                "application/json": components["schemas"]["SwapBrandRequest"];
             };
         };
         responses: {
@@ -14940,6 +15058,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -14956,10 +15075,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    group_name?: string | null;
-                    brands: string[];
-                };
+                "application/json": components["schemas"]["GenerateBrandVariantsRequest"];
             };
         };
         responses: {
@@ -14982,6 +15098,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -15044,6 +15161,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -15059,9 +15177,7 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": {
-                    item_ids?: number[] | null;
-                };
+                "application/json": components["schemas"]["ApplyCostOptimizationRequest"];
             };
         };
         responses: {
@@ -15081,6 +15197,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -15109,9 +15226,9 @@ export interface operations {
                             current: {
                                 product_id: number | null;
                                 product_name: string;
-                                product_sku: string;
+                                product_sku: string | null;
                                 unit_cost: number;
-                                brand: string;
+                                brand: string | null;
                                 component_standard_id: number | null;
                                 brand_label: string | null;
                             };
@@ -15121,7 +15238,7 @@ export interface operations {
                             current: {
                                 product_id: number | null;
                                 product_name: string;
-                                product_sku: string;
+                                product_sku: string | null;
                                 unit_cost: number;
                                 brand: null;
                                 component_standard_id: number | null;
@@ -15133,6 +15250,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -15150,10 +15268,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    product_id: number;
-                    reason?: string | null;
-                };
+                "application/json": components["schemas"]["QuickSwapItemRequest"];
             };
         };
         responses: {
@@ -15175,6 +15290,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -15213,6 +15329,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "componentCrossReference.suggestMapping": {
@@ -15276,6 +15393,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -15288,9 +15406,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    product_ids: number[];
-                };
+                "application/json": components["schemas"]["SuggestMappingsBatchRequest"];
             };
         };
         responses: {
@@ -15307,6 +15423,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -15322,11 +15439,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    component_standard_id: number;
-                    brand_sku?: string | null;
-                    is_preferred?: boolean | null;
-                };
+                "application/json": components["schemas"]["AcceptMappingSuggestionRequest"];
             };
         };
         responses: {
@@ -15343,6 +15456,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -15356,14 +15470,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    mappings: {
-                        product_id: number;
-                        component_standard_id: number;
-                        brand_sku?: string | null;
-                        is_preferred?: boolean | null;
-                    }[];
-                };
+                "application/json": components["schemas"]["BulkAcceptSuggestionsRequest"];
             };
         };
         responses: {
@@ -15376,6 +15483,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -15420,6 +15528,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -15717,16 +15826,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "componentStandard.brands": {
@@ -15804,6 +15903,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "contacts.store": {
@@ -15831,6 +15931,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -15858,6 +15959,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -15889,6 +15991,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -15911,25 +16014,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Kontak berhasil dihapus.";
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /** @description An error */
             422: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example Tidak bisa menghapus kontak yang sudah memiliki transaksi.
-                         */
+                        success: boolean;
                         message: string;
+                        errors: string;
                     };
                 };
             };
@@ -15953,15 +16055,21 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        contact_id: number;
-                        name: string;
-                        type: string;
-                        receivable_balance: number | null;
-                        payable_balance: number | null;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            contact_id: number;
+                            name: string;
+                            type: string;
+                            receivable_balance: number | null;
+                            payable_balance: number | null;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -15983,20 +16091,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        contact_id: number;
-                        name: string;
-                        credit_limit: number;
-                        receivable_balance: number;
-                        available_credit: number;
-                        credit_utilization_percent: number;
-                        is_exceeded: boolean;
-                        is_warning: boolean;
-                        can_create_invoice: boolean;
-                        last_transaction_date: string;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            contact_id: number;
+                            name: string;
+                            credit_limit: number;
+                            receivable_balance: number;
+                            available_credit: number;
+                            credit_utilization_percent: number;
+                            is_exceeded: boolean;
+                            is_warning: boolean;
+                            can_create_invoice: boolean;
+                            last_transaction_date: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -16004,8 +16118,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Status kredit hanya tersedia untuk pelanggan.";
+                        errors: string;
                     };
                 };
             };
@@ -16029,42 +16145,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        period: {
-                            start_date: unknown;
-                            end_date: unknown;
-                        };
-                        receivables: {
-                            outstanding: number;
-                            outstanding_count: number;
-                            overdue: number;
-                            overdue_count: number;
-                        };
-                        payables: {
-                            outstanding: number;
-                            outstanding_count: number;
-                            overdue: number;
-                            overdue_count: number;
-                        };
-                        cash_position: {
-                            /** @enum {integer} */
-                            total: 0;
-                            accounts: [
-                                {
-                                    account_id: string;
-                                    code: string;
-                                    name: string;
-                                    balance: string;
-                                }
-                            ];
-                        };
-                        recent_activity: unknown[];
-                        monthly_comparison: {
-                            [key: string]: unknown;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            period: {
+                                start_date: unknown;
+                                end_date: unknown;
+                            };
+                            receivables: {
+                                outstanding: number;
+                                outstanding_count: number;
+                                overdue: number;
+                                overdue_count: number;
+                            };
+                            payables: {
+                                outstanding: number;
+                                outstanding_count: number;
+                                overdue: number;
+                                overdue_count: number;
+                            };
+                            cash_position: {
+                                /** @enum {integer} */
+                                total: 0;
+                                accounts: [
+                                    {
+                                        account_id: string;
+                                        code: string;
+                                        name: string;
+                                        balance: string;
+                                    }
+                                ];
+                            };
+                            recent_activity: unknown[];
+                            monthly_comparison: {
+                                [key: string]: unknown;
+                            };
                         };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "dashboard.receivables": {
@@ -16082,23 +16204,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        total_outstanding: string;
-                        total_overdue: string;
-                        count: number;
-                        overdue_count: number;
-                        aging: {
-                            as_of_date: string;
-                            buckets: string;
-                            contacts: string[];
-                            totals: {
-                                [key: string]: number;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            total_outstanding: string;
+                            total_overdue: string;
+                            count: number;
+                            overdue_count: number;
+                            aging: {
+                                as_of_date: string;
+                                buckets: string;
+                                contacts: string[];
+                                totals: {
+                                    [key: string]: number;
+                                };
                             };
+                            top_debtors: {
+                                id: number;
+                                name: string;
+                                outstanding: number;
+                            }[];
                         };
-                        top_debtors: unknown[];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "dashboard.payables": {
@@ -16116,23 +16248,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        total_outstanding: string;
-                        total_overdue: string;
-                        count: number;
-                        overdue_count: number;
-                        aging: {
-                            as_of_date: string;
-                            buckets: string;
-                            contacts: string[];
-                            totals: {
-                                [key: string]: number;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            total_outstanding: string;
+                            total_overdue: string;
+                            count: number;
+                            overdue_count: number;
+                            aging: {
+                                as_of_date: string;
+                                buckets: string;
+                                contacts: string[];
+                                totals: {
+                                    [key: string]: number;
+                                };
                             };
+                            top_creditors: {
+                                id: number;
+                                name: string;
+                                outstanding: number;
+                            }[];
                         };
-                        top_creditors: unknown[];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "dashboard.cashFlow": {
@@ -16150,15 +16292,21 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        period_days: number;
-                        total_inflow: string;
-                        total_outflow: string;
-                        net_flow: string;
-                        daily_movement: string;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            period_days: number;
+                            total_inflow: string;
+                            total_outflow: string;
+                            net_flow: string;
+                            daily_movement: Record<string, never>;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "dashboard.profitLoss": {
@@ -16179,18 +16327,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        period: {
-                            start_date: unknown;
-                            end_date: unknown;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            period: {
+                                start_date: unknown;
+                                end_date: unknown;
+                            };
+                            total_revenue: string;
+                            total_expense: string;
+                            net_income: string;
+                            profit_margin: number | 0;
                         };
-                        total_revenue: string;
-                        total_expense: string;
-                        net_income: string;
-                        profit_margin: number | 0;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "dashboard.kpis": {
@@ -16208,23 +16362,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        revenue: {
-                            current_month: unknown;
-                            last_month: unknown;
-                            growth_percent: number | 0;
-                        };
-                        collection: {
-                            average_days: number;
-                            overdue_invoices: number;
-                        };
-                        customers: {
-                            total: number;
-                            active_this_month: number;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            revenue: {
+                                current_month: unknown;
+                                last_month: unknown;
+                                growth_percent: number | 0;
+                            };
+                            collection: {
+                                average_days: number;
+                                overdue_invoices: number;
+                            };
+                            customers: {
+                                total: number;
+                                active_this_month: number;
+                            };
                         };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "delivery-orders.index": {
@@ -16273,6 +16433,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "delivery-orders.store": {
@@ -16301,6 +16462,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -16328,6 +16490,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16360,6 +16523,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -16388,6 +16552,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16416,6 +16581,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16454,6 +16620,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -16492,6 +16659,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -16527,6 +16695,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16564,6 +16733,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -16593,6 +16763,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16632,6 +16803,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -16660,6 +16832,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -16692,6 +16865,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "down-payments.index": {
@@ -17145,9 +17319,7 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: {
-                            [key: string]: unknown;
-                        };
+                        data: unknown[];
                         headers: {
                             /** @enum {string} */
                             code: "Kode";
@@ -17164,6 +17336,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.balanceSheet": {
@@ -17223,6 +17396,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.incomeStatement": {
@@ -17285,6 +17459,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.generalLedger": {
@@ -17328,6 +17503,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             /** @description An error */
             422: {
                 headers: {
@@ -17395,6 +17571,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.payableAging": {
@@ -17447,6 +17624,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.invoices": {
@@ -17498,6 +17676,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.bills": {
@@ -17551,6 +17730,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.taxReport": {
@@ -17616,6 +17796,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "features.index": {
@@ -17633,15 +17814,21 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        modules: {
-                            [key: string]: boolean;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            modules: {
+                                [key: string]: boolean;
+                            };
+                            enabled: string[];
+                            disabled: string[];
                         };
-                        enabled: string[];
-                        disabled: string[];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "fiscal-periods.index": {
@@ -18719,6 +18906,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "invoices.store": {
@@ -18743,6 +18931,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -18770,6 +18959,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -18801,6 +18991,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -18830,6 +19021,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -18859,6 +19051,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -18890,6 +19083,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -18940,6 +19134,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "journalEntry.store": {
@@ -18967,6 +19162,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -18994,6 +19190,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19021,6 +19218,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -19064,6 +19262,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -19355,6 +19554,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "mrp-runs.store": {
@@ -19382,6 +19582,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -19409,6 +19610,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19440,6 +19642,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -19468,6 +19671,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19495,6 +19699,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19522,6 +19727,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19549,6 +19755,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19576,6 +19783,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19609,6 +19817,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19640,6 +19849,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -19672,6 +19882,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19703,6 +19914,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -19740,6 +19952,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -19772,6 +19985,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -19804,6 +20018,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -19826,8 +20041,8 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        horizon_start: string;
-                        horizon_end: string;
+                        horizon_start: unknown;
+                        horizon_end: unknown;
                         warehouse_id: unknown;
                         total_shortages: number;
                         shortages: [
@@ -19850,6 +20065,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -19885,6 +20101,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "payment.index": {
@@ -19933,6 +20150,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "payment.store": {
@@ -19948,18 +20166,19 @@ export interface operations {
             };
         };
         responses: {
-            /** @description `PaymentResource` */
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -19987,6 +20206,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20008,13 +20228,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Pembayaran berhasil dibatalkan.";
-                        payment: components["schemas"]["PaymentResource"];
+                        data: components["schemas"]["PaymentResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -20022,7 +20244,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         message: string;
+                        errors: string;
                     };
                 };
             };
@@ -20074,6 +20298,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "permission.grouped": {
@@ -20100,6 +20325,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "permission.groups": {
@@ -20125,6 +20351,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "permission.show": {
@@ -20151,6 +20378,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20200,6 +20428,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "products.store": {
@@ -20227,6 +20456,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -20254,6 +20484,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20285,6 +20516,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -20307,12 +20539,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Produk berhasil dihapus." | "Produk dinonaktifkan karena sudah memiliki transaksi.";
+                        data: null;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20349,6 +20584,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -20377,6 +20613,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20428,6 +20665,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "product.priceList": {
@@ -20463,6 +20701,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "product.lookup": {
@@ -20487,6 +20726,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "product-categories.index": {
@@ -20649,20 +20889,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        message: "Kategori tidak bisa dihapus karena memiliki produk.";
-                    } | {
-                        /** @enum {string} */
-                        message: "Kategori tidak bisa dihapus karena memiliki sub-kategori.";
-                    };
-                };
-            };
         };
     };
     "productCategory.tree": {
@@ -20733,6 +20959,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "projects.store": {
@@ -20760,6 +20987,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -20787,6 +21015,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20818,6 +21047,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -20846,6 +21076,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -20891,6 +21122,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -20919,6 +21151,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -20962,6 +21195,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -20990,6 +21224,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21017,6 +21252,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21050,6 +21286,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21084,6 +21321,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21128,6 +21366,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21174,6 +21413,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21204,6 +21444,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21245,6 +21486,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21289,6 +21531,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21319,6 +21562,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21375,6 +21619,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21428,6 +21673,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     publicCompanyProfileList: {
@@ -21820,6 +22066,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "purchase-orders.store": {
@@ -21847,6 +22094,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -21874,6 +22122,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21905,6 +22154,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -21927,12 +22177,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "PO berhasil dihapus.";
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -21940,8 +22192,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Hanya PO draft yang dapat dihapus.";
+                        errors: string;
                     };
                 };
             };
@@ -21971,6 +22225,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -21998,6 +22253,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22031,6 +22287,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22065,43 +22322,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            404: components["responses"]["ModelNotFoundException"];
-            422: components["responses"]["ValidationException"];
-        };
-    };
-    "purchaseOrder.receive": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The purchase order ID */
-                purchaseOrder: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": {
-                    items: {
-                        item_id: number;
-                        quantity: number;
-                    }[];
-                };
-            };
-        };
-        responses: {
-            /** @description `PurchaseOrderResource` */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: components["schemas"]["PurchaseOrderResource"];
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22124,14 +22345,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "PO berhasil dikonversi menjadi tagihan.";
-                        bill: components["schemas"]["BillResource"];
-                        purchase_order: components["schemas"]["PurchaseOrderResource"];
+                        data: {
+                            bill: components["schemas"]["BillResource"];
+                            purchase_order: components["schemas"]["PurchaseOrderResource"];
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22147,19 +22372,19 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "PO berhasil diduplikasi.";
-                        data: components["schemas"]["PurchaseOrderResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22186,6 +22411,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "purchaseOrder.statistics": {
@@ -22206,6 +22432,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
                         data: {
                             total: string;
                             by_status: {
@@ -22224,6 +22453,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "purchase-returns.index": {
@@ -22665,6 +22895,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "quotations.store": {
@@ -22692,6 +22923,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -22719,6 +22951,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22750,6 +22983,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22772,12 +23006,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Penawaran berhasil dihapus.";
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -22785,8 +23021,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Hanya penawaran draft yang dapat dihapus.";
+                        errors: string;
                     };
                 };
             };
@@ -22816,6 +23054,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22843,6 +23082,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22876,6 +23116,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22908,6 +23149,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22945,6 +23187,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -22973,6 +23216,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -22994,14 +23238,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Penawaran berhasil dikonversi menjadi faktur.";
-                        invoice: components["schemas"]["InvoiceResource"];
-                        quotation: components["schemas"]["QuotationResource"];
+                        data: {
+                            invoice: components["schemas"]["InvoiceResource"];
+                            quotation: components["schemas"]["QuotationResource"];
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -23017,19 +23265,19 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Penawaran berhasil diduplikasi.";
-                        data: components["schemas"]["QuotationResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -23046,17 +23294,18 @@ export interface operations {
         requestBody?: never;
         responses: {
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            /** @description Placeholder for PDF generation */
             501: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Fitur PDF belum tersedia.";
-                        quotation_number: string;
+                        errors: string;
                     };
                 };
             };
@@ -23080,26 +23329,17 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
                         data: {
-                            total: string;
-                            by_status: {
-                                draft: string;
-                                submitted: string;
-                                approved: string;
-                                rejected: string;
-                                expired: string;
-                                converted: string;
-                            };
-                            total_value: string;
-                            approved_value: string;
-                            converted_value: string;
-                            approval_rate: number | 0;
-                            conversion_rate: number | 0;
+                            [key: string]: unknown;
                         };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "quotation.fromBom": {
@@ -23127,6 +23367,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -23148,18 +23389,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationVariantOptionResource"][];
-                        meta: {
-                            quotation_id: number;
-                            quotation_number: string;
-                            variant_group_id: number | null;
-                            selected_variant_id: number | null;
-                            has_selected_variant: boolean;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            options: components["schemas"]["QuotationVariantOptionResource"][];
+                            meta: {
+                                quotation_id: number;
+                                quotation_number: string;
+                                variant_group_id: number | null;
+                                selected_variant_id: number | null;
+                                has_selected_variant: boolean;
+                            };
                         };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -23167,8 +23414,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Penawaran ini bukan tipe multi-option.";
+                        errors: string;
                     };
                 };
             };
@@ -23207,6 +23456,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Opsi varian berhasil disimpan.";
                         data: components["schemas"]["QuotationVariantOptionResource"][];
@@ -23214,6 +23464,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -23248,6 +23499,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -23270,6 +23522,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
                         data: {
                             quotation: {
                                 id: number;
@@ -23288,6 +23543,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -23295,8 +23551,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Penawaran ini bukan tipe multi-option.";
+                        errors: string;
                     };
                 };
             };
@@ -23379,15 +23637,15 @@ export interface operations {
                             end: unknown;
                         };
                         counts: {
-                            total: string | 0;
-                            won: string | 0;
-                            lost: string | 0;
-                            pending: string | 0;
+                            total: string;
+                            won: string;
+                            lost: string;
+                            pending: string;
                         };
                         values: {
-                            won: number;
-                            lost: number;
-                            pending: number;
+                            won: string;
+                            lost: string;
+                            pending: string;
                         };
                         conversion_rate: number | 0;
                         lost_reasons: {
@@ -23861,10 +24119,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         /** @enum {string} */
-                        message: "Template berhasil dihapus.";
+                        message: "Template dinonaktifkan karena sudah memiliki dokumen yang dihasilkan.";
                     } | {
                         /** @enum {string} */
-                        message: "Template dinonaktifkan karena sudah memiliki dokumen yang dihasilkan.";
+                        message: "Template berhasil dihapus.";
                     };
                 };
             };
@@ -24016,17 +24274,23 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Neraca Saldo";
-                        as_of_date: unknown | string;
-                        accounts: string;
-                        total_debit: string;
-                        total_credit: string;
-                        is_balanced: boolean;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Neraca Saldo";
+                            as_of_date: unknown | string;
+                            accounts: string;
+                            total_debit: string;
+                            total_credit: string;
+                            is_balanced: boolean;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.balanceSheet": {
@@ -24047,13 +24311,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Posisi Keuangan";
-                        ""?: string;
-                    } | string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Posisi Keuangan";
+                            ""?: string;
+                        };
+                    } | {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.incomeStatement": {
@@ -24077,13 +24352,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Laba Rugi";
-                        ""?: string;
-                    } | string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Laba Rugi";
+                            ""?: string;
+                        };
+                    } | {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.generalLedger": {
@@ -24104,15 +24390,21 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Buku Besar";
-                        start_date: unknown;
-                        end_date: unknown;
-                        accounts: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Buku Besar";
+                            start_date: unknown;
+                            end_date: unknown;
+                            accounts: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.receivableAging": {
@@ -24132,13 +24424,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Umur Piutang";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Umur Piutang";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.payableAging": {
@@ -24158,13 +24456,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Umur Hutang";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Umur Hutang";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.contactAging": {
@@ -24187,27 +24491,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        report_name: string;
-                        contact: {
-                            id: number;
-                            code: string;
-                            name: string;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            contact: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: string;
+                            ""?: string;
                         };
-                        as_of_date: string;
-                        ""?: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
     "report.ppnSummary": {
         parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24220,13 +24527,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan PPN";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan PPN";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.ppnMonthly": {
@@ -24244,24 +24557,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        report_name: string;
-                        year: number;
-                        months: string;
-                        total_output: string;
-                        total_input: string;
-                        total_net: string;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            year: number;
+                            months: string;
+                            total_output: string;
+                            total_input: string;
+                            total_net: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.taxInvoiceList": {
         parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24274,27 +24590,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Daftar Faktur Pajak Keluaran";
-                        period: {
-                            start: string;
-                            end: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Daftar Faktur Pajak Keluaran";
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            invoices: string;
+                            total_dpp: string;
+                            total_ppn: string;
                         };
-                        invoices: string;
-                        total_dpp: string;
-                        total_ppn: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.inputTaxList": {
         parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24307,27 +24626,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Daftar Faktur Pajak Masukan";
-                        period: {
-                            start: string;
-                            end: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Daftar Faktur Pajak Masukan";
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            bills: string;
+                            total_dpp: string;
+                            total_ppn: string;
                         };
-                        bills: string;
-                        total_dpp: string;
-                        total_ppn: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.cashFlow": {
         parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24340,21 +24662,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Arus Kas";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Arus Kas";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.dailyCashMovement": {
         parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
+            query?: never;
             header?: never;
             path?: never;
             cookie?: never;
@@ -24367,20 +24692,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Pergerakan Kas Harian";
-                        period: {
-                            start: string;
-                            end: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Pergerakan Kas Harian";
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            movements: string;
+                            total_receipts: string;
+                            total_payments: string;
+                            net_movement: string;
                         };
-                        movements: string;
-                        total_receipts: string;
-                        total_payments: string;
-                        net_movement: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.projectProfitability": {
@@ -24401,10 +24732,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.projectProfitabilityDetail": {
@@ -24424,10 +24761,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24448,10 +24791,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.workOrderCosts": {
@@ -24473,10 +24822,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.workOrderCostDetail": {
@@ -24496,10 +24851,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24520,10 +24881,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.subcontractorSummary": {
@@ -24543,10 +24910,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.subcontractorDetail": {
@@ -24569,10 +24942,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24590,10 +24969,16 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": string;
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.changesInEquity": {
@@ -24614,13 +24999,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Perubahan Ekuitas";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Perubahan Ekuitas";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.bankReconciliation": {
@@ -24643,13 +25034,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Rekonsiliasi Bank";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Rekonsiliasi Bank";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24673,19 +25070,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Item Outstanding Rekonsiliasi";
-                        account: {
-                            id: number;
-                            code: string;
-                            name: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Item Outstanding Rekonsiliasi";
+                            account: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: unknown | string;
+                            ""?: string;
                         };
-                        as_of_date: unknown | string;
-                        ""?: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24707,13 +25110,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan Harga Pokok Penjualan";
-                        ""?: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan Harga Pokok Penjualan";
+                            ""?: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.cogsByProduct": {
@@ -24734,18 +25143,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan HPP per Produk";
-                        period: {
-                            start: unknown | string;
-                            end: unknown | string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan HPP per Produk";
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            products: string;
+                            total_cogs: string;
                         };
-                        products: string;
-                        total_cogs: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.cogsByCategory": {
@@ -24766,18 +25181,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Laporan HPP per Kategori";
-                        period: {
-                            start: unknown | string;
-                            end: unknown | string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Laporan HPP per Kategori";
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            categories: string;
+                            total_cogs: string;
                         };
-                        categories: string;
-                        total_cogs: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.cogsMonthlyTrend": {
@@ -24795,14 +25216,20 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        report_name: string;
-                        year: number;
-                        months: string;
-                        total_cogs: string;
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            year: number;
+                            months: string;
+                            total_cogs: string;
+                        };
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "report.productCOGSDetail": {
@@ -24826,24 +25253,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
-                        report_name: "Detail HPP Produk";
-                        product: {
-                            id: number;
-                            sku: string;
-                            name: string;
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @enum {string} */
+                            report_name: "Detail HPP Produk";
+                            product: {
+                                id: number;
+                                sku: string;
+                                name: string;
+                            };
+                            period: {
+                                start: unknown | string;
+                                end: unknown | string;
+                            };
+                            movements: string;
+                            total_quantity: string;
+                            total_cogs: string;
                         };
-                        period: {
-                            start: unknown | string;
-                            end: unknown | string;
-                        };
-                        movements: string;
-                        total_quantity: string;
-                        total_cogs: string;
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -24908,14 +25341,14 @@ export interface operations {
             };
         };
         responses: {
-            /** @description `RoleResource` */
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["RoleResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
@@ -24966,14 +25399,13 @@ export interface operations {
             };
         };
         responses: {
+            /** @description `RoleResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Role berhasil diperbarui.";
                         data: components["schemas"]["RoleResource"];
                     };
                 };
@@ -25001,6 +25433,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Role berhasil dihapus.";
                     };
@@ -25014,11 +25447,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Role tidak bisa dihapus karena masih memiliki pengguna.";
-                    } | {
-                        /** @enum {string} */
-                        message: "Role sistem tidak bisa dihapus.";
+                        success: boolean;
+                        message: string;
+                        errors: string;
                     };
                 };
             };
@@ -25048,6 +25479,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Permission berhasil diperbarui.";
                         data: components["schemas"]["RoleResource"];
@@ -25077,16 +25509,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        role: {
-                            id: number;
-                            name: string;
-                            display_name: string;
+                        data: {
+                            role: {
+                                id: number;
+                                name: string;
+                                display_name: string;
+                            };
+                            users: {
+                                id: number;
+                                name: string;
+                                email: string;
+                            }[];
                         };
-                        users: {
-                            id: number;
-                            name: string;
-                            email: string;
-                        }[];
                     };
                 };
             };
@@ -25514,12 +25948,12 @@ export interface operations {
     };
     lookupSolarData: {
         parameters: {
-            query: {
-                latitude: number;
-                longitude: number;
-                max_distance_km?: string;
-                province?: string;
-                city?: string;
+            query?: {
+                latitude?: number | null;
+                longitude?: number | null;
+                max_distance_km?: number | null;
+                province?: string | null;
+                city?: string | null;
             };
             header?: never;
             path?: never;
@@ -25537,19 +25971,7 @@ export interface operations {
                     };
                 };
             };
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        message: "Harap berikan province+city atau latitude+longitude.";
-                    };
-                };
-            };
             401: components["responses"]["AuthenticationException"];
-            /** @description Try to find nearest in the same province */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -26279,66 +26701,83 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            categories: [
-                                "Circuit Breaker",
-                                "Kontaktor",
-                                "Relay",
-                                "Kabel",
-                                "Busbar",
-                                "Panel Enclosure",
-                                "Terminal Block",
-                                "Meter",
-                                "Trafo",
-                                "Kapasitor"
-                            ];
-                            validation_types: [
-                                "Warn if Lower",
-                                "Warn if Higher",
-                                "Must Match",
-                                "Minimum Value",
-                                "Maximum Value"
-                            ];
-                            severity_levels: [
-                                "Warning",
-                                "Error"
-                            ];
-                            common_spec_keys: [
-                                [
+                            categories: {
+                                /** @enum {string} */
+                                circuit_breaker: "Circuit Breaker";
+                                /** @enum {string} */
+                                contactor: "Kontaktor";
+                                /** @enum {string} */
+                                relay: "Relay";
+                                /** @enum {string} */
+                                cable: "Kabel";
+                                /** @enum {string} */
+                                busbar: "Busbar";
+                                /** @enum {string} */
+                                enclosure: "Panel Enclosure";
+                                /** @enum {string} */
+                                terminal: "Terminal Block";
+                                /** @enum {string} */
+                                meter: "Meter";
+                                /** @enum {string} */
+                                transformer: "Trafo";
+                                /** @enum {string} */
+                                capacitor: "Kapasitor";
+                            };
+                            validation_types: {
+                                /** @enum {string} */
+                                warn_if_lower: "Warn if Lower";
+                                /** @enum {string} */
+                                warn_if_higher: "Warn if Higher";
+                                /** @enum {string} */
+                                must_match: "Must Match";
+                                /** @enum {string} */
+                                min_value: "Minimum Value";
+                                /** @enum {string} */
+                                max_value: "Maximum Value";
+                            };
+                            severity_levels: {
+                                /** @enum {string} */
+                                warning: "Warning";
+                                /** @enum {string} */
+                                error: "Error";
+                            };
+                            common_spec_keys: {
+                                circuit_breaker: [
                                     "rating_amps",
                                     "poles",
                                     "curve",
                                     "breaking_capacity_ka",
                                     "voltage_rating"
-                                ],
-                                [
+                                ];
+                                contactor: [
                                     "rating_amps",
                                     "coil_voltage",
                                     "poles",
                                     "ac_category"
-                                ],
-                                [
+                                ];
+                                cable: [
                                     "conductor_size_mm2",
                                     "cores",
                                     "insulation",
                                     "voltage_rating"
-                                ],
-                                [
+                                ];
+                                busbar: [
                                     "material",
                                     "width_mm",
                                     "thickness_mm",
                                     "current_rating_a"
-                                ],
-                                [
+                                ];
+                                relay: [
                                     "coil_voltage",
                                     "contact_configuration",
                                     "current_rating"
-                                ],
-                                [
+                                ];
+                                enclosure: [
                                     "ip_rating",
                                     "material",
                                     "dimensions"
-                                ]
-                            ];
+                                ];
+                            };
                         };
                     };
                 };
@@ -26430,16 +26869,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "specValidationRuleSet.setDefault": {
@@ -27726,6 +28155,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "users.store": {
@@ -27741,15 +28171,14 @@ export interface operations {
             };
         };
         responses: {
+            /** @description `JsonResource` */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "User berhasil dibuat.";
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["JsonResource"];
                     };
                 };
             };
@@ -27770,32 +28199,19 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
+            /** @description `UserResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            /** @description An error */
-            403: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example Anda tidak memiliki akses untuk melihat user ini.
-                         */
-                        message: string;
-                    };
-                };
-            };
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27809,25 +28225,16 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: {
-            content: {
-                "application/json": components["schemas"]["UpdateUserRequest"] & {
-                    /** @default false */
-                    is_active?: boolean;
-                    roles?: string;
-                };
-            };
-        };
+        requestBody?: never;
         responses: {
+            /** @description `UserResource` */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "User berhasil diperbarui.";
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"];
                     };
                 };
             };
@@ -27855,12 +28262,14 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "User berhasil dihapus.";
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -27868,8 +28277,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Anda tidak dapat menghapus akun Anda sendiri.";
+                        success: boolean;
+                        message: string;
+                        errors: string;
                     };
                 };
             };
@@ -27897,8 +28307,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Password berhasil diperbarui.";
+                        data: null;
                     };
                 };
             };
@@ -27932,13 +28344,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "Role berhasil diperbarui.";
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -27961,13 +28375,15 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
+                        success: boolean;
                         /** @enum {string} */
                         message: "User berhasil diaktifkan." | "User berhasil dinonaktifkan.";
-                        user: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"];
                     };
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -27975,8 +28391,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        message: "Anda tidak dapat menonaktifkan akun Anda sendiri.";
+                        success: boolean;
+                        message: string;
+                        errors: string;
                     };
                 };
             };
@@ -28142,20 +28559,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        message: "Gudang default tidak bisa dihapus. Tetapkan gudang lain sebagai default terlebih dahulu.";
-                    } | {
-                        /** @enum {string} */
-                        message: "Gudang tidak bisa dihapus karena masih memiliki stok.";
-                    };
-                };
-            };
         };
     };
     "warehouse.setDefault": {
@@ -28184,17 +28587,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @enum {string} */
-                        message: "Gudang tidak aktif tidak bisa dijadikan default.";
-                    };
-                };
-            };
         };
     };
     "warehouse.stockSummary": {
@@ -28287,6 +28679,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "work-orders.store": {
@@ -28314,6 +28707,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -28341,6 +28735,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28372,6 +28767,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28400,6 +28796,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28431,6 +28828,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28476,6 +28874,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28504,6 +28903,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28535,6 +28935,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28563,6 +28964,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28590,6 +28992,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28617,6 +29020,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28650,6 +29054,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28685,6 +29090,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28732,6 +29138,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -28781,6 +29188,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28830,6 +29238,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -28863,6 +29272,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
 }

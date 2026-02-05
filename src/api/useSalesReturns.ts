@@ -18,6 +18,7 @@ import { toValue } from 'vue'
 
 export type SalesReturn = components['schemas']['SalesReturnResource']
 export type SalesReturnItem = components['schemas']['SalesReturnItemResource']
+export type SalesReturnStatus = 'draft' | 'pending' | 'approved' | 'completed' | 'rejected' | 'cancelled'
 
 export interface SalesReturnFilters {
   page?: number

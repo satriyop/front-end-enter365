@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { 
   useStockOpnames, 
   useDeleteStockOpname,
@@ -19,7 +18,7 @@ import {
   ResponsiveTable, 
   type ResponsiveColumn 
 } from '@/components/ui'
-import { Plus, Search, FileText } from 'lucide-vue-next'
+import { Plus, Search, Package } from 'lucide-vue-next'
 
 const toast = useToast()
 
@@ -140,7 +139,7 @@ async function handleDelete(id: number | string) {
         v-else-if="isEmpty"
         title="No stock opnames found"
         description="Start a physical count to reconcile your inventory levels."
-        icon="package"
+        :icon="Package"
       >
         <template #action>
           <RouterLink to="/inventory/opnames/new">

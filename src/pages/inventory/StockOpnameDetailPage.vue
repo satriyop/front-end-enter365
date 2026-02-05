@@ -1,33 +1,29 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { 
-  useStockOpname, 
+import {
+  useStockOpname,
   useStartCounting,
   useSubmitForReview,
   useApproveOpname,
-  useRejectOpname,
-  useCancelOpname,
   useUpdateOpnameItem
 } from '@/api/useStockOpnames'
 import { formatDate, formatNumber } from '@/utils/format'
-import { 
-  Button, 
-  Badge, 
-  Card, 
-  useToast, 
-  ResponsiveTable, 
+import {
+  Button,
+  Badge,
+  Card,
+  useToast,
+  ResponsiveTable,
   type ResponsiveColumn,
-  Modal,
   Input
 } from '@/components/ui'
-import { 
-  ArrowLeft, 
-  Play, 
-  CheckCircle, 
-  XCircle, 
-  History,
-  Info
+import {
+  ArrowLeft,
+  Play,
+  CheckCircle,
+  XCircle,
+  History
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -46,16 +42,15 @@ const { data: opname, isLoading, error } = useStockOpname(
 const startMutation = useStartCounting()
 const submitMutation = useSubmitForReview()
 const approveMutation = useApproveOpname()
-const rejectMutation = useRejectOpname()
-const cancelMutation = useCancelOpname()
 const updateItemMutation = useUpdateOpnameItem()
 
 // Table Columns
+// Note: API returns actual_quantity (from model's counted_quantity) and difference_quantity
 const columns: ResponsiveColumn[] = [
   { key: 'product.name', label: 'Product', mobilePriority: 1 },
   { key: 'system_quantity', label: 'System Qty', align: 'right', mobilePriority: 3 },
-  { key: 'counted_quantity', label: 'Counted Qty', align: 'right', mobilePriority: 2 },
-  { key: 'variance_quantity', label: 'Variance', align: 'right', showInMobile: false },
+  { key: 'actual_quantity', label: 'Counted Qty', align: 'right', mobilePriority: 2 },
+  { key: 'difference_quantity', label: 'Variance', align: 'right', showInMobile: false },
 ]
 
 // Workflow Handlers
@@ -94,7 +89,7 @@ const editValue = ref<number>(0)
 function startEdit(item: any) {
   if (!opname.value?.can_edit) return
   editingItemId.value = item.id
-  editValue.value = item.counted_quantity ?? item.system_quantity
+  editValue.value = item.actual_quantity ?? item.system_quantity
 }
 
 async function saveEdit(item: any) {
@@ -179,36 +174,36 @@ async function saveEdit(item: any) {
               </template>
 
               <!-- Custom Counted Qty Cell (Editable) -->
-              <template #cell-counted_quantity="{ item }">
+              <template #cell-actual_quantity="{ item }">
                 <div v-if="editingItemId === item.id" class="flex items-center gap-2">
-                  <Input 
-                    v-model="editValue" 
-                    type="number" 
-                    class="w-20 h-8 text-right" 
-                    autofocus 
+                  <Input
+                    v-model="editValue"
+                    type="number"
+                    class="w-20 h-8 text-right"
+                    autofocus
                     @keyup.enter="saveEdit(item)"
                     @keyup.esc="editingItemId = null"
                   />
                   <Button size="xs" @click="saveEdit(item)" :loading="updateItemMutation.isPending.value">Save</Button>
                 </div>
-                <div 
-                  v-else 
+                <div
+                  v-else
                   class="cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1 rounded transition-colors text-right"
-                  :class="{ 'text-slate-400 italic': item.counted_quantity === null }"
+                  :class="{ 'text-slate-400 italic': item.actual_quantity === null }"
                   @click="startEdit(item)"
                 >
-                  {{ item.counted_quantity !== null ? formatNumber(item.counted_quantity) : 'Not counted' }}
+                  {{ item.actual_quantity !== null ? formatNumber(item.actual_quantity) : 'Not counted' }}
                 </div>
               </template>
 
               <!-- Variance Cell -->
-              <template #cell-variance_quantity="{ item }">
-                <span v-if="item.counted_quantity !== null" :class="{
-                  'text-green-600': item.variance_quantity > 0,
-                  'text-red-600': item.variance_quantity < 0,
-                  'text-slate-500': item.variance_quantity === 0
+              <template #cell-difference_quantity="{ item }">
+                <span v-if="item.actual_quantity !== null" :class="{
+                  'text-green-600': item.difference_quantity > 0,
+                  'text-red-600': item.difference_quantity < 0,
+                  'text-slate-500': item.difference_quantity === 0
                 }">
-                  {{ item.variance_quantity > 0 ? '+' : '' }}{{ formatNumber(item.variance_quantity) }}
+                  {{ item.difference_quantity > 0 ? '+' : '' }}{{ formatNumber(item.difference_quantity) }}
                 </span>
                 <span v-else class="text-slate-300">-</span>
               </template>

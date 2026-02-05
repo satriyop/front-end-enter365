@@ -600,7 +600,7 @@ async function createBom() {
       templateId: selectedTemplateId.value,
       data: {
         product_id: outputProductId.value,
-        target_brand: selectedBrand.value || undefined,
+        target_brand: (selectedBrand.value || null) as "schneider" | "abb" | "siemens" | "chint" | "ls" | "legrand" | "eaton" | "hager" | "mitsubishi" | null,
         name: bomName.value.trim(),
         notes: bomNotes.value.trim() || undefined,
         output_quantity: Math.min(Math.max(outputQuantity.value, MIN_QUANTITY), MAX_QUANTITY),
@@ -1344,30 +1344,25 @@ function getPercentage(value: number, total: number): number {
             </p>
           </FormField>
 
-          <div class="grid grid-cols-2 gap-4">
-            <FormField
-              label="Output Quantity"
-              :error="validation.outputQuantity.error"
-            >
-              <div class="relative">
-                <Input
-                  v-model.number="outputQuantity"
-                  type="number"
-                  :min="MIN_QUANTITY"
-                  :max="MAX_QUANTITY"
-                  step="any"
-                  :class="validation.outputQuantity.success ? 'border-green-500 focus:ring-green-500' : ''"
-                />
-                <CheckCircle2
-                  v-if="validation.outputQuantity.success"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500"
-                />
-              </div>
-            </FormField>
-            <FormField label="Output Unit">
-              <Input :model-value="selectedTemplate?.default_output_unit ?? 'unit'" disabled />
-            </FormField>
-          </div>
+          <FormField
+            label="Output Quantity"
+            :error="validation.outputQuantity.error"
+          >
+            <div class="relative">
+              <Input
+                v-model.number="outputQuantity"
+                type="number"
+                :min="MIN_QUANTITY"
+                :max="MAX_QUANTITY"
+                step="any"
+                :class="validation.outputQuantity.success ? 'border-green-500 focus:ring-green-500' : ''"
+              />
+              <CheckCircle2
+                v-if="validation.outputQuantity.success"
+                class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-500"
+              />
+            </div>
+          </FormField>
 
           <FormField label="Notes">
             <textarea

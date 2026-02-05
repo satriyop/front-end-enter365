@@ -274,10 +274,10 @@ function viewAccount(accountId: string) {
                   {{ line.description || '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ parseFloat(line.debit) > 0 ? formatCurrency(parseFloat(line.debit)) : '-' }}
+                  {{ Number(line.debit) > 0 ? formatCurrency(line.debit) : '-' }}
                 </td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
-                  {{ parseFloat(line.credit) > 0 ? formatCurrency(parseFloat(line.credit)) : '-' }}
+                  {{ Number(line.credit) > 0 ? formatCurrency(line.credit) : '-' }}
                 </td>
               </tr>
             </tbody>

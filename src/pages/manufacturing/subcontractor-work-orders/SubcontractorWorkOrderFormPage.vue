@@ -52,7 +52,6 @@ const today = new Date().toISOString().slice(0, 10)
 
 // Form with VeeValidate
 const {
-  values: form,
   errors,
   handleSubmit,
   setValues,

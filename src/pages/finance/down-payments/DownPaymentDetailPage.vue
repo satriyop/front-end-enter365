@@ -10,7 +10,6 @@ import {
   getDownPaymentStatus,
   getDownPaymentType,
   formatDPNumber,
-  type RefundDownPaymentData,
 } from '@/api/useDownPayments'
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format'
 import {
@@ -67,9 +66,9 @@ const showDeleteModal = ref(false)
 const showUnapplyModal = ref(false)
 const selectedApplicationId = ref<number | null>(null)
 
-// Form data
-const refundData = ref<RefundDownPaymentData>({
-  refund_amount: 0,
+// Form data - using API schema field names
+const refundData = ref({
+  amount: 0,
   refund_date: new Date().toISOString().split('T')[0],
   notes: '',
 })
@@ -77,7 +76,7 @@ const cancelReason = ref('')
 
 // Initialize refund amount when modal opens
 function openRefundModal() {
-  refundData.value.refund_amount = Number(downPayment.value?.remaining_amount || 0)
+  refundData.value.amount = Number(downPayment.value?.remaining_amount || 0)
   showRefundModal.value = true
 }
 
@@ -453,7 +452,7 @@ const usageProgress = computed(() => {
             Refund Amount
           </label>
           <Input
-            v-model.number="refundData.refund_amount"
+            v-model.number="refundData.amount"
             type="number"
             :max="downPayment?.remaining_amount"
           />

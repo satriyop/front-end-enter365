@@ -433,7 +433,7 @@ const bomItemColumns: ResponsiveColumn[] = [
               <Badge :variant="getStatusVariant(bom.status.value)">
                 {{ bom.status_label }}
               </Badge>
-              <span v-if="bom.version > 1" class="text-sm text-slate-500 dark:text-slate-400">
+              <span v-if="Number(bom.version) > 1" class="text-sm text-slate-500 dark:text-slate-400">
                 v{{ bom.version }}
               </span>
             </div>

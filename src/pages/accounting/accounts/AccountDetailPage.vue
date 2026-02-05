@@ -11,7 +11,7 @@ import {
   type LedgerFilters,
 } from '@/api/useAccounts'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Card, Modal, Input, Pagination, useToast } from '@/components/ui'
+import { Button, Card, Modal, Input, useToast } from '@/components/ui'
 import { Pencil, Trash2, ArrowLeft, Calendar, FileText } from 'lucide-vue-next'
 
 const route = useRoute()

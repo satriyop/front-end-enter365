@@ -325,7 +325,7 @@ const electricityRate = computed(() => toNumber(proposal.value?.electricity_rate
               </h1>
               <span
                 class="inline-flex px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="getStatusClass(proposal.status)"
+                :class="getStatusClass(proposal.status?.value ?? '')"
               >
                 {{ proposal.status_label }}
               </span>

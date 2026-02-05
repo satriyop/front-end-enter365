@@ -86,11 +86,11 @@ const [poDate] = defineField('po_date')
 const [expectedDate] = defineField('expected_date')
 const [reference] = defineField('reference')
 const [subject] = defineField('subject')
-const [currency] = defineField('currency')
-const [exchangeRate] = defineField('exchange_rate')
+const [_currency] = defineField('currency')
+const [_exchangeRate] = defineField('exchange_rate')
 const [discountType] = defineField('discount_type')
 const [discountValue] = defineField('discount_value')
-const [taxRate] = defineField('tax_rate')
+const [_taxRate] = defineField('tax_rate')
 const [notes] = defineField('notes')
 const [termsConditions] = defineField('terms_conditions')
 const [shippingAddress] = defineField('shipping_address')
@@ -135,9 +135,9 @@ watch(existingPO, (po) => {
             quantity: Number(item.quantity),
             unit: item.unit,
             unit_price: Number(item.unit_price),
-            discount_percent: Number(item.discount_percent) || 0,
+            discount_percent: Number((item as any).discount_percent) || 0,
             tax_rate: Number(item.tax_rate) || 11,
-            notes: item.notes ?? '',
+            notes: (item as any).notes ?? '',
           }))
         : [createEmptyItem()],
     })

@@ -56,7 +56,6 @@ const statusOptions = [
 ]
 
 // Map status to Badge status prop
-type BadgeStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'expired' | 'converted'
 function getStatusLabel(status: any): string {
   if (status && typeof status === 'object') return status.label
   const labels: Record<string, string> = {

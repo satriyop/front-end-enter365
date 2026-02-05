@@ -43,8 +43,10 @@ async function handleSubmit() {
 // Set default warehouse if available
 onMounted(() => {
   if (warehouses.value?.length) {
-    const defaultWarehouse = warehouses.value.find(w => w.is_default) || warehouses.value[0]
-    form.value.warehouse_id = defaultWarehouse.id
+    const defaultWarehouse = warehouses.value.find(w => w.is_default) ?? warehouses.value[0]
+    if (defaultWarehouse) {
+      form.value.warehouse_id = defaultWarehouse.id
+    }
   }
 })
 </script>

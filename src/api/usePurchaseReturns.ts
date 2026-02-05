@@ -15,6 +15,7 @@ import { toValue } from 'vue'
 
 export type PurchaseReturn = components['schemas']['PurchaseReturnResource']
 export type PurchaseReturnItem = components['schemas']['PurchaseReturnItemResource']
+export type PurchaseReturnStatus = 'draft' | 'submitted' | 'approved' | 'completed' | 'rejected' | 'cancelled'
 
 export interface PurchaseReturnFilters {
   page?: number

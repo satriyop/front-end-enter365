@@ -32,16 +32,6 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' },
 ]
 
-function getStatusVariant(status: any): 'default' | 'success' | 'warning' | 'destructive' {
-  const statusValue = status && typeof status === 'object' ? status.value : status
-  const map: Record<string, 'default' | 'success' | 'warning' | 'destructive'> = {
-    draft: 'default',
-    active: 'success',
-    inactive: 'warning',
-  }
-  return map[statusValue] || 'default'
-}
-
 // Table columns with mobile priorities
 const columns: ResponsiveColumn[] = [
   { key: 'bom_number', label: 'BOM #', mobilePriority: 1 },

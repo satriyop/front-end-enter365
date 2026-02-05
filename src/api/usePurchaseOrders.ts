@@ -11,8 +11,15 @@ import type { components } from './types'
 // Types
 // ============================================
 
-export type PurchaseOrder = components['schemas']['PurchaseOrderResource']
-export type PurchaseOrderItem = components['schemas']['PurchaseOrderItemResource']
+// Extended types include computed fields not yet in generated schema
+export type PurchaseOrder = components['schemas']['PurchaseOrderResource'] & {
+  total?: string | number | null
+}
+export type PurchaseOrderItem = components['schemas']['PurchaseOrderItemResource'] & {
+  line_total?: string | number | null
+  discount_percent?: string | number | null
+  notes?: string | null
+}
 
 export interface PurchaseOrderFilters {
   page?: number

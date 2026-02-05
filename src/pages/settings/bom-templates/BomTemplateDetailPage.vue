@@ -8,7 +8,6 @@ import {
   useAddTemplateItem,
   useUpdateTemplateItem,
   useDeleteTemplateItem,
-  type BomTemplateItemInput,
   type BomTemplateItem,
 } from '@/api/useBomTemplates'
 import { useComponentStandards, type ComponentStandardFilters } from '@/api/useComponentStandards'
@@ -43,7 +42,19 @@ const deleteItemMutation = useDeleteTemplateItem()
 // Item modal state
 const showItemModal = ref(false)
 const editingItem = ref<BomTemplateItem | null>(null)
-const itemForm = ref<BomTemplateItemInput>({
+// Local form type converts null to undefined for Input component compatibility
+interface ItemFormData {
+  type: 'material' | 'labor' | 'overhead'
+  component_standard_id: number | null
+  product_id: number | null
+  description: string
+  default_quantity: number
+  unit: string
+  is_required: boolean
+  is_quantity_variable: boolean
+  notes: string
+}
+const itemForm = ref<ItemFormData>({
   type: 'material',
   component_standard_id: null,
   product_id: null,
@@ -125,12 +136,12 @@ function openAddItem() {
 function openEditItem(item: BomTemplateItem) {
   editingItem.value = item
   itemForm.value = {
-    type: item.type,
+    type: item.type as 'material' | 'labor' | 'overhead',
     component_standard_id: item.component_standard_id,
     product_id: item.product_id,
     description: item.description,
-    default_quantity: item.default_quantity,
-    unit: item.unit,
+    default_quantity: Number(item.default_quantity) || 1,
+    unit: item.unit ?? 'pcs',
     is_required: item.is_required,
     is_quantity_variable: item.is_quantity_variable,
     notes: item.notes ?? '',
@@ -142,13 +153,13 @@ function openEditItem(item: BomTemplateItem) {
 function validateItemForm(): boolean {
   itemFormErrors.value = {}
 
-  if (!itemForm.value.description.trim()) {
+  if (!itemForm.value.description?.trim()) {
     itemFormErrors.value.description = 'Description is required'
   }
-  if (itemForm.value.default_quantity <= 0) {
+  if ((itemForm.value.default_quantity ?? 0) <= 0) {
     itemFormErrors.value.default_quantity = 'Quantity must be greater than 0'
   }
-  if (!itemForm.value.unit.trim()) {
+  if (!itemForm.value.unit?.trim()) {
     itemFormErrors.value.unit = 'Unit is required'
   }
 

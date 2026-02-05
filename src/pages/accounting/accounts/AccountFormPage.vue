@@ -9,10 +9,10 @@ import {
   useCreateAccount,
   useUpdateAccount,
   useAccountsLookup,
-  type CreateAccountData,
   type Account,
 } from '@/api/useAccounts'
 import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
+import { toNumber } from '@/utils/format'
 import { ArrowLeft, Save, Loader2 } from 'lucide-vue-next'
 
 const route = useRoute()

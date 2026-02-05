@@ -87,9 +87,11 @@ async function handleDelete() {
 // Duplicate handling
 const duplicateMutation = useDuplicateBomTemplate()
 
-async function handleDuplicate(id: number) {
+async function handleDuplicate(item: { id: number; code: string; name: string }) {
   try {
-    await duplicateMutation.mutateAsync(id)
+    // Generate a new code by appending _COPY suffix
+    const newCode = `${item.code}_COPY`
+    await duplicateMutation.mutateAsync({ id: item.id, code: newCode, name: `${item.name} (Copy)` })
     toast.success('Template duplicated')
   } catch (err: unknown) {
     const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to duplicate'
@@ -110,7 +112,8 @@ async function handleToggleActive(id: number) {
   }
 }
 
-function getCategoryColor(category: string): string {
+function getCategoryColor(category: string | null): string {
+  if (!category) return 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
   const colors: Record<string, string> = {
     panel: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
     solar_system: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400',
@@ -307,7 +310,7 @@ const columns: ResponsiveColumn[] = [
               size="xs"
               title="Duplicate"
               :loading="duplicateMutation.isPending.value"
-              @click.stop="handleDuplicate(item.id)"
+              @click.stop="handleDuplicate(item)"
             >
               <Copy class="w-4 h-4" />
             </Button>

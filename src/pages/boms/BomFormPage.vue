@@ -52,7 +52,7 @@ const typeOptions = [
 function createEmptyItem(): BomItemFormData {
   return {
     type: 'material',
-    product_id: null,
+    product_id: undefined,
     description: '',
     quantity: 1,
     unit: 'unit',
@@ -96,28 +96,33 @@ const [notes] = defineField('notes')
 const { fields: itemFields, push: pushItem, remove: removeItemField } = useFieldArray<BomItemFormData>('items')
 
 // Initialize form when editing
+// Convert API null → form empty string (per CLAUDE.md Option 2)
 watch(existingBom, (bom) => {
   if (bom) {
+    let formItems: BomItemFormData[] = [createEmptyItem()]
+
+    if (bom.items && bom.items.length > 0) {
+      formItems = bom.items.map((item, index) => ({
+        type: item.type as 'material' | 'labor' | 'overhead',
+        product_id: item.product_id ?? undefined,
+        description: item.description,
+        quantity: item.quantity,
+        unit: item.unit ?? 'unit',
+        unit_cost: item.unit_cost,
+        waste_percentage: item.waste_percentage ?? 0,
+        sort_order: item.sort_order ?? index,
+        notes: item.notes ?? '',
+      }))
+    }
+
     setValues({
       name: bom.name,
-      description: bom.description || '',
+      description: bom.description ?? '',
       product_id: bom.product_id,
       output_quantity: bom.output_quantity,
-      output_unit: bom.output_unit,
-      notes: bom.notes || '',
-      items: bom.items && bom.items.length > 0
-        ? bom.items.map((item, index) => ({
-            type: item.type as 'material' | 'labor' | 'overhead',
-            product_id: item.product_id ?? null,
-            description: item.description,
-            quantity: item.quantity,
-            unit: item.unit,
-            unit_cost: item.unit_cost,
-            waste_percentage: item.waste_percentage ?? 0,
-            sort_order: item.sort_order ?? index,
-            notes: item.notes || '',
-          }))
-        : [createEmptyItem()],
+      output_unit: bom.output_unit ?? 'unit',
+      notes: bom.notes ?? '',
+      items: formItems,
     })
   }
 }, { immediate: true })

@@ -32,7 +32,7 @@ const fiscalPeriodSchema = z.object({
 type FiscalPeriodFormValues = z.infer<typeof fiscalPeriodSchema>
 
 // Form setup
-const { values: form, errors, handleSubmit, setFieldValue, defineField } = useForm<FiscalPeriodFormValues>({
+const { errors, handleSubmit, setFieldValue, defineField } = useForm<FiscalPeriodFormValues>({
   validationSchema: toTypedSchema(fiscalPeriodSchema),
   initialValues: {
     name: '',

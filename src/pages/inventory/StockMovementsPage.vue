@@ -78,7 +78,7 @@ const columns: ResponsiveColumn[] = [
   { key: 'type', label: 'Type', mobilePriority: 4 },
   { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 2 },
   { key: 'unit_cost', label: 'Unit Cost', align: 'right', showInMobile: false, format: (v) => formatCurrency(v as number) },
-  { key: 'balance_after', label: 'Balance', align: 'right', showInMobile: false },
+  { key: 'quantity_after', label: 'Balance', align: 'right', showInMobile: false },
   { key: 'notes', label: 'Notes', showInMobile: false },
 ]
 </script>
@@ -180,8 +180,8 @@ const columns: ResponsiveColumn[] = [
         </template>
 
         <!-- Custom cell: Balance -->
-        <template #cell-balance_after="{ item }">
-          {{ item.balance_after }} {{ item.product?.unit }}
+        <template #cell-quantity_after="{ item }">
+          {{ item.quantity_after }} {{ item.product?.unit }}
         </template>
 
         <!-- Custom cell: Notes -->

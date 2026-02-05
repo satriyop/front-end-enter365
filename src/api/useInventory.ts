@@ -241,16 +241,6 @@ export function useStockOut() {
 
 /**
  * Fetch warehouses for dropdown/select (lightweight)
+ * @deprecated Use useWarehousesLookup from '@/api/useWarehouses' instead
  */
-export function useWarehousesLookup() {
-  return useQuery({
-    queryKey: ['warehouses', 'lookup'],
-    queryFn: async () => {
-      const response = await api.get<{ data: Warehouse[] }>('/warehouses', {
-        params: { is_active: true, per_page: 100 }
-      })
-      return response.data.data
-    },
-    staleTime: 10 * 60 * 1000, // 10 minutes - warehouses don't change often
-  })
-}
+export { useWarehousesLookup } from './useWarehouses'

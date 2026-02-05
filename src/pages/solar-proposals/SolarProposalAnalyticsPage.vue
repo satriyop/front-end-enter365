@@ -158,7 +158,7 @@ const provinceDistribution = computed(() => {
     provinces[province].total++
     provinces[province].value += toNumber(p.system_cost)
 
-    if (p.status === 'accepted' || p.status === 'converted') {
+    if (p.status?.value === 'accepted' || p.status?.value === 'converted') {
       provinces[province].won++
     }
   })

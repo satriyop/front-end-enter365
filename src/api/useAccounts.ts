@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
-import { api, type PaginatedResponse, type ApiRequest } from './client'
+import { api, type PaginatedResponse } from './client'
 import type { components, paths } from './types'
 
 // ============================================
@@ -19,8 +19,9 @@ export interface AccountFilters {
   parent_id?: number | null
 }
 
-export type CreateAccountData = ApiRequest<paths['/accounts']['post']>
-export type UpdateAccountData = ApiRequest<paths['/accounts/{account}']['put']>
+// Use Scramble-generated request types directly
+export type CreateAccountData = components['schemas']['StoreAccountRequest']
+export type UpdateAccountData = components['schemas']['UpdateAccountRequest']
 
 export type AccountBalance = paths['/accounts/{account}/balance']['get']['responses']['200']['content']['application/json']
 export type AccountLedger = paths['/accounts/{account}/ledger']['get']['responses']['200']['content']['application/json']

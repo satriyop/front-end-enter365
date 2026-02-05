@@ -8,8 +8,28 @@
 export * from './contactFactory'
 export * from './productFactory'
 export * from './lineItemFactory'
-export * from './quotationFactory'
-export * from './invoiceFactory'
+// Re-export with renamed Status to avoid conflict
+export type { Quotation, LabelValue, Status as QuotationStatus } from './quotationFactory'
+export {
+  createQuotation,
+  createQuotations,
+  createDraftQuotation,
+  createSubmittedQuotation,
+  createApprovedQuotation,
+  createExpiredQuotation,
+  resetQuotationFactory,
+} from './quotationFactory'
+export type { Invoice, Status as InvoiceStatus } from './invoiceFactory'
+export {
+  createInvoice,
+  createInvoices,
+  createDraftInvoice,
+  createSentInvoice,
+  createPartiallyPaidInvoice,
+  createPaidInvoice,
+  createOverdueInvoice,
+  resetInvoiceFactory,
+} from './invoiceFactory'
 
 /**
  * Reset all factories to their initial state

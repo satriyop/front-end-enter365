@@ -18,7 +18,13 @@ const QUERY_KEYS = {
 }
 
 // Types from OpenAPI schema
-export type SubcontractorInvoice = components['schemas']['SubcontractorInvoiceResource']
+// Extended type includes fields not yet in generated schema
+export type SubcontractorInvoice = components['schemas']['SubcontractorInvoiceResource'] & {
+  description?: string | null
+  bill_id?: number | null
+  rejected_at?: string | null
+  approved_at?: string | null
+}
 
 // Filter types
 export interface SubcontractorInvoiceFilters {

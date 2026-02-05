@@ -14,12 +14,12 @@ export type LabelValue = components['schemas']['LabelValueResource']
 let quotationId = 1
 
 const statusMap: Record<string, Status> = {
-  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: false, is_editable: true },
-  submitted: { value: 'submitted', label: 'Diajukan', color: 'yellow', is_terminal: false, is_editable: false },
-  approved: { value: 'approved', label: 'Disetujui', color: 'green', is_terminal: false, is_editable: false },
-  rejected: { value: 'rejected', label: 'Ditolak', color: 'red', is_terminal: false, is_editable: false },
-  expired: { value: 'expired', label: 'Kedaluwarsa', color: 'orange', is_terminal: true, is_editable: false },
-  converted: { value: 'converted', label: 'Dikonversi', color: 'blue', is_terminal: true, is_editable: false },
+  draft: { value: 'draft', label: 'Draft', color: 'zinc', is_terminal: 'false', is_editable: 'true' },
+  submitted: { value: 'submitted', label: 'Diajukan', color: 'yellow', is_terminal: 'false', is_editable: 'false' },
+  approved: { value: 'approved', label: 'Disetujui', color: 'green', is_terminal: 'false', is_editable: 'false' },
+  rejected: { value: 'rejected', label: 'Ditolak', color: 'red', is_terminal: 'false', is_editable: 'false' },
+  expired: { value: 'expired', label: 'Kedaluwarsa', color: 'orange', is_terminal: 'true', is_editable: 'false' },
+  converted: { value: 'converted', label: 'Dikonversi', color: 'blue', is_terminal: 'true', is_editable: 'false' },
 }
 
 const typeMap: Record<string, LabelValue> = {
@@ -33,11 +33,6 @@ const priorityMap: Record<string, LabelValue> = {
   medium: { value: 'medium', label: 'Medium' },
   high: { value: 'high', label: 'High' },
   urgent: { value: 'urgent', label: 'Urgent' },
-}
-
-const outcomeMap: Record<string, LabelValue> = {
-  won: { value: 'won', label: 'Won' },
-  lost: { value: 'lost', label: 'Lost' },
 }
 
 /**
@@ -81,7 +76,7 @@ export function createQuotation(overrides: Partial<Quotation> = {}): Quotation {
     discount_amount: 0,
     tax_rate: 11,
     tax_amount: taxAmount,
-    total: total,
+    total_amount: total,
     base_currency_total: total,
     notes: '',
     terms_conditions: '',
@@ -119,10 +114,6 @@ export function createQuotation(overrides: Partial<Quotation> = {}): Quotation {
     can_reject: false,
     can_convert: false,
     can_revise: false,
-    follow_up_count: 0,
-    priority: priorityMap.medium!,
-    priority_label: 'Normal',
-    needs_follow_up: false,
     ...overrides,
   }
 }

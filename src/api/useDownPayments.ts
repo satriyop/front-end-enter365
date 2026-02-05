@@ -7,7 +7,7 @@ import { api, type ApiRequest, type ApiResponse, type PaginatedResponse } from '
 import { createCrudHooks } from './factory'
 import type { components, paths } from './types'
 import type { MaybeRef } from 'vue'
-import { toValue, computed } from 'vue'
+import { toValue } from 'vue'
 
 // ============================================
 // Types
@@ -17,6 +17,7 @@ export type DownPayment = components['schemas']['DownPaymentResource']
 export type DownPaymentApplication = components['schemas']['DownPaymentApplicationResource']
 
 export type DownPaymentType = 'receivable' | 'payable'
+export type DownPaymentStatus = 'draft' | 'confirmed' | 'applied' | 'refunded' | 'voided'
 
 export interface DownPaymentFilters {
   page?: number
@@ -30,8 +31,9 @@ export interface DownPaymentFilters {
   end_date?: string
 }
 
-export type CreateDownPaymentData = ApiRequest<paths['/down-payments']['post']>
-export type UpdateDownPaymentData = ApiRequest<paths['/down-payments/{downPayment}']['put']>
+// Use Scramble-generated request types directly
+export type CreateDownPaymentData = components['schemas']['StoreDownPaymentRequest']
+export type UpdateDownPaymentData = components['schemas']['UpdateDownPaymentRequest']
 
 // ============================================
 // CRUD Hooks (via factory)
@@ -200,8 +202,13 @@ export function useUnapplyDownPayment() {
 // Refund
 // ============================================
 
-export type RefundDownPaymentData = ApiRequest<paths['/down-payments/{downPayment}/refund']['post']>
-export type RefundDownPaymentResponse = ApiResponse<paths['/down-payments/{downPayment}/refund']['post']>
+// Use Scramble-generated request types directly
+export type RefundDownPaymentData = components['schemas']['RefundDownPaymentRequest']
+
+interface RefundDownPaymentResponse {
+  message: string
+  down_payment: DownPayment
+}
 
 export function useRefundDownPayment() {
   const queryClient = useQueryClient()

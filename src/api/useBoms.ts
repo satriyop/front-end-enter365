@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import { api, type ApiRequest } from './client'
+import { api } from './client'
 import { createCrudHooks } from './factory'
-import type { components, paths } from './types'
+import type { components } from './types'
 
 // ============================================
 // Types
@@ -18,8 +18,9 @@ export interface BomFilters {
   product_id?: number
 }
 
-export type CreateBomData = ApiRequest<paths['/boms']['post']>
-export type UpdateBomData = ApiRequest<paths['/boms/{bom}']['put']>
+// Use Scramble-generated request types directly
+export type CreateBomData = components['schemas']['StoreBomRequest']
+export type UpdateBomData = components['schemas']['UpdateBomRequest']
 
 // ============================================
 // CRUD Hooks (via factory)
