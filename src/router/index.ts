@@ -835,6 +835,42 @@ const router = createRouter({
           component: () => import('@/pages/reports/CostVariancePage.vue'),
           meta: { breadcrumb: 'Cost Variance' }
         },
+        {
+          path: 'reports/project-profitability',
+          name: 'report-project-profitability',
+          component: () => import('@/pages/reports/ProjectProfitabilityPage.vue'),
+          meta: { breadcrumb: 'Project Profitability' }
+        },
+        {
+          path: 'reports/project-cost-analysis',
+          name: 'report-project-cost-analysis',
+          component: () => import('@/pages/reports/ProjectCostAnalysisPage.vue'),
+          meta: { breadcrumb: 'Project Cost Analysis' }
+        },
+        {
+          path: 'reports/work-order-costs',
+          name: 'report-work-order-costs',
+          component: () => import('@/pages/reports/WorkOrderCostsPage.vue'),
+          meta: { breadcrumb: 'Work Order Costs' }
+        },
+        {
+          path: 'reports/subcontractor-summary',
+          name: 'report-subcontractor-summary',
+          component: () => import('@/pages/reports/SubcontractorSummaryPage.vue'),
+          meta: { breadcrumb: 'Subcontractor Summary' }
+        },
+        {
+          path: 'reports/subcontractor-retention',
+          name: 'report-subcontractor-retention',
+          component: () => import('@/pages/reports/SubcontractorRetentionPage.vue'),
+          meta: { breadcrumb: 'Subcontractor Retention' }
+        },
+        {
+          path: 'reports/bank-reconciliation-report',
+          name: 'report-bank-reconciliation-report',
+          component: () => import('@/pages/reports/BankReconciliationReportPage.vue'),
+          meta: { breadcrumb: 'Bank Reconciliation Report' }
+        },
         // Settings route
         {
           path: 'settings',

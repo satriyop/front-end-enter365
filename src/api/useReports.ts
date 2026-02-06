@@ -473,6 +473,227 @@ export interface CostVarianceReport {
   on_budget_items: CostVarianceWorkOrder[]
 }
 
+export interface ProjectProfitabilityProject {
+  id: number
+  project_number: string
+  name: string
+  customer: string | null
+  status: string
+  start_date: string | null
+  end_date: string | null
+  contract_amount: number
+  total_revenue: number
+  costs: {
+    material: number
+    labor: number
+    subcontractor: number
+    equipment: number
+    overhead: number
+    other: number
+    total: number
+  }
+  gross_profit: number
+  profit_margin: number
+  budget_amount: number
+  budget_variance: number
+  budget_utilization: number
+  is_over_budget: boolean
+  progress_percentage: number
+}
+
+export interface ProjectProfitabilityReport {
+  report_name: string
+  period: {
+    start: string | null
+    end: string | null
+  }
+  projects: ProjectProfitabilityProject[]
+  totals: {
+    total_contract: number
+    total_revenue: number
+    total_costs: number
+    total_profit: number
+    average_margin: number
+    projects_count: number
+    profitable_count: number
+    loss_count: number
+  }
+}
+
+export interface ProjectCostByType {
+  total: number
+  count: number
+  label: string
+}
+
+export interface ProjectCostByProject {
+  project_id: number
+  project_number: string | null
+  project_name: string | null
+  total_cost: number
+}
+
+export interface ProjectCostAnalysisReport {
+  report_name: string
+  period: {
+    start: string | null
+    end: string | null
+  }
+  by_type: Record<string, ProjectCostByType>
+  by_project: ProjectCostByProject[]
+  totals: {
+    grand_total: number
+    cost_types_count: number
+    projects_count: number
+  }
+}
+
+// Hand-written: API schema returns `data: string` (Scramble didn't generate proper schema)
+export interface WorkOrderCostItem {
+  id: number
+  wo_number: string
+  name: string
+  project: string | null
+  status: string
+  estimated_cost: number
+  actual_cost: number
+  variance: number
+  variance_percent: number
+}
+
+export interface WorkOrderCostsReport {
+  report_name: string
+  period: {
+    start: string | null
+    end: string | null
+  }
+  work_orders: WorkOrderCostItem[]
+  summary: {
+    total_work_orders: number
+    total_estimated: number
+    total_actual: number
+    total_variance: number
+  }
+}
+
+export interface SubcontractorSummaryItem {
+  id: number
+  code: string
+  name: string
+  work_orders: {
+    total: number
+    completed: number
+    in_progress: number
+    draft: number
+  }
+  financials: {
+    total_agreed: number
+    total_actual: number
+    total_invoiced: number
+    total_paid: number
+    outstanding: number
+    retention_held: number
+  }
+  performance: {
+    on_time_completion: number
+    average_completion_days: number
+  }
+}
+
+export interface SubcontractorSummaryReport {
+  report_name: string
+  period: {
+    start: string | null
+    end: string | null
+  }
+  subcontractors: SubcontractorSummaryItem[]
+  totals: {
+    total_subcontractors: number
+    total_agreed: number
+    total_paid: number
+    total_outstanding: number
+    total_retention: number
+  }
+}
+
+export interface SubcontractorRetentionItem {
+  id: number
+  sc_wo_number: string
+  name: string
+  subcontractor_name: string | null
+  project_number: string | null
+  status: string
+  agreed_amount: number
+  retention_percent: number
+  retention_amount: number
+  scheduled_end: string | null
+  actual_end: string | null
+  is_releasable: boolean
+}
+
+export interface SubcontractorRetentionBySubcontractor {
+  subcontractor: string
+  total_retention: number
+  work_orders_count: number
+  releasable_amount: number
+}
+
+export interface SubcontractorRetentionReport {
+  report_name: string
+  retentions: SubcontractorRetentionItem[]
+  by_subcontractor: SubcontractorRetentionBySubcontractor[]
+  totals: {
+    total_retention_held: number
+    releasable_amount: number
+    pending_amount: number
+    work_orders_count: number
+  }
+}
+
+export interface BankReconciliationReport {
+  report_name: string
+  account: {
+    id: number
+    code: string
+    name: string
+  }
+  as_of_date: string
+  book_balance: number
+  bank_balance: number
+  adjustments_to_book: {
+    items: Array<{
+      id: number
+      date: string
+      description: string
+      reference: string | null
+      amount: number
+      type: string
+    }>
+    total: number
+  }
+  adjustments_to_bank: {
+    items: Array<{
+      id: number
+      type: string
+      date: string
+      number: string
+      description: string | null
+      amount: number
+    }>
+    total: number
+  }
+  adjusted_book_balance: number
+  adjusted_bank_balance: number
+  difference: number
+  is_reconciled: boolean
+  reconciliation_summary: {
+    total: number
+    reconciled: number
+    matched: number
+    unmatched: number
+  }
+}
+
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
@@ -804,5 +1025,107 @@ export function useCostVariance(
       return response.data
     },
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useProjectProfitability(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>,
+  status?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'project-profitability', startDate, endDate, status],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      if (status?.value) params.status = status.value
+      const response = await api.get<ProjectProfitabilityReport>('/reports/project-profitability', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useProjectCostAnalysis(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'project-cost-analysis', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<ProjectCostAnalysisReport>('/reports/project-cost-analysis', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useWorkOrderCosts(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>,
+  status?: Ref<string | undefined>,
+  projectId?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'work-order-costs', startDate, endDate, status, projectId],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      if (status?.value) params.status = status.value
+      if (projectId?.value) params.project_id = projectId.value
+      const response = await api.get<WorkOrderCostsReport>('/reports/work-order-costs', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSubcontractorSummary(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'subcontractor-summary', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<SubcontractorSummaryReport>('/reports/subcontractor-summary', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSubcontractorRetention() {
+  return useQuery({
+    queryKey: ['reports', 'subcontractor-retention'],
+    queryFn: async () => {
+      const response = await api.get<SubcontractorRetentionReport>('/reports/subcontractor-retention')
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useBankReconciliationReport(
+  accountId: Ref<number | undefined>,
+  asOfDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'bank-reconciliation', accountId, asOfDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (asOfDate?.value) params.as_of_date = asOfDate.value
+      const response = await api.get<BankReconciliationReport>(`/reports/accounts/${accountId.value}/bank-reconciliation`, { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!accountId.value),
   })
 }

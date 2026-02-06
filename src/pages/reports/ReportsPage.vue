@@ -13,6 +13,7 @@ const reportCategories = [
       { name: 'General Ledger', path: '/reports/general-ledger', description: 'Detailed account transactions' },
       { name: 'Changes in Equity', path: '/reports/changes-in-equity', description: 'Equity movement breakdown' },
       { name: 'Daily Cash Movement', path: '/reports/daily-cash-movement', description: 'Daily receipts and payments' },
+      { name: 'Bank Reconciliation', path: '/reports/bank-reconciliation-report', description: 'Bank vs book balance reconciliation' },
     ],
   },
   {
@@ -60,6 +61,23 @@ const reportCategories = [
       { name: 'COGS by Product', path: '/reports/cogs-by-product', description: 'COGS breakdown by individual product' },
       { name: 'COGS Monthly Trend', path: '/reports/cogs-monthly-trend', description: 'Monthly COGS comparison' },
       { name: 'Cost Variance', path: '/reports/cost-variance', description: 'Production cost vs estimate analysis' },
+    ],
+  },
+  {
+    title: 'Project Reports',
+    description: 'Project profitability and cost analysis',
+    reports: [
+      { name: 'Project Profitability', path: '/reports/project-profitability', description: 'Revenue, costs, and margins per project' },
+      { name: 'Project Cost Analysis', path: '/reports/project-cost-analysis', description: 'Cost breakdown by type and project' },
+    ],
+  },
+  {
+    title: 'Manufacturing Reports',
+    description: 'Work orders and subcontractor analysis',
+    reports: [
+      { name: 'Work Order Costs', path: '/reports/work-order-costs', description: 'Estimated vs actual work order costs' },
+      { name: 'Subcontractor Summary', path: '/reports/subcontractor-summary', description: 'Subcontractor performance and financials' },
+      { name: 'Subcontractor Retention', path: '/reports/subcontractor-retention', description: 'Retention held and releasable amounts' },
     ],
   },
 ]
