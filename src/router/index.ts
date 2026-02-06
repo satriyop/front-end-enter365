@@ -845,6 +845,31 @@ const router = createRouter({
           component: () => import('@/pages/settings/warehouses/WarehouseFormPage.vue'),
           meta: { breadcrumb: 'Edit Warehouse' }
         },
+        // Role routes (under settings)
+        {
+          path: 'settings/roles',
+          name: 'roles',
+          component: () => import('@/pages/settings/roles/RoleListPage.vue'),
+          meta: { breadcrumb: 'Roles' }
+        },
+        {
+          path: 'settings/roles/new',
+          name: 'role-new',
+          component: () => import('@/pages/settings/roles/RoleFormPage.vue'),
+          meta: { breadcrumb: 'New Role' }
+        },
+        {
+          path: 'settings/roles/:id',
+          name: 'role-detail',
+          component: () => import('@/pages/settings/roles/RoleDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Role #${route.params.id}` }
+        },
+        {
+          path: 'settings/roles/:id/edit',
+          name: 'role-edit',
+          component: () => import('@/pages/settings/roles/RoleFormPage.vue'),
+          meta: { breadcrumb: 'Edit Role' }
+        },
         // Product Category routes (under settings)
         {
           path: 'settings/product-categories',

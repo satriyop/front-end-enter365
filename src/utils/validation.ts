@@ -946,3 +946,18 @@ export const mrpRunSchema = z.object({
 // MRP types
 export type MrpRunParametersFormData = z.infer<typeof mrpRunParametersSchema>
 export type MrpRunFormData = z.infer<typeof mrpRunSchema>
+
+// ============================================
+// Role Schema
+// ============================================
+
+/**
+ * Role form schema
+ */
+export const roleSchema = z.object({
+  name: requiredString('Name').max(50, 'Name must be 50 characters or less'),
+  display_name: requiredString('Display name').max(100, 'Display name must be 100 characters or less'),
+  description: z.string().max(500, 'Description is too long').optional().default(''),
+})
+
+export type RoleFormData = z.infer<typeof roleSchema>
