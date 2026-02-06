@@ -256,7 +256,7 @@ const router = createRouter({
         {
           path: 'finance/down-payments/new',
           name: 'down-payment-new',
-          component: () => import('@/pages/finance/down-payments/DownPaymentListPage.vue'),
+          component: () => import('@/pages/finance/down-payments/DownPaymentFormPage.vue'),
           meta: { breadcrumb: 'New Down Payment' }
         },
         {
@@ -264,6 +264,12 @@ const router = createRouter({
           name: 'down-payment-detail',
           component: () => import('@/pages/finance/down-payments/DownPaymentDetailPage.vue'),
           meta: { breadcrumb: (route) => `DP #${route.params.id}` }
+        },
+        {
+          path: 'finance/down-payments/:id/edit',
+          name: 'down-payment-edit',
+          component: () => import('@/pages/finance/down-payments/DownPaymentFormPage.vue'),
+          meta: { breadcrumb: 'Edit Down Payment' }
         },
         // Project routes
         {
@@ -969,6 +975,12 @@ const router = createRouter({
           name: 'users',
           component: () => import('@/pages/users/UserListPage.vue'),
           meta: { breadcrumb: 'Users' }
+        },
+        {
+          path: 'users/:id',
+          name: 'user-detail',
+          component: () => import('@/pages/users/UserDetailPage.vue'),
+          meta: { breadcrumb: 'User Detail' }
         },
         // Company Profile routes
         {

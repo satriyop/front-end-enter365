@@ -374,6 +374,7 @@ function toggleRole(roleId: number) {
         :loading="isLoading"
         title-field="name"
         subtitle-field="email"
+        @row-click="(item) => $router.push(`/users/${item.id}`)"
       >
         <!-- Custom cell: User with avatar -->
         <template #cell-name="{ item }">
