@@ -303,21 +303,16 @@ export const invoiceSchema = z.object({
 })
 
 /**
- * User form schema
+ * User form schema (create & edit)
+ * Password is optional (for edit mode). Confirmation handled at submit time.
  */
 export const userSchema = z.object({
-  name: requiredString('Name'),
-  email: z.string().min(1, 'Email is required').email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  name: requiredString('Name').max(255),
+  email: requiredString('Email').email('Invalid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters').optional().default(''),
+  password_confirmation: z.string().optional().default(''),
   is_active: z.boolean().default(true),
-  roles: z.array(z.number()).optional(),
-})
-
-/**
- * User update schema (password optional)
- */
-export const userUpdateSchema = userSchema.omit({ password: true }).extend({
-  password: z.string().min(8, 'Password must be at least 8 characters').optional().or(z.literal('')),
+  roles: z.array(z.number()).default([]),
 })
 
 // ============================================
@@ -987,3 +982,45 @@ export const downPaymentSchema = z.object({
 })
 
 export type DownPaymentFormData = z.infer<typeof downPaymentSchema>
+
+// ============================================
+// Recurring Template Schema
+// ============================================
+
+export const recurringTemplateItemSchema = z.object({
+  description: requiredString('Description'),
+  quantity: z.number({ required_error: 'Quantity is required' }).positive('Quantity must be greater than 0'),
+  unit: z.string().optional().default(''),
+  unit_price: z.number({ required_error: 'Unit price is required' }).min(0, 'Price cannot be negative'),
+  revenue_account_id: z.number().optional().nullable(),
+  expense_account_id: z.number().optional().nullable(),
+})
+
+export const recurringTemplateSchema = z.object({
+  name: requiredString('Name').max(255),
+  type: z.enum(['invoice', 'bill'], {
+    errorMap: () => ({ message: 'Please select a type' }),
+  }),
+  contact_id: z.number({ required_error: 'Please select a contact' }).positive('Please select a contact'),
+  frequency: z.enum(['daily', 'weekly', 'monthly', 'quarterly', 'yearly'], {
+    errorMap: () => ({ message: 'Please select a frequency' }),
+  }),
+  interval: z.number().int().positive().default(1),
+  start_date: requiredDate('Start date'),
+  end_date: z.string().optional().default(''),
+  occurrences_limit: z.number().int().positive().optional().nullable(),
+  description: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  tax_rate: z.number().min(0).max(100).default(0),
+  discount_amount: z.number().min(0).default(0),
+  payment_term_days: z.number().int().min(0).default(30),
+  currency: z.string().default('IDR'),
+  is_active: z.boolean().default(true),
+  auto_post: z.boolean().default(false),
+  auto_send: z.boolean().default(false),
+  items: z.array(recurringTemplateItemSchema).min(1, 'At least one line item is required'),
+})
+
+export type RecurringTemplateItemFormData = z.infer<typeof recurringTemplateItemSchema>
+export type RecurringTemplateFormData = z.infer<typeof recurringTemplateSchema>
+
