@@ -73,6 +73,7 @@ const navigation: NavGroup[] = [
   {
     label: 'Manufacturing',
     items: [
+      { name: 'MRP', path: '/manufacturing/mrp', icon: '🧮', permission: 'mrp.view' },
       { name: 'Material Requisitions', path: '/manufacturing/material-requisitions', icon: '📋', permission: 'material_requisitions.view' },
       { name: 'Subcontractor WO', path: '/manufacturing/subcontractor-work-orders', icon: '🔨', permission: 'subcontractor_work_orders.view' },
       { name: 'SC Invoices', path: '/manufacturing/subcontractor-invoices', icon: '📄', permission: 'subcontractor_invoices.view' },
@@ -83,6 +84,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Stock', path: '/inventory', icon: '📦', permission: 'inventory.view' },
       { name: 'Stock Opname', path: '/inventory/opnames', icon: '⚖️', permission: 'inventory.view' },
+      { name: 'Stock Transfer', path: '/inventory/transfer', icon: '🔄', permission: 'inventory.view' },
       { name: 'Products', path: '/products', icon: '🏷️', permission: 'products.view' },
       { name: 'BOMs', path: '/boms', icon: '📐', permission: 'boms.view' },
       { name: 'Variant Groups', path: '/boms/variant-groups', icon: '🔄', permission: 'boms.view' },
@@ -94,6 +96,8 @@ const navigation: NavGroup[] = [
       { name: 'Chart of Accounts', path: '/accounting/accounts', icon: '📒', permission: 'accounts.view' },
       { name: 'Journal Entries', path: '/accounting/journal-entries', icon: '📝', permission: 'journal_entries.view' },
       { name: 'Fiscal Periods', path: '/accounting/fiscal-periods', icon: '📅', permission: 'fiscal_periods.view' },
+      { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view' },
+      { name: 'Bank Reconciliation', path: '/accounting/bank-reconciliation', icon: '🏦', permission: 'bank_reconciliation.view' },
     ]
   },
   {
@@ -109,6 +113,7 @@ const navigation: NavGroup[] = [
     label: 'Settings',
     items: [
       { name: 'Company Profiles', path: '/company-profiles', icon: '🏢', permission: 'company_profiles.view' },
+      { name: 'Warehouses', path: '/settings/warehouses', icon: '🏭', permission: 'warehouses.view' },
       { name: 'Component Library', path: '/settings/component-library', icon: '🔌', permission: 'products.view' },
     ]
   },

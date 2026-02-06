@@ -352,6 +352,12 @@ const router = createRouter({
           component: () => import('@/pages/inventory/StockAdjustmentPage.vue'),
           meta: { breadcrumb: 'Stock Adjustment' }
         },
+        {
+          path: 'inventory/transfer',
+          name: 'inventory-transfer',
+          component: () => import('@/pages/inventory/StockTransferPage.vue'),
+          meta: { breadcrumb: 'Stock Transfer' }
+        },
         // Accounting - Chart of Accounts routes
         {
           path: 'accounting/accounts',
@@ -414,6 +420,50 @@ const router = createRouter({
           name: 'fiscal-period-detail',
           component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodDetailPage.vue'),
           meta: { breadcrumb: (route) => `Period #${route.params.id}` }
+        },
+        // Accounting - Budgets routes
+        {
+          path: 'accounting/budgets',
+          name: 'budgets',
+          component: () => import('@/pages/accounting/budgets/BudgetListPage.vue'),
+          meta: { breadcrumb: 'Budgets' }
+        },
+        {
+          path: 'accounting/budgets/new',
+          name: 'budget-new',
+          component: () => import('@/pages/accounting/budgets/BudgetFormPage.vue'),
+          meta: { breadcrumb: 'New Budget' }
+        },
+        {
+          path: 'accounting/budgets/:id',
+          name: 'budget-detail',
+          component: () => import('@/pages/accounting/budgets/BudgetDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Budget #${route.params.id}` }
+        },
+        {
+          path: 'accounting/budgets/:id/edit',
+          name: 'budget-edit',
+          component: () => import('@/pages/accounting/budgets/BudgetFormPage.vue'),
+          meta: { breadcrumb: 'Edit Budget' }
+        },
+        // Accounting - Bank Reconciliation routes
+        {
+          path: 'accounting/bank-reconciliation',
+          name: 'bank-reconciliation',
+          component: () => import('@/pages/accounting/bank-reconciliation/BankReconciliationPage.vue'),
+          meta: { breadcrumb: 'Bank Reconciliation' }
+        },
+        {
+          path: 'accounting/bank-reconciliation/new',
+          name: 'bank-transaction-new',
+          component: () => import('@/pages/accounting/bank-reconciliation/BankTransactionFormPage.vue'),
+          meta: { breadcrumb: 'New Transaction' }
+        },
+        {
+          path: 'accounting/bank-reconciliation/:id',
+          name: 'bank-transaction-detail',
+          component: () => import('@/pages/accounting/bank-reconciliation/BankTransactionDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Transaction #${route.params.id}` }
         },
         // Purchasing - Purchase Orders routes
         {
@@ -522,6 +572,31 @@ const router = createRouter({
           name: 'subcontractor-invoice-detail',
           component: () => import('@/pages/manufacturing/subcontractor-invoices/SubcontractorInvoiceDetailPage.vue'),
           meta: { breadcrumb: (route) => `Invoice #${route.params.id}` }
+        },
+        // Manufacturing - MRP routes
+        {
+          path: 'manufacturing/mrp',
+          name: 'mrp-runs',
+          component: () => import('@/pages/manufacturing/mrp/MrpRunListPage.vue'),
+          meta: { breadcrumb: 'MRP' }
+        },
+        {
+          path: 'manufacturing/mrp/new',
+          name: 'mrp-run-new',
+          component: () => import('@/pages/manufacturing/mrp/MrpRunFormPage.vue'),
+          meta: { breadcrumb: 'New MRP Run' }
+        },
+        {
+          path: 'manufacturing/mrp/:id',
+          name: 'mrp-run-detail',
+          component: () => import('@/pages/manufacturing/mrp/MrpRunDetailPage.vue'),
+          meta: { breadcrumb: (route) => `MRP #${route.params.id}` }
+        },
+        {
+          path: 'manufacturing/mrp/:id/edit',
+          name: 'mrp-run-edit',
+          component: () => import('@/pages/manufacturing/mrp/MrpRunFormPage.vue'),
+          meta: { breadcrumb: 'Edit MRP Run' }
         },
         // Reports routes
         {
