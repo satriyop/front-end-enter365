@@ -961,3 +961,29 @@ export const roleSchema = z.object({
 })
 
 export type RoleFormData = z.infer<typeof roleSchema>
+
+// ============================================
+// Down Payment Schema
+// ============================================
+
+/**
+ * Down Payment form schema
+ * Note: type and contact_id are immutable after creation (not in UpdateDownPaymentRequest)
+ */
+export const downPaymentSchema = z.object({
+  type: z.enum(['receivable', 'payable'], {
+    errorMap: () => ({ message: 'Please select a type' }),
+  }),
+  contact_id: z.number({ required_error: 'Please select a contact' }).positive('Please select a contact'),
+  dp_date: requiredDate('Down payment date'),
+  amount: z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0'),
+  payment_method: z.enum(['bank_transfer', 'cash', 'check', 'giro', 'credit_card'], {
+    errorMap: () => ({ message: 'Please select a payment method' }),
+  }),
+  cash_account_id: z.number({ required_error: 'Please select a cash account' }).positive('Please select a cash account'),
+  reference: z.string().optional().default(''),
+  description: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+})
+
+export type DownPaymentFormData = z.infer<typeof downPaymentSchema>

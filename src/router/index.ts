@@ -127,6 +127,13 @@ const router = createRouter({
           component: () => import('@/pages/sales/delivery-orders/DeliveryOrderFormPage.vue'),
           meta: { breadcrumb: 'Edit Delivery Order' }
         },
+        // Sales - Follow-Up Dashboard
+        {
+          path: 'sales/follow-up',
+          name: 'follow-up-dashboard',
+          component: () => import('@/pages/sales/follow-up/FollowUpDashboardPage.vue'),
+          meta: { breadcrumb: 'Follow-Up Dashboard' }
+        },
         // Sales - Sales Returns routes
         {
           path: 'sales/sales-returns',
