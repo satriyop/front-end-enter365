@@ -66,6 +66,12 @@ const router = createRouter({
           meta: { breadcrumb: 'New Quotation' }
         },
         {
+          path: 'quotations/follow-up',
+          name: 'quotation-follow-up',
+          component: () => import('@/pages/quotations/QuotationFollowUpPage.vue'),
+          meta: { breadcrumb: 'Follow-Up' }
+        },
+        {
           path: 'quotations/:id',
           name: 'quotation-detail',
           component: () => import('@/pages/quotations/QuotationDetailPage.vue'),
