@@ -1,9 +1,20 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useProject, useStartProject, useCompleteProject, useCancelProject, useDeleteProject } from '@/api/useProjects'
-import { Button, Card, Badge, useToast } from '@/components/ui'
+import {
+  useProject,
+  useStartProject,
+  useCompleteProject,
+  useCancelProject,
+  useDeleteProject,
+  useHoldProject,
+  useResumeProject,
+} from '@/api/useProjects'
+import { Button, Card, Badge, Modal, Textarea, useToast } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
+import { Pause, Play } from 'lucide-vue-next'
+import ProjectCostsList from '@/components/projects/ProjectCostsList.vue'
+import ProjectRevenuesList from '@/components/projects/ProjectRevenuesList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -16,6 +27,15 @@ const startMutation = useStartProject()
 const completeMutation = useCompleteProject()
 const cancelMutation = useCancelProject()
 const deleteMutation = useDeleteProject()
+const holdMutation = useHoldProject()
+const resumeMutation = useResumeProject()
+
+// Hold modal state
+const showHoldModal = ref(false)
+const holdReason = ref('')
+
+// Financials tab state
+const activeFinancialsTab = ref<'costs' | 'revenues'>('costs')
 
 // Status colors mapping for Badge component if needed
 // const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
@@ -70,6 +90,27 @@ async function handleDelete() {
     toast.error('Failed to delete project')
   }
 }
+
+async function handleHold() {
+  try {
+    await holdMutation.mutateAsync({ id: projectId.value, reason: holdReason.value || undefined })
+    showHoldModal.value = false
+    holdReason.value = ''
+    toast.success('Project put on hold')
+  } catch {
+    toast.error('Failed to put project on hold')
+  }
+}
+
+async function handleResume() {
+  if (!confirm('Resume this project?')) return
+  try {
+    await resumeMutation.mutateAsync(projectId.value)
+    toast.success('Project resumed')
+  } catch {
+    toast.error('Failed to resume project')
+  }
+}
 </script>
 
 <template>
@@ -113,6 +154,24 @@ async function handleDelete() {
             :loading="completeMutation.isPending.value"
           >
             Complete
+          </Button>
+          <!-- Hold button (in_progress only) -->
+          <Button
+            v-if="project.status.value === 'in_progress'"
+            variant="warning"
+            @click="showHoldModal = true"
+          >
+            <Pause class="w-4 h-4 mr-2" />
+            Hold
+          </Button>
+          <!-- Resume button (on_hold only) -->
+          <Button
+            v-if="project.status.value === 'on_hold'"
+            @click="handleResume"
+            :loading="resumeMutation.isPending.value"
+          >
+            <Play class="w-4 h-4 mr-2" />
+            Resume
           </Button>
           <Button
             v-if="project.status.value !== 'completed' && project.status.value !== 'cancelled'"
@@ -204,6 +263,61 @@ async function handleDelete() {
               </div>
             </div>
           </Card>
+
+          <!-- Costs & Revenues Section -->
+          <Card :padding="false">
+            <!-- Tabs Header -->
+            <div class="flex gap-1 p-1 m-4 mb-0 bg-slate-100 dark:bg-slate-800 rounded-lg">
+              <button
+                type="button"
+                @click="activeFinancialsTab = 'costs'"
+                class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                :class="activeFinancialsTab === 'costs'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
+              >
+                Costs
+                <span
+                  v-if="project.costs_count"
+                  class="px-1.5 py-0.5 text-xs rounded-full"
+                  :class="activeFinancialsTab === 'costs' ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400' : 'bg-slate-200 dark:bg-slate-700'"
+                >
+                  {{ project.costs_count }}
+                </span>
+              </button>
+              <button
+                type="button"
+                @click="activeFinancialsTab = 'revenues'"
+                class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                :class="activeFinancialsTab === 'revenues'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
+              >
+                Revenues
+                <span
+                  v-if="project.revenues_count"
+                  class="px-1.5 py-0.5 text-xs rounded-full"
+                  :class="activeFinancialsTab === 'revenues' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-slate-200 dark:bg-slate-700'"
+                >
+                  {{ project.revenues_count }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="p-4">
+              <ProjectCostsList
+                v-if="activeFinancialsTab === 'costs'"
+                :project-id="project.id"
+                :costs="project.costs || []"
+              />
+              <ProjectRevenuesList
+                v-if="activeFinancialsTab === 'revenues'"
+                :project-id="project.id"
+                :revenues="project.revenues || []"
+              />
+            </div>
+          </Card>
         </div>
 
         <div class="space-y-6">
@@ -243,18 +357,44 @@ async function handleDelete() {
           </Card>
 
           <!-- Quick Actions -->
-          <Card v-if="project.status.value === 'in_progress'">
+          <Card v-if="project.status.value === 'in_progress' || project.status.value === 'on_hold'">
             <div class="space-y-2">
-              <RouterLink :to="`/work-orders/new?project_id=${project.id}`">
+              <RouterLink v-if="project.status.value === 'in_progress'" :to="`/work-orders/new?project_id=${project.id}`">
                 <Button variant="secondary" class="w-full">Create Work Order</Button>
               </RouterLink>
-              <RouterLink :to="`/invoices/new?project_id=${project.id}`">
+              <RouterLink v-if="project.status.value === 'in_progress'" :to="`/invoices/new?project_id=${project.id}`">
                 <Button variant="secondary" class="w-full">Create Invoice</Button>
               </RouterLink>
             </div>
           </Card>
         </div>
       </div>
+
+      <!-- Hold Modal -->
+      <Modal :open="showHoldModal" title="Put Project On Hold" @update:open="showHoldModal = $event">
+        <p class="text-slate-600 dark:text-slate-400 mb-4">
+          Put this project on hold? This will pause all work on the project.
+        </p>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason (optional)</label>
+          <Textarea
+            v-model="holdReason"
+            :rows="3"
+            placeholder="Enter reason for putting on hold..."
+          />
+        </div>
+        <template #footer>
+          <Button variant="ghost" @click="showHoldModal = false">Cancel</Button>
+          <Button
+            variant="warning"
+            :loading="holdMutation.isPending.value"
+            @click="handleHold"
+          >
+            <Pause class="w-4 h-4 mr-2" />
+            Put On Hold
+          </Button>
+        </template>
+      </Modal>
     </template>
   </div>
 </template>

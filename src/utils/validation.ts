@@ -166,8 +166,23 @@ export const contactSchema = z.object({
   postal_code: z.string().max(10).optional(),
   npwp: npwpSchema,
   nik: nikSchema,
+  // Payment terms
   credit_limit: currencySchema.optional(),
   payment_term_days: z.number().int().min(0).max(365).optional(),
+  currency: z.string().max(3).optional().default(''),
+  // Early payment discount
+  early_discount_percent: z.number().min(0).max(100).optional().nullable(),
+  early_discount_days: z.number().int().min(0).max(365).optional().nullable(),
+  // Bank account details
+  bank_name: z.string().max(100).optional().default(''),
+  bank_account_number: z.string().max(30).optional().default(''),
+  bank_account_name: z.string().max(100).optional().default(''),
+  // Subcontractor fields
+  is_subcontractor: z.boolean().optional().default(false),
+  hourly_rate: z.number().int().min(0).optional().nullable(),
+  daily_rate: z.number().int().min(0).optional().nullable(),
+  subcontractor_services: z.array(z.string()).optional().default([]),
+  notes: z.string().max(2000).optional().default(''),
   is_active: z.boolean().default(true),
 })
 
@@ -810,6 +825,44 @@ export type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
 export type ProductCategoryFormData = z.infer<typeof productCategorySchema>
 
 // ============================================
+// Project Cost & Revenue Schemas
+// ============================================
+
+/**
+ * Project Cost form schema
+ */
+export const projectCostSchema = z.object({
+  type: z.enum(['material', 'labor', 'subcontractor', 'equipment', 'overhead', 'other'], {
+    errorMap: () => ({ message: 'Please select a cost type' }),
+  }),
+  description: requiredString('Description'),
+  quantity: z.number().min(0, 'Quantity cannot be negative').optional().default(1),
+  unit: z.string().optional().default(''),
+  unit_cost: z.number({ required_error: 'Unit cost is required' }).min(0, 'Unit cost cannot be negative'),
+  date: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+})
+
+/**
+ * Project Revenue form schema
+ */
+export const projectRevenueSchema = z.object({
+  type: z.enum(['invoice', 'down_payment', 'milestone', 'other'], {
+    errorMap: () => ({ message: 'Please select a revenue type' }),
+  }),
+  description: requiredString('Description'),
+  amount: z.number({ required_error: 'Amount is required' }).positive('Amount must be greater than 0'),
+  date: z.string().optional().default(''),
+  reference: z.string().optional().default(''),
+  notes: z.string().optional().default(''),
+})
+
+// Project Cost & Revenue types
+export type ProjectCostFormData = z.infer<typeof projectCostSchema>
+export type ProjectRevenueFormData = z.infer<typeof projectRevenueSchema>
+
+// ============================================
 // Manufacturing Schemas
 // ============================================
 
@@ -858,3 +911,38 @@ export const subcontractorWorkOrderSchema = z.object({
 export type MaterialRequisitionItemFormData = z.infer<typeof materialRequisitionItemSchema>
 export type MaterialRequisitionFormData = z.infer<typeof materialRequisitionSchema>
 export type SubcontractorWorkOrderFormData = z.infer<typeof subcontractorWorkOrderSchema>
+
+// ============================================
+// MRP Schemas
+// ============================================
+
+/**
+ * MRP Run parameters schema
+ */
+export const mrpRunParametersSchema = z.object({
+  include_safety_stock: z.boolean().optional().default(true),
+  respect_moq: z.boolean().optional().default(true),
+  respect_order_multiple: z.boolean().optional().default(true),
+})
+
+/**
+ * MRP Run form schema
+ */
+export const mrpRunSchema = z.object({
+  name: z.string().max(255).optional().default(''),
+  planning_horizon_start: requiredDate('Start date'),
+  planning_horizon_end: requiredDate('End date'),
+  warehouse_id: z.number().optional().nullable(),
+  notes: z.string().max(2000).optional().default(''),
+  parameters: mrpRunParametersSchema.optional(),
+}).refine((data) => {
+  if (!data.planning_horizon_start || !data.planning_horizon_end) return true
+  return new Date(data.planning_horizon_end) >= new Date(data.planning_horizon_start)
+}, {
+  message: 'End date must be after or equal to start date',
+  path: ['planning_horizon_end'],
+})
+
+// MRP types
+export type MrpRunParametersFormData = z.infer<typeof mrpRunParametersSchema>
+export type MrpRunFormData = z.infer<typeof mrpRunSchema>
