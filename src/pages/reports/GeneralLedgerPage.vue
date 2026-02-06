@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneralLedger } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportGeneralLedger } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-vue-next'
 
@@ -47,6 +48,15 @@ function setThisMonth() {
   endDate.value = `${year}-${month}-${String(lastDay).padStart(2, '0')}`
 }
 
+const exportMutation = useExportGeneralLedger()
+
+function handleExport() {
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+  })
+}
+
 function setYearToDate() {
   const now = new Date()
   const year = now.getFullYear()
@@ -80,6 +90,7 @@ function setYearToDate() {
           Buku Besar - Detailed account transactions
         </p>
       </div>
+      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filter Card -->

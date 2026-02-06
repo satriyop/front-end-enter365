@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useReceivablesAging } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportReceivablesAging } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const router = useRouter()
@@ -12,6 +13,11 @@ const asOfDateRef = computed(() => asOfDate.value)
 
 const { data: report, isLoading, error } = useReceivablesAging(asOfDateRef)
 
+const exportMutation = useExportReceivablesAging()
+
+function handleExport() {
+  exportMutation.mutate()
+}
 </script>
 
 <template>
@@ -21,7 +27,10 @@ const { data: report, isLoading, error } = useReceivablesAging(asOfDateRef)
         <h1 class="text-2xl font-semibold text-slate-900">Receivables Aging</h1>
         <p class="text-slate-500">Laporan Umur Piutang - Outstanding invoices by age</p>
       </div>
-      <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      </div>
     </div>
 
     <!-- Date Filter -->

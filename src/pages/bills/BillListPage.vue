@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useBills, useDeleteBill, type BillFilters, type Bill } from '@/api/useBills'
+import { useExportBills } from '@/api/useExports'
 import { useResourceList } from '@/composables/useResourceList'
-import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, ExportButton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 
 const toast = useToast()
@@ -46,6 +47,13 @@ const columns: ResponsiveColumn[] = [
   { key: 'status', label: 'Status', showInMobile: false },
 ]
 
+// Export
+const exportMutation = useExportBills()
+
+function handleExport() {
+  exportMutation.mutate({ status: filters.value.status || undefined })
+}
+
 // Delete handling
 const deleteMutation = useDeleteBill()
 
@@ -69,14 +77,17 @@ async function handleDelete() {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Bills</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage supplier bills and payables</p>
       </div>
-      <RouterLink to="/bills/new">
-        <Button>
-          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Bill
-        </Button>
-      </RouterLink>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <RouterLink to="/bills/new">
+          <Button>
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Bill
+          </Button>
+        </RouterLink>
+      </div>
     </div>
 
     <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-6">

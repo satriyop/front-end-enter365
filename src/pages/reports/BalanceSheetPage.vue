@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBalanceSheet } from '@/api/useReports'
-import { Button, Input, Card, Badge } from '@/components/ui'
+import { useExportBalanceSheet } from '@/api/useExports'
+import { Button, Input, Card, Badge, ExportButton } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const router = useRouter()
@@ -11,6 +12,12 @@ const asOfDate = ref(new Date().toISOString().split('T')[0])
 const asOfDateRef = computed(() => asOfDate.value)
 
 const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef)
+
+const exportMutation = useExportBalanceSheet()
+
+function handleExport() {
+  exportMutation.mutate({ date: asOfDate.value || undefined })
+}
 
 function formatAmount(amount: number): string {
   const formatted = formatCurrency(Math.abs(amount))
@@ -25,7 +32,10 @@ function formatAmount(amount: number): string {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Balance Sheet</h1>
         <p class="text-slate-500 dark:text-slate-400">Laporan Posisi Keuangan - Assets, liabilities, and equity</p>
       </div>
-      <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      </div>
     </div>
 
     <!-- Date Filter -->

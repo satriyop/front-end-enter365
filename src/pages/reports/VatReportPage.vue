@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePpnSummary, usePpnMonthly } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportTaxReport } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const router = useRouter()
@@ -26,6 +27,16 @@ const { data: monthlyReport, isLoading: loadingMonthly } = usePpnMonthly(yearRef
 
 const isLoading = computed(() => viewMode.value === 'summary' ? loadingSummary.value : loadingMonthly.value)
 
+const exportMutation = useExportTaxReport()
+
+function handleExport() {
+  const now = new Date()
+  exportMutation.mutate({
+    month: String(now.getMonth() + 1),
+    year: String(year.value),
+  })
+}
+
 function formatAmount(amount: number): string {
   const formatted = formatCurrency(Math.abs(amount))
   return amount < 0 ? `(${formatted})` : formatted
@@ -39,7 +50,10 @@ function formatAmount(amount: number): string {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">VAT Report</h1>
         <p class="text-slate-500 dark:text-slate-400">Laporan PPN - Input and output VAT summary</p>
       </div>
-      <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      </div>
     </div>
 
     <!-- View Mode Toggle -->

@@ -3,10 +3,11 @@ import { watch, computed } from 'vue'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from '@/api/client'
 import { useInvoices, type Invoice, type InvoiceFilters } from '@/api/useInvoices'
+import { useExportInvoices } from '@/api/useExports'
 import { useResourceList } from '@/composables/useResourceList'
 import { useBulkSelection } from '@/composables/useBulkSelection'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Badge, Button, Input, Select, Pagination, EmptyState, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Badge, Button, Input, Select, Pagination, EmptyState, ExportButton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import BulkActionsBar from '@/components/BulkActionsBar.vue'
 
 const toast = useToast()
@@ -59,6 +60,13 @@ const statusOptions = [
   { value: 'void', label: 'Void' },
 ]
 
+// Export
+const exportMutation = useExportInvoices()
+
+function handleExport() {
+  exportMutation.mutate({ status: filters.value.status || undefined })
+}
+
 // Table columns with mobile priorities
 const columns: ResponsiveColumn[] = [
   { key: 'invoice_number', label: 'Invoice #', mobilePriority: 1 },
@@ -107,14 +115,17 @@ const bulkActions = computed(() => [
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Invoices</h1>
         <p class="text-slate-500 dark:text-slate-400">Manage sales invoices and receivables</p>
       </div>
-      <RouterLink to="/invoices/new">
-        <Button>
-          <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          New Invoice
-        </Button>
-      </RouterLink>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <RouterLink to="/invoices/new">
+          <Button>
+            <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Invoice
+          </Button>
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Filters -->

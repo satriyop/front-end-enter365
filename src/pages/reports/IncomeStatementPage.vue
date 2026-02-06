@@ -2,7 +2,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIncomeStatement } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportIncomeStatement } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const router = useRouter()
@@ -15,6 +16,12 @@ const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
 
 const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef)
+
+const exportMutation = useExportIncomeStatement()
+
+function handleExport() {
+  exportMutation.mutate({ start_date: startDate.value || undefined, end_date: endDate.value || undefined })
+}
 
 function formatAmount(amount: number): string {
   const formatted = formatCurrency(Math.abs(amount))
@@ -29,7 +36,10 @@ function formatAmount(amount: number): string {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Income Statement</h1>
         <p class="text-slate-500 dark:text-slate-400">Laporan Laba Rugi - Revenue and expenses for the period</p>
       </div>
-      <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      </div>
     </div>
 
     <!-- Date Filter -->
