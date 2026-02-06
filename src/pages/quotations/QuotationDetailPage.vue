@@ -15,11 +15,19 @@ import {
   useMarkQuotationLost,
   useExportQuotationPdf,
 } from '@/api/useQuotations'
+import {
+  useQuotationActivities,
+  useAssignQuotation,
+  useUpdatePriority,
+} from '@/api/useQuotationFollowUp'
+import { useUsersLookup } from '@/api/useUsers'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Badge, Modal, ConfirmDialog, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Button, Badge, Modal, ConfirmDialog, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn, Select, Input } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
+import LogActivityModal from '@/components/quotations/LogActivityModal.vue'
+import ScheduleFollowUpModal from '@/components/quotations/ScheduleFollowUpModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -42,16 +50,65 @@ const markSentMutation = useMarkQuotationSent()
 const markWonMutation = useMarkQuotationWon()
 const markLostMutation = useMarkQuotationLost()
 const exportPdfMutation = useExportQuotationPdf()
+const assignMutation = useAssignQuotation()
+const priorityMutation = useUpdatePriority()
+
+// Follow-up data
+const { data: activitiesData, isLoading: activitiesLoading } = useQuotationActivities(quotationId)
+const { data: usersData } = useUsersLookup()
+
+const activities = computed(() => activitiesData.value?.data ?? [])
+const userOptions = computed(() => [
+  { value: '', label: 'Unassigned' },
+  ...(usersData.value?.map((u) => ({ value: String(u.id), label: u.name })) ?? []),
+])
 
 // Modal states
 const showRejectModal = ref(false)
 const showPrintPreview = ref(false)
 const showWonModal = ref(false)
 const showLostModal = ref(false)
+const showLogActivity = ref(false)
+const showScheduleFollowUp = ref(false)
 const rejectReason = ref('')
+const wonReason = ref('')
 const wonNotes = ref('')
 const lostReason = ref('')
+const lostToCompetitor = ref('')
+const lostNotes = ref('')
 const deleteConfirmRef = ref<InstanceType<typeof ConfirmDialog>>()
+
+// Won/Lost reason options
+const wonReasonOptions = [
+  { value: '', label: 'Select reason...' },
+  { value: 'harga_kompetitif', label: 'Harga Kompetitif' },
+  { value: 'kualitas_produk', label: 'Kualitas Produk' },
+  { value: 'layanan_baik', label: 'Layanan Baik' },
+  { value: 'waktu_pengiriman', label: 'Waktu Pengiriman' },
+  { value: 'hubungan_baik', label: 'Hubungan Baik' },
+  { value: 'spesifikasi_sesuai', label: 'Spesifikasi Sesuai' },
+  { value: 'rekomendasi', label: 'Rekomendasi' },
+  { value: 'lainnya', label: 'Lainnya' },
+]
+
+const lostReasonOptions = [
+  { value: '', label: 'Select reason...' },
+  { value: 'harga_tinggi', label: 'Harga Tinggi' },
+  { value: 'kalah_kompetitor', label: 'Kalah Kompetitor' },
+  { value: 'spesifikasi_tidak_sesuai', label: 'Spesifikasi Tidak Sesuai' },
+  { value: 'waktu_pengiriman_lama', label: 'Waktu Pengiriman Lama' },
+  { value: 'proyek_dibatalkan', label: 'Proyek Dibatalkan' },
+  { value: 'tidak_ada_budget', label: 'Tidak Ada Budget' },
+  { value: 'tidak_ada_respon', label: 'Tidak Ada Respon' },
+  { value: 'lainnya', label: 'Lainnya' },
+]
+
+const priorityOptions: { value: string; label: string }[] = [
+  { value: 'low', label: 'Low' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'high', label: 'High' },
+  { value: 'urgent', label: 'Urgent' },
+]
 
 // Action handlers
 async function handleSubmit() {
@@ -137,8 +194,13 @@ async function handleMarkSent() {
 
 async function handleMarkWon() {
   try {
-    await markWonMutation.mutateAsync({ id: quotationId.value, notes: wonNotes.value })
+    await markWonMutation.mutateAsync({
+      id: quotationId.value,
+      won_reason: wonReason.value || null,
+      outcome_notes: wonNotes.value || null,
+    })
     showWonModal.value = false
+    wonReason.value = ''
     wonNotes.value = ''
     toast.success('Quotation marked as won')
   } catch (error) {
@@ -148,13 +210,66 @@ async function handleMarkWon() {
 
 async function handleMarkLost() {
   try {
-    await markLostMutation.mutateAsync({ id: quotationId.value, reason: lostReason.value })
+    await markLostMutation.mutateAsync({
+      id: quotationId.value,
+      lost_reason: lostReason.value || null,
+      lost_to_competitor: lostToCompetitor.value || null,
+      outcome_notes: lostNotes.value || null,
+    })
     showLostModal.value = false
     lostReason.value = ''
+    lostToCompetitor.value = ''
+    lostNotes.value = ''
     toast.success('Quotation marked as lost')
   } catch (error) {
     toast.error(getErrorMessage(error, 'Failed to mark quotation as lost'))
   }
+}
+
+async function handleAssign(userId: string) {
+  if (!userId) return
+  try {
+    await assignMutation.mutateAsync({ id: quotationId.value, assigned_to: Number(userId) })
+    toast.success('Quotation assigned')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to assign'))
+  }
+}
+
+async function handlePriority(priority: string) {
+  try {
+    await priorityMutation.mutateAsync({
+      id: quotationId.value,
+      priority: priority as 'low' | 'normal' | 'high' | 'urgent',
+    })
+    toast.success('Priority updated')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to update priority'))
+  }
+}
+
+// Activity type icon mapping
+function getActivityIcon(type: string): string {
+  const icons: Record<string, string> = {
+    call: '📞',
+    email: '📧',
+    meeting: '🤝',
+    note: '📝',
+    whatsapp: '💬',
+    visit: '🏢',
+  }
+  return icons[type] ?? '📋'
+}
+
+function getOutcomeClass(outcome?: string | null): string {
+  if (!outcome) return ''
+  const classes: Record<string, string> = {
+    positive: 'text-emerald-600 dark:text-emerald-400',
+    neutral: 'text-slate-500 dark:text-slate-400',
+    negative: 'text-red-600 dark:text-red-400',
+    no_answer: 'text-amber-600 dark:text-amber-400',
+  }
+  return classes[outcome] ?? ''
 }
 
 async function handleExportPdf() {
@@ -319,6 +434,24 @@ const itemColumns: ResponsiveColumn[] = [
               @click="showLostModal = true"
             >
               Mark as Lost
+            </Button>
+
+            <!-- Log Activity -->
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="showLogActivity = true"
+            >
+              Log Activity
+            </Button>
+
+            <!-- Schedule Follow-Up -->
+            <Button
+              variant="secondary"
+              size="sm"
+              @click="showScheduleFollowUp = true"
+            >
+              Schedule Follow-Up
             </Button>
 
             <!-- Edit (draft only) -->
@@ -575,6 +708,95 @@ const itemColumns: ResponsiveColumn[] = [
               </li>
             </ul>
           </div>
+
+          <!-- Follow-Up Info Card -->
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Follow-Up</h2>
+            <dl class="space-y-3 text-sm">
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Priority</dt>
+                <dd>
+                  <Select
+                    :model-value="quotation.priority?.value ?? 'normal'"
+                    :options="priorityOptions"
+                    class="w-28"
+                    @update:model-value="(v) => handlePriority(String(v))"
+                  />
+                </dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Assigned To</dt>
+                <dd>
+                  <Select
+                    :model-value="quotation.assigned_to ? String(quotation.assigned_to) : ''"
+                    :options="userOptions"
+                    class="w-36"
+                    @update:model-value="(v) => handleAssign(String(v))"
+                  />
+                </dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Next Follow-Up</dt>
+                <dd>
+                  <span v-if="quotation.next_follow_up_at" class="font-medium">
+                    {{ formatDate(quotation.next_follow_up_at) }}
+                  </span>
+                  <Button v-else variant="link" size="xs" @click="showScheduleFollowUp = true">
+                    Schedule
+                  </Button>
+                </dd>
+              </div>
+              <div v-if="quotation.days_since_last_contact !== null" class="flex items-center justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Days Since Contact</dt>
+                <dd class="font-medium" :class="(quotation.days_since_last_contact ?? 0) > 7 ? 'text-red-600 dark:text-red-400' : ''">
+                  {{ quotation.days_since_last_contact }}
+                </dd>
+              </div>
+              <div class="flex items-center justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Follow-Up Count</dt>
+                <dd class="font-medium">{{ quotation.follow_up_count ?? 0 }}</dd>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Activity Timeline Card -->
+          <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Activity Log</h2>
+              <Button variant="ghost" size="xs" @click="showLogActivity = true">
+                + Log
+              </Button>
+            </div>
+
+            <div v-if="activitiesLoading" class="text-sm text-muted-foreground">Loading...</div>
+            <div v-else-if="activities.length === 0" class="text-sm text-muted-foreground text-center py-4">
+              No activities yet
+            </div>
+            <ul v-else class="space-y-4">
+              <li v-for="activity in activities" :key="activity.id" class="flex gap-3">
+                <div class="text-lg leading-none mt-0.5">{{ getActivityIcon(activity.activity_type) }}</div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-sm font-medium text-slate-900 dark:text-slate-100 capitalize">
+                    {{ activity.activity_type }}
+                  </p>
+                  <p v-if="activity.description" class="text-sm text-muted-foreground line-clamp-2">
+                    {{ activity.description }}
+                  </p>
+                  <div class="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                    <span>{{ formatDate(activity.created_at) }}</span>
+                    <span v-if="activity.user">by {{ activity.user.name }}</span>
+                    <span
+                      v-if="activity.outcome"
+                      :class="getOutcomeClass(activity.outcome)"
+                      class="capitalize font-medium"
+                    >
+                      {{ activity.outcome }}
+                    </span>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </template>
@@ -619,14 +841,20 @@ const itemColumns: ResponsiveColumn[] = [
       <p class="text-slate-600 dark:text-slate-400 mb-4">
         Great news! Mark this quotation as won to track the successful conversion.
       </p>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes (optional)</label>
-        <textarea
-          v-model="wonNotes"
-          rows="3"
-          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Add any notes about the win..."
-        />
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Won Reason</label>
+          <Select v-model="wonReason" :options="wonReasonOptions" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes (optional)</label>
+          <textarea
+            v-model="wonNotes"
+            rows="3"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Add any notes about the win..."
+          />
+        </div>
       </div>
       <template #footer>
         <Button variant="ghost" @click="showWonModal = false">Cancel</Button>
@@ -643,16 +871,26 @@ const itemColumns: ResponsiveColumn[] = [
     <!-- Mark Lost Modal -->
     <Modal :open="showLostModal" title="Mark as Lost" @update:open="showLostModal = $event">
       <p class="text-slate-600 dark:text-slate-400 mb-4">
-        Mark this quotation as lost. You can record the reason for future reference.
+        Mark this quotation as lost. Recording the reason helps improve future sales.
       </p>
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason (optional)</label>
-        <textarea
-          v-model="lostReason"
-          rows="3"
-          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-          placeholder="Enter reason for losing this quotation..."
-        />
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lost Reason</label>
+          <Select v-model="lostReason" :options="lostReasonOptions" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Lost To Competitor (optional)</label>
+          <Input v-model="lostToCompetitor" placeholder="Competitor name..." />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes (optional)</label>
+          <textarea
+            v-model="lostNotes"
+            rows="3"
+            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            placeholder="Additional details..."
+          />
+        </div>
       </div>
       <template #footer>
         <Button variant="ghost" @click="showLostModal = false">Cancel</Button>
@@ -665,6 +903,21 @@ const itemColumns: ResponsiveColumn[] = [
         </Button>
       </template>
     </Modal>
+
+    <!-- Log Activity Modal -->
+    <LogActivityModal
+      :open="showLogActivity"
+      :quotation-id="quotationId"
+      @update:open="showLogActivity = $event"
+    />
+
+    <!-- Schedule Follow-Up Modal -->
+    <ScheduleFollowUpModal
+      :open="showScheduleFollowUp"
+      :quotation-id="quotationId"
+      :current-follow-up="quotation?.next_follow_up_at"
+      @update:open="showScheduleFollowUp = $event"
+    />
 
     <!-- Print Preview Modal -->
     <Modal

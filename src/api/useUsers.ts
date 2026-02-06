@@ -158,6 +158,22 @@ export function useUpdateUserPassword() {
 }
 
 /**
+ * Lightweight user lookup for dropdowns (assignment, etc.)
+ */
+export function useUsersLookup() {
+  return useQuery({
+    queryKey: ['users', 'lookup'],
+    queryFn: async () => {
+      const response = await api.get<PaginatedResponse<User>>('/users', {
+        params: { per_page: 100, is_active: true },
+      })
+      return response.data.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
  * Assign roles to user
  */
 export function useAssignRoles() {

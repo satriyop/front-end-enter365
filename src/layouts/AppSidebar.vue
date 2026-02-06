@@ -48,6 +48,7 @@ const navigation: NavGroup[] = [
     label: 'Sales',
     items: [
       { name: 'Quotations', path: '/quotations', icon: '📋', permission: 'quotations.view' },
+      { name: 'Follow-Up', path: '/sales/follow-up', icon: '📞', permission: 'quotations.view' },
       { name: 'Solar Proposals', path: '/solar-proposals', icon: '☀️', permission: 'solar_proposals.view' },
       { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view' },
       { name: 'Delivery Orders', path: '/sales/delivery-orders', icon: '🚚', permission: 'delivery_orders.view' },

@@ -192,13 +192,26 @@ export function useCreateQuotationFromBom() {
 export function useMarkQuotationWon() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, notes }: { id: number | string; notes?: string }) => {
-      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-won`, { notes })
+    mutationFn: async ({
+      id,
+      won_reason,
+      outcome_notes,
+    }: {
+      id: number | string
+      won_reason?: string | null
+      outcome_notes?: string | null
+    }) => {
+      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-won`, {
+        won_reason,
+        outcome_notes,
+      })
       return response.data.data
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] })
       queryClient.setQueryData(['quotation', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['quotation-follow-up'] })
+      queryClient.invalidateQueries({ queryKey: ['follow-up-summary'] })
     },
   })
 }
@@ -206,13 +219,29 @@ export function useMarkQuotationWon() {
 export function useMarkQuotationLost() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, reason }: { id: number | string; reason?: string }) => {
-      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-lost`, { reason })
+    mutationFn: async ({
+      id,
+      lost_reason,
+      lost_to_competitor,
+      outcome_notes,
+    }: {
+      id: number | string
+      lost_reason?: string | null
+      lost_to_competitor?: string | null
+      outcome_notes?: string | null
+    }) => {
+      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-lost`, {
+        lost_reason,
+        lost_to_competitor,
+        outcome_notes,
+      })
       return response.data.data
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['quotations'] })
       queryClient.setQueryData(['quotation', data.id], data)
+      queryClient.invalidateQueries({ queryKey: ['quotation-follow-up'] })
+      queryClient.invalidateQueries({ queryKey: ['follow-up-summary'] })
     },
   })
 }
