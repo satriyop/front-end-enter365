@@ -298,6 +298,12 @@ const router = createRouter({
           component: () => import('@/pages/finance/reminders/PaymentReminderListPage.vue'),
           meta: { breadcrumb: 'Payment Reminders' },
         },
+        {
+          path: 'finance/reminders/:id',
+          name: 'payment-reminder-detail',
+          component: () => import('@/pages/finance/reminders/PaymentReminderDetailPage.vue'),
+          meta: { breadcrumb: 'Reminder Details' },
+        },
         // Project routes
         {
           path: 'projects',
@@ -580,6 +586,12 @@ const router = createRouter({
           meta: { breadcrumb: 'Goods Receipt Notes' }
         },
         {
+          path: 'purchasing/goods-receipt-notes/new',
+          name: 'goods-receipt-note-new',
+          component: () => import('@/pages/purchasing/goods-receipt-notes/GoodsReceiptNoteFormPage.vue'),
+          meta: { breadcrumb: 'New GRN' }
+        },
+        {
           path: 'purchasing/goods-receipt-notes/:id',
           name: 'goods-receipt-note-detail',
           component: () => import('@/pages/purchasing/goods-receipt-notes/GoodsReceiptNoteDetailPage.vue'),
@@ -850,6 +862,12 @@ const router = createRouter({
           meta: { breadcrumb: 'COGS by Product' }
         },
         {
+          path: 'reports/products/:id/cogs',
+          name: 'report-product-cogs-detail',
+          component: () => import('@/pages/reports/ProductCOGSDetailPage.vue'),
+          meta: { breadcrumb: 'Product COGS Detail' }
+        },
+        {
           path: 'reports/cogs-monthly-trend',
           name: 'report-cogs-monthly-trend',
           component: () => import('@/pages/reports/CogsMonthlyTrendPage.vue'),
@@ -868,6 +886,12 @@ const router = createRouter({
           meta: { breadcrumb: 'Project Profitability' }
         },
         {
+          path: 'reports/projects/:id/profitability',
+          name: 'report-project-profitability-detail',
+          component: () => import('@/pages/reports/ProjectProfitabilityDetailPage.vue'),
+          meta: { breadcrumb: 'Project Detail' }
+        },
+        {
           path: 'reports/project-cost-analysis',
           name: 'report-project-cost-analysis',
           component: () => import('@/pages/reports/ProjectCostAnalysisPage.vue'),
@@ -878,6 +902,12 @@ const router = createRouter({
           name: 'report-work-order-costs',
           component: () => import('@/pages/reports/WorkOrderCostsPage.vue'),
           meta: { breadcrumb: 'Work Order Costs' }
+        },
+        {
+          path: 'reports/work-orders/:id/costs',
+          name: 'report-work-order-cost-detail',
+          component: () => import('@/pages/reports/WorkOrderCostDetailPage.vue'),
+          meta: { breadcrumb: 'Work Order Cost Detail' }
         },
         {
           path: 'reports/subcontractor-summary',

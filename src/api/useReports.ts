@@ -1201,3 +1201,121 @@ export function useBankReconciliationReport(
     enabled: computed(() => !!accountId.value),
   })
 }
+
+// ─────────────────────────────────────────────────────────────
+// Detail Report Types
+// ─────────────────────────────────────────────────────────────
+
+export interface ProjectProfitabilityDetail {
+  project: {
+    id: number
+    project_number: string
+    name: string
+    customer: string | null
+    status: string
+    start_date: string | null
+    end_date: string | null
+    contract_amount: number
+    budget_amount: number
+  }
+  financials: {
+    total_revenue: number
+    total_costs: number
+    gross_profit: number
+    profit_margin: number
+  }
+  cost_breakdown: Array<{
+    category: string
+    amount: number
+    percentage: number
+  }>
+  revenue_timeline: Array<{
+    month: string
+    revenue: number
+  }>
+}
+
+export interface WorkOrderCostDetail {
+  work_order: {
+    id: number
+    wo_number: string
+    name: string
+    project_number: string | null
+    project_name: string | null
+    status: string
+  }
+  costs: {
+    planned_cost: number
+    actual_cost: number
+    material_cost: number
+    labor_cost: number
+    overhead_cost: number
+    variance: number
+    variance_percent: number
+  }
+  completion_percentage: number
+}
+
+export interface ProductCOGSDetail {
+  product: {
+    id: number
+    sku: string
+    name: string
+    category: string | null
+  }
+  summary: {
+    total_cogs: number
+    units_sold: number
+    avg_cogs_per_unit: number
+  }
+  breakdown: Array<{
+    component: string
+    amount: number
+    percentage: number
+  }>
+  monthly_trend: Array<{
+    month: string
+    cogs: number
+    units_sold: number
+  }>
+}
+
+// ─────────────────────────────────────────────────────────────
+// Detail Report Hooks
+// ─────────────────────────────────────────────────────────────
+
+export function useProjectProfitabilityDetail(projectId: Ref<number>) {
+  return useQuery({
+    queryKey: ['reports', 'project-profitability-detail', projectId],
+    queryFn: async () => {
+      const response = await api.get<ProjectProfitabilityDetail>(`/reports/projects/${projectId.value}/profitability`)
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!projectId.value),
+  })
+}
+
+export function useWorkOrderCostDetail(workOrderId: Ref<number>) {
+  return useQuery({
+    queryKey: ['reports', 'work-order-cost-detail', workOrderId],
+    queryFn: async () => {
+      const response = await api.get<WorkOrderCostDetail>(`/reports/work-orders/${workOrderId.value}/costs`)
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!workOrderId.value),
+  })
+}
+
+export function useProductCOGSDetail(productId: Ref<number>) {
+  return useQuery({
+    queryKey: ['reports', 'product-cogs-detail', productId],
+    queryFn: async () => {
+      const response = await api.get<ProductCOGSDetail>(`/reports/products/${productId.value}/cogs`)
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!productId.value),
+  })
+}

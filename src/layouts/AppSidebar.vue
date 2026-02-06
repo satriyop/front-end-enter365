@@ -76,6 +76,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'MRP', path: '/manufacturing/mrp', icon: '🧮', permission: 'mrp.view' },
       { name: 'Material Requisitions', path: '/manufacturing/material-requisitions', icon: '📋', permission: 'material_requisitions.view' },
+      { name: 'Cost Optimization', path: '/manufacturing/cost-optimization', icon: '💡', permission: 'boms.view' },
       { name: 'Subcontractor WO', path: '/manufacturing/subcontractor-work-orders', icon: '🔨', permission: 'subcontractor_work_orders.view' },
       { name: 'SC Invoices', path: '/manufacturing/subcontractor-invoices', icon: '📄', permission: 'subcontractor_invoices.view' },
     ]
@@ -108,6 +109,7 @@ const navigation: NavGroup[] = [
       { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
       { name: 'Down Payments', path: '/finance/down-payments', icon: '💰', permission: 'down_payments.view' },
       { name: 'Reminders', path: '/finance/reminders', icon: '🔔', permission: 'invoices.view' },
+      { name: 'Overdue Management', path: '/sales/overdue-dashboard', icon: '⚠️', permission: 'invoices.view' },
       { name: 'Bills', path: '/bills', icon: '📑', permission: 'bills.view' },
       { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.view' },
     ]
