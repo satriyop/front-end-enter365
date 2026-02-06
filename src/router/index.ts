@@ -892,6 +892,12 @@ const router = createRouter({
           meta: { breadcrumb: 'Subcontractor Retention' }
         },
         {
+          path: 'reports/subcontractors/:id/summary',
+          name: 'report-subcontractor-detail',
+          component: () => import('@/pages/reports/SubcontractorDetailPage.vue'),
+          meta: { breadcrumb: 'Subcontractor Detail' }
+        },
+        {
           path: 'reports/bank-reconciliation-report',
           name: 'report-bank-reconciliation-report',
           component: () => import('@/pages/reports/BankReconciliationReportPage.vue'),

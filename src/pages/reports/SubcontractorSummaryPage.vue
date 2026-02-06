@@ -136,13 +136,15 @@ function setLastMonth() {
                   <th class="pb-3 text-sm font-semibold text-foreground text-right">Outstanding</th>
                   <th class="pb-3 text-sm font-semibold text-foreground text-right">Retention</th>
                   <th class="pb-3 text-sm font-semibold text-foreground text-right">On-Time %</th>
+                  <th class="pb-3 text-sm font-semibold text-foreground"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr
                   v-for="sc in report.subcontractors"
                   :key="sc.id"
-                  class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
+                  class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors cursor-pointer"
+                  @click="router.push(`/reports/subcontractors/${sc.id}/summary`)"
                 >
                   <td class="py-3 font-mono text-sm text-foreground">{{ sc.code }}</td>
                   <td class="py-3 text-sm text-foreground">{{ sc.name }}</td>
@@ -155,6 +157,11 @@ function setLastMonth() {
                   <td class="py-3 text-sm text-amber-600 dark:text-amber-400 text-right">{{ formatCurrency(sc.financials.outstanding) }}</td>
                   <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(sc.financials.retention_held) }}</td>
                   <td class="py-3 text-sm text-foreground text-right">{{ formatPercent(sc.performance.on_time_completion) }}</td>
+                  <td class="py-3 text-sm text-right">
+                    <Button variant="ghost" size="sm" @click.stop="router.push(`/reports/subcontractors/${sc.id}/summary`)">
+                      View
+                    </Button>
+                  </td>
                 </tr>
               </tbody>
             </table>

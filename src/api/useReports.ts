@@ -650,6 +650,59 @@ export interface SubcontractorRetentionReport {
   }
 }
 
+export interface SubcontractorDetailReport {
+  report_name: string
+  subcontractor: {
+    id: number
+    code: string
+    name: string
+    phone: string | null
+    email: string | null
+    hourly_rate: number | null
+    daily_rate: number | null
+  }
+  period: {
+    start: string | null
+    end: string | null
+  }
+  work_orders: {
+    id: number
+    sc_wo_number: string
+    name: string
+    project_number: string | null
+    project_name: string | null
+    status: string
+    agreed_amount: number
+    actual_amount: number
+    retention_amount: number
+    amount_invoiced: number
+    amount_paid: number
+    scheduled_start: string | null
+    scheduled_end: string | null
+    actual_start: string | null
+    actual_end: string | null
+    completion_percentage: number
+  }[]
+  invoices: {
+    id: number
+    invoice_number: string
+    invoice_date: string | null
+    amount: number
+    status: string
+    sc_wo_number: string | null
+  }[]
+  summary: {
+    total_work_orders: number
+    completed_work_orders: number
+    total_agreed: number
+    total_actual: number
+    total_invoiced: number
+    total_paid: number
+    outstanding: number
+    retention_held: number
+  }
+}
+
 export interface BankReconciliationReport {
   report_name: string
   account: {
@@ -1110,6 +1163,25 @@ export function useSubcontractorRetention() {
       return response.data
     },
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useSubcontractorDetail(
+  contactId: Ref<number | string>,
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'subcontractor-detail', contactId, startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<SubcontractorDetailReport>(`/reports/subcontractors/${contactId.value}/summary`, { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: computed(() => !!contactId.value),
   })
 }
 
