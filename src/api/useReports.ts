@@ -298,6 +298,181 @@ export interface MovementSummaryReport {
   }
 }
 
+export interface ChangesInEquityItem {
+  account_id: number
+  code: string
+  name: string
+  opening_balance: number
+  changes: number
+  closing_balance: number
+}
+
+export interface ChangesInEquityReport {
+  report_name: string
+  period: {
+    start_date: string
+    end_date: string
+  }
+  opening_equity: ChangesInEquityItem[]
+  changes: {
+    capital_additions: number
+    capital_withdrawals: number
+    net_income: number
+    dividends: number
+    adjustments: number
+    total_changes: number
+  }
+  closing_equity: ChangesInEquityItem[]
+  total_opening_equity: number
+  total_closing_equity: number
+}
+
+export interface InputTaxItem {
+  id: number
+  date: string
+  vendor_invoice_number: string
+  internal_number: string
+  vendor_name: string
+  npwp: string
+  dpp: number
+  ppn: number
+  total: number
+}
+
+export interface InputTaxListReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  items: InputTaxItem[]
+  total_dpp: number
+  total_ppn: number
+  total: number
+}
+
+export interface TaxInvoiceItem {
+  id: number
+  date: string
+  invoice_number: string
+  buyer_name: string
+  npwp: string
+  address: string
+  dpp: number
+  ppn: number
+  total: number
+}
+
+export interface TaxInvoiceListReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  items: TaxInvoiceItem[]
+  total_dpp: number
+  total_ppn: number
+  total: number
+}
+
+export interface CogsSummaryReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  beginning_inventory: number
+  purchases: number
+  goods_available: number
+  ending_inventory: number
+  cogs: number
+  cogs_from_movements: number
+}
+
+export interface CogsByCategoryItem {
+  category: string
+  product_count: number
+  qty_sold: number
+  total_cogs: number
+  percentage: number
+}
+
+export interface CogsByCategoryReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  categories: CogsByCategoryItem[]
+  total_cogs: number
+}
+
+export interface CogsByProductItem {
+  product_id: number
+  sku: string
+  name: string
+  category: string
+  qty_sold: number
+  avg_unit_cost: number
+  total_cogs: number
+  percentage: number
+}
+
+export interface CogsByProductReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  products: CogsByProductItem[]
+  total_cogs: number
+}
+
+export interface CogsMonthlyTrendItem {
+  month: number
+  month_name: string
+  beginning_inventory: number
+  purchases: number
+  ending_inventory: number
+  cogs: number
+}
+
+export interface CogsMonthlyTrendReport {
+  report_name: string
+  year: number
+  months: CogsMonthlyTrendItem[]
+  total_cogs: number
+}
+
+export interface CostVarianceWorkOrder {
+  id: number
+  wo_number: string
+  name: string
+  project: string
+  estimated_cost: number
+  actual_cost: number
+  variance: number
+  variance_percent: number
+}
+
+export interface CostVarianceReport {
+  report_name: string
+  period: {
+    start: string
+    end: string
+  }
+  summary: {
+    total_work_orders: number
+    over_budget: number
+    under_budget: number
+    on_budget: number
+    total_variance: number
+  }
+  over_budget_items: CostVarianceWorkOrder[]
+  under_budget_items: CostVarianceWorkOrder[]
+  on_budget_items: CostVarianceWorkOrder[]
+}
+
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
@@ -495,5 +670,139 @@ export function useMovementSummary(
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!startDate.value && !!endDate.value),
+  })
+}
+
+export function useChangesInEquity(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'changes-in-equity', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<ChangesInEquityReport>('/reports/changes-in-equity', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useInputTaxList(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'input-tax-list', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<InputTaxListReport>('/reports/input-tax-list', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useTaxInvoiceList(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'tax-invoice-list', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<TaxInvoiceListReport>('/reports/tax-invoice-list', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCogsSummary(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'cogs-summary', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<CogsSummaryReport>('/reports/cogs-summary', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCogsByCategory(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'cogs-by-category', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<CogsByCategoryReport>('/reports/cogs-by-category', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCogsByProduct(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'cogs-by-product', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<CogsByProductReport>('/reports/cogs-by-product', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCogsMonthlyTrend(year?: Ref<number | undefined>) {
+  const yearParam = computed(() => year?.value ?? new Date().getFullYear())
+
+  return useQuery({
+    queryKey: ['reports', 'cogs-monthly-trend', yearParam],
+    queryFn: async () => {
+      const response = await api.get<CogsMonthlyTrendReport>('/reports/cogs-monthly-trend', {
+        params: { year: yearParam.value }
+      })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function useCostVariance(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>
+) {
+  return useQuery({
+    queryKey: ['reports', 'cost-variance', startDate, endDate],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      const response = await api.get<CostVarianceReport>('/reports/cost-variance', { params })
+      return response.data
+    },
+    staleTime: 5 * 60 * 1000,
   })
 }

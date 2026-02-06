@@ -10,6 +10,9 @@ const reportCategories = [
       { name: 'Income Statement', path: '/reports/income-statement', description: 'Revenue and expenses' },
       { name: 'Cash Flow', path: '/reports/cash-flow', description: 'Cash movements by activity' },
       { name: 'Trial Balance', path: '/reports/trial-balance', description: 'Account balances summary' },
+      { name: 'General Ledger', path: '/reports/general-ledger', description: 'Detailed account transactions' },
+      { name: 'Changes in Equity', path: '/reports/changes-in-equity', description: 'Equity movement breakdown' },
+      { name: 'Daily Cash Movement', path: '/reports/daily-cash-movement', description: 'Daily receipts and payments' },
     ],
   },
   {
@@ -43,6 +46,20 @@ const reportCategories = [
     reports: [
       { name: 'VAT Report', path: '/reports/vat', description: 'Input and output VAT summary' },
       { name: 'Tax Summary', path: '/reports/tax-summary', description: 'Taxes collected and paid' },
+      { name: 'PPN Monthly Detail', path: '/reports/ppn-monthly', description: 'Monthly output and input PPN' },
+      { name: 'Input Tax List', path: '/reports/input-tax-list', description: 'Vendor tax invoices (Pajak Masukan)' },
+      { name: 'Tax Invoice List', path: '/reports/tax-invoice-list', description: 'Output tax invoices (Faktur Pajak)' },
+    ],
+  },
+  {
+    title: 'COGS Reports',
+    description: 'Cost of goods sold analysis',
+    reports: [
+      { name: 'COGS Summary', path: '/reports/cogs-summary', description: 'Cost of goods sold overview' },
+      { name: 'COGS by Category', path: '/reports/cogs-by-category', description: 'COGS breakdown by product category' },
+      { name: 'COGS by Product', path: '/reports/cogs-by-product', description: 'COGS breakdown by individual product' },
+      { name: 'COGS Monthly Trend', path: '/reports/cogs-monthly-trend', description: 'Monthly COGS comparison' },
+      { name: 'Cost Variance', path: '/reports/cost-variance', description: 'Production cost vs estimate analysis' },
     ],
   },
 ]

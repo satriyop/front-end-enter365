@@ -504,10 +504,22 @@ const router = createRouter({
           meta: { breadcrumb: 'Recurring Templates' }
         },
         {
+          path: 'accounting/recurring-templates/new',
+          name: 'recurring-template-new',
+          component: () => import('@/pages/accounting/recurring-templates/RecurringTemplateFormPage.vue'),
+          meta: { breadcrumb: 'New Template' }
+        },
+        {
           path: 'accounting/recurring-templates/:id',
           name: 'recurring-template-detail',
           component: () => import('@/pages/accounting/recurring-templates/RecurringTemplateDetailPage.vue'),
           meta: { breadcrumb: (route) => `Template #${route.params.id}` }
+        },
+        {
+          path: 'accounting/recurring-templates/:id/edit',
+          name: 'recurring-template-edit',
+          component: () => import('@/pages/accounting/recurring-templates/RecurringTemplateFormPage.vue'),
+          meta: { breadcrumb: 'Edit Template' }
         },
         // Purchasing - Purchase Orders routes
         {
@@ -751,6 +763,72 @@ const router = createRouter({
           component: () => import('@/pages/reports/VendorStatementPage.vue'),
           meta: { breadcrumb: 'Vendor Statement' }
         },
+        {
+          path: 'reports/general-ledger',
+          name: 'report-general-ledger',
+          component: () => import('@/pages/reports/GeneralLedgerPage.vue'),
+          meta: { breadcrumb: 'General Ledger' }
+        },
+        {
+          path: 'reports/changes-in-equity',
+          name: 'report-changes-in-equity',
+          component: () => import('@/pages/reports/ChangesInEquityPage.vue'),
+          meta: { breadcrumb: 'Changes in Equity' }
+        },
+        {
+          path: 'reports/daily-cash-movement',
+          name: 'report-daily-cash-movement',
+          component: () => import('@/pages/reports/DailyCashMovementPage.vue'),
+          meta: { breadcrumb: 'Daily Cash Movement' }
+        },
+        {
+          path: 'reports/ppn-monthly',
+          name: 'report-ppn-monthly',
+          component: () => import('@/pages/reports/PpnMonthlyPage.vue'),
+          meta: { breadcrumb: 'PPN Monthly' }
+        },
+        {
+          path: 'reports/input-tax-list',
+          name: 'report-input-tax-list',
+          component: () => import('@/pages/reports/InputTaxListPage.vue'),
+          meta: { breadcrumb: 'Input Tax List' }
+        },
+        {
+          path: 'reports/tax-invoice-list',
+          name: 'report-tax-invoice-list',
+          component: () => import('@/pages/reports/TaxInvoiceListPage.vue'),
+          meta: { breadcrumb: 'Tax Invoice List' }
+        },
+        {
+          path: 'reports/cogs-summary',
+          name: 'report-cogs-summary',
+          component: () => import('@/pages/reports/CogsSummaryPage.vue'),
+          meta: { breadcrumb: 'COGS Summary' }
+        },
+        {
+          path: 'reports/cogs-by-category',
+          name: 'report-cogs-by-category',
+          component: () => import('@/pages/reports/CogsByCategoryPage.vue'),
+          meta: { breadcrumb: 'COGS by Category' }
+        },
+        {
+          path: 'reports/cogs-by-product',
+          name: 'report-cogs-by-product',
+          component: () => import('@/pages/reports/CogsByProductPage.vue'),
+          meta: { breadcrumb: 'COGS by Product' }
+        },
+        {
+          path: 'reports/cogs-monthly-trend',
+          name: 'report-cogs-monthly-trend',
+          component: () => import('@/pages/reports/CogsMonthlyTrendPage.vue'),
+          meta: { breadcrumb: 'COGS Monthly Trend' }
+        },
+        {
+          path: 'reports/cost-variance',
+          name: 'report-cost-variance',
+          component: () => import('@/pages/reports/CostVariancePage.vue'),
+          meta: { breadcrumb: 'Cost Variance' }
+        },
         // Settings route
         {
           path: 'settings',
@@ -984,10 +1062,22 @@ const router = createRouter({
           meta: { breadcrumb: 'Users' }
         },
         {
+          path: 'users/new',
+          name: 'user-new',
+          component: () => import('@/pages/users/UserFormPage.vue'),
+          meta: { breadcrumb: 'New User' }
+        },
+        {
           path: 'users/:id',
           name: 'user-detail',
           component: () => import('@/pages/users/UserDetailPage.vue'),
           meta: { breadcrumb: 'User Detail' }
+        },
+        {
+          path: 'users/:id/edit',
+          name: 'user-edit',
+          component: () => import('@/pages/users/UserFormPage.vue'),
+          meta: { breadcrumb: 'Edit User' }
         },
         // Company Profile routes
         {
@@ -1001,6 +1091,12 @@ const router = createRouter({
           name: 'company-profile-new',
           component: () => import('@/pages/company-profiles/CompanyProfileFormPage.vue'),
           meta: { breadcrumb: 'New Profile' }
+        },
+        {
+          path: 'company-profiles/:id',
+          name: 'company-profile-detail',
+          component: () => import('@/pages/company-profiles/CompanyProfileDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Profile #${route.params.id}` }
         },
         {
           path: 'company-profiles/:id/edit',
