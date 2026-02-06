@@ -358,6 +358,24 @@ const router = createRouter({
           component: () => import('@/pages/inventory/StockTransferPage.vue'),
           meta: { breadcrumb: 'Stock Transfer' }
         },
+        {
+          path: 'inventory/stock-card/:id',
+          name: 'stock-card',
+          component: () => import('@/pages/inventory/StockCardPage.vue'),
+          meta: { breadcrumb: 'Stock Card' }
+        },
+        {
+          path: 'inventory/movement-summary',
+          name: 'movement-summary',
+          component: () => import('@/pages/inventory/MovementSummaryPage.vue'),
+          meta: { breadcrumb: 'Movement Summary' }
+        },
+        {
+          path: 'inventory/opnames/:id/variance',
+          name: 'variance-report',
+          component: () => import('@/pages/inventory/VarianceReportPage.vue'),
+          meta: { breadcrumb: 'Variance Report' }
+        },
         // Accounting - Chart of Accounts routes
         {
           path: 'accounting/accounts',
@@ -464,6 +482,19 @@ const router = createRouter({
           name: 'bank-transaction-detail',
           component: () => import('@/pages/accounting/bank-reconciliation/BankTransactionDetailPage.vue'),
           meta: { breadcrumb: (route) => `Transaction #${route.params.id}` }
+        },
+        // Recurring Templates routes
+        {
+          path: 'accounting/recurring-templates',
+          name: 'recurring-templates',
+          component: () => import('@/pages/accounting/recurring-templates/RecurringTemplateListPage.vue'),
+          meta: { breadcrumb: 'Recurring Templates' }
+        },
+        {
+          path: 'accounting/recurring-templates/:id',
+          name: 'recurring-template-detail',
+          component: () => import('@/pages/accounting/recurring-templates/RecurringTemplateDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Template #${route.params.id}` }
         },
         // Purchasing - Purchase Orders routes
         {
@@ -597,6 +628,30 @@ const router = createRouter({
           name: 'mrp-run-edit',
           component: () => import('@/pages/manufacturing/mrp/MrpRunFormPage.vue'),
           meta: { breadcrumb: 'Edit MRP Run' }
+        },
+        {
+          path: 'manufacturing/shortage-report',
+          name: 'shortage-report',
+          component: () => import('@/pages/manufacturing/mrp/ShortageReportPage.vue'),
+          meta: { breadcrumb: 'Shortage Report' }
+        },
+        {
+          path: 'manufacturing/material-status',
+          name: 'material-status',
+          component: () => import('@/pages/manufacturing/MaterialStatusPage.vue'),
+          meta: { breadcrumb: 'Material Status' }
+        },
+        {
+          path: 'work-orders/:id/cost-summary',
+          name: 'work-order-cost-summary',
+          component: () => import('@/pages/work-orders/WorkOrderCostSummaryPage.vue'),
+          meta: { breadcrumb: 'Cost Summary' }
+        },
+        {
+          path: 'work-orders/:id/sub-work-orders',
+          name: 'sub-work-orders',
+          component: () => import('@/pages/work-orders/SubWorkOrdersPage.vue'),
+          meta: { breadcrumb: 'Sub Work Orders' }
         },
         // Reports routes
         {

@@ -184,3 +184,54 @@ export function useCreateQuotationFromBom() {
     },
   })
 }
+
+// ============================================
+// Win/Loss Tracking
+// ============================================
+
+export function useMarkQuotationWon() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, notes }: { id: number | string; notes?: string }) => {
+      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-won`, { notes })
+      return response.data.data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['quotations'] })
+      queryClient.setQueryData(['quotation', data.id], data)
+    },
+  })
+}
+
+export function useMarkQuotationLost() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, reason }: { id: number | string; reason?: string }) => {
+      const response = await api.post<{ data: Quotation }>(`/quotations/${id}/mark-lost`, { reason })
+      return response.data.data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['quotations'] })
+      queryClient.setQueryData(['quotation', data.id], data)
+    },
+  })
+}
+
+// ============================================
+// PDF Export
+// ============================================
+
+export function useExportQuotationPdf() {
+  return useMutation({
+    mutationFn: async (id: number | string) => {
+      const response = await api.get(`/quotations/${id}/pdf`, { responseType: 'blob' })
+      const blob = new Blob([response.data], { type: 'application/pdf' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `quotation-${id}.pdf`
+      link.click()
+      URL.revokeObjectURL(link.href)
+      return true
+    },
+  })
+}

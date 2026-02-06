@@ -10,6 +10,10 @@ import {
   useConvertToInvoice,
   useDuplicateQuotation,
   useDeleteQuotation,
+  useMarkQuotationSent,
+  useMarkQuotationWon,
+  useMarkQuotationLost,
+  useExportQuotationPdf,
 } from '@/api/useQuotations'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
@@ -34,11 +38,19 @@ const reviseMutation = useReviseQuotation()
 const convertMutation = useConvertToInvoice()
 const duplicateMutation = useDuplicateQuotation()
 const deleteMutation = useDeleteQuotation()
+const markSentMutation = useMarkQuotationSent()
+const markWonMutation = useMarkQuotationWon()
+const markLostMutation = useMarkQuotationLost()
+const exportPdfMutation = useExportQuotationPdf()
 
 // Modal states
 const showRejectModal = ref(false)
 const showPrintPreview = ref(false)
+const showWonModal = ref(false)
+const showLostModal = ref(false)
 const rejectReason = ref('')
+const wonNotes = ref('')
+const lostReason = ref('')
 const deleteConfirmRef = ref<InstanceType<typeof ConfirmDialog>>()
 
 // Action handlers
@@ -114,6 +126,46 @@ async function handleDelete() {
   }
 }
 
+async function handleMarkSent() {
+  try {
+    await markSentMutation.mutateAsync(quotationId.value)
+    toast.success('Quotation marked as sent')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to mark quotation as sent'))
+  }
+}
+
+async function handleMarkWon() {
+  try {
+    await markWonMutation.mutateAsync({ id: quotationId.value, notes: wonNotes.value })
+    showWonModal.value = false
+    wonNotes.value = ''
+    toast.success('Quotation marked as won')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to mark quotation as won'))
+  }
+}
+
+async function handleMarkLost() {
+  try {
+    await markLostMutation.mutateAsync({ id: quotationId.value, reason: lostReason.value })
+    showLostModal.value = false
+    lostReason.value = ''
+    toast.success('Quotation marked as lost')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to mark quotation as lost'))
+  }
+}
+
+async function handleExportPdf() {
+  try {
+    await exportPdfMutation.mutateAsync(quotationId.value)
+    toast.success('PDF downloaded')
+  } catch (error) {
+    toast.error(getErrorMessage(error, 'Failed to download PDF'))
+  }
+}
+
 // Status-based action availability
 const canEdit = computed(() => quotation.value?.status.value === 'draft')
 const canSubmit = computed(() => quotation.value?.status.value === 'draft')
@@ -121,10 +173,19 @@ const canApprove = computed(() => quotation.value?.status.value === 'submitted')
 const canReject = computed(() => quotation.value?.status.value === 'submitted')
 const canRevise = computed(() => {
   const status = quotation.value?.status.value
-  return status === 'cancelled' || status === 'rejected'
+  return status === 'cancelled' || status === 'rejected' || status === 'lost'
 })
 const canConvert = computed(() => quotation.value?.status.value === 'approved')
 const canDelete = computed(() => quotation.value?.status.value === 'draft')
+const canMarkSent = computed(() => {
+  const status = quotation.value?.status.value
+  // Sent status would be tracked via status.value or last_contacted_at
+  return status === 'approved'
+})
+const canMarkWonLost = computed(() => {
+  const status = quotation.value?.status.value
+  return status === 'approved' || status === 'sent'
+})
 
 // Print functionality
 function handlePrint() {
@@ -199,6 +260,16 @@ const itemColumns: ResponsiveColumn[] = [
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-2">
+            <!-- PDF Download -->
+            <Button
+              variant="ghost"
+              size="sm"
+              :loading="exportPdfMutation.isPending.value"
+              @click="handleExportPdf"
+            >
+              Download PDF
+            </Button>
+
             <!-- Print -->
             <Button
               variant="ghost"
@@ -217,6 +288,37 @@ const itemColumns: ResponsiveColumn[] = [
               @click="handleDuplicate"
             >
               Duplicate
+            </Button>
+
+            <!-- Mark Sent (approved only, not yet sent) -->
+            <Button
+              v-if="canMarkSent"
+              variant="secondary"
+              size="sm"
+              :loading="markSentMutation.isPending.value"
+              @click="handleMarkSent"
+            >
+              Mark as Sent
+            </Button>
+
+            <!-- Mark Won (approved/sent only) -->
+            <Button
+              v-if="canMarkWonLost"
+              variant="success"
+              size="sm"
+              @click="showWonModal = true"
+            >
+              Mark as Won
+            </Button>
+
+            <!-- Mark Lost (approved/sent only) -->
+            <Button
+              v-if="canMarkWonLost"
+              variant="ghost"
+              size="sm"
+              @click="showLostModal = true"
+            >
+              Mark as Lost
             </Button>
 
             <!-- Edit (draft only) -->
@@ -426,9 +528,30 @@ const itemColumns: ResponsiveColumn[] = [
           </div>
 
           <!-- Activity Card -->
-          <div v-if="quotation.submitted_at || quotation.approved_at" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
+          <div v-if="quotation.submitted_at || quotation.approved_at || quotation.outcome_at" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-6">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100 mb-4">Activity</h2>
             <ul class="space-y-3 text-sm">
+              <li v-if="quotation.outcome?.value === 'won'" class="flex gap-3">
+                <div class="w-2 h-2 mt-1.5 rounded-full bg-emerald-500"></div>
+                <div>
+                  <p class="text-slate-900 dark:text-slate-100">Won</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.outcome_at) }}</p>
+                </div>
+              </li>
+              <li v-if="quotation.outcome?.value === 'lost'" class="flex gap-3">
+                <div class="w-2 h-2 mt-1.5 rounded-full bg-red-500"></div>
+                <div>
+                  <p class="text-slate-900 dark:text-slate-100">Lost</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.outcome_at) }}</p>
+                </div>
+              </li>
+              <li v-if="quotation.last_contacted_at" class="flex gap-3">
+                <div class="w-2 h-2 mt-1.5 rounded-full bg-blue-500"></div>
+                <div>
+                  <p class="text-slate-900 dark:text-slate-100">Last Contact</p>
+                  <p class="text-slate-500 dark:text-slate-400">{{ formatDate(quotation.last_contacted_at) }}</p>
+                </div>
+              </li>
               <li v-if="quotation.approved_at" class="flex gap-3">
                 <div class="w-2 h-2 mt-1.5 rounded-full bg-green-500"></div>
                 <div>
@@ -490,6 +613,58 @@ const itemColumns: ResponsiveColumn[] = [
       confirm-text="Delete"
       variant="destructive"
     />
+
+    <!-- Mark Won Modal -->
+    <Modal :open="showWonModal" title="Mark as Won" @update:open="showWonModal = $event">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Great news! Mark this quotation as won to track the successful conversion.
+      </p>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Notes (optional)</label>
+        <textarea
+          v-model="wonNotes"
+          rows="3"
+          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="Add any notes about the win..."
+        />
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showWonModal = false">Cancel</Button>
+        <Button
+          variant="success"
+          :loading="markWonMutation.isPending.value"
+          @click="handleMarkWon"
+        >
+          Mark as Won
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Mark Lost Modal -->
+    <Modal :open="showLostModal" title="Mark as Lost" @update:open="showLostModal = $event">
+      <p class="text-slate-600 dark:text-slate-400 mb-4">
+        Mark this quotation as lost. You can record the reason for future reference.
+      </p>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason (optional)</label>
+        <textarea
+          v-model="lostReason"
+          rows="3"
+          class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+          placeholder="Enter reason for losing this quotation..."
+        />
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showLostModal = false">Cancel</Button>
+        <Button
+          variant="destructive"
+          :loading="markLostMutation.isPending.value"
+          @click="handleMarkLost"
+        >
+          Mark as Lost
+        </Button>
+      </template>
+    </Modal>
 
     <!-- Print Preview Modal -->
     <Modal

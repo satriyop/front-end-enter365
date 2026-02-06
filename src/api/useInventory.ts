@@ -267,3 +267,104 @@ export function useStockTransfer() {
  * @deprecated Use useWarehousesLookup from '@/api/useWarehouses' instead
  */
 export { useWarehousesLookup } from './useWarehouses'
+
+// ─────────────────────────────────────────────────────────────
+// Reports
+// ─────────────────────────────────────────────────────────────
+
+export interface MovementSummaryFilters {
+  warehouse_id?: number
+  start_date?: string
+  end_date?: string
+}
+
+export interface MovementSummaryResponse {
+  warehouse: { id: number; code: string; name: string } | null
+  period: { start_date: string; end_date: string }
+  summary: {
+    total_in: number
+    total_out: number
+    net_movement: number
+    total_value_in: number
+    total_value_out: number
+  }
+  by_type: Array<{
+    type: string
+    type_label: string
+    count: number
+    quantity_in: number
+    quantity_out: number
+    value_in: number
+    value_out: number
+  }>
+  by_product: Array<{
+    product_id: number
+    sku: string
+    name: string
+    quantity_in: number
+    quantity_out: number
+    net_quantity: number
+  }>
+}
+
+export interface VarianceReportFilters {
+  opname_id?: number
+  warehouse_id?: number
+}
+
+export interface VarianceReportResponse {
+  opname: {
+    id: number
+    reference: string
+    opname_date: string
+    status: { value: string; label: string }
+  }
+  warehouse: { id: number; code: string; name: string }
+  summary: {
+    total_items: number
+    items_with_variance: number
+    total_variance_value: number
+  }
+  items: Array<{
+    product_id: number
+    sku: string
+    name: string
+    system_quantity: number
+    counted_quantity: number
+    variance: number
+    unit_cost: number
+    variance_value: number
+  }>
+}
+
+/**
+ * Fetch movement summary report
+ */
+export function useMovementSummary(filters: Ref<MovementSummaryFilters>) {
+  return useQuery({
+    queryKey: computed(() => ['inventory', 'movement-summary', filters.value]),
+    queryFn: async () => {
+      const cleanParams = Object.fromEntries(
+        Object.entries(filters.value).filter(([, v]) => v !== '' && v !== undefined && v !== null)
+      )
+      const response = await api.get<MovementSummaryResponse>('/inventory/movement-summary', {
+        params: cleanParams
+      })
+      return response.data
+    },
+  })
+}
+
+/**
+ * Fetch variance report for stock opname
+ */
+export function useVarianceReport(opnameId: Ref<number | string | undefined>) {
+  return useQuery({
+    queryKey: computed(() => ['inventory', 'variance-report', opnameId.value]),
+    queryFn: async () => {
+      const response = await api.get<VarianceReportResponse>(`/stock-opnames/${opnameId.value}/variance-report`)
+      return response.data
+    },
+    enabled: computed(() => !!opnameId.value),
+  })
+}

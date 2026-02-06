@@ -98,6 +98,7 @@ const navigation: NavGroup[] = [
       { name: 'Fiscal Periods', path: '/accounting/fiscal-periods', icon: '📅', permission: 'fiscal_periods.view' },
       { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view' },
       { name: 'Bank Reconciliation', path: '/accounting/bank-reconciliation', icon: '🏦', permission: 'bank_reconciliation.view' },
+      { name: 'Recurring Templates', path: '/accounting/recurring-templates', icon: '🔄', permission: 'recurring_templates.view' },
     ]
   },
   {

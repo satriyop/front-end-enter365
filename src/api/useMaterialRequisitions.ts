@@ -4,7 +4,8 @@
  * Handles material requisitions for work orders - requesting, approving, and issuing materials.
  */
 
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { computed, type Ref } from 'vue'
 import { api } from './client'
 import { createCrudHooks } from './factory'
 import type { components } from './types'
@@ -153,4 +154,53 @@ export function getMaterialRequisitionStatus(mr: MaterialRequisition): { label: 
  */
 export function formatMRNumber(mr: MaterialRequisition): string {
   return mr.requisition_number || `MR-${mr.id}`
+}
+
+// ============================================================================
+// Material Status Report
+// ============================================================================
+
+export interface MaterialStatusItem {
+  product_id: number
+  product_sku: string
+  product_name: string
+  work_order_id: number
+  work_order_number: string
+  requisition_id: number
+  requisition_number: string
+  required_qty: number
+  issued_qty: number
+  pending_qty: number
+  status: 'pending' | 'partial' | 'complete'
+  expected_date?: string
+}
+
+export interface MaterialStatusReport {
+  items: MaterialStatusItem[]
+  summary: {
+    total_items: number
+    pending_items: number
+    partial_items: number
+    complete_items: number
+  }
+}
+
+/**
+ * Get material status report for work orders
+ */
+export function useMaterialStatus(
+  workOrderId?: Ref<number | undefined>,
+  warehouseId?: Ref<number | undefined>
+) {
+  return useQuery({
+    queryKey: computed(() => ['material-status', workOrderId?.value, warehouseId?.value]),
+    queryFn: async () => {
+      const params: Record<string, unknown> = {}
+      if (workOrderId?.value) params.work_order_id = workOrderId.value
+      if (warehouseId?.value) params.warehouse_id = warehouseId.value
+
+      const response = await api.get<MaterialStatusReport>('/material-requisitions/status-report', { params })
+      return response.data
+    },
+  })
 }
