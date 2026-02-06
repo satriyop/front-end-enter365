@@ -17,7 +17,9 @@ import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
-import { FileText, Truck, RotateCcw, Send, Repeat } from 'lucide-vue-next'
+import { FileText, Truck, RotateCcw, Send, Repeat, Bell } from 'lucide-vue-next'
+import { useInvoiceReminders, useSendImmediateReminder } from '@/api/usePaymentReminders'
+import ScheduleReminderModal from '@/components/invoices/ScheduleReminderModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -50,7 +52,36 @@ const showPrintPreview = ref(false)
 const showCreateDOModal = ref(false)
 const showCreateSRModal = ref(false)
 const showRecurringModal = ref(false)
+const showScheduleReminderModal = ref(false)
 const voidReason = ref('')
+
+// Payment Reminders
+const { data: invoiceReminders } = useInvoiceReminders(invoiceId)
+const sendImmediateMutation = useSendImmediateReminder()
+
+const pendingRemindersCount = computed(() =>
+  invoiceReminders.value?.filter(r => r.status === 'pending').length ?? 0
+)
+
+const canSendReminder = computed(() => {
+  const status = invoice.value?.status?.value
+  return status === 'posted' || status === 'sent' || status === 'partial' || status === 'overdue'
+})
+
+function reminderStatusVariant(status: string) {
+  const map: Record<string, string> = { pending: 'outline', sent: 'default', cancelled: 'secondary', failed: 'destructive' }
+  return (map[status] ?? 'default') as 'outline' | 'default' | 'secondary' | 'destructive'
+}
+
+async function handleSendImmediate() {
+  if (!invoice.value) return
+  try {
+    await sendImmediateMutation.mutateAsync({ invoiceId: invoice.value.id })
+    toast.success('Reminder sent successfully')
+  } catch (err) {
+    toast.error('Failed to send reminder')
+  }
+}
 
 // Recurring form data
 const today = new Date().toISOString().split('T')[0] || ''
@@ -587,6 +618,68 @@ const itemColumns: ResponsiveColumn[] = [
             </div>
           </Card>
 
+          <!-- Payment Reminders -->
+          <Card v-if="invoice.status.value !== 'draft' && invoice.status.value !== 'void'">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-slate-900 dark:text-slate-100">Reminders</h2>
+                <Badge v-if="invoice.reminder_count" variant="secondary">
+                  {{ invoice.reminder_count }} sent
+                </Badge>
+              </div>
+            </template>
+
+            <dl class="space-y-2 mb-4">
+              <div class="flex justify-between text-sm">
+                <dt class="text-muted-foreground">Last Reminder</dt>
+                <dd>{{ invoice.last_reminder_at ? formatDate(invoice.last_reminder_at) : 'Never' }}</dd>
+              </div>
+              <div class="flex justify-between text-sm">
+                <dt class="text-muted-foreground">Pending</dt>
+                <dd>{{ pendingRemindersCount }}</dd>
+              </div>
+            </dl>
+
+            <!-- Reminder timeline -->
+            <div v-if="invoiceReminders && invoiceReminders.length > 0" class="space-y-2 max-h-48 overflow-y-auto mb-4">
+              <div
+                v-for="reminder in invoiceReminders"
+                :key="reminder.id"
+                class="flex items-center justify-between text-sm py-1 border-b border-border last:border-0"
+              >
+                <div class="flex items-center gap-2">
+                  <Badge :variant="reminderStatusVariant(reminder.status)" size="sm">
+                    {{ reminder.status }}
+                  </Badge>
+                  <span class="text-muted-foreground capitalize">{{ reminder.type === 'final_notice' ? 'final notice' : reminder.type }}</span>
+                </div>
+                <span class="text-muted-foreground">{{ formatDate(reminder.scheduled_date) }}</span>
+              </div>
+            </div>
+
+            <div class="space-y-2">
+              <Button
+                v-if="canSendReminder"
+                variant="secondary"
+                size="sm"
+                class="w-full"
+                :loading="sendImmediateMutation.isPending.value"
+                @click="handleSendImmediate"
+              >
+                <Bell class="w-4 h-4 mr-2" />
+                Send Reminder Now
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                class="w-full"
+                @click="showScheduleReminderModal = true"
+              >
+                Schedule Custom Reminder
+              </Button>
+            </div>
+          </Card>
+
           <!-- Related Documents -->
           <Card v-if="invoice.journal_entry_id">
             <template #header>
@@ -879,5 +972,13 @@ const itemColumns: ResponsiveColumn[] = [
         </Button>
       </template>
     </Modal>
+
+    <!-- Schedule Reminder Modal -->
+    <ScheduleReminderModal
+      :open="showScheduleReminderModal"
+      :invoice-id="invoiceId"
+      :due-date="invoice?.due_date"
+      @update:open="showScheduleReminderModal = $event"
+    />
   </div>
 </template>

@@ -107,6 +107,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
       { name: 'Down Payments', path: '/finance/down-payments', icon: '💰', permission: 'down_payments.view' },
+      { name: 'Reminders', path: '/finance/reminders', icon: '🔔', permission: 'invoices.view' },
       { name: 'Bills', path: '/bills', icon: '📑', permission: 'bills.view' },
       { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.view' },
     ]
