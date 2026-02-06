@@ -6,7 +6,6 @@ import {
   useFiscalPeriodClosingChecklist,
   useLockFiscalPeriod,
   useUnlockFiscalPeriod,
-  useCloseFiscalPeriod,
   useReopenFiscalPeriod,
   getFiscalPeriodStatus,
 } from '@/api/useFiscalPeriods'
@@ -34,7 +33,7 @@ const periodId = computed(() => Number(route.params.id))
 const { data: period, isLoading, error, refetch } = useFiscalPeriod(periodId)
 
 // Fetch closing checklist
-const { data: checklist, isLoading: checklistLoading, refetch: refetchChecklist } = useFiscalPeriodClosingChecklist(periodId)
+const { data: checklist, isLoading: checklistLoading } = useFiscalPeriodClosingChecklist(periodId)
 
 // Status info
 const status = computed(() => period.value ? getFiscalPeriodStatus(period.value) : null)
@@ -42,17 +41,12 @@ const status = computed(() => period.value ? getFiscalPeriodStatus(period.value)
 // Mutations
 const lockMutation = useLockFiscalPeriod()
 const unlockMutation = useUnlockFiscalPeriod()
-const closeMutation = useCloseFiscalPeriod()
 const reopenMutation = useReopenFiscalPeriod()
 
 // Modal states
 const showLockModal = ref(false)
 const showUnlockModal = ref(false)
-const showCloseModal = ref(false)
 const showReopenModal = ref(false)
-
-// Close form state
-const closingNotes = ref('')
 
 // Permissions
 const canLock = computed(() => period.value && !period.value.is_locked && !period.value.is_closed)
@@ -80,22 +74,6 @@ async function handleUnlock() {
     refetch()
   } catch {
     toast.error('Failed to unlock period')
-  }
-}
-
-async function handleClose() {
-  try {
-    await closeMutation.mutateAsync({
-      id: periodId.value,
-      closing_notes: closingNotes.value || undefined,
-    })
-    showCloseModal.value = false
-    closingNotes.value = ''
-    toast.success('Period closed successfully')
-    refetch()
-    refetchChecklist()
-  } catch {
-    toast.error('Failed to close period')
   }
 }
 
@@ -197,7 +175,7 @@ function handleChecklistAction(url?: string) {
             <Button
               v-if="canClose"
               size="sm"
-              @click="showCloseModal = true"
+              @click="$router.push({ name: 'fiscal-period-close-wizard', params: { id: period.id } })"
             >
               <CheckCircle class="w-4 h-4 mr-2" />
               Close Period
@@ -448,48 +426,6 @@ function handleChecklistAction(url?: string) {
         <Button :loading="unlockMutation.isPending.value" @click="handleUnlock">
           <Unlock class="w-4 h-4 mr-2" />
           Unlock Period
-        </Button>
-      </template>
-    </Modal>
-
-    <!-- Close Modal -->
-    <Modal :open="showCloseModal" title="Close Fiscal Period" size="md" @update:open="showCloseModal = $event">
-      <div class="space-y-4">
-        <p class="text-slate-600 dark:text-slate-400">
-          Are you sure you want to permanently close <strong>{{ period?.name }}</strong>?
-        </p>
-
-        <div class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <div class="flex items-start gap-2">
-            <AlertTriangle class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-            <div class="text-sm text-red-700 dark:text-red-400">
-              <strong>Warning:</strong> This action is permanent. A closing journal entry will be created
-              to transfer income/expense balances to retained earnings.
-            </div>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Closing Notes (optional)
-          </label>
-          <textarea
-            v-model="closingNotes"
-            rows="3"
-            class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-            placeholder="Add any notes about this period closing..."
-          />
-        </div>
-      </div>
-      <template #footer>
-        <Button variant="ghost" @click="showCloseModal = false">Cancel</Button>
-        <Button
-          variant="destructive"
-          :loading="closeMutation.isPending.value"
-          @click="handleClose"
-        >
-          <CheckCircle class="w-4 h-4 mr-2" />
-          Close Period
         </Button>
       </template>
     </Modal>

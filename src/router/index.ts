@@ -291,6 +291,13 @@ const router = createRouter({
           component: () => import('@/pages/finance/down-payments/DownPaymentFormPage.vue'),
           meta: { breadcrumb: 'Edit Down Payment' }
         },
+        // Finance - Payment Reminders
+        {
+          path: 'finance/reminders',
+          name: 'payment-reminders',
+          component: () => import('@/pages/finance/reminders/PaymentReminderListPage.vue'),
+          meta: { breadcrumb: 'Payment Reminders' },
+        },
         // Project routes
         {
           path: 'projects',
@@ -464,6 +471,12 @@ const router = createRouter({
           name: 'fiscal-period-detail',
           component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodDetailPage.vue'),
           meta: { breadcrumb: (route) => `Period #${route.params.id}` }
+        },
+        {
+          path: 'accounting/fiscal-periods/:id/close-wizard',
+          name: 'fiscal-period-close-wizard',
+          component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodCloseWizardPage.vue'),
+          meta: { breadcrumb: 'Close Period' }
         },
         // Accounting - Budgets routes
         {
@@ -678,6 +691,12 @@ const router = createRouter({
           name: 'material-status',
           component: () => import('@/pages/manufacturing/MaterialStatusPage.vue'),
           meta: { breadcrumb: 'Material Status' }
+        },
+        {
+          path: 'manufacturing/cost-optimization',
+          name: 'cost-optimization',
+          component: () => import('@/pages/manufacturing/cost-optimization/CostOptimizationPage.vue'),
+          meta: { breadcrumb: 'Cost Optimization' }
         },
         {
           path: 'work-orders/:id/cost-summary',

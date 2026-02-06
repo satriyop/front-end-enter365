@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { Check, MapPin, Zap, Sun, FileCheck } from 'lucide-vue-next'
 
 interface Step {
@@ -12,6 +12,7 @@ interface Props {
   steps: Step[]
   currentStep: number
   allowJumpToAny?: boolean
+  icons?: Component[]
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,7 +22,8 @@ const emit = defineEmits<{
   'go-to-step': [step: number]
 }>()
 
-const stepIcons = [MapPin, Zap, Sun, FileCheck]
+const defaultIcons = [MapPin, Zap, Sun, FileCheck]
+const stepIcons = computed(() => props.icons ?? defaultIcons)
 
 const progressPercent = computed(() => {
   return ((props.currentStep - 1) / (props.steps.length - 1)) * 100
