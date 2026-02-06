@@ -140,6 +140,13 @@ const router = createRouter({
           component: () => import('@/pages/sales/follow-up/FollowUpDashboardPage.vue'),
           meta: { breadcrumb: 'Follow-Up Dashboard' }
         },
+        // Sales - Overdue Management Dashboard
+        {
+          path: 'sales/overdue-dashboard',
+          name: 'overdue-dashboard',
+          component: () => import('@/pages/sales/overdue/OverdueDashboardPage.vue'),
+          meta: { breadcrumb: 'Overdue Management' }
+        },
         // Sales - Sales Returns routes
         {
           path: 'sales/sales-returns',
