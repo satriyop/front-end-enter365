@@ -88,6 +88,8 @@ export interface StockOutData {
   notes?: string
 }
 
+export type StockTransferData = components['schemas']['StockTransferRequest']
+
 // ─────────────────────────────────────────────────────────────
 // Hooks
 // ─────────────────────────────────────────────────────────────
@@ -228,6 +230,27 @@ export function useStockOut() {
     mutationFn: async (data: StockOutData) => {
       const response = await api.post<{ message: string; data: InventoryMovement }>(
         '/inventory/stock-out',
+        data
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['inventory'] })
+      queryClient.invalidateQueries({ queryKey: ['products'] })
+    },
+  })
+}
+
+/**
+ * Transfer stock between warehouses
+ */
+export function useStockTransfer() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (data: StockTransferData) => {
+      const response = await api.post<{ message: string; data: InventoryMovement }>(
+        '/inventory/transfer',
         data
       )
       return response.data
