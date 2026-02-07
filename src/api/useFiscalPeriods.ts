@@ -49,7 +49,8 @@ const hooks = createCrudHooks<FiscalPeriod, FiscalPeriodFilters, CreateFiscalPer
 export const useFiscalPeriods = hooks.useList
 export const useFiscalPeriod = hooks.useSingle
 export const useCreateFiscalPeriod = hooks.useCreate
-// Note: Fiscal periods typically cannot be updated or deleted once created
+export const useUpdateFiscalPeriod = hooks.useUpdate
+// Note: Only open (not locked/closed) fiscal periods can be updated
 
 /**
  * Fetch fiscal periods for dropdown (all, no pagination)

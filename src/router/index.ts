@@ -486,6 +486,12 @@ const router = createRouter({
           meta: { breadcrumb: (route) => `Period #${route.params.id}` }
         },
         {
+          path: 'accounting/fiscal-periods/:id/edit',
+          name: 'fiscal-period-edit',
+          component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodFormPage.vue'),
+          meta: { breadcrumb: 'Edit Period' }
+        },
+        {
           path: 'accounting/fiscal-periods/:id/close-wizard',
           name: 'fiscal-period-close-wizard',
           component: () => import('@/pages/accounting/fiscal-periods/FiscalPeriodCloseWizardPage.vue'),
@@ -647,6 +653,12 @@ const router = createRouter({
           name: 'material-requisition-detail',
           component: () => import('@/pages/manufacturing/material-requisitions/MaterialRequisitionDetailPage.vue'),
           meta: { breadcrumb: (route) => `MR #${route.params.id}` }
+        },
+        {
+          path: 'manufacturing/material-requisitions/:id/edit',
+          name: 'material-requisition-edit',
+          component: () => import('@/pages/manufacturing/material-requisitions/MaterialRequisitionFormPage.vue'),
+          meta: { breadcrumb: 'Edit Requisition' }
         },
         // Manufacturing - Subcontractor Work Orders routes
         {

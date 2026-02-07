@@ -21,6 +21,7 @@ import {
   Circle,
   FileText,
   ExternalLink,
+  Pencil,
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -49,6 +50,7 @@ const showUnlockModal = ref(false)
 const showReopenModal = ref(false)
 
 // Permissions
+const canEdit = computed(() => period.value && !period.value.is_locked && !period.value.is_closed)
 const canLock = computed(() => period.value && !period.value.is_locked && !period.value.is_closed)
 const canUnlock = computed(() => period.value && period.value.is_locked && !period.value.is_closed)
 const canClose = computed(() => period.value && period.value.is_locked && !period.value.is_closed && checklist.value?.can_close)
@@ -149,6 +151,17 @@ function handleChecklistAction(url?: string) {
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-2">
+            <!-- Edit Button (open periods only) -->
+            <Button
+              v-if="canEdit"
+              variant="secondary"
+              size="sm"
+              @click="router.push(`/accounting/fiscal-periods/${periodId}/edit`)"
+            >
+              <Pencil class="w-4 h-4 mr-2" />
+              Edit
+            </Button>
+
             <!-- Lock Button -->
             <Button
               v-if="canLock"

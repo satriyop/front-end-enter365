@@ -20,6 +20,7 @@ import {
   Ban,
   Trash2,
   ClipboardList,
+  Pencil,
 } from 'lucide-vue-next'
 
 // UI Components
@@ -147,6 +148,7 @@ function setMaxQuantity(index: number) {
 }
 
 // Permission checks based on status
+const canEdit = computed(() => mr.value?.status.value === 'draft')
 const canApprove = computed(() => mr.value?.status.value === 'pending')
 const canIssue = computed(() => mr.value?.status.value === 'approved' || mr.value?.status.value === 'partial')
 const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(mr.value?.status.value || ''))
@@ -203,6 +205,17 @@ const itemColumns: ResponsiveColumn[] = [
 
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-2">
+            <!-- Edit (draft only) -->
+            <Button
+              v-if="canEdit"
+              variant="secondary"
+              size="sm"
+              @click="router.push(`/manufacturing/material-requisitions/${mrId}/edit`)"
+            >
+              <Pencil class="w-4 h-4 mr-1" />
+              Edit
+            </Button>
+
             <!-- Approve (pending) -->
             <Button
               v-if="canApprove"
