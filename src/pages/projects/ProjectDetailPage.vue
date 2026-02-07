@@ -13,7 +13,7 @@ import {
 } from '@/api/useProjects'
 import { Button, Card, Badge, Modal, Input, Textarea, useToast } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Pause, Play, Check } from 'lucide-vue-next'
+import { Pause, Play, Check, AlertTriangle, Clock } from 'lucide-vue-next'
 import ProjectCostsList from '@/components/projects/ProjectCostsList.vue'
 import ProjectRevenuesList from '@/components/projects/ProjectRevenuesList.vue'
 
@@ -410,7 +410,64 @@ async function handleResume() {
                 <dt class="text-slate-500 dark:text-slate-400">Margin</dt>
                 <dd class="text-slate-900 dark:text-slate-100">{{ project.profit_margin?.toFixed(1) ?? 0 }}%</dd>
               </div>
+
+              <!-- Budget Health -->
+              <div class="border-t border-slate-200 dark:border-slate-700 pt-3 space-y-2">
+                <div class="flex justify-between text-sm">
+                  <dt class="text-slate-500 dark:text-slate-400">Budget Utilization</dt>
+                  <dd
+                    :class="{
+                      'text-green-600 dark:text-green-400': (project.budget_utilization ?? 0) < 80,
+                      'text-amber-600 dark:text-amber-400': (project.budget_utilization ?? 0) >= 80 && (project.budget_utilization ?? 0) <= 100,
+                      'text-red-600 dark:text-red-400': (project.budget_utilization ?? 0) > 100
+                    }"
+                    class="font-medium"
+                  >
+                    {{ project.budget_utilization?.toFixed(1) ?? 0 }}%
+                  </dd>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <dt class="text-slate-500 dark:text-slate-400">Budget Variance</dt>
+                  <dd
+                    :class="{
+                      'text-green-600 dark:text-green-400': Number(project.budget_variance || 0) > 0,
+                      'text-red-600 dark:text-red-400': Number(project.budget_variance || 0) < 0
+                    }"
+                    class="font-medium"
+                  >
+                    {{ Number(project.budget_variance || 0) >= 0 ? '+' : '' }}{{ formatCurrency(Number(project.budget_variance) || 0) }}
+                  </dd>
+                </div>
+                <div v-if="project.is_over_budget" class="flex items-center gap-2 text-xs">
+                  <Badge variant="destructive" class="flex items-center gap-1">
+                    <AlertTriangle class="w-3 h-3" />
+                    Over Budget
+                  </Badge>
+                </div>
+              </div>
             </dl>
+          </Card>
+
+          <!-- Schedule Status -->
+          <Card v-if="project.status.value === 'in_progress' || project.status.value === 'on_hold'">
+            <template #header>
+              <h2 class="font-medium text-slate-900 dark:text-slate-100">Schedule Status</h2>
+            </template>
+            <div class="space-y-3">
+              <div v-if="project.is_overdue" class="flex items-center gap-2">
+                <AlertTriangle class="w-5 h-5 text-red-600 dark:text-red-400" />
+                <span class="font-medium text-red-600 dark:text-red-400">Overdue</span>
+              </div>
+              <div v-else-if="project.days_until_deadline !== null" class="flex items-center gap-2">
+                <Clock class="w-5 h-5 text-muted-foreground" />
+                <span class="text-foreground">
+                  Due in <span class="font-medium">{{ project.days_until_deadline }}</span> day{{ project.days_until_deadline !== 1 ? 's' : '' }}
+                </span>
+              </div>
+              <div v-if="project.duration_days !== null" class="text-sm text-muted-foreground">
+                Duration: {{ project.duration_days }} day{{ project.duration_days !== 1 ? 's' : '' }}
+              </div>
+            </div>
           </Card>
 
           <!-- Quick Actions -->

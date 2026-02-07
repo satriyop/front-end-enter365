@@ -261,6 +261,7 @@ async function handleCreateRequisition() {
       workOrderId: workOrderId.value,
     })
     toast.success(`Material requisition ${result.requisition_number} created`)
+    router.push(`/manufacturing/material-requisitions/${result.id}`)
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string } } })?.response?.data
     toast.error(response?.message || 'Failed to create material requisition')
@@ -465,6 +466,20 @@ function formatPercent(value: string | number | undefined): string {
               <h2 class="font-medium text-foreground">Manufacturing Actions</h2>
             </template>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                v-if="isInProgress"
+                class="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-muted transition-colors text-left"
+                @click="openOutputModal"
+              >
+                <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
+                  <Package class="w-5 h-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <div class="font-medium text-foreground">Record Output</div>
+                  <div class="text-sm text-muted-foreground">Log completed production</div>
+                </div>
+              </button>
+
               <button
                 v-if="isInProgress"
                 class="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-muted transition-colors text-left"

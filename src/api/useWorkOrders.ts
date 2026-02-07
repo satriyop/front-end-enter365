@@ -154,18 +154,7 @@ export interface CreateMaterialRequisitionData {
   notes?: string
 }
 
-export interface MaterialRequisition {
-  id: number
-  requisition_number: string
-  status: { value: string; label: string }
-  requested_date: string | null
-  required_date: string | null
-  total_items: number
-  total_quantity: number
-  notes: string | null
-  work_order_id: number
-  warehouse_id: number
-}
+type MaterialRequisition = components['schemas']['MaterialRequisitionResource']
 
 export function useCreateMaterialRequisition() {
   const queryClient = useQueryClient()
@@ -177,6 +166,7 @@ export function useCreateMaterialRequisition() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['work-orders'] })
       queryClient.invalidateQueries({ queryKey: ['work-order', variables.workOrderId] })
+      queryClient.invalidateQueries({ queryKey: ['material-requisitions'] })
     },
   })
 }

@@ -11,10 +11,17 @@ import {
   useCloseBudget,
   useDeleteBudget,
   useCopyBudget,
+  useCreateBudgetLine,
+  useUpdateBudgetLine,
+  useDeleteBudgetLine,
+  type CreateBudgetLineData,
+  type UpdateBudgetLineData,
+  type BudgetLine,
 } from '@/api/useBudgets'
+import { useAccountsLookup } from '@/api/useAccounts'
 import { useFiscalPeriodsLookup } from '@/api/useFiscalPeriods'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Card, Badge, Modal, Select, useToast } from '@/components/ui'
+import { Button, Card, Badge, Modal, Select, FormField, Input, Textarea, useToast } from '@/components/ui'
 import {
   ArrowLeft,
   Edit,
@@ -28,6 +35,7 @@ import {
   AlertTriangle,
   Calendar,
   BarChart3,
+  Plus,
 } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -49,12 +57,26 @@ const closeMutation = useCloseBudget()
 const deleteMutation = useDeleteBudget()
 const copyMutation = useCopyBudget()
 
+// Budget line mutations
+const createLineMutation = useCreateBudgetLine()
+const updateLineMutation = useUpdateBudgetLine()
+const deleteLineMutation = useDeleteBudgetLine()
+
 // Fiscal periods for copy modal
 const { data: fiscalPeriods } = useFiscalPeriodsLookup()
 const fiscalPeriodOptions = computed(() =>
   fiscalPeriods.value?.map(p => ({
     value: String(p.id),
     label: p.name,
+  })) ?? []
+)
+
+// Accounts lookup for line management
+const { data: accounts } = useAccountsLookup()
+const accountOptions = computed(() =>
+  accounts.value?.map(a => ({
+    value: String(a.id),
+    label: `${a.code} - ${a.name}`,
   })) ?? []
 )
 
@@ -68,6 +90,20 @@ const showCloseModal = ref(false)
 const showDeleteModal = ref(false)
 const showCopyModal = ref(false)
 const copyTargetPeriodId = ref<string>('')
+
+// Budget line modal states
+const showAddLineModal = ref(false)
+const showEditLineModal = ref(false)
+const showDeleteLineModal = ref(false)
+const editingLine = ref<BudgetLine | null>(null)
+
+// Budget line form data
+const lineFormData = ref({
+  account_id: '',
+  annual_amount: '',
+  distribute_evenly: false,
+  notes: '',
+})
 
 // Status badge helper
 function getStatusVariant(status: string): 'default' | 'success' | 'secondary' {
@@ -147,6 +183,89 @@ async function handleCopy() {
     router.push(`/accounting/budgets/${newBudget.id}`)
   } catch {
     toast.error('Failed to copy budget')
+  }
+}
+
+// Budget line actions
+function openAddLineModal() {
+  lineFormData.value = {
+    account_id: '',
+    annual_amount: '',
+    distribute_evenly: false,
+    notes: '',
+  }
+  editingLine.value = null
+  showAddLineModal.value = true
+}
+
+function openEditLineModal(line: BudgetLine) {
+  editingLine.value = line
+  lineFormData.value = {
+    account_id: String(line.account?.id ?? ''),
+    annual_amount: String(line.annual_amount ?? ''),
+    distribute_evenly: false,
+    notes: line.notes ?? '',
+  }
+  showEditLineModal.value = true
+}
+
+function openDeleteLineModal(line: BudgetLine) {
+  editingLine.value = line
+  showDeleteLineModal.value = true
+}
+
+async function handleCreateLine() {
+  if (!lineFormData.value.account_id) return
+
+  try {
+    const data: CreateBudgetLineData = {
+      account_id: Number(lineFormData.value.account_id),
+      annual_amount: lineFormData.value.annual_amount ? Number(lineFormData.value.annual_amount) : undefined,
+      notes: lineFormData.value.notes || null,
+    }
+
+    await createLineMutation.mutateAsync({ budgetId: budgetId.value, data })
+    showAddLineModal.value = false
+    toast.success('Budget line added')
+  } catch {
+    toast.error('Failed to add budget line')
+  }
+}
+
+async function handleUpdateLine() {
+  if (!editingLine.value) return
+
+  try {
+    const data: UpdateBudgetLineData = {
+      annual_amount: lineFormData.value.annual_amount ? Number(lineFormData.value.annual_amount) : null,
+      distribute_evenly: lineFormData.value.distribute_evenly || null,
+      notes: lineFormData.value.notes || null,
+    }
+
+    await updateLineMutation.mutateAsync({
+      budgetId: budgetId.value,
+      lineId: editingLine.value.id,
+      data,
+    })
+    showEditLineModal.value = false
+    toast.success('Budget line updated')
+  } catch {
+    toast.error('Failed to update budget line')
+  }
+}
+
+async function handleDeleteLine() {
+  if (!editingLine.value) return
+
+  try {
+    await deleteLineMutation.mutateAsync({
+      budgetId: budgetId.value,
+      lineId: editingLine.value.id,
+    })
+    showDeleteLineModal.value = false
+    toast.success('Budget line deleted')
+  } catch {
+    toast.error('Failed to delete budget line')
   }
 }
 </script>
@@ -470,39 +589,54 @@ async function handleCopy() {
 
       <!-- Budget Lines Section -->
       <Card class="mt-6" :padding="false">
-        <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-          <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">Budget Lines</h2>
+        <div class="px-6 py-4 border-b border-border flex items-center justify-between">
+          <h2 class="text-lg font-semibold text-foreground">Budget Lines</h2>
+          <Button v-if="budget.status.value === 'draft'" size="sm" @click="openAddLineModal">
+            <Plus class="w-4 h-4 mr-2" />
+            Add Line
+          </Button>
         </div>
         <div v-if="budget.lines && budget.lines.length > 0" class="overflow-x-auto">
           <table class="w-full text-sm">
-            <thead class="bg-slate-50 dark:bg-slate-800">
+            <thead class="bg-muted">
               <tr>
-                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Account</th>
-                <th class="text-right px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Annual Amount</th>
-                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Notes</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Account</th>
+                <th class="text-right px-4 py-3 font-medium text-muted-foreground">Annual Amount</th>
+                <th class="text-left px-4 py-3 font-medium text-muted-foreground">Notes</th>
+                <th v-if="budget.status.value === 'draft'" class="text-right px-4 py-3 font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+            <tbody class="divide-y divide-border">
               <tr
                 v-for="line in budget.lines"
                 :key="line.id"
-                class="hover:bg-slate-50 dark:hover:bg-slate-800"
+                class="hover:bg-muted"
               >
                 <td class="px-4 py-3">
-                  <span class="font-mono text-slate-500 dark:text-slate-400">{{ line.account?.code }}</span>
-                  <span class="ml-2 text-slate-900 dark:text-slate-100">{{ line.account?.name }}</span>
+                  <span class="font-mono text-muted-foreground">{{ line.account?.code }}</span>
+                  <span class="ml-2 text-foreground">{{ line.account?.name }}</span>
                 </td>
-                <td class="text-right px-4 py-3 font-mono text-slate-900 dark:text-slate-100">
+                <td class="text-right px-4 py-3 font-mono text-foreground">
                   {{ formatCurrency(line.annual_amount) }}
                 </td>
-                <td class="px-4 py-3 text-slate-500 dark:text-slate-400">
+                <td class="px-4 py-3 text-muted-foreground">
                   {{ line.notes || '-' }}
+                </td>
+                <td v-if="budget.status.value === 'draft'" class="text-right px-4 py-3">
+                  <div class="flex items-center justify-end gap-2">
+                    <Button variant="ghost" size="xs" @click="openEditLineModal(line)">
+                      <Edit class="w-3.5 h-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="xs" @click="openDeleteLineModal(line)">
+                      <Trash2 class="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <div v-else class="text-center py-8 text-slate-500 dark:text-slate-400">
+        <div v-else class="text-center py-8 text-muted-foreground">
           No budget lines defined
         </div>
       </Card>
@@ -605,6 +739,115 @@ async function handleCopy() {
         >
           <Copy class="w-4 h-4 mr-2" />
           Copy Budget
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Add Budget Line Modal -->
+    <Modal :open="showAddLineModal" title="Add Budget Line" size="md" @update:open="showAddLineModal = $event">
+      <div class="space-y-4">
+        <FormField label="Account" required>
+          <Select
+            v-model="lineFormData.account_id"
+            :options="accountOptions"
+            placeholder="Select an account"
+          />
+        </FormField>
+
+        <FormField label="Annual Amount">
+          <Input
+            v-model="lineFormData.annual_amount"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+          />
+        </FormField>
+
+        <FormField label="Notes">
+          <Textarea
+            v-model="lineFormData.notes"
+            :rows="3"
+            placeholder="Optional notes..."
+          />
+        </FormField>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showAddLineModal = false">Cancel</Button>
+        <Button
+          :disabled="!lineFormData.account_id"
+          :loading="createLineMutation.isPending.value"
+          @click="handleCreateLine"
+        >
+          <Plus class="w-4 h-4 mr-2" />
+          Add Line
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Edit Budget Line Modal -->
+    <Modal :open="showEditLineModal" title="Edit Budget Line" size="md" @update:open="showEditLineModal = $event">
+      <div v-if="editingLine" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-foreground mb-1">Account</label>
+          <div class="text-sm text-muted-foreground">
+            <span class="font-mono">{{ editingLine.account?.code }}</span> - {{ editingLine.account?.name }}
+          </div>
+        </div>
+
+        <FormField label="Annual Amount">
+          <Input
+            v-model="lineFormData.annual_amount"
+            type="number"
+            step="0.01"
+            placeholder="0.00"
+          />
+        </FormField>
+
+        <FormField>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              v-model="lineFormData.distribute_evenly"
+              type="checkbox"
+              class="rounded border-border"
+            />
+            <span class="text-sm text-foreground">Distribute evenly across months</span>
+          </label>
+        </FormField>
+
+        <FormField label="Notes">
+          <Textarea
+            v-model="lineFormData.notes"
+            :rows="3"
+            placeholder="Optional notes..."
+          />
+        </FormField>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showEditLineModal = false">Cancel</Button>
+        <Button
+          :loading="updateLineMutation.isPending.value"
+          @click="handleUpdateLine"
+        >
+          <Edit class="w-4 h-4 mr-2" />
+          Update Line
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Delete Budget Line Modal -->
+    <Modal :open="showDeleteLineModal" title="Delete Budget Line" size="sm" @update:open="showDeleteLineModal = $event">
+      <p class="text-muted-foreground">
+        Are you sure you want to delete this budget line? This action cannot be undone.
+      </p>
+      <template #footer>
+        <Button variant="ghost" @click="showDeleteLineModal = false">Cancel</Button>
+        <Button
+          variant="destructive"
+          :loading="deleteLineMutation.isPending.value"
+          @click="handleDeleteLine"
+        >
+          <Trash2 class="w-4 h-4 mr-2" />
+          Delete
         </Button>
       </template>
     </Modal>
