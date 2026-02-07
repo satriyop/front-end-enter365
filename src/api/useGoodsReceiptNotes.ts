@@ -29,6 +29,25 @@ export interface GoodsReceiptNoteFilters {
 
 export type CreateGoodsReceiptNoteData = components['schemas']['StoreGoodsReceiptNoteRequest']
 
+// Standalone GRN types
+export interface StandaloneGRNItem {
+  product_id: number | null
+  quantity_ordered: number
+  unit_price: number
+}
+
+export interface CreateStandaloneGRNData {
+  warehouse_id: number
+  contact_id?: number | null
+  receipt_date?: string
+  supplier_do_number?: string
+  supplier_invoice_number?: string
+  vehicle_number?: string
+  driver_name?: string
+  notes?: string
+  items: StandaloneGRNItem[]
+}
+
 export interface UpdateGoodsReceiptNoteItemData {
   quantity_received?: number
   quantity_rejected?: number
@@ -52,6 +71,23 @@ export const useGoodsReceiptNote = hooks.useSingle
 export const useCreateGoodsReceiptNote = hooks.useCreate
 export const useUpdateGoodsReceiptNote = hooks.useUpdate
 export const useDeleteGoodsReceiptNote = hooks.useDelete
+
+// ============================================
+// Standalone GRN Creation
+// ============================================
+
+export function useCreateStandaloneGRN() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (data: CreateStandaloneGRNData) => {
+      const response = await api.post<{ data: GoodsReceiptNote }>('/goods-receipt-notes', data)
+      return response.data.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['goods-receipt-notes'] })
+    },
+  })
+}
 
 // ============================================
 // GRNs for Purchase Order

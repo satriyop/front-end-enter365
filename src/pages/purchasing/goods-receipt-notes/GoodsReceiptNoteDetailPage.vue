@@ -178,6 +178,10 @@ const isFullyReceived = computed(() => {
               From PO: {{ grn.purchase_order.po_number }}
               <span v-if="grn.purchase_order.contact"> - {{ grn.purchase_order.contact.name }}</span>
             </p>
+            <p v-else class="text-slate-500 dark:text-slate-400">
+              <span class="italic">Standalone GRN</span>
+              <span v-if="(grn as any).contact"> - {{ (grn as any).contact.name }}</span>
+            </p>
           </div>
 
           <!-- Action Buttons -->

@@ -10,7 +10,7 @@ import {
 } from '@/api/useGoodsReceiptNotes'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatDate } from '@/utils/format'
-import { Truck } from 'lucide-vue-next'
+import { Truck, Plus } from 'lucide-vue-next'
 
 // UI Components
 import { Button, Input, Select, Badge, Card, Pagination, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
@@ -76,8 +76,14 @@ function viewGRN(item: Record<string, unknown>) {
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Goods Receipt Notes</h1>
-        <p class="text-slate-500 dark:text-slate-400">Track incoming inventory from purchase orders</p>
+        <p class="text-slate-500 dark:text-slate-400">Track incoming inventory from purchase orders and standalone receipts</p>
       </div>
+      <RouterLink to="/purchasing/goods-receipt-notes/new">
+        <Button>
+          <Plus class="w-4 h-4 mr-1" />
+          New GRN
+        </Button>
+      </RouterLink>
     </div>
 
     <!-- Filters -->
@@ -121,13 +127,18 @@ function viewGRN(item: Record<string, unknown>) {
       <Truck class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
       <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No goods receipt notes found</h3>
       <p class="text-slate-500 dark:text-slate-400 mb-4">
-        GRNs are created when receiving items from purchase orders
+        Create a standalone GRN or receive items from a purchase order
       </p>
-      <RouterLink to="/purchasing/purchase-orders">
-        <Button variant="secondary">
-          View Purchase Orders
-        </Button>
-      </RouterLink>
+      <div class="flex gap-2 justify-center">
+        <RouterLink to="/purchasing/goods-receipt-notes/new">
+          <Button>New Standalone GRN</Button>
+        </RouterLink>
+        <RouterLink to="/purchasing/purchase-orders">
+          <Button variant="secondary">
+            View Purchase Orders
+          </Button>
+        </RouterLink>
+      </div>
     </Card>
 
     <!-- Table -->
@@ -152,7 +163,7 @@ function viewGRN(item: Record<string, unknown>) {
             <div class="font-medium text-slate-900 dark:text-slate-100">{{ (item as GoodsReceiptNote).purchase_order?.po_number }}</div>
             <div class="text-sm text-slate-500 dark:text-slate-400">{{ (item as GoodsReceiptNote).purchase_order?.contact?.name }}</div>
           </div>
-          <span v-else class="text-slate-400">-</span>
+          <span v-else class="text-muted-foreground italic">Standalone</span>
         </template>
 
         <!-- Warehouse -->
