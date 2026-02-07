@@ -124,6 +124,7 @@ const navigation: NavGroup[] = [
       { name: 'Product Categories', path: '/settings/product-categories', icon: '📂', permission: 'product_categories.view' },
       { name: 'Rule Sets', path: '/settings/rule-sets', icon: '⚙️', permission: 'products.view' },
       { name: 'BOM Templates', path: '/settings/bom-templates', icon: '📋', permission: 'bom_templates.view' },
+      { name: 'Accounting Policies', path: '/settings/accounting-policies', icon: '📒', permission: 'settings.manage_accounting' },
     ]
   },
   {

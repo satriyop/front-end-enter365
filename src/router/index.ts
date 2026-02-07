@@ -940,6 +940,13 @@ const router = createRouter({
           component: () => import('@/pages/settings/SettingsPage.vue'),
           meta: { breadcrumb: 'Settings' }
         },
+        // Accounting Policies
+        {
+          path: 'settings/accounting-policies',
+          name: 'accounting-policies',
+          component: () => import('@/pages/settings/accounting-policies/AccountingPoliciesPage.vue'),
+          meta: { breadcrumb: 'Accounting Policies' }
+        },
         // Component Library routes (under settings)
         {
           path: 'settings/component-library',
