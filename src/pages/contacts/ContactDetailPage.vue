@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useContact, useDeleteContact, useContactCreditStatus } from '@/api/useContacts'
 import { formatCurrency } from '@/utils/format'
 import { Button, Card, Modal, Badge, useToast } from '@/components/ui'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -408,6 +409,9 @@ const subcontractorServicesDisplay = computed(() => {
               </RouterLink>
             </div>
           </Card>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="Contact" :attachable-id="contact.id" />
         </div>
       </div>
     </template>

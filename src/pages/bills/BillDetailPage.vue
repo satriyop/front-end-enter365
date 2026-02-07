@@ -8,6 +8,7 @@ import { useWarehousesLookup } from '@/api/useInventory'
 import { Button, Card, Badge, Modal, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate, toNumber } from '@/utils/format'
 import { FileText, RotateCcw, Repeat } from 'lucide-vue-next'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -398,6 +399,9 @@ const itemColumns: ResponsiveColumn[] = [
               </RouterLink>
             </div>
           </Card>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="Bill" :attachable-id="bill.id" />
         </div>
       </div>
     </template>

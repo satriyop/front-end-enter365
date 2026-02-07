@@ -20,6 +20,7 @@ import PrintableDocument from '@/components/PrintableDocument.vue'
 import { FileText, Truck, RotateCcw, Send, Repeat, Bell } from 'lucide-vue-next'
 import { useInvoiceReminders, useSendImmediateReminder } from '@/api/usePaymentReminders'
 import ScheduleReminderModal from '@/components/invoices/ScheduleReminderModal.vue'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -693,6 +694,9 @@ const itemColumns: ResponsiveColumn[] = [
               </RouterLink>
             </div>
           </Card>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="Invoice" :attachable-id="invoice.id" />
         </div>
       </div>
     </template>

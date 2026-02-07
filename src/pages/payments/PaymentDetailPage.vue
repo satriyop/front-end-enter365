@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { usePayment, useVoidPayment } from '@/api/usePayments'
 import { Button, Card, Badge, useToast } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -113,6 +114,9 @@ async function handleVoid() {
               </div>
             </div>
           </Card>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="Payment" :attachable-id="payment.id" />
         </div>
       </div>
     </template>

@@ -33,6 +33,7 @@ import {
 
 // UI Components
 import { Button, Badge, Card, Modal, Input, Select, FormField, Textarea, PageSkeleton, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -601,6 +602,9 @@ const itemColumns: ResponsiveColumn[] = [
               View Bill #{{ po.converted_to_bill_id }}
             </RouterLink>
           </Card>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="PurchaseOrder" :attachable-id="po.id" />
         </div>
       </div>
     </template>

@@ -28,6 +28,7 @@ import { usePrint } from '@/composables/usePrint'
 import PrintableDocument from '@/components/PrintableDocument.vue'
 import LogActivityModal from '@/components/quotations/LogActivityModal.vue'
 import ScheduleFollowUpModal from '@/components/quotations/ScheduleFollowUpModal.vue'
+import AttachmentCard from '@/components/AttachmentCard.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -797,6 +798,9 @@ const itemColumns: ResponsiveColumn[] = [
               </li>
             </ul>
           </div>
+
+          <!-- Attachments -->
+          <AttachmentCard attachable-type="Quotation" :attachable-id="quotation.id" />
         </div>
       </div>
     </template>
