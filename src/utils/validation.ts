@@ -516,6 +516,10 @@ export const paymentSchema = z.object({
   exchange_rate: z.number().positive('Exchange rate must be greater than 0').optional().nullable(),
   invoice_id: z.number().optional().nullable(),
   bill_id: z.number().optional().nullable(),
+  // PPh withholding (vendor payments only)
+  pph_category: z.string().optional().default(''),
+  pph_rate: z.number().min(0).max(100).optional().nullable(),
+  pph_withhold: z.boolean().optional().default(false),
 })
 
 /**

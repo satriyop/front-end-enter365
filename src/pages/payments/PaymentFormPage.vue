@@ -80,6 +80,25 @@ const methodOptions = [
   { value: 'giro', label: 'Giro' },
 ]
 
+// PPh category options & default rates
+const pphCategoryOptions = [
+  { value: '', label: 'Select category' },
+  { value: 'pph23_jasa', label: 'PPh 23 - Jasa (2%)' },
+  { value: 'pph23_sewa', label: 'PPh 23 - Sewa Peralatan (2%)' },
+  { value: 'pph23_bunga', label: 'PPh 23 - Bunga (15%)' },
+  { value: 'pph23_royalti', label: 'PPh 23 - Royalti (15%)' },
+  { value: 'pph4_2_konstruksi', label: 'PPh 4(2) - Konstruksi (3%)' },
+  { value: 'pph4_2_sewa', label: 'PPh 4(2) - Sewa Tanah/Bangunan (10%)' },
+  { value: 'pph26', label: 'PPh 26 - Badan Asing (20%)' },
+]
+
+const pphDefaultRates: Record<string, number> = {
+  pph23_jasa: 2, pph23_sewa: 2,
+  pph23_bunga: 15, pph23_royalti: 15,
+  pph4_2_konstruksi: 3, pph4_2_sewa: 10,
+  pph26: 20,
+}
+
 const today = new Date().toISOString().split('T')[0] as string
 
 // Form with VeeValidate
@@ -104,6 +123,9 @@ const {
     exchange_rate: null as number | null,
     invoice_id: initialInvoiceId || null,
     bill_id: initialBillId || null,
+    pph_category: '',
+    pph_rate: null,
+    pph_withhold: false,
   },
 })
 
@@ -116,12 +138,48 @@ const [cashAccountId] = defineField('cash_account_id')
 const [exchangeRate] = defineField('exchange_rate')
 const [reference] = defineField('reference')
 const [notes] = defineField('notes')
+const [pphCategory] = defineField('pph_category')
+const [pphRate] = defineField('pph_rate')
+const [pphWithhold] = defineField('pph_withhold')
 
 // Pre-fill exchange rate from linked invoice/bill once loaded
 watch(linkedExchangeRate, (rate) => {
   if (isForeignCurrency.value && rate > 0) {
     exchangeRate.value = rate
   }
+})
+
+// Auto-fill PPh rate when category changes
+watch(pphCategory, (cat) => {
+  if (cat && pphDefaultRates[cat]) {
+    pphRate.value = pphDefaultRates[cat]
+  }
+})
+
+// Reset PPh fields when toggled off or type changes to receive
+watch(pphWithhold, (enabled) => {
+  if (!enabled) {
+    pphCategory.value = ''
+    pphRate.value = null
+  }
+})
+
+watch(type, (newType) => {
+  if (newType === 'receive') {
+    pphWithhold.value = false
+    pphCategory.value = ''
+    pphRate.value = null
+  }
+})
+
+// PPh computed preview
+const pphAmount = computed(() => {
+  if (!form.pph_withhold || !pphRate.value || !form.amount) return 0
+  return Math.round(form.amount * pphRate.value / 100)
+})
+
+const cashDisbursement = computed(() => {
+  return form.amount - pphAmount.value
 })
 
 // Computed base currency preview for foreign currency payments
@@ -144,7 +202,13 @@ const isSubmitting = computed(() => createMutation.isPending.value)
 
 const onSubmit = handleSubmit(async (formValues) => {
   try {
-    const result = await createMutation.mutateAsync(formValues as any)
+    // Clean PPh fields: send null for empty category
+    const payload = {
+      ...formValues,
+      pph_category: formValues.pph_withhold && formValues.pph_category ? formValues.pph_category : null,
+      pph_rate: formValues.pph_withhold ? formValues.pph_rate : null,
+    }
+    const result = await createMutation.mutateAsync(payload as any)
     toast.success('Payment recorded successfully')
     router.push(`/payments/${result.id}`)
   } catch (err: unknown) {
@@ -224,6 +288,43 @@ const onSubmit = handleSubmit(async (formValues) => {
             <FormField label="Cash Account" required :error="errors.cash_account_id">
               <Select v-model="cashAccountId" :options="accountOptions" placeholder="Select account" test-id="payment-account" @update:model-value="validateField('cash_account_id')" />
             </FormField>
+          </div>
+
+          <!-- PPh Withholding Section (vendor payments only) -->
+          <div v-if="form.type === 'send'" class="rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z" /></svg>
+                PPh Withholding Tax
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input v-model="pphWithhold" type="checkbox" class="sr-only peer" />
+                <div class="w-11 h-6 bg-muted peer-focus:ring-2 peer-focus:ring-amber-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-background after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+
+            <template v-if="form.pph_withhold">
+              <div class="grid grid-cols-2 gap-4">
+                <FormField label="PPh Category" :error="errors.pph_category">
+                  <Select v-model="pphCategory" :options="pphCategoryOptions" />
+                </FormField>
+                <FormField label="Rate (%)" :error="errors.pph_rate">
+                  <Input :model-value="pphRate ?? undefined" type="number" min="0" max="100" step="0.01" @update:model-value="(v: string | number | undefined) => pphRate = v != null ? Number(v) : null" />
+                </FormField>
+              </div>
+
+              <div v-if="pphAmount > 0" class="rounded-md bg-amber-100 dark:bg-amber-900/40 p-3 space-y-1">
+                <div class="flex justify-between text-sm">
+                  <span class="text-amber-700 dark:text-amber-300">PPh Amount</span>
+                  <span class="font-medium text-amber-800 dark:text-amber-200">{{ formatCurrency(pphAmount) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                  <span class="text-amber-700 dark:text-amber-300">Cash Disbursement</span>
+                  <span class="font-semibold text-amber-900 dark:text-amber-100">{{ formatCurrency(cashDisbursement) }}</span>
+                </div>
+                <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">Vendor receives {{ formatCurrency(cashDisbursement) }}, {{ formatCurrency(pphAmount) }} withheld as PPh.</p>
+              </div>
+            </template>
           </div>
 
           <FormField label="Reference">

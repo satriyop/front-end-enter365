@@ -15,6 +15,22 @@ const { data: payment, isLoading } = usePayment(paymentId)
 
 const isFx = computed(() => payment.value?.currency && payment.value.currency !== 'IDR')
 
+const hasPph = computed(() => (payment.value?.pph_amount ?? 0) > 0)
+
+const pphCategoryLabels: Record<string, string> = {
+  pph23_jasa: 'PPh 23 - Jasa',
+  pph23_sewa: 'PPh 23 - Sewa Peralatan',
+  pph23_bunga: 'PPh 23 - Bunga',
+  pph23_royalti: 'PPh 23 - Royalti',
+  pph4_2_konstruksi: 'PPh 4(2) - Konstruksi',
+  pph4_2_sewa: 'PPh 4(2) - Sewa Tanah/Bangunan',
+  pph26: 'PPh 26 - Badan Asing',
+}
+
+const pphCategoryLabel = computed(() =>
+  pphCategoryLabels[payment.value?.pph_category ?? ''] ?? '-'
+)
+
 const voidMutation = useVoidPayment()
 
 async function handleVoid() {
@@ -126,6 +142,35 @@ async function handleVoid() {
                 </div>
               </template>
             </div>
+          </Card>
+
+          <!-- PPh Withholding -->
+          <Card v-if="hasPph">
+            <template #header>
+              <h2 class="font-medium text-amber-700 dark:text-amber-300">PPh Withholding</h2>
+            </template>
+            <dl class="space-y-3">
+              <div>
+                <dt class="text-sm text-muted-foreground">Category</dt>
+                <dd class="font-medium text-foreground">{{ pphCategoryLabel }}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Rate</dt>
+                <dd class="text-foreground">{{ payment.pph_rate }}%</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Base Amount</dt>
+                <dd class="text-foreground">{{ formatCurrency(payment.pph_base_amount) }}</dd>
+              </div>
+              <div class="rounded-md bg-amber-50 dark:bg-amber-950/30 p-3">
+                <dt class="text-sm text-amber-600 dark:text-amber-400">PPh Amount</dt>
+                <dd class="text-lg font-bold text-amber-700 dark:text-amber-300">{{ formatCurrency(payment.pph_amount) }}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Cash Disbursement</dt>
+                <dd class="font-semibold text-foreground">{{ formatCurrency(payment.cash_disbursement) }}</dd>
+              </div>
+            </dl>
           </Card>
 
           <!-- Attachments -->

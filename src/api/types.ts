@@ -8728,6 +8728,12 @@ export interface components {
             currency: string;
             exchange_rate: string;
             base_currency_amount: number | null;
+            pph_category: string | null;
+            pph_rate: number | null;
+            pph_base_amount: number;
+            pph_amount: number;
+            pph_account_id: number | null;
+            cash_disbursement: number;
             payment_method: string;
             reference: string | null;
             notes: string | null;
@@ -10276,6 +10282,10 @@ export interface components {
             exchange_rate?: number | null;
             invoice_id?: number | null;
             bill_id?: number | null;
+            /** @enum {string} */
+            pph_category?: string | null;
+            pph_rate?: number | null;
+            pph_withhold?: boolean | null;
         };
         /** StoreProductCategoryRequest */
         StoreProductCategoryRequest: {
