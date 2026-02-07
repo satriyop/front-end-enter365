@@ -137,6 +137,23 @@ export function useResumeProject() {
 }
 
 // ============================================
+// Progress Hook
+// ============================================
+
+export function useUpdateProjectProgress() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, progress }: { id: number | string; progress: number }) => {
+      const response = await api.post<{ data: Project }>(`/projects/${id}/update-progress`, { progress })
+      return response.data.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+    },
+  })
+}
+
+// ============================================
 // Cost CRUD Hooks
 // ============================================
 

@@ -9,10 +9,11 @@ import {
   useDeleteProject,
   useHoldProject,
   useResumeProject,
+  useUpdateProjectProgress,
 } from '@/api/useProjects'
-import { Button, Card, Badge, Modal, Textarea, useToast } from '@/components/ui'
+import { Button, Card, Badge, Modal, Input, Textarea, useToast } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Pause, Play } from 'lucide-vue-next'
+import { Pause, Play, Check } from 'lucide-vue-next'
 import ProjectCostsList from '@/components/projects/ProjectCostsList.vue'
 import ProjectRevenuesList from '@/components/projects/ProjectRevenuesList.vue'
 
@@ -29,10 +30,30 @@ const cancelMutation = useCancelProject()
 const deleteMutation = useDeleteProject()
 const holdMutation = useHoldProject()
 const resumeMutation = useResumeProject()
+const progressMutation = useUpdateProjectProgress()
 
 // Hold modal state
 const showHoldModal = ref(false)
 const holdReason = ref('')
+
+// Progress editing state
+const isEditingProgress = ref(false)
+const progressInput = ref(0)
+
+function startEditingProgress() {
+  progressInput.value = project.value?.progress_percentage ?? 0
+  isEditingProgress.value = true
+}
+
+async function saveProgress() {
+  try {
+    await progressMutation.mutateAsync({ id: projectId.value, progress: progressInput.value })
+    isEditingProgress.value = false
+    toast.success('Progress updated')
+  } catch {
+    toast.error('Failed to update progress')
+  }
+}
 
 // Financials tab state
 const activeFinancialsTab = ref<'costs' | 'revenues'>('costs')
@@ -246,13 +267,49 @@ async function handleResume() {
           <!-- Progress Section -->
           <Card>
             <template #header>
-              <h2 class="font-medium text-slate-900 dark:text-slate-100">Progress</h2>
+              <div class="flex items-center justify-between">
+                <h2 class="font-medium text-foreground">Progress</h2>
+                <Button
+                  v-if="!isEditingProgress && (project.status.value === 'in_progress' || project.status.value === 'on_hold')"
+                  variant="ghost"
+                  size="sm"
+                  @click="startEditingProgress"
+                >
+                  Update
+                </Button>
+              </div>
             </template>
             <div class="space-y-4">
-              <div>
+              <!-- Editing mode -->
+              <div v-if="isEditingProgress" class="flex items-center gap-3">
+                <Input
+                  v-model.number="progressInput"
+                  type="number"
+                  :min="0"
+                  :max="100"
+                  class="w-24"
+                  size="sm"
+                  @keydown.enter="saveProgress"
+                  @keydown.escape="isEditingProgress = false"
+                />
+                <span class="text-sm text-muted-foreground">%</span>
+                <Button
+                  size="sm"
+                  :loading="progressMutation.isPending.value"
+                  @click="saveProgress"
+                >
+                  <Check class="w-4 h-4 mr-1" />
+                  Save
+                </Button>
+                <Button variant="ghost" size="sm" @click="isEditingProgress = false">
+                  Cancel
+                </Button>
+              </div>
+              <!-- Display mode -->
+              <div v-else>
                 <div class="flex justify-between text-sm mb-1">
-                  <span class="text-slate-500 dark:text-slate-400">Completion</span>
-                  <span class="font-medium text-slate-900 dark:text-slate-100">{{ project.progress_percentage ?? 0 }}%</span>
+                  <span class="text-muted-foreground">Completion</span>
+                  <span class="font-medium text-foreground">{{ project.progress_percentage ?? 0 }}%</span>
                 </div>
                 <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
