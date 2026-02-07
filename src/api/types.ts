@@ -7321,6 +7321,7 @@ export interface components {
             return_accounting: string;
             manufacturing_costing: string;
             closing_strategy: string;
+            costing_method: string;
             updated_at: string;
         };
         /** AddBomToVariantGroupRequest */
@@ -7422,11 +7423,15 @@ export interface components {
             due_date: string;
             description: string | null;
             reference: string | null;
+            /** @description Currency */
+            currency: string;
+            exchange_rate: number;
             subtotal: number;
             tax_amount: number;
             tax_rate: number;
             discount_amount: number;
             total_amount: number;
+            base_currency_total: number;
             paid_amount: number;
             outstanding_amount: number;
             status: components["schemas"]["StatusResource"];
@@ -7814,8 +7819,8 @@ export interface components {
             credit_limit: number;
             currency: string;
             payment_term_days: number;
-            early_discount_percent: string;
-            early_discount_days: number;
+            early_discount_percent: string | null;
+            early_discount_days: number | null;
             /** @description Bank account details */
             bank_name: string | null;
             bank_account_number: string | null;
@@ -8068,7 +8073,7 @@ export interface components {
             };
             contact_id: number | null;
             contact?: {
-                id: string;
+                id: number;
                 name: string;
             } | null;
             warehouse_id: number;
@@ -10447,8 +10452,8 @@ export interface components {
             warehouse_id: number;
             /** Format: date-time */
             opname_date?: string;
-            name?: string;
-            notes?: string;
+            name?: string | null;
+            notes?: string | null;
         };
         /** StoreSubcontractorInvoiceRequest */
         StoreSubcontractorInvoiceRequest: {
@@ -10722,6 +10727,8 @@ export interface components {
             manufacturing_costing: "project_based" | "job_costing" | "wip_accounting";
             /** @enum {string} */
             closing_strategy: "direct" | "income_summary";
+            /** @enum {string} */
+            costing_method: "weighted_average" | "fifo";
         };
         /** UpdateBillRequest */
         UpdateBillRequest: {
@@ -11329,8 +11336,8 @@ export interface components {
         UpdateStockOpnameRequest: {
             /** Format: date-time */
             opname_date?: string;
-            name?: string;
-            notes?: string;
+            name?: string | null;
+            notes?: string | null;
         };
         /** UpdateSubcontractorInvoiceRequest */
         UpdateSubcontractorInvoiceRequest: {
@@ -11951,6 +11958,7 @@ export interface operations {
                                 return_accounting: unknown[];
                                 manufacturing_costing: unknown[];
                                 closing_strategy: unknown[];
+                                costing_method: unknown[];
                             };
                             descriptions: {
                                 inventory_method: {
@@ -11988,6 +11996,12 @@ export interface operations {
                                     direct: "Tutup langsung ke retained earnings (lebih sederhana)";
                                     /** @enum {string} */
                                     income_summary: "Melalui akun income summary (audit trail lebih jelas)";
+                                };
+                                costing_method: {
+                                    /** @enum {string} */
+                                    weighted_average: "Rata-rata tertimbang (default, cocok untuk barang sejenis)";
+                                    /** @enum {string} */
+                                    fifo: "First-In First-Out (wajib SAK EMKM untuk industri tertentu)";
                                 };
                             };
                         };
@@ -12473,6 +12487,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "bankReconciliation.store": {
@@ -12500,6 +12515,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -12535,6 +12551,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "bankReconciliation.bulkReconcile": {
@@ -12564,6 +12581,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -12591,6 +12609,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -12618,6 +12637,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12658,6 +12678,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12697,6 +12718,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -12740,6 +12762,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -12780,6 +12803,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17559,6 +17583,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "down-payments.store": {
@@ -17587,6 +17612,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -17614,6 +17640,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17646,6 +17673,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -17674,6 +17702,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17708,6 +17737,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -17743,6 +17773,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -17773,6 +17804,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17809,6 +17841,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -17844,6 +17877,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17871,6 +17905,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -17898,6 +17933,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -17942,6 +17978,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "export.trialBalance": {
@@ -18527,6 +18564,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "fiscal-periods.store": {
@@ -18554,6 +18592,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -18581,6 +18620,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -18609,6 +18649,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -18651,6 +18692,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -18699,6 +18741,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -18737,6 +18780,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: {
                 headers: {
@@ -18793,6 +18837,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27032,6 +27077,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "sales-returns.store": {
@@ -27060,6 +27106,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
         };
     };
@@ -27087,6 +27134,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27119,6 +27167,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -27147,6 +27196,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27175,6 +27225,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27203,6 +27254,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27237,6 +27289,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -27266,6 +27319,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27300,6 +27354,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27338,6 +27393,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
@@ -27366,6 +27422,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };
@@ -27402,6 +27459,7 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     lookupSolarData: {
