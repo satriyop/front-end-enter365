@@ -26,6 +26,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: number | null]
 }>()
 
+defineOptions({ inheritAttrs: false })
+
 const attrs = useAttrs()
 
 // Internal display value (formatted string)

@@ -37,6 +37,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number]
 }>()
 
+defineOptions({ inheritAttrs: false })
+
 const attrs = useAttrs()
 
 const sizeStyles = {

@@ -41,6 +41,8 @@ interface Props {
   disabled?: boolean
   /** Additional trigger classes */
   class?: string
+  /** Test ID for E2E testing — applied to trigger and option items */
+  testId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -133,7 +135,7 @@ const selectedLabel = computed(() => {
     :disabled="disabled"
     @update:model-value="handleValueChange"
   >
-    <SelectTrigger :class="triggerClasses">
+    <SelectTrigger :class="triggerClasses" :data-testid="testId">
       <SelectValue :placeholder="placeholder">
         <span v-if="selectedLabel">{{ selectedLabel }}</span>
       </SelectValue>
@@ -161,6 +163,7 @@ const selectedLabel = computed(() => {
               :key="option.internalValue"
               :value="option.internalValue"
               :disabled="option.disabled"
+              :data-testid="testId ? `${testId}-option-${option.internalValue}` : undefined"
               class="relative flex w-full cursor-pointer select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-slate-100 focus:bg-slate-100 data-[highlighted]:bg-slate-100 dark:hover:bg-slate-800 dark:focus:bg-slate-800 dark:data-[highlighted]:bg-slate-800 data-[disabled]:pointer-events-none data-[disabled]:opacity-50"
             >
               <span

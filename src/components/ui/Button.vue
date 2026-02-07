@@ -105,6 +105,8 @@ const props = withDefaults(defineProps<Props>(), {
   as: 'button',
 })
 
+defineOptions({ inheritAttrs: false })
+
 const emit = defineEmits<{
   click: [event: MouseEvent]
 }>()
@@ -130,6 +132,7 @@ function handleClick(event: MouseEvent) {
     v-if="as === 'router-link' && to"
     :to="to"
     :class="computedClass"
+    v-bind="$attrs"
   >
     <Loader2 v-if="loading" class="animate-spin" />
     <component v-else-if="icon && iconPosition === 'left'" :is="icon" />
@@ -142,6 +145,7 @@ function handleClick(event: MouseEvent) {
     v-else-if="as === 'a'"
     :href="href"
     :class="computedClass"
+    v-bind="$attrs"
     @click="handleClick"
   >
     <Loader2 v-if="loading" class="animate-spin" />
@@ -156,6 +160,7 @@ function handleClick(event: MouseEvent) {
     :type="type"
     :class="computedClass"
     :disabled="disabled || loading"
+    v-bind="$attrs"
     @click="handleClick"
   >
     <Loader2 v-if="loading" class="animate-spin" />

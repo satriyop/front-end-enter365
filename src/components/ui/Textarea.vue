@@ -23,6 +23,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+defineOptions({ inheritAttrs: false })
+
 const attrs = useAttrs()
 
 const textareaClasses = computed(() =>
