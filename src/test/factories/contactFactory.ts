@@ -28,8 +28,23 @@ export function createContact(overrides: Partial<Contact> = {}): Contact {
     postal_code: '12345',
     npwp: '',
     nik: '',
+    // Payment terms
     credit_limit: 0,
+    currency: 'IDR',
     payment_term_days: 30,
+    early_discount_percent: '0',
+    early_discount_days: 0,
+    // Bank account
+    bank_name: null,
+    bank_account_number: null,
+    bank_account_name: null,
+    // Subcontractor
+    is_subcontractor: false,
+    subcontractor_services: null,
+    hourly_rate: null,
+    daily_rate: null,
+    notes: null,
+    // Status
     is_active: true,
     receivable_balance: '0',
     payable_balance: '0',
@@ -62,6 +77,20 @@ export function createCustomer(overrides: Partial<Contact> = {}): Contact {
 export function createVendor(overrides: Partial<Contact> = {}): Contact {
   return createContact({
     type: 'vendor',
+    ...overrides,
+  })
+}
+
+/**
+ * Create a subcontractor contact
+ */
+export function createSubcontractor(overrides: Partial<Contact> = {}): Contact {
+  return createContact({
+    type: 'supplier',
+    is_subcontractor: true,
+    hourly_rate: 150000,
+    daily_rate: 1000000,
+    subcontractor_services: ['Welding', 'Fabrication'],
     ...overrides,
   })
 }

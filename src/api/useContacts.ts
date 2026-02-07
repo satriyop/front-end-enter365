@@ -1,4 +1,7 @@
+import { computed, type Ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import { createCrudHooks } from './factory'
+import { api } from './client'
 import type { components } from './types'
 
 // ============================================
@@ -16,6 +19,23 @@ export interface ContactFilters {
 }
 
 export type CreateContactData = components['schemas']['StoreContactRequest']
+
+/**
+ * Credit status response from GET /contacts/{id}/credit-status
+ * This endpoint is not in the generated types, so we define it manually
+ */
+export interface ContactCreditStatus {
+  contact_id: number
+  name: string
+  credit_limit: number
+  receivable_balance: number
+  available_credit: number
+  credit_utilization_percent: number
+  is_exceeded: boolean
+  is_warning: boolean
+  can_create_invoice: boolean
+  last_transaction_date: string | null
+}
 
 // ============================================
 // CRUD Hooks (via factory)
@@ -38,4 +58,21 @@ export const useDeleteContact = hooks.useDelete
  */
 export function useContactsLookup(type?: 'customer' | 'supplier') {
   return hooks.useLookup({ type })
+}
+
+/**
+ * Fetch credit status for a contact (customers only)
+ * Shows credit limit, receivable balance, available credit, and utilization
+ */
+export function useContactCreditStatus(contactId: Ref<number>) {
+  return useQuery({
+    queryKey: computed(() => ['contact', contactId.value, 'credit-status']),
+    queryFn: async () => {
+      const response = await api.get<{ data: ContactCreditStatus }>(
+        `/contacts/${contactId.value}/credit-status`
+      )
+      return response.data.data
+    },
+    enabled: computed(() => !!contactId.value),
+  })
 }

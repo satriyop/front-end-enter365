@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -59,10 +59,22 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
     nik: '',
     credit_limit: 0,
     payment_term_days: 30,
+    currency: '',
+    early_discount_percent: null,
+    early_discount_days: null,
+    bank_name: '',
+    bank_account_number: '',
+    bank_account_name: '',
+    is_subcontractor: false,
+    hourly_rate: null,
+    daily_rate: null,
+    subcontractor_services: [],
+    notes: '',
     is_active: true,
   },
 })
 
+// Original fields
 const [code] = defineField('code')
 const [name] = defineField('name')
 const [type] = defineField('type')
@@ -78,12 +90,62 @@ const [creditLimit] = defineField('credit_limit')
 const [paymentTermDays] = defineField('payment_term_days')
 const [isActive] = defineField('is_active')
 
+// New fields - Payment terms
+const [currency] = defineField('currency')
+const [earlyDiscountPercent] = defineField('early_discount_percent')
+const [earlyDiscountDays] = defineField('early_discount_days')
+
+// New fields - Bank account
+const [bankName] = defineField('bank_name')
+const [bankAccountNumber] = defineField('bank_account_number')
+const [bankAccountName] = defineField('bank_account_name')
+
+// New fields - Subcontractor
+const [isSubcontractor] = defineField('is_subcontractor')
+const [hourlyRate] = defineField('hourly_rate')
+const [dailyRate] = defineField('daily_rate')
+const [subcontractorServices] = defineField('subcontractor_services')
+const [notes] = defineField('notes')
+
+// Helper for subcontractor services (comma-separated text <-> array)
+const servicesText = computed({
+  get: () => (subcontractorServices.value ?? []).join(', '),
+  set: (val: string) => {
+    subcontractorServices.value = val
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0)
+  }
+})
+
+// UI state - show bank section for customers (expandable)
+const showBankSection = ref(false)
+
 // Type options
 const typeOptions = [
   { value: 'customer', label: 'Customer' },
   { value: 'supplier', label: 'Supplier' },
   { value: 'both', label: 'Both' },
 ]
+
+// Currency options
+const currencyOptions = [
+  { value: '', label: 'Default (IDR)' },
+  { value: 'IDR', label: 'IDR - Indonesian Rupiah' },
+  { value: 'USD', label: 'USD - US Dollar' },
+  { value: 'SGD', label: 'SGD - Singapore Dollar' },
+]
+
+// Computed: should show bank section automatically
+const shouldShowBankSection = computed(() => {
+  // Always show for suppliers
+  if (type.value === 'supplier' || type.value === 'both') return true
+  // Show for customers if they have bank data or user expanded it
+  if (showBankSection.value) return true
+  // Show if editing and contact has bank data
+  if (existingContact.value?.bank_name || existingContact.value?.bank_account_number) return true
+  return false
+})
 
 // Populate form when editing
 watch(existingContact, (contact) => {
@@ -102,8 +164,23 @@ watch(existingContact, (contact) => {
       nik: contact.nik || '',
       credit_limit: toNumber(contact.credit_limit),
       payment_term_days: toNumber(contact.payment_term_days),
+      currency: contact.currency || '',
+      early_discount_percent: contact.early_discount_percent ? parseFloat(contact.early_discount_percent) : null,
+      early_discount_days: contact.early_discount_days ?? null,
+      bank_name: contact.bank_name || '',
+      bank_account_number: contact.bank_account_number || '',
+      bank_account_name: contact.bank_account_name || '',
+      is_subcontractor: contact.is_subcontractor ?? false,
+      hourly_rate: contact.hourly_rate ?? null,
+      daily_rate: contact.daily_rate ?? null,
+      subcontractor_services: (contact.subcontractor_services as string[]) ?? [],
+      notes: contact.notes || '',
       is_active: !!contact.is_active,
     })
+    // Show bank section if contact has bank data
+    if (contact.bank_name || contact.bank_account_number) {
+      showBankSection.value = true
+    }
   }
 }, { immediate: true })
 
@@ -130,6 +207,19 @@ const onSubmit = handleSubmit(async (formValues) => {
     nik: formValues.nik || null,
     credit_limit: formValues.credit_limit ?? 0,
     payment_term_days: formValues.payment_term_days ?? 30,
+    currency: formValues.currency || undefined,
+    early_discount_percent: formValues.early_discount_percent ?? null,
+    early_discount_days: formValues.early_discount_days ?? null,
+    bank_name: formValues.bank_name || null,
+    bank_account_number: formValues.bank_account_number || null,
+    bank_account_name: formValues.bank_account_name || null,
+    is_subcontractor: formValues.is_subcontractor ?? false,
+    hourly_rate: formValues.hourly_rate ?? null,
+    daily_rate: formValues.daily_rate ?? null,
+    subcontractor_services: formValues.subcontractor_services?.length
+      ? formValues.subcontractor_services
+      : null,
+    notes: formValues.notes || null,
     is_active: formValues.is_active ?? true,
   }
 
@@ -306,7 +396,129 @@ useFormShortcuts({
               min="0"
             />
           </FormField>
+
+          <FormField label="Currency" :error="errors.currency">
+            <Select v-model="currency" :options="currencyOptions" />
+          </FormField>
+
+          <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-border">
+            <FormField label="Early Discount %" :error="errors.early_discount_percent" hint="Discount if paid early">
+              <Input
+                :model-value="earlyDiscountPercent ?? undefined"
+                type="number"
+                min="0"
+                max="100"
+                step="0.5"
+                placeholder="e.g., 2"
+                @update:model-value="earlyDiscountPercent = $event ? Number($event) : null"
+              />
+            </FormField>
+
+            <FormField label="If Paid Within (days)" :error="errors.early_discount_days" hint="Days to qualify for discount">
+              <Input
+                :model-value="earlyDiscountDays ?? undefined"
+                type="number"
+                min="0"
+                placeholder="e.g., 10"
+                @update:model-value="earlyDiscountDays = $event ? Number($event) : null"
+              />
+            </FormField>
+          </div>
         </div>
+      </Card>
+
+      <!-- Bank Account Section -->
+      <Card v-if="shouldShowBankSection">
+        <template #header>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Bank Account</h2>
+        </template>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Bank Name" :error="errors.bank_name">
+            <Input v-model="bankName" placeholder="e.g., BCA, Mandiri" />
+          </FormField>
+
+          <FormField label="Account Holder Name" :error="errors.bank_account_name">
+            <Input v-model="bankAccountName" placeholder="Account holder name" />
+          </FormField>
+
+          <FormField label="Account Number" :error="errors.bank_account_number" class="md:col-span-2">
+            <Input v-model="bankAccountNumber" placeholder="1234567890" />
+          </FormField>
+        </div>
+      </Card>
+
+      <!-- Show expand link for customers without bank section -->
+      <button
+        v-if="type === 'customer' && !shouldShowBankSection"
+        type="button"
+        class="text-sm text-primary hover:underline"
+        @click="showBankSection = true"
+      >
+        + Add bank account details (for refunds)
+      </button>
+
+      <!-- Subcontractor Section -->
+      <Card>
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-medium text-slate-900 dark:text-slate-100">Subcontractor</h3>
+            <p class="text-sm text-muted-foreground">Enable if this contact provides subcontracting services</p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              v-model="isSubcontractor"
+              type="checkbox"
+              class="sr-only peer"
+            />
+            <div class="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:ring-2 peer-focus:ring-orange-500 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-300 after:border-slate-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
+          </label>
+        </div>
+
+        <div v-if="isSubcontractor" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 mt-4 border-t border-border">
+          <FormField label="Hourly Rate" :error="errors.hourly_rate">
+            <Input
+              :model-value="hourlyRate ?? undefined"
+              type="number"
+              min="0"
+              placeholder="Rate per hour"
+              @update:model-value="hourlyRate = $event ? Number($event) : null"
+            />
+          </FormField>
+
+          <FormField label="Daily Rate" :error="errors.daily_rate">
+            <Input
+              :model-value="dailyRate ?? undefined"
+              type="number"
+              min="0"
+              placeholder="Rate per day"
+              @update:model-value="dailyRate = $event ? Number($event) : null"
+            />
+          </FormField>
+
+          <FormField label="Services" :error="errors.subcontractor_services" class="md:col-span-2" hint="Comma-separated list of services">
+            <Textarea
+              v-model="servicesText"
+              :rows="2"
+              placeholder="Welding, Painting, Assembly"
+            />
+          </FormField>
+        </div>
+      </Card>
+
+      <!-- Notes -->
+      <Card>
+        <template #header>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">Notes</h2>
+        </template>
+
+        <FormField :error="errors.notes">
+          <Textarea
+            v-model="notes"
+            :rows="3"
+            placeholder="Additional notes about this contact..."
+          />
+        </FormField>
       </Card>
 
       <!-- Status -->
