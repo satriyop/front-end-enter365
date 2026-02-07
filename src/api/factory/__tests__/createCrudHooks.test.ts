@@ -237,7 +237,7 @@ describe('createCrudHooks', () => {
       await result.refetch()
       await flushPromises()
 
-      expect(api.get).toHaveBeenCalledWith('/products/42')
+      expect(api.get).toHaveBeenCalledWith('/products/42', { params: {} })
     })
 
     it('is disabled when id is falsy (0)', () => {
@@ -265,7 +265,7 @@ describe('createCrudHooks', () => {
       await result.refetch()
       await flushPromises()
 
-      expect(api.get).toHaveBeenCalledWith('/products/abc-123')
+      expect(api.get).toHaveBeenCalledWith('/products/abc-123', { params: {} })
     })
 
     it('uses singular name for query key', () => {
@@ -282,9 +282,9 @@ describe('createCrudHooks', () => {
   })
 
   describe('useLookup hook', () => {
-    it('calls api.get with per_page=100 by default', async () => {
+    it('calls api.get with per_page=500 by default', async () => {
       vi.mocked(api.get).mockResolvedValue({
-        data: { data: [{ id: 1, name: 'Item 1' }], meta: { current_page: 1, last_page: 1, per_page: 100, total: 1 } },
+        data: { data: [{ id: 1, name: 'Item 1' }], meta: { current_page: 1, last_page: 1, per_page: 500, total: 1 } },
       })
 
       const hooks = createCrudHooks<TestResource, TestFilters, TestCreateData>({
@@ -296,13 +296,13 @@ describe('createCrudHooks', () => {
       await flushPromises()
 
       expect(api.get).toHaveBeenCalledWith('/products', {
-        params: { per_page: 100 },
+        params: { per_page: 500 },
       })
     })
 
     it('merges custom params with defaults', async () => {
       vi.mocked(api.get).mockResolvedValue({
-        data: { data: [], meta: { current_page: 1, last_page: 1, per_page: 100, total: 0 } },
+        data: { data: [], meta: { current_page: 1, last_page: 1, per_page: 500, total: 0 } },
       })
 
       const hooks = createCrudHooks<TestResource, TestFilters, TestCreateData>({
@@ -315,7 +315,7 @@ describe('createCrudHooks', () => {
       await flushPromises()
 
       expect(api.get).toHaveBeenCalledWith('/contacts', {
-        params: { per_page: 100, type: 'customer', status: 'active' },
+        params: { per_page: 500, type: 'customer', status: 'active' },
       })
     })
 
