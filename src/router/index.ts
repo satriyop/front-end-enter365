@@ -605,10 +605,22 @@ const router = createRouter({
           meta: { breadcrumb: 'Purchase Returns' }
         },
         {
+          path: 'purchasing/purchase-returns/new',
+          name: 'purchase-return-new',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnFormPage.vue'),
+          meta: { breadcrumb: 'New Purchase Return' }
+        },
+        {
           path: 'purchasing/purchase-returns/:id',
           name: 'purchase-return-detail',
           component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnDetailPage.vue'),
           meta: { breadcrumb: (route) => `Return #${route.params.id}` }
+        },
+        {
+          path: 'purchasing/purchase-returns/:id/edit',
+          name: 'purchase-return-edit',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnFormPage.vue'),
+          meta: { breadcrumb: 'Edit Purchase Return' }
         },
         // Manufacturing - Material Requisitions routes
         {
