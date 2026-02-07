@@ -412,6 +412,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bills/{bill}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Void/cancel a posted bill
+         * @description Cancels the bill and reverses any associated journal entries.
+         */
+        post: operations["bill.void"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/bills/{bill}/make-recurring": {
         parameters: {
             query?: never;
@@ -2888,6 +2908,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/invoices/{invoice}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Void/cancel invoice
+         * @description Cancels the invoice and reverses journal entry if exists.
+         *     Invoice must not be in terminal status (Paid/Cancelled).
+         */
+        post: operations["invoice.void"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/invoices/{invoice}/make-recurring": {
         parameters: {
             query?: never;
@@ -4535,8 +4576,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Generate PDF (placeholder) */
-        get: operations["quotation.pdf"];
+        /** Generate and download quotation PDF */
+        get: operations["downloadQuotationPdf"];
         put?: never;
         post?: never;
         delete?: never;
@@ -10934,6 +10975,20 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /**
+         * VoidBillRequest
+         * @description Request validation for voiding/cancelling a bill.
+         */
+        VoidBillRequest: {
+            reason: string;
+        };
+        /**
+         * VoidInvoiceRequest
+         * @description Request validation for voiding/cancelling an invoice.
+         */
+        VoidInvoiceRequest: {
+            reason: string;
+        };
         /** WarehouseResource */
         WarehouseResource: {
             id: number;
@@ -12391,6 +12446,41 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "bill.void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bill ID */
+                bill: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoidBillRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Tagihan berhasil dibatalkan.";
+                        data: components["schemas"]["BillResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "bill.makeRecurring": {
@@ -19055,6 +19145,41 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "invoice.void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The invoice ID */
+                invoice: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoidInvoiceRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @enum {string} */
+                        message: "Operasi berhasil.";
+                        data: components["schemas"]["InvoiceResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "invoice.makeRecurring": {
         parameters: {
             query?: never;
@@ -23281,7 +23406,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "quotation.pdf": {
+    downloadQuotationPdf: {
         parameters: {
             query?: never;
             header?: never;
@@ -23293,22 +23418,17 @@ export interface operations {
         };
         requestBody?: never;
         responses: {
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-            501: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Fitur PDF belum tersedia.";
-                        errors: string;
-                    };
+                    "application/json": Record<string, never>;
                 };
             };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "quotation.statistics": {
@@ -24390,15 +24510,29 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Buku Besar";
-                            start_date: unknown;
-                            end_date: unknown;
-                            accounts: string;
+                            report_name: string;
+                            start_date: string | null;
+                            end_date: string | null;
+                            accounts: {
+                                account_id: number;
+                                code: string;
+                                name: string;
+                                type: string;
+                                opening_balance: number;
+                                entries: {
+                                    id: number;
+                                    journal_entry_id: number;
+                                    date: string;
+                                    entry_number: string;
+                                    description: string;
+                                    reference: string | null;
+                                    debit: number;
+                                    credit: number;
+                                    running_balance: number;
+                                }[];
+                                closing_balance: number;
+                            }[];
                         };
                     };
                 };
@@ -24424,13 +24558,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Umur Piutang";
-                            ""?: string;
+                            report_name: string;
+                            as_of_date: string;
+                            buckets: {
+                                label: string;
+                                min: number;
+                                max: number | null;
+                            }[];
+                            contacts: {
+                                contact_id: number;
+                                contact_code: string;
+                                contact_name: string;
+                                buckets: {
+                                    [key: string]: number;
+                                };
+                                invoice_count: number;
+                            }[];
+                            totals: {
+                                [key: string]: number;
+                            };
                         };
                     };
                 };
@@ -24456,13 +24603,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Umur Hutang";
-                            ""?: string;
+                            report_name: string;
+                            as_of_date: string;
+                            buckets: {
+                                label: string;
+                                min: number;
+                                max: number | null;
+                            }[];
+                            contacts: {
+                                contact_id: number;
+                                contact_code: string;
+                                contact_name: string;
+                                buckets: {
+                                    [key: string]: number;
+                                };
+                                bill_count: number;
+                            }[];
+                            totals: {
+                                [key: string]: number;
+                            };
                         };
                     };
                 };
@@ -24527,13 +24687,45 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan PPN";
-                            ""?: string;
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            output_tax: {
+                                count: number;
+                                base: number;
+                                tax: number;
+                            };
+                            input_tax: {
+                                count: number;
+                                base: number;
+                                tax: number;
+                            };
+                            net_tax: number;
+                            net_tax_status: string;
+                            details: {
+                                invoices: {
+                                    date: string;
+                                    number: string;
+                                    contact: string;
+                                    npwp: string | null;
+                                    base: number;
+                                    tax_rate: number;
+                                    tax: number;
+                                }[];
+                                bills: {
+                                    date: string;
+                                    number: string;
+                                    vendor_invoice: string | null;
+                                    contact: string;
+                                    npwp: string | null;
+                                    base: number;
+                                    tax_rate: number;
+                                    tax: number;
+                                }[];
+                            };
                         };
                     };
                 };
@@ -24557,16 +24749,19 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
                             report_name: string;
                             year: number;
-                            months: string;
-                            total_output: string;
-                            total_input: string;
-                            total_net: string;
+                            months: {
+                                month: string;
+                                month_name: string;
+                                output: number;
+                                input: number;
+                                net: number;
+                            }[];
+                            total_output: number;
+                            total_input: number;
+                            total_net: number;
                         };
                     };
                 };
@@ -24590,19 +24785,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Daftar Faktur Pajak Keluaran";
+                            report_name: string;
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            invoices: string;
-                            total_dpp: string;
-                            total_ppn: string;
+                            invoices: {
+                                tanggal: string;
+                                nomor_faktur: string;
+                                nama_pembeli: string;
+                                npwp_pembeli: string;
+                                alamat: string;
+                                dpp: number;
+                                ppn: number;
+                                total: number;
+                            }[];
+                            total_dpp: number;
+                            total_ppn: number;
                         };
                     };
                 };
@@ -24626,19 +24826,24 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Daftar Faktur Pajak Masukan";
+                            report_name: string;
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            bills: string;
-                            total_dpp: string;
-                            total_ppn: string;
+                            bills: {
+                                tanggal: string;
+                                nomor_faktur_vendor: string;
+                                nomor_internal: string;
+                                nama_penjual: string;
+                                npwp_penjual: string;
+                                dpp: number;
+                                ppn: number;
+                                total: number;
+                            }[];
+                            total_dpp: number;
+                            total_ppn: number;
                         };
                     };
                 };
@@ -24662,13 +24867,36 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Arus Kas";
-                            ""?: string;
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            operating: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                subtotal: number;
+                            };
+                            investing: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                subtotal: number;
+                            };
+                            financing: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                subtotal: number;
+                            };
+                            net_cash_flow: number;
+                            beginning_cash: number;
+                            ending_cash: number;
                         };
                     };
                 };
@@ -24692,20 +24920,22 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Pergerakan Kas Harian";
+                            report_name: string;
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            movements: string;
-                            total_receipts: string;
-                            total_payments: string;
-                            net_movement: string;
+                            movements: {
+                                date: string;
+                                receipts: number;
+                                payments: number;
+                                net: number;
+                                balance: number;
+                            }[];
+                            total_receipts: number;
+                            total_payments: number;
+                            net_movement: number;
                         };
                     };
                 };
@@ -24733,10 +24963,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            projects: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                customer: string | null;
+                                status: string;
+                                start_date: string | null;
+                                end_date: string | null;
+                                contract_amount: number;
+                                total_revenue: number;
+                                costs: {
+                                    material: number;
+                                    labor: number;
+                                    subcontractor: number;
+                                    equipment: number;
+                                    overhead: number;
+                                    other: number;
+                                    total: number;
+                                };
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_amount: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                                progress_percentage: number;
+                            }[];
+                            totals: {
+                                total_contract: number;
+                                total_revenue: number;
+                                total_costs: number;
+                                total_profit: number;
+                                average_margin: number;
+                                projects_count: number;
+                                profitable_count: number;
+                                loss_count: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24762,10 +25032,76 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            project: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                description: string | null;
+                                customer: {
+                                    id: number;
+                                    name: string;
+                                    code: string;
+                                } | null;
+                                status: string;
+                                priority: string | null;
+                                location: string | null;
+                                manager_id: number | null;
+                            };
+                            financials: {
+                                contract_amount: number;
+                                budget_amount: number;
+                                total_revenue: number;
+                                total_cost: number;
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                            };
+                            cost_breakdown: {
+                                material: number;
+                                labor: number;
+                                subcontractor: number;
+                                equipment: number;
+                                overhead: number;
+                                other: number;
+                                total: number;
+                            };
+                            revenue_breakdown: {
+                                items: {
+                                    type: string;
+                                    total: number;
+                                    count: number;
+                                }[];
+                                total: number;
+                            };
+                            timeline: {
+                                planned_start: string | null;
+                                planned_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                duration_days: number;
+                                days_until_deadline: number | null;
+                                is_overdue: boolean;
+                            };
+                            progress: {
+                                percentage: number;
+                                work_orders_count: number;
+                                work_orders_completed: number;
+                                invoices_count: number;
+                                invoices_paid: number;
+                            };
+                            monthly_costs: {
+                                [key: string]: number;
+                            };
+                            kpis: {
+                                cost_per_progress: number;
+                                revenue_per_progress: number;
+                                burn_rate: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24792,10 +25128,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            by_type: {
+                                [key: string]: {
+                                    total: number;
+                                    count: number;
+                                    label: string;
+                                };
+                            };
+                            by_project: {
+                                project_id: number;
+                                project_number: string | null;
+                                project_name: string | null;
+                                total_cost: number;
+                            }[];
+                            totals: {
+                                grand_total: number;
+                                cost_types_count: number;
+                                projects_count: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24882,10 +25239,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            over_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            under_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            on_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                over_budget_count: number;
+                                under_budget_count: number;
+                                on_budget_count: number;
+                                total_estimated: number;
+                                total_actual: number;
+                                total_variance: number;
+                                overall_variance_percent: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24911,10 +25314,43 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            subcontractors: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                work_orders: {
+                                    total: number;
+                                    completed: number;
+                                    in_progress: number;
+                                    draft: number;
+                                };
+                                financials: {
+                                    total_agreed: number;
+                                    total_actual: number;
+                                    total_invoiced: number;
+                                    total_paid: number;
+                                    outstanding: number;
+                                    retention_held: number;
+                                };
+                                performance: {
+                                    on_time_completion: number;
+                                    average_completion_days: number;
+                                };
+                            }[];
+                            totals: {
+                                total_subcontractors: number;
+                                total_agreed: number;
+                                total_paid: number;
+                                total_outstanding: number;
+                                total_retention: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24943,10 +25379,58 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            subcontractor: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                phone: string | null;
+                                email: string | null;
+                                hourly_rate: number | null;
+                                daily_rate: number | null;
+                            };
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            work_orders: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                project_name: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                actual_amount: number;
+                                retention_amount: number;
+                                amount_invoiced: number;
+                                amount_paid: number;
+                                scheduled_start: string | null;
+                                scheduled_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                completion_percentage: number;
+                            }[];
+                            invoices: {
+                                id: number;
+                                invoice_number: string;
+                                invoice_date: string | null;
+                                amount: number;
+                                status: string;
+                                sc_wo_number: string | null;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                completed_work_orders: number;
+                                total_agreed: number;
+                                total_actual: number;
+                                total_invoiced: number;
+                                total_paid: number;
+                                outstanding: number;
+                                retention_held: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24970,10 +25454,35 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
+                        data: {
+                            report_name: string;
+                            retentions: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                subcontractor_name: string | null;
+                                project_number: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                retention_percent: number;
+                                retention_amount: number;
+                                scheduled_end: string | null;
+                                actual_end: string | null;
+                                is_releasable: boolean;
+                            }[];
+                            by_subcontractor: {
+                                subcontractor: string;
+                                total_retention: number;
+                                work_orders_count: number;
+                                releasable_amount: number;
+                            }[];
+                            totals: {
+                                total_retention_held: number;
+                                releasable_amount: number;
+                                pending_amount: number;
+                                work_orders_count: number;
+                            };
+                        };
                     };
                 };
             };
@@ -24999,13 +25508,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Perubahan Ekuitas";
-                            ""?: string;
+                            report_name: string;
+                            period_start: string;
+                            period_end: string;
+                            opening_equity: {
+                                items: {
+                                    account_id: number;
+                                    code: string;
+                                    name: string;
+                                    subtype: string;
+                                    balance: number;
+                                }[];
+                                total: number;
+                            };
+                            changes: {
+                                capital_additions: number;
+                                capital_withdrawals: number;
+                                net_income: number;
+                                dividends: number;
+                                other_adjustments: number;
+                                total_changes: number;
+                            };
+                            closing_equity: {
+                                items: {
+                                    account_id: number;
+                                    code: string;
+                                    name: string;
+                                    subtype: string;
+                                    balance: number;
+                                }[];
+                                total: number;
+                            };
                         };
                     };
                 };
@@ -25034,13 +25568,48 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Rekonsiliasi Bank";
-                            ""?: string;
+                            report_name: string;
+                            account: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: string;
+                            book_balance: number;
+                            bank_balance: number;
+                            adjustments_to_book: {
+                                items: {
+                                    id: number;
+                                    date: string;
+                                    description: string;
+                                    reference: string | null;
+                                    amount: number;
+                                    type: string;
+                                }[];
+                                total: number;
+                            };
+                            adjustments_to_bank: {
+                                items: {
+                                    id: number;
+                                    type: string;
+                                    date: string;
+                                    number: string;
+                                    description: string | null;
+                                    amount: number;
+                                }[];
+                                total: number;
+                            };
+                            adjusted_book_balance: number;
+                            adjusted_bank_balance: number;
+                            difference: number;
+                            is_reconciled: boolean;
+                            reconciliation_summary: {
+                                total: number;
+                                reconciled: number;
+                                matched: number;
+                                unmatched: number;
+                            };
                         };
                     };
                 };
@@ -25070,19 +25639,46 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Item Outstanding Rekonsiliasi";
+                            report_name: string;
                             account: {
                                 id: number;
                                 code: string;
                                 name: string;
                             };
-                            as_of_date: unknown | string;
-                            ""?: string;
+                            as_of_date: string;
+                            outstanding_deposits: {
+                                id: number;
+                                date: string;
+                                number: string;
+                                description: string | null;
+                                amount: number;
+                            }[];
+                            outstanding_checks: {
+                                id: number;
+                                date: string;
+                                number: string;
+                                description: string | null;
+                                amount: number;
+                            }[];
+                            unmatched_bank_transactions: {
+                                id: number;
+                                date: string;
+                                description: string;
+                                reference: string | null;
+                                debit: number;
+                                credit: number;
+                                net_amount: number;
+                            }[];
+                            unmatched_book_entries: {
+                                id: number;
+                                journal_entry_id: number;
+                                date: string;
+                                journal_number: string;
+                                description: string;
+                                debit: number;
+                                credit: number;
+                            }[];
                         };
                     };
                 };
@@ -25110,13 +25706,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan Harga Pokok Penjualan";
-                            ""?: string;
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            beginning_inventory: number;
+                            purchases: number;
+                            goods_available: number;
+                            ending_inventory: number;
+                            cogs: number;
+                            cogs_from_movements: number;
                         };
                     };
                 };
@@ -25143,18 +25744,23 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan HPP per Produk";
+                            report_name: string;
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            products: string;
-                            total_cogs: string;
+                            products: {
+                                product_id: number;
+                                sku: string;
+                                name: string;
+                                category: string | null;
+                                quantity_sold: number;
+                                average_unit_cost: number;
+                                total_cogs: number;
+                                percentage: number;
+                            }[];
+                            total_cogs: number;
                         };
                     };
                 };
@@ -25181,18 +25787,21 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Laporan HPP per Kategori";
+                            report_name: string;
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            categories: string;
-                            total_cogs: string;
+                            categories: {
+                                category_id: number | null;
+                                category_name: string;
+                                product_count: number;
+                                quantity_sold: number;
+                                total_cogs: number;
+                                percentage: number;
+                            }[];
+                            total_cogs: number;
                         };
                     };
                 };
@@ -25216,14 +25825,18 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
                             report_name: string;
                             year: number;
-                            months: string;
-                            total_cogs: string;
+                            months: {
+                                month: string;
+                                month_name: string;
+                                beginning_inventory: number;
+                                purchases: number;
+                                ending_inventory: number;
+                                cogs: number;
+                            }[];
+                            total_cogs: number;
                         };
                     };
                 };
@@ -25253,24 +25866,30 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
-                            report_name: "Detail HPP Produk";
+                            report_name: string;
                             product: {
                                 id: number;
                                 sku: string;
                                 name: string;
                             };
                             period: {
-                                start: unknown | string;
-                                end: unknown | string;
+                                start: string;
+                                end: string;
                             };
-                            movements: string;
-                            total_quantity: string;
-                            total_cogs: string;
+                            movements: {
+                                id: number;
+                                date: string;
+                                movement_number: string;
+                                reference_type: string | null;
+                                reference_id: number | null;
+                                quantity: number;
+                                unit_cost: number;
+                                total_cost: number;
+                                notes: string | null;
+                            }[];
+                            total_quantity: number;
+                            total_cogs: number;
                         };
                     };
                 };
