@@ -132,9 +132,59 @@ export function useCancelOpname() {
   })
 }
 
-// ================= ===========================
+// ============================================
 // Item Management Hooks
 // ============================================
+
+/**
+ * Generate items from current warehouse stock
+ */
+export function useGenerateOpnameItems() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (id: number | string) => {
+      const response = await api.post<{ data: StockOpname }>(`/stock-opnames/${id}/generate-items`)
+      return response.data.data
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['stockOpname', data.id] })
+    },
+  })
+}
+
+/**
+ * Add a single item to the stock opname
+ */
+export function useAddOpnameItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ opnameId, productId }: { opnameId: number | string; productId: number }) => {
+      const response = await api.post<{ data: StockOpnameItem }>(
+        `/stock-opnames/${opnameId}/items`,
+        { product_id: productId }
+      )
+      return response.data.data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['stockOpname', variables.opnameId] })
+    },
+  })
+}
+
+/**
+ * Remove an item from the stock opname
+ */
+export function useDeleteOpnameItem() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ opnameId, itemId }: { opnameId: number | string; itemId: number | string }) => {
+      await api.delete(`/stock-opnames/${opnameId}/items/${itemId}`)
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['stockOpname', variables.opnameId] })
+    },
+  })
+}
 
 /**
  * Update a specific item's counted quantity
