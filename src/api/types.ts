@@ -70,6 +70,24 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/accounting-policies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** GET /api/v1/accounting-policies */
+        get: operations["accountingPolicy.show"];
+        /** PUT /api/v1/accounting-policies */
+        put: operations["accountingPolicy.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/attachments": {
         parameters: {
             query?: never;
@@ -3424,6 +3442,126 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payment-reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all payment reminders with filters */
+        get: operations["paymentReminder.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-reminders/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get summary counts for the reminder dashboard */
+        get: operations["paymentReminder.summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-reminders/{paymentReminder}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Show a single payment reminder */
+        get: operations["paymentReminder.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-reminders/{paymentReminder}/send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Manually send a pending reminder */
+        post: operations["paymentReminder.send"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-reminders/{paymentReminder}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a pending reminder */
+        post: operations["paymentReminder.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{invoice}/reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List reminders for a specific invoice */
+        get: operations["paymentReminder.forInvoice"];
+        put?: never;
+        /** Manually schedule a custom reminder for an invoice */
+        post: operations["paymentReminder.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/invoices/{invoice}/send-reminder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Quick action: create and send an immediate reminder for an invoice */
+        post: operations["paymentReminder.sendImmediate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/permissions": {
         parameters: {
             query?: never;
@@ -6574,6 +6712,179 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/projects/{project}/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tasks for a project */
+        get: operations["task.index"];
+        put?: never;
+        /** Create a new task for a project */
+        post: operations["task.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Display a specific task */
+        get: operations["task.show"];
+        /** Update a task */
+        put: operations["task.update"];
+        post?: never;
+        /** Delete a task */
+        delete: operations["task.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a task (Todo → InProgress) */
+        post: operations["task.start"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Complete a task (InProgress → Done) */
+        post: operations["task.complete"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel a task */
+        post: operations["task.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/subtasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a subtask to a task */
+        post: operations["task.addSubtask"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/dependencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add a dependency to a task */
+        post: operations["task.addDependency"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/{task}/dependencies/{dependency}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a dependency from a task */
+        delete: operations["task.removeDependency"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks/reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reorder tasks within a project */
+        post: operations["task.reorder"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/projects/{project}/tasks-statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get task statistics for a project */
+        get: operations["task.statistics"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users": {
         parameters: {
             query?: never;
@@ -7002,6 +7313,16 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** AccountingPolicyResource */
+        AccountingPolicyResource: {
+            id: number;
+            inventory_method: string;
+            cogs_recognition: string;
+            return_accounting: string;
+            manufacturing_costing: string;
+            closing_strategy: string;
+            updated_at: string;
+        };
         /** AddBomToVariantGroupRequest */
         AddBomToVariantGroupRequest: {
             bom_id: number;
@@ -7110,7 +7431,7 @@ export interface components {
             outstanding_amount: number;
             status: components["schemas"]["StatusResource"];
             /** @enum {string} */
-            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
             journal_entry_id: number | null;
             payable_account_id: number | null;
             contact?: components["schemas"]["ContactResource"];
@@ -7186,7 +7507,7 @@ export interface components {
             unit_cost: number;
             status: components["schemas"]["StatusResource"];
             /** @enum {string} */
-            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
             version: string;
             parent_bom_id: number | null;
             variant_group_id: number | null;
@@ -7608,7 +7929,7 @@ export interface components {
          * @description Centralized document status enum for all document types. Replaces scattered STATUS_* constants across models for type safety, centralized labels, and workflow validation.
          * @enum {string}
          */
-        DocumentStatus: "draft" | "cancelled" | "submitted" | "approved" | "rejected" | "completed" | "converted" | "expired" | "sent" | "partial" | "paid" | "overdue" | "received" | "fully_applied" | "refunded" | "active" | "inactive" | "confirmed" | "in_progress" | "processing" | "applied" | "issued" | "assigned" | "counting" | "reviewed" | "shipped" | "delivered" | "receiving" | "planning" | "on_hold" | "accepted" | "archived";
+        DocumentStatus: "draft" | "cancelled" | "submitted" | "approved" | "rejected" | "completed" | "converted" | "expired" | "sent" | "partial" | "paid" | "overdue" | "received" | "fully_applied" | "refunded" | "active" | "inactive" | "confirmed" | "in_progress" | "processing" | "applied" | "issued" | "assigned" | "counting" | "reviewed" | "shipped" | "delivered" | "receiving" | "planning" | "on_hold" | "accepted" | "todo" | "done" | "archived";
         /** DownPaymentApplicationResource */
         DownPaymentApplicationResource: {
             id: number;
@@ -7703,7 +8024,7 @@ export interface components {
         GoodsReceiptNoteItemResource: {
             id: number;
             goods_receipt_note_id: number;
-            purchase_order_item_id: number;
+            purchase_order_item_id: number | null;
             product_id: number | null;
             product?: {
                 id: number;
@@ -7736,7 +8057,7 @@ export interface components {
         GoodsReceiptNoteResource: {
             id: number;
             grn_number: string;
-            purchase_order_id: number;
+            purchase_order_id: number | null;
             purchase_order?: {
                 id: number;
                 po_number: string;
@@ -7745,6 +8066,11 @@ export interface components {
                     name: string;
                 } | null;
             };
+            contact_id: number | null;
+            contact?: {
+                id: string;
+                name: string;
+            } | null;
             warehouse_id: number;
             warehouse?: {
                 id: number;
@@ -7901,7 +8227,7 @@ export interface components {
             /** @description Status */
             status: components["schemas"]["StatusResource"];
             /** @enum {string} */
-            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
             /** @description Journal entry */
             journal_entry_id: number | null;
             has_journal_entry: boolean;
@@ -7919,7 +8245,7 @@ export interface components {
                 current_status: {
                     value: string;
                     /** @enum {string} */
-                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
                     /** @enum {string} */
                     color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
                     is_terminal: boolean;
@@ -7950,6 +8276,7 @@ export interface components {
                 can_delete: boolean;
                 can_mark_as_paid: boolean;
                 can_mark_as_partial: boolean;
+                can_send_reminder: boolean;
             };
             /** @description Metadata */
             reminder_count: number;
@@ -8246,6 +8573,27 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** PaymentReminderResource */
+        PaymentReminderResource: {
+            id: number;
+            remindable_type: string;
+            remindable_id: number;
+            remindable?: components["schemas"]["InvoiceResource"] | components["schemas"]["BillResource"] | null;
+            contact_id: number;
+            contact?: components["schemas"]["ContactResource"];
+            type: string;
+            days_offset: number;
+            scheduled_date: string;
+            sent_date: string;
+            status: string;
+            channel: string;
+            message: string | null;
+            metadata: unknown[] | null;
+            creator?: components["schemas"]["UserResource"];
+            created_by: number | null;
+            created_at: string;
+            updated_at: string;
+        };
         /** PaymentResource */
         PaymentResource: {
             id: number;
@@ -8526,6 +8874,8 @@ export interface components {
             cost_breakdown?: {
                 [key: string]: number;
             };
+            tasks?: components["schemas"]["TaskResource"][];
+            tasks_count?: number;
             manager_id: number | null;
             manager?: {
                 id: number;
@@ -9663,15 +10013,22 @@ export interface components {
         };
         /** StoreGoodsReceiptNoteRequest */
         StoreGoodsReceiptNoteRequest: {
-            purchase_order_id: number;
+            purchase_order_id?: number | null;
             warehouse_id: number;
+            contact_id?: number | null;
             /** Format: date-time */
             receipt_date?: string;
-            supplier_do_number?: string;
-            supplier_invoice_number?: string;
-            vehicle_number?: string;
-            driver_name?: string;
-            notes?: string;
+            supplier_do_number?: string | null;
+            supplier_invoice_number?: string | null;
+            vehicle_number?: string | null;
+            driver_name?: string | null;
+            notes?: string | null;
+            /** @description Line items required when no PO */
+            items?: {
+                product_id?: number;
+                quantity_ordered?: number;
+                unit_price?: number;
+            }[];
         };
         /** StoreInvoiceRequest */
         StoreInvoiceRequest: {
@@ -9754,6 +10111,16 @@ export interface components {
                 respect_moq?: boolean | null;
                 respect_order_multiple?: boolean | null;
             };
+        };
+        /** StorePaymentReminderRequest */
+        StorePaymentReminderRequest: {
+            /** Format: date-time */
+            scheduled_date: string;
+            /** @enum {string} */
+            type: "upcoming" | "overdue" | "final_notice";
+            /** @enum {string} */
+            channel: "email" | "whatsapp";
+            message?: string | null;
         };
         /** StorePaymentRequest */
         StorePaymentRequest: {
@@ -10112,6 +10479,21 @@ export interface components {
             location_address?: string | null;
             notes?: string | null;
         };
+        /** StoreTaskRequest */
+        StoreTaskRequest: {
+            title: string;
+            description?: string | null;
+            parent_id?: number | null;
+            /** @enum {string|null} */
+            priority?: "low" | "normal" | "high" | "urgent" | null;
+            assigned_to?: number | null;
+            /** Format: date-time */
+            start_date?: string | null;
+            /** Format: date-time */
+            due_date?: string | null;
+            estimated_hours?: number | null;
+            notes?: string | null;
+        };
         /** StoreUserRequest */
         StoreUserRequest: {
             name: string;
@@ -10185,7 +10567,7 @@ export interface components {
             due_date: string;
             status: components["schemas"]["StatusResource"];
             /** @enum {string} */
-            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+            status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
             rejection_reason: string | null;
             notes: string | null;
             created_at: string;
@@ -10270,6 +10652,52 @@ export interface components {
             create_variant?: boolean | null;
             variant_group_id?: number | null;
         };
+        /** TaskResource */
+        TaskResource: {
+            id: number;
+            task_number: string;
+            title: string;
+            description: string | null;
+            project_id: number;
+            project?: {
+                id: number;
+                project_number: string;
+                name: string;
+            };
+            parent_id: number | null;
+            parent?: {
+                id: number;
+                task_number: string;
+                title: string;
+            };
+            status: components["schemas"]["StatusResource"];
+            priority: string;
+            assigned_to: number | null;
+            assignee?: {
+                id: number;
+                name: string;
+            };
+            start_date: string;
+            due_date: string;
+            completed_at: string;
+            estimated_hours: number | null;
+            actual_hours: number | null;
+            sort_order: number;
+            notes: string | null;
+            is_overdue: boolean;
+            is_subtask: boolean;
+            progress?: number;
+            subtasks?: components["schemas"]["TaskResource"][];
+            subtasks_count?: number;
+            dependencies?: components["schemas"]["TaskResource"][];
+            created_by: number | null;
+            creator?: {
+                id: number;
+                name: string;
+            };
+            created_at: string;
+            updated_at: string;
+        };
         /** UpdateAccountRequest */
         UpdateAccountRequest: {
             code?: string;
@@ -10281,6 +10709,19 @@ export interface components {
             parent_id?: number | null;
             is_active?: boolean;
             opening_balance?: number;
+        };
+        /** UpdateAccountingPoliciesRequest */
+        UpdateAccountingPoliciesRequest: {
+            /** @enum {string} */
+            inventory_method: "perpetual" | "periodic" | "hybrid";
+            /** @enum {string} */
+            cogs_recognition: "on_invoice" | "on_delivery" | "manual";
+            /** @enum {string} */
+            return_accounting: "full_journal" | "inventory_only";
+            /** @enum {string} */
+            manufacturing_costing: "project_based" | "job_costing" | "wip_accounting";
+            /** @enum {string} */
+            closing_strategy: "direct" | "income_summary";
         };
         /** UpdateBillRequest */
         UpdateBillRequest: {
@@ -10921,6 +11362,21 @@ export interface components {
             location_address?: string | null;
             notes?: string | null;
         };
+        /** UpdateTaskRequest */
+        UpdateTaskRequest: {
+            title?: string;
+            description?: string | null;
+            /** @enum {string} */
+            priority?: "low" | "normal" | "high" | "urgent";
+            assigned_to?: number | null;
+            /** Format: date-time */
+            start_date?: string | null;
+            /** Format: date-time */
+            due_date?: string | null;
+            estimated_hours?: number | null;
+            actual_hours?: number | null;
+            notes?: string | null;
+        };
         /** UpdateWarehouseRequest */
         UpdateWarehouseRequest: {
             code?: string | null;
@@ -11109,7 +11565,7 @@ export interface components {
                 current_status: {
                     value: string;
                     /** @enum {string} */
-                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Diarsipkan";
+                    label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
                     /** @enum {string} */
                     color: "zinc" | "red" | "yellow" | "green" | "blue" | "orange" | "indigo" | "cyan" | "emerald" | "gray" | "purple";
                     is_terminal: boolean;
@@ -11470,6 +11926,105 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accountingPolicy.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingPolicyResource"];
+                        meta: {
+                            available_options: {
+                                inventory_method: unknown[];
+                                cogs_recognition: unknown[];
+                                return_accounting: unknown[];
+                                manufacturing_costing: unknown[];
+                                closing_strategy: unknown[];
+                            };
+                            descriptions: {
+                                inventory_method: {
+                                    /** @enum {string} */
+                                    perpetual: "Jurnal otomatis setiap pergerakan stok (GRN, DO)";
+                                    /** @enum {string} */
+                                    periodic: "Tanpa jurnal otomatis, penyesuaian di akhir periode";
+                                    /** @enum {string} */
+                                    hybrid: "Jurnal hanya pada event tertentu (rekomendasi EPC)";
+                                };
+                                cogs_recognition: {
+                                    /** @enum {string} */
+                                    on_invoice: "HPP diakui saat invoice diposting (matching revenue)";
+                                    /** @enum {string} */
+                                    on_delivery: "HPP diakui saat barang dikirim";
+                                    /** @enum {string} */
+                                    manual: "Tanpa HPP otomatis, jurnal manual";
+                                };
+                                return_accounting: {
+                                    /** @enum {string} */
+                                    full_journal: "Buat jurnal pembalikan lengkap (AP/AR + Pajak)";
+                                    /** @enum {string} */
+                                    inventory_only: "Update stok saja, tanpa jurnal";
+                                };
+                                manufacturing_costing: {
+                                    /** @enum {string} */
+                                    project_based: "Biaya mengalir ke proyek (rekomendasi EPC)";
+                                    /** @enum {string} */
+                                    job_costing: "Biaya terakumulasi per work order";
+                                    /** @enum {string} */
+                                    wip_accounting: "Jurnal WIP lengkap";
+                                };
+                                closing_strategy: {
+                                    /** @enum {string} */
+                                    direct: "Tutup langsung ke retained earnings (lebih sederhana)";
+                                    /** @enum {string} */
+                                    income_summary: "Melalui akun income summary (audit trail lebih jelas)";
+                                };
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "accountingPolicy.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAccountingPoliciesRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountingPolicyResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingPolicyResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
         };
     };
     "attachment.index": {
@@ -20377,6 +20932,290 @@ export interface operations {
             };
         };
     };
+    "paymentReminder.index": {
+        parameters: {
+            query?: {
+                status?: string;
+                type?: string;
+                contact_id?: number;
+                date_from?: string;
+                date_to?: string;
+                sort_by?: string;
+                sort_dir?: string;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "paymentReminder.summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        pending: number;
+                        due_today: number;
+                        sent_this_week: number;
+                        failed: number;
+                        total_overdue_invoices: number;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "paymentReminder.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment reminder ID */
+                paymentReminder: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "paymentReminder.send": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment reminder ID */
+                paymentReminder: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Gagal mengirim pengingat. Dokumen mungkin sudah dibayar atau dibatalkan.";
+                    } | {
+                        /** @enum {string} */
+                        message: "Hanya pengingat dengan status pending yang dapat dikirim.";
+                    };
+                };
+            };
+        };
+    };
+    "paymentReminder.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment reminder ID */
+                paymentReminder: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Hanya pengingat dengan status pending yang dapat dibatalkan.";
+                    };
+                };
+            };
+        };
+    };
+    "paymentReminder.forInvoice": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The invoice ID */
+                invoice: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "paymentReminder.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The invoice ID */
+                invoice: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StorePaymentReminderRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentReminderResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "paymentReminder.sendImmediate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The invoice ID */
+                invoice: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    message?: string | null;
+                    /** @enum {string|null} */
+                    channel?: "email" | "whatsapp" | null;
+                };
+            };
+        };
+        responses: {
+            /** @description `PaymentReminderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentReminderResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "permission.index": {
         parameters: {
             query?: never;
@@ -28726,6 +29565,455 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "task.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description `TaskResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Tugas berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.complete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    reason?: string | null;
+                };
+            };
+        };
+        responses: {
+            /** @description `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.addSubtask": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreTaskRequest"];
+            };
+        };
+        responses: {
+            /** @description `TaskResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["TaskResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.addDependency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    dependency_id: number;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Dependensi berhasil ditambahkan.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.removeDependency": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+                /** @description The task ID */
+                task: number;
+                /** @description The dependency ID */
+                dependency: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Dependensi berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.reorder": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    task_ids: number[];
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Urutan tugas berhasil diperbarui.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "task.statistics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            total: string;
+                            by_status: string;
+                            by_assignee: string;
+                            overdue_count: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "users.index": {
