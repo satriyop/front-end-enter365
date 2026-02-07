@@ -125,6 +125,7 @@ const navigation: NavGroup[] = [
       { name: 'Rule Sets', path: '/settings/rule-sets', icon: '⚙️', permission: 'products.view' },
       { name: 'BOM Templates', path: '/settings/bom-templates', icon: '📋', permission: 'bom_templates.view' },
       { name: 'Accounting Policies', path: '/settings/accounting-policies', icon: '📒', permission: 'settings.manage_accounting' },
+      { name: 'NSFP Ranges', path: '/settings/nsfp-ranges', icon: '🔢', permission: 'nsfp_ranges.view' },
     ]
   },
   {

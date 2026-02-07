@@ -1053,6 +1053,31 @@ const router = createRouter({
           component: () => import('@/pages/settings/bom-templates/BomTemplateFormPage.vue'),
           meta: { breadcrumb: 'Edit Template' }
         },
+        // NSFP Ranges routes (under settings)
+        {
+          path: 'settings/nsfp-ranges',
+          name: 'nsfp-ranges',
+          component: () => import('@/pages/settings/nsfp-ranges/NsfpRangeListPage.vue'),
+          meta: { breadcrumb: 'NSFP Ranges' }
+        },
+        {
+          path: 'settings/nsfp-ranges/new',
+          name: 'nsfp-range-new',
+          component: () => import('@/pages/settings/nsfp-ranges/NsfpRangeFormPage.vue'),
+          meta: { breadcrumb: 'New Range' }
+        },
+        {
+          path: 'settings/nsfp-ranges/:id',
+          name: 'nsfp-range-detail',
+          component: () => import('@/pages/settings/nsfp-ranges/NsfpRangeDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Range #${route.params.id}` }
+        },
+        {
+          path: 'settings/nsfp-ranges/:id/edit',
+          name: 'nsfp-range-edit',
+          component: () => import('@/pages/settings/nsfp-ranges/NsfpRangeFormPage.vue'),
+          meta: { breadcrumb: 'Edit Range' }
+        },
         // Warehouse routes (under settings)
         {
           path: 'settings/warehouses',
