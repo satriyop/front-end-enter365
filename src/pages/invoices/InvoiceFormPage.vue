@@ -90,6 +90,15 @@ const [exchangeRate] = defineField('exchange_rate')
 const [taxRate] = defineField('tax_rate')
 const [discountAmount] = defineField('discount_amount')
 
+// Auto-fill currency from contact's default
+watch(contactId, (newId) => {
+  if (!newId || isEditing.value) return
+  const contact = contacts.value?.find(c => c.id === Number(newId))
+  if (contact?.currency && contact.currency !== 'IDR') {
+    currency.value = contact.currency
+  }
+})
+
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<InvoiceItemFormData>('items')
 

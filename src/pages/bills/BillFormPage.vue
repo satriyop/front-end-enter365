@@ -75,6 +75,15 @@ const [description] = defineField('description')
 const [currency] = defineField('currency')
 const [exchangeRate] = defineField('exchange_rate')
 
+// Auto-fill currency from contact's default
+watch(contactId, (newId) => {
+  if (!newId || isEditing.value) return
+  const contact = contacts.value?.find(c => c.id === Number(newId))
+  if (contact?.currency && contact.currency !== 'IDR') {
+    currency.value = contact.currency
+  }
+})
+
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<BillItemFormData>('items')
 
