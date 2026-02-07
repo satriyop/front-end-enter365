@@ -513,6 +513,7 @@ export const paymentSchema = z.object({
   cash_account_id: z.number({ required_error: 'Cash account is required' }).positive('Please select a cash account'),
   reference: z.string().optional().default(''),
   notes: z.string().optional().default(''),
+  exchange_rate: z.number().positive('Exchange rate must be greater than 0').optional().nullable(),
   invoice_id: z.number().optional().nullable(),
   bill_id: z.number().optional().nullable(),
 })
@@ -860,6 +861,47 @@ export type PortfolioItemFormData = z.infer<typeof portfolioItemSchema>
 export type CertificationItemFormData = z.infer<typeof certificationItemSchema>
 export type CompanyProfileFormData = z.infer<typeof companyProfileSchema>
 export type ProductCategoryFormData = z.infer<typeof productCategorySchema>
+
+// ============================================
+// NSFP Range Schemas
+// ============================================
+
+/**
+ * NSFP Range form schema (create mode)
+ * Format: {transaction_code}.{branch_code}-{year_code}.{number}
+ */
+export const nsfpRangeCreateSchema = z.object({
+  transaction_code: z.string()
+    .min(1, 'Transaction code is required')
+    .regex(/^\d{3}$/, 'Must be exactly 3 digits'),
+  branch_code: z.string()
+    .min(1, 'Branch code is required')
+    .regex(/^\d{3}$/, 'Must be exactly 3 digits'),
+  year_code: z.string()
+    .min(1, 'Year code is required')
+    .regex(/^\d{2}$/, 'Must be exactly 2 digits'),
+  range_start: z.number({ required_error: 'Range start is required' })
+    .int('Must be a whole number')
+    .min(1, 'Range start must be at least 1'),
+  range_end: z.number({ required_error: 'Range end is required' })
+    .int('Must be a whole number')
+    .min(1, 'Range end must be at least 1'),
+  description: z.string().max(500, 'Description is too long').optional().default(''),
+}).refine((data) => data.range_end > data.range_start, {
+  message: 'Range end must be greater than range start',
+  path: ['range_end'],
+})
+
+/**
+ * NSFP Range form schema (edit mode — limited fields)
+ */
+export const nsfpRangeEditSchema = z.object({
+  description: z.string().max(500, 'Description is too long').optional().default(''),
+  is_active: z.boolean().default(true),
+})
+
+export type NsfpRangeCreateFormData = z.infer<typeof nsfpRangeCreateSchema>
+export type NsfpRangeEditFormData = z.infer<typeof nsfpRangeEditSchema>
 
 // ============================================
 // Project Cost & Revenue Schemas

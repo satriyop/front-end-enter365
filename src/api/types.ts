@@ -44,7 +44,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get account balance */
-        get: operations["account.balance"];
+        get: operations["accounts.balance"];
         put?: never;
         post?: never;
         delete?: never;
@@ -61,7 +61,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get account ledger */
-        get: operations["account.ledger"];
+        get: operations["accounts.ledger"];
         put?: never;
         post?: never;
         delete?: never;
@@ -78,9 +78,9 @@ export interface paths {
             cookie?: never;
         };
         /** GET /api/v1/accounting-policies */
-        get: operations["accountingPolicy.show"];
+        get: operations["accounting-policies.show"];
         /** PUT /api/v1/accounting-policies */
-        put: operations["accountingPolicy.update"];
+        put: operations["accounting-policies.update"];
         post?: never;
         delete?: never;
         options?: never;
@@ -260,9 +260,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["bankReconciliation.index"];
+        get: operations["bank-transactions.index"];
         put?: never;
-        post: operations["bankReconciliation.store"];
+        post: operations["bank-transactions.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -276,7 +276,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["bankReconciliation.summary"];
+        get: operations["bank-transactions.summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -294,7 +294,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["bankReconciliation.bulkReconcile"];
+        post: operations["bank-transactions.bulk-reconcile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -308,10 +308,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["bankReconciliation.show"];
+        get: operations["bank-transactions.show"];
         put?: never;
         post?: never;
-        delete: operations["bankReconciliation.destroy"];
+        delete: operations["bank-transactions.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -326,7 +326,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["bankReconciliation.matchToPayment"];
+        post: operations["bank-transactions.match-payment"];
         delete?: never;
         options?: never;
         head?: never;
@@ -342,7 +342,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["bankReconciliation.unmatch"];
+        post: operations["bank-transactions.unmatch"];
         delete?: never;
         options?: never;
         head?: never;
@@ -358,7 +358,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["bankReconciliation.reconcile"];
+        post: operations["bank-transactions.reconcile"];
         delete?: never;
         options?: never;
         head?: never;
@@ -372,7 +372,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["bankReconciliation.suggestMatches"];
+        get: operations["bank-transactions.suggest-matches"];
         put?: never;
         post?: never;
         delete?: never;
@@ -999,7 +999,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Add a line to a budget */
-        post: operations["budget.addLine"];
+        post: operations["budgets.lines.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1015,10 +1015,10 @@ export interface paths {
         };
         get?: never;
         /** Update a budget line */
-        put: operations["budget.updateLine"];
+        put: operations["budgets.lines.update"];
         post?: never;
         /** Delete a budget line */
-        delete: operations["budget.deleteLine"];
+        delete: operations["budgets.lines.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1034,7 +1034,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Approve a budget */
-        post: operations["budget.approve"];
+        post: operations["budgets.approve"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1051,7 +1051,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Reopen a budget (set back to draft) */
-        post: operations["budget.reopen"];
+        post: operations["budgets.reopen"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1068,7 +1068,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Close a budget */
-        post: operations["budget.close"];
+        post: operations["budgets.close"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1085,7 +1085,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Copy a budget to a new fiscal period */
-        post: operations["budget.copy"];
+        post: operations["budgets.copy"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1100,7 +1100,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get budget vs actual comparison */
-        get: operations["budget.comparison"];
+        get: operations["budgets.comparison"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1117,7 +1117,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get monthly breakdown */
-        get: operations["budget.monthlyBreakdown"];
+        get: operations["budgets.monthly-breakdown"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1134,7 +1134,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get budget summary */
-        get: operations["budget.summary"];
+        get: operations["budgets.summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1151,7 +1151,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get over-budget accounts */
-        get: operations["budget.overBudget"];
+        get: operations["budgets.over-budget"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2274,6 +2274,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/efaktur-export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Export e-Faktur CSV file */
+        get: operations["reports.efaktur-export"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/export/trial-balance": {
         parameters: {
             query?: never;
@@ -2482,7 +2499,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["fiscalPeriod.lock"];
+        post: operations["fiscal-periods.lock"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2498,7 +2515,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["fiscalPeriod.unlock"];
+        post: operations["fiscal-periods.unlock"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2514,7 +2531,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["fiscalPeriod.close"];
+        post: operations["fiscal-periods.close"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2530,7 +2547,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["fiscalPeriod.reopen"];
+        post: operations["fiscal-periods.reopen"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2544,7 +2561,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["fiscalPeriod.closingChecklist"];
+        get: operations["fiscal-periods.closing-checklist"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2974,9 +2991,9 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["journalEntry.index"];
+        get: operations["journal-entries.index"];
         put?: never;
-        post: operations["journalEntry.store"];
+        post: operations["journal-entries.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2990,7 +3007,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["journalEntry.show"];
+        get: operations["journal-entries.show"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3008,7 +3025,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["journalEntry.post"];
+        post: operations["journal-entries.post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3024,7 +3041,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["journalEntry.reverse"];
+        post: operations["journal-entries.reverse"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3393,6 +3410,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/nsfp-ranges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["nsfp-ranges.index"];
+        put?: never;
+        post: operations["nsfp-ranges.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nsfp-ranges/{nsfpRange}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["nsfp-ranges.show"];
+        put: operations["nsfp-ranges.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nsfp-ranges/{nsfpRange}/deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["nsfpRange.deactivate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/nsfp-ranges-utilization": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get utilization summary across all active ranges */
+        get: operations["nsfpRange.utilization"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/payments": {
         parameters: {
             query?: never;
@@ -3401,9 +3483,9 @@ export interface paths {
             cookie?: never;
         };
         /** Display a listing of payments */
-        get: operations["payment.index"];
+        get: operations["payments.index"];
         put?: never;
-        post: operations["payment.store"];
+        post: operations["payments.store"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3417,7 +3499,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["payment.show"];
+        get: operations["payments.show"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3435,7 +3517,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["payment.void"];
+        post: operations["payments.void"];
         delete?: never;
         options?: never;
         head?: never;
@@ -5061,7 +5143,7 @@ export interface paths {
             cookie?: never;
         };
         /** Neraca Saldo (Trial Balance) */
-        get: operations["report.trialBalance"];
+        get: operations["reports.trial-balance"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5078,7 +5160,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Posisi Keuangan (Balance Sheet) */
-        get: operations["report.balanceSheet"];
+        get: operations["reports.balance-sheet"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5095,7 +5177,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Laba Rugi (Income Statement) */
-        get: operations["report.incomeStatement"];
+        get: operations["reports.income-statement"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5112,7 +5194,7 @@ export interface paths {
             cookie?: never;
         };
         /** Buku Besar (General Ledger) */
-        get: operations["report.generalLedger"];
+        get: operations["reports.general-ledger"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5129,7 +5211,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Umur Piutang (Accounts Receivable Aging) */
-        get: operations["report.receivableAging"];
+        get: operations["reports.receivable-aging"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5146,7 +5228,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Umur Hutang (Accounts Payable Aging) */
-        get: operations["report.payableAging"];
+        get: operations["reports.payable-aging"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5163,7 +5245,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Umur Piutang/Hutang per Kontak */
-        get: operations["report.contactAging"];
+        get: operations["reports.contact-aging"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5180,7 +5262,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan PPN (VAT Report) */
-        get: operations["report.ppnSummary"];
+        get: operations["reports.ppn-summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5197,7 +5279,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan PPN Bulanan per Tahun */
-        get: operations["report.ppnMonthly"];
+        get: operations["reports.ppn-monthly"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5214,7 +5296,7 @@ export interface paths {
             cookie?: never;
         };
         /** Daftar Faktur Pajak Keluaran */
-        get: operations["report.taxInvoiceList"];
+        get: operations["reports.tax-invoice-list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5231,7 +5313,7 @@ export interface paths {
             cookie?: never;
         };
         /** Daftar Faktur Pajak Masukan */
-        get: operations["report.inputTaxList"];
+        get: operations["reports.input-tax-list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5248,7 +5330,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Arus Kas (Cash Flow Statement) */
-        get: operations["report.cashFlow"];
+        get: operations["reports.cash-flow"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5265,7 +5347,7 @@ export interface paths {
             cookie?: never;
         };
         /** Pergerakan Kas Harian */
-        get: operations["report.dailyCashMovement"];
+        get: operations["reports.daily-cash-movement"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5282,7 +5364,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Profitabilitas Proyek (Project Profitability Report) */
-        get: operations["report.projectProfitability"];
+        get: operations["reports.project-profitability"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5299,7 +5381,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Detail Profitabilitas Proyek */
-        get: operations["report.projectProfitabilityDetail"];
+        get: operations["reports.project-profitability-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5316,7 +5398,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Analisis Biaya Proyek */
-        get: operations["report.projectCostAnalysis"];
+        get: operations["reports.project-cost-analysis"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5333,7 +5415,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Biaya Work Order */
-        get: operations["report.workOrderCosts"];
+        get: operations["reports.work-order-costs"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5350,7 +5432,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Detail Biaya Work Order */
-        get: operations["report.workOrderCostDetail"];
+        get: operations["reports.work-order-cost-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5367,7 +5449,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Variansi Biaya */
-        get: operations["report.costVariance"];
+        get: operations["reports.cost-variance"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5384,7 +5466,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Subkontraktor */
-        get: operations["report.subcontractorSummary"];
+        get: operations["reports.subcontractor-summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5401,7 +5483,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Detail Subkontraktor */
-        get: operations["report.subcontractorDetail"];
+        get: operations["reports.subcontractor-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5418,7 +5500,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Retensi Subkontraktor */
-        get: operations["report.subcontractorRetention"];
+        get: operations["reports.subcontractor-retention"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5435,7 +5517,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Perubahan Ekuitas (Statement of Changes in Equity) */
-        get: operations["report.changesInEquity"];
+        get: operations["reports.changes-in-equity"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5452,7 +5534,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Rekonsiliasi Bank */
-        get: operations["report.bankReconciliation"];
+        get: operations["reports.bank-reconciliation"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5469,7 +5551,7 @@ export interface paths {
             cookie?: never;
         };
         /** Item Outstanding untuk Rekonsiliasi Bank */
-        get: operations["report.bankReconciliationOutstanding"];
+        get: operations["reports.bank-reconciliation-outstanding"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5486,7 +5568,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Ringkasan HPP (COGS Summary) */
-        get: operations["report.cogsSummary"];
+        get: operations["reports.cogs-summary"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5503,7 +5585,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan HPP per Produk */
-        get: operations["report.cogsByProduct"];
+        get: operations["reports.cogs-by-product"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5520,7 +5602,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan HPP per Kategori */
-        get: operations["report.cogsByCategory"];
+        get: operations["reports.cogs-by-category"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5537,7 +5619,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Trend HPP Bulanan */
-        get: operations["report.cogsMonthlyTrend"];
+        get: operations["reports.cogs-monthly-trend"];
         put?: never;
         post?: never;
         delete?: never;
@@ -5554,7 +5636,7 @@ export interface paths {
             cookie?: never;
         };
         /** Laporan Detail HPP Produk */
-        get: operations["report.productCOGSDetail"];
+        get: operations["reports.product-cogs-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -8175,6 +8257,7 @@ export interface components {
         InvoiceItemResource: {
             id: number;
             invoice_id: number;
+            product_id: number | null;
             description: string;
             quantity: number;
             unit: string;
@@ -8208,6 +8291,11 @@ export interface components {
             ""?: {
                 days_overdue: number;
             } | string[];
+            /** @description NSFP (Nomor Seri Faktur Pajak) */
+            nsfp_number: string | null;
+            nsfp_assigned_at: string;
+            is_nsfp_cancelled: boolean;
+            has_nsfp: boolean;
             /** @description Currency */
             currency: string;
             exchange_rate: number;
@@ -8578,6 +8666,36 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** NsfpRangeResource */
+        NsfpRangeResource: {
+            id: number;
+            transaction_code: string;
+            branch_code: string;
+            year_code: string;
+            range_start: number;
+            range_end: number;
+            next_number: number;
+            used_count: number;
+            is_active: boolean;
+            description: string | null;
+            /** @description Computed fields */
+            capacity: number;
+            remaining: number;
+            is_exhausted: boolean;
+            is_low_stock: boolean;
+            utilization_percent: number | 0;
+            /** @description Formatted range display */
+            formatted_range_start: string;
+            formatted_range_end: string;
+            formatted_next_number: string | null;
+            /** @description Relationships */
+            created_by: number | null;
+            creator?: components["schemas"]["UserResource"];
+            invoice_count?: string;
+            /** @description Timestamps */
+            created_at: string;
+            updated_at: string;
+        };
         /** PaymentReminderResource */
         PaymentReminderResource: {
             id: number;
@@ -8607,6 +8725,9 @@ export interface components {
             contact_id: number;
             payment_date: string;
             amount: number;
+            currency: string;
+            exchange_rate: string;
+            base_currency_amount: number | null;
             payment_method: string;
             reference: string | null;
             notes: string | null;
@@ -8615,6 +8736,9 @@ export interface components {
             payable_type: string | null;
             payable_id: number | null;
             is_voided: boolean;
+            voided_at?: string;
+            voided_by?: number | null;
+            void_reason?: string | null;
             contact?: components["schemas"]["ContactResource"];
             cash_account?: components["schemas"]["AccountResource"];
             journal_entry?: components["schemas"]["JournalEntryResource"];
@@ -10117,6 +10241,15 @@ export interface components {
                 respect_order_multiple?: boolean | null;
             };
         };
+        /** StoreNsfpRangeRequest */
+        StoreNsfpRangeRequest: {
+            transaction_code: string;
+            branch_code: string;
+            year_code: string;
+            range_start: number;
+            range_end: number;
+            description?: string | null;
+        };
         /** StorePaymentReminderRequest */
         StorePaymentReminderRequest: {
             /** Format: date-time */
@@ -10136,10 +10269,11 @@ export interface components {
             payment_date: string;
             amount: number;
             /** @enum {string} */
-            payment_method?: "cash" | "transfer" | "check" | "giro";
+            payment_method: "cash" | "transfer" | "check" | "giro";
             reference?: string | null;
             notes?: string | null;
             cash_account_id: number;
+            exchange_rate?: number | null;
             invoice_id?: number | null;
             bill_id?: number | null;
         };
@@ -11067,6 +11201,11 @@ export interface components {
             priority?: "low" | "normal" | "high" | "urgent" | null;
             notes?: string | null;
         };
+        /** UpdateNsfpRangeRequest */
+        UpdateNsfpRangeRequest: {
+            description?: string | null;
+            is_active?: boolean;
+        };
         /** UpdatePasswordRequest */
         UpdatePasswordRequest: {
             password: string;
@@ -11852,7 +11991,7 @@ export interface operations {
             };
         };
     };
-    "account.balance": {
+    "accounts.balance": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -11888,7 +12027,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "account.ledger": {
+    "accounts.ledger": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -11935,7 +12074,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "accountingPolicy.show": {
+    "accounting-policies.show": {
         parameters: {
             query?: never;
             header?: never;
@@ -12012,7 +12151,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "accountingPolicy.update": {
+    "accounting-policies.update": {
         parameters: {
             query?: never;
             header?: never;
@@ -12434,7 +12573,7 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
         };
     };
-    "bankReconciliation.index": {
+    "bank-transactions.index": {
         parameters: {
             query?: {
                 account_id?: string;
@@ -12490,7 +12629,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "bankReconciliation.store": {
+    "bank-transactions.store": {
         parameters: {
             query?: never;
             header?: never;
@@ -12519,7 +12658,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "bankReconciliation.summary": {
+    "bank-transactions.summary": {
         parameters: {
             query?: {
                 account_id?: string;
@@ -12554,7 +12693,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "bankReconciliation.bulkReconcile": {
+    "bank-transactions.bulk-reconcile": {
         parameters: {
             query?: never;
             header?: never;
@@ -12585,7 +12724,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "bankReconciliation.show": {
+    "bank-transactions.show": {
         parameters: {
             query?: never;
             header?: never;
@@ -12613,7 +12752,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "bankReconciliation.destroy": {
+    "bank-transactions.destroy": {
         parameters: {
             query?: never;
             header?: never;
@@ -12651,7 +12790,7 @@ export interface operations {
             };
         };
     };
-    "bankReconciliation.matchToPayment": {
+    "bank-transactions.match-payment": {
         parameters: {
             query?: never;
             header?: never;
@@ -12693,7 +12832,7 @@ export interface operations {
             };
         };
     };
-    "bankReconciliation.unmatch": {
+    "bank-transactions.unmatch": {
         parameters: {
             query?: never;
             header?: never;
@@ -12733,7 +12872,7 @@ export interface operations {
             };
         };
     };
-    "bankReconciliation.reconcile": {
+    "bank-transactions.reconcile": {
         parameters: {
             query?: never;
             header?: never;
@@ -12767,7 +12906,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "bankReconciliation.suggestMatches": {
+    "bank-transactions.suggest-matches": {
         parameters: {
             query?: never;
             header?: never;
@@ -12793,7 +12932,7 @@ export interface operations {
                             number: string;
                             amount: number;
                             date: string;
-                            description: string;
+                            description: string | null;
                         }[];
                     } | {
                         /** @enum {string} */
@@ -14661,7 +14800,7 @@ export interface operations {
             };
         };
     };
-    "budget.addLine": {
+    "budgets.lines.store": {
         parameters: {
             query?: never;
             header?: never;
@@ -14695,7 +14834,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "budget.updateLine": {
+    "budgets.lines.update": {
         parameters: {
             query?: never;
             header?: never;
@@ -14731,7 +14870,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "budget.deleteLine": {
+    "budgets.lines.destroy": {
         parameters: {
             query?: never;
             header?: never;
@@ -14772,7 +14911,7 @@ export interface operations {
             };
         };
     };
-    "budget.approve": {
+    "budgets.approve": {
         parameters: {
             query?: never;
             header?: never;
@@ -14815,7 +14954,7 @@ export interface operations {
             };
         };
     };
-    "budget.reopen": {
+    "budgets.reopen": {
         parameters: {
             query?: never;
             header?: never;
@@ -14855,7 +14994,7 @@ export interface operations {
             };
         };
     };
-    "budget.close": {
+    "budgets.close": {
         parameters: {
             query?: never;
             header?: never;
@@ -14895,7 +15034,7 @@ export interface operations {
             };
         };
     };
-    "budget.copy": {
+    "budgets.copy": {
         parameters: {
             query?: never;
             header?: never;
@@ -14932,7 +15071,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "budget.comparison": {
+    "budgets.comparison": {
         parameters: {
             query?: never;
             header?: never;
@@ -14965,7 +15104,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "budget.monthlyBreakdown": {
+    "budgets.monthly-breakdown": {
         parameters: {
             query?: never;
             header?: never;
@@ -15020,7 +15159,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "budget.summary": {
+    "budgets.summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -15072,7 +15211,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "budget.overBudget": {
+    "budgets.over-budget": {
         parameters: {
             query?: never;
             header?: never;
@@ -17981,6 +18120,39 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
+    "reports.efaktur-export": {
+        parameters: {
+            query: {
+                start_date: string;
+                end_date: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    "Content-Disposition"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+            /** @description No content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "export.trialBalance": {
         parameters: {
             query?: {
@@ -18624,7 +18796,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "fiscalPeriod.lock": {
+    "fiscal-periods.lock": {
         parameters: {
             query?: never;
             header?: never;
@@ -18667,7 +18839,7 @@ export interface operations {
             };
         };
     };
-    "fiscalPeriod.unlock": {
+    "fiscal-periods.unlock": {
         parameters: {
             query?: never;
             header?: never;
@@ -18710,7 +18882,7 @@ export interface operations {
             };
         };
     };
-    "fiscalPeriod.close": {
+    "fiscal-periods.close": {
         parameters: {
             query?: never;
             header?: never;
@@ -18755,7 +18927,7 @@ export interface operations {
             };
         };
     };
-    "fiscalPeriod.reopen": {
+    "fiscal-periods.reopen": {
         parameters: {
             query?: never;
             header?: never;
@@ -18806,7 +18978,7 @@ export interface operations {
             };
         };
     };
-    "fiscalPeriod.closingChecklist": {
+    "fiscal-periods.closing-checklist": {
         parameters: {
             query?: never;
             header?: never;
@@ -19813,7 +19985,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "journalEntry.index": {
+    "journal-entries.index": {
         parameters: {
             query?: never;
             header?: never;
@@ -19862,7 +20034,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "journalEntry.store": {
+    "journal-entries.store": {
         parameters: {
             query?: never;
             header?: never;
@@ -19891,7 +20063,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "journalEntry.show": {
+    "journal-entries.show": {
         parameters: {
             query?: never;
             header?: never;
@@ -19919,7 +20091,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "journalEntry.post": {
+    "journal-entries.post": {
         parameters: {
             query?: never;
             header?: never;
@@ -19957,7 +20129,7 @@ export interface operations {
             };
         };
     };
-    "journalEntry.reverse": {
+    "journal-entries.reverse": {
         parameters: {
             query?: never;
             header?: never;
@@ -20829,7 +21001,212 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "payment.index": {
+    "nsfp-ranges.index": {
+        parameters: {
+            query?: {
+                year_code?: string;
+                is_active?: boolean;
+                per_page?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `NsfpRangeResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["NsfpRangeResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "nsfp-ranges.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreNsfpRangeRequest"];
+            };
+        };
+        responses: {
+            /** @description `NsfpRangeResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["NsfpRangeResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "nsfp-ranges.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The nsfp range ID */
+                nsfpRange: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `NsfpRangeResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["NsfpRangeResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "nsfp-ranges.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The nsfp range ID */
+                nsfpRange: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateNsfpRangeRequest"];
+            };
+        };
+        responses: {
+            /** @description `NsfpRangeResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["NsfpRangeResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "nsfpRange.deactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The nsfp range ID */
+                nsfpRange: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Range NSFP berhasil dinonaktifkan.";
+                        data: components["schemas"]["NsfpRangeResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "nsfpRange.utilization": {
+        parameters: {
+            query?: {
+                year_code?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        summary: {
+                            total_ranges: number;
+                            active_ranges: number;
+                            total_capacity: string;
+                            total_used: string;
+                            total_remaining: string;
+                            utilization_percent: number | 0;
+                        };
+                        ranges: components["schemas"]["NsfpRangeResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "payments.index": {
         parameters: {
             query?: never;
             header?: never;
@@ -20878,7 +21255,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "payment.store": {
+    "payments.store": {
         parameters: {
             query?: never;
             header?: never;
@@ -20907,7 +21284,7 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "payment.show": {
+    "payments.show": {
         parameters: {
             query?: never;
             header?: never;
@@ -20935,7 +21312,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "payment.void": {
+    "payments.void": {
         parameters: {
             query?: never;
             header?: never;
@@ -20963,18 +21340,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        message: string;
-                        errors: string;
-                    };
-                };
-            };
         };
     };
     "paymentReminder.index": {
@@ -24024,19 +24389,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Hanya penawaran draft yang dapat dihapus.";
-                        errors: string;
-                    };
-                };
-            };
         };
     };
     "quotation.submit": {
@@ -25261,7 +25613,7 @@ export interface operations {
             };
         };
     };
-    "report.trialBalance": {
+    "reports.trial-balance": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -25297,7 +25649,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.balanceSheet": {
+    "reports.balance-sheet": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -25335,7 +25687,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.incomeStatement": {
+    "reports.income-statement": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -25376,7 +25728,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.generalLedger": {
+    "reports.general-ledger": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -25425,7 +25777,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.receivableAging": {
+    "reports.receivable-aging": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -25470,7 +25822,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.payableAging": {
+    "reports.payable-aging": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -25515,7 +25867,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.contactAging": {
+    "reports.contact-aging": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -25556,7 +25908,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.ppnSummary": {
+    "reports.ppn-summary": {
         parameters: {
             query?: never;
             header?: never;
@@ -25618,7 +25970,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.ppnMonthly": {
+    "reports.ppn-monthly": {
         parameters: {
             query?: never;
             header?: never;
@@ -25654,7 +26006,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.taxInvoiceList": {
+    "reports.tax-invoice-list": {
         parameters: {
             query?: never;
             header?: never;
@@ -25695,7 +26047,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.inputTaxList": {
+    "reports.input-tax-list": {
         parameters: {
             query?: never;
             header?: never;
@@ -25736,7 +26088,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.cashFlow": {
+    "reports.cash-flow": {
         parameters: {
             query?: never;
             header?: never;
@@ -25789,7 +26141,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.dailyCashMovement": {
+    "reports.daily-cash-movement": {
         parameters: {
             query?: never;
             header?: never;
@@ -25828,7 +26180,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.projectProfitability": {
+    "reports.project-profitability": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -25898,7 +26250,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.projectProfitabilityDetail": {
+    "reports.project-profitability-detail": {
         parameters: {
             query?: never;
             header?: never;
@@ -25994,7 +26346,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.projectCostAnalysis": {
+    "reports.project-cost-analysis": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26044,7 +26396,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.workOrderCosts": {
+    "reports.work-order-costs": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26075,7 +26427,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.workOrderCostDetail": {
+    "reports.work-order-cost-detail": {
         parameters: {
             query?: never;
             header?: never;
@@ -26105,7 +26457,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.costVariance": {
+    "reports.cost-variance": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26180,7 +26532,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.subcontractorSummary": {
+    "reports.subcontractor-summary": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26242,7 +26594,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.subcontractorDetail": {
+    "reports.subcontractor-detail": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26323,7 +26675,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.subcontractorRetention": {
+    "reports.subcontractor-retention": {
         parameters: {
             query?: never;
             header?: never;
@@ -26374,7 +26726,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.changesInEquity": {
+    "reports.changes-in-equity": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26432,7 +26784,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.bankReconciliation": {
+    "reports.bank-reconciliation": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -26503,7 +26855,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.bankReconciliationOutstanding": {
+    "reports.bank-reconciliation-outstanding": {
         parameters: {
             query?: {
                 as_of_date?: string;
@@ -26572,7 +26924,7 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
-    "report.cogsSummary": {
+    "reports.cogs-summary": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26610,7 +26962,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.cogsByProduct": {
+    "reports.cogs-by-product": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26653,7 +27005,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.cogsByCategory": {
+    "reports.cogs-by-category": {
         parameters: {
             query?: {
                 start_date?: string;
@@ -26694,7 +27046,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.cogsMonthlyTrend": {
+    "reports.cogs-monthly-trend": {
         parameters: {
             query?: never;
             header?: never;
@@ -26729,7 +27081,7 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
-    "report.productCOGSDetail": {
+    "reports.product-cogs-detail": {
         parameters: {
             query?: {
                 start_date?: string;

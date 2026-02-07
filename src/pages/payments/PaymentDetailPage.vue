@@ -13,6 +13,8 @@ const toast = useToast()
 const paymentId = computed(() => Number(route.params.id))
 const { data: payment, isLoading } = usePayment(paymentId)
 
+const isFx = computed(() => payment.value?.currency && payment.value.currency !== 'IDR')
+
 const voidMutation = useVoidPayment()
 
 async function handleVoid() {
@@ -107,11 +109,22 @@ async function handleVoid() {
             </template>
             <div class="text-center py-4">
               <div class="text-3xl font-bold" :class="payment.type === 'receive' ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'">
-                {{ formatCurrency(payment.amount) }}
+                {{ isFx ? formatCurrency(payment.amount, payment.currency) : formatCurrency(payment.amount) }}
               </div>
               <div class="text-sm text-slate-500 dark:text-slate-400 mt-1">
                 {{ payment.type === 'receive' ? 'Received from customer' : 'Paid to vendor' }}
               </div>
+              <!-- Foreign currency details -->
+              <template v-if="isFx">
+                <div class="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700 space-y-1">
+                  <div class="text-sm text-slate-500 dark:text-slate-400">
+                    Exchange Rate: <span class="font-medium text-slate-900 dark:text-slate-100">{{ Number(payment.exchange_rate).toLocaleString('id-ID') }} IDR/{{ payment.currency }}</span>
+                  </div>
+                  <div class="text-sm text-slate-500 dark:text-slate-400">
+                    Base Amount: <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(payment.base_currency_amount) }}</span>
+                  </div>
+                </div>
+              </template>
             </div>
           </Card>
 
