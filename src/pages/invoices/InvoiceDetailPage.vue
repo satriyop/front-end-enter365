@@ -446,7 +446,7 @@ const itemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.reference || '-' }}</dd>
               </div>
-              <div v-if="invoice.currency && invoice.currency !== 'IDR'">
+              <div v-if="invoice.currency && invoice.currency !== 'IDR'" data-testid="invoice-currency-display">
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Currency</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.currency }} ({{ invoice.exchange_rate }})</dd>
               </div>
@@ -552,7 +552,7 @@ const itemColumns: ResponsiveColumn[] = [
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
                 <dd class="font-bold text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.total_amount) }}</dd>
               </div>
-              <div v-if="invoice.currency && invoice.currency !== 'IDR'" class="flex justify-between text-sm">
+              <div v-if="invoice.currency && invoice.currency !== 'IDR'" class="flex justify-between text-sm" data-testid="invoice-base-currency-total">
                 <dt class="text-slate-500 dark:text-slate-400">Base Currency (IDR)</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.base_currency_total) }}</dd>
               </div>
