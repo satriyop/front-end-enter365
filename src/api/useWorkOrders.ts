@@ -98,6 +98,90 @@ export function useCancelWorkOrder() {
 }
 
 // ============================================
+// Manufacturing Execution Hooks
+// ============================================
+
+export interface RecordOutputData {
+  quantity: number
+  scrapped?: number
+}
+
+export function useRecordOutput() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, data }: { id: number | string; data: RecordOutputData }) => {
+      const response = await api.post<{ data: WorkOrder }>(`/work-orders/${id}/record-output`, data)
+      return response.data.data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['work-order', variables.id] })
+    },
+  })
+}
+
+export interface ConsumptionItem {
+  product_id: number
+  work_order_item_id?: number | null
+  quantity_consumed: number
+  quantity_scrapped?: number
+  scrap_reason?: string
+  unit?: string
+  unit_cost?: number
+  consumed_date?: string
+  batch_number?: string
+  notes?: string
+}
+
+export function useRecordConsumption() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, consumptions }: { id: number | string; consumptions: ConsumptionItem[] }) => {
+      const response = await api.post<{ data: WorkOrder }>(`/work-orders/${id}/record-consumption`, { consumptions })
+      return response.data.data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['work-order', variables.id] })
+    },
+  })
+}
+
+export interface CreateMaterialRequisitionData {
+  warehouse_id?: number
+  requested_date?: string
+  required_date?: string
+  notes?: string
+}
+
+export interface MaterialRequisition {
+  id: number
+  requisition_number: string
+  status: { value: string; label: string }
+  requested_date: string | null
+  required_date: string | null
+  total_items: number
+  total_quantity: number
+  notes: string | null
+  work_order_id: number
+  warehouse_id: number
+}
+
+export function useCreateMaterialRequisition() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ workOrderId, data }: { workOrderId: number | string; data?: CreateMaterialRequisitionData }) => {
+      const response = await api.post<{ data: MaterialRequisition }>(`/work-orders/${workOrderId}/material-requisitions`, data || {})
+      return response.data.data
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['work-orders'] })
+      queryClient.invalidateQueries({ queryKey: ['work-order', variables.workOrderId] })
+    },
+  })
+}
+
+// ============================================
 // Cost Summary
 // ============================================
 
