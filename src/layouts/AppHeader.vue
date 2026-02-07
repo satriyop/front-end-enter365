@@ -44,6 +44,7 @@ async function handleLogout() {
     <!-- User Menu -->
     <div class="relative ml-2">
       <button
+        data-testid="user-menu-btn"
         class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
         @click="showUserMenu = !showUserMenu"
       >
@@ -70,6 +71,7 @@ async function handleLogout() {
           Settings
         </RouterLink>
         <button
+          data-testid="logout-btn"
           class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
           @click="handleLogout"
         >

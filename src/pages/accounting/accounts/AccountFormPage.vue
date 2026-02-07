@@ -258,6 +258,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   </label>
                   <Input
                     v-model="code"
+                    data-testid="account-code"
                     placeholder="e.g., 1-1001"
                     :error="errors.code"
                   />
@@ -270,6 +271,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   </label>
                   <Input
                     v-model="name"
+                    data-testid="account-name"
                     placeholder="e.g., Cash in Bank"
                     :error="errors.name"
                   />
@@ -285,6 +287,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   </label>
                   <Select
                     v-model="type"
+                    test-id="account-type"
                     :options="typeOptions"
                     :error="errors.type"
                   />
@@ -297,6 +300,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                   </label>
                   <Select
                     v-model="subtype"
+                    test-id="account-subtype"
                     :options="currentSubtypeOptions"
                     placeholder="Select subtype"
                   />
@@ -402,7 +406,7 @@ const onSubmit = handleSubmit(async (formValues) => {
           <!-- Actions -->
           <Card>
             <div class="flex flex-col gap-3">
-              <Button type="submit" :disabled="isSubmitting" class="w-full">
+              <Button type="submit" data-testid="account-submit" :disabled="isSubmitting" class="w-full">
                 <Loader2 v-if="isSubmitting" class="w-4 h-4 mr-2 animate-spin" />
                 <Save v-else class="w-4 h-4 mr-2" />
                 {{ isEditing ? 'Update Account' : 'Create Account' }}

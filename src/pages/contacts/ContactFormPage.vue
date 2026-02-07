@@ -285,6 +285,7 @@ useFormShortcuts({
           <FormField label="Code" required :error="errors.code">
             <Input
               v-model="code"
+              data-testid="contact-code"
               placeholder="e.g., CUST001"
               :disabled="isEditing"
               @blur="validateField('code')"
@@ -294,6 +295,7 @@ useFormShortcuts({
           <FormField label="Type" required :error="errors.type">
             <Select
               v-model="type"
+              test-id="contact-type"
               :options="typeOptions"
               @blur="validateField('type')"
             />
@@ -302,6 +304,7 @@ useFormShortcuts({
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
             <Input
               v-model="name"
+              data-testid="contact-name"
               placeholder="Contact or company name"
               @blur="validateField('name')"
             />
@@ -310,6 +313,7 @@ useFormShortcuts({
           <FormField label="Email" :error="errors.email">
             <Input
               v-model="email"
+              data-testid="contact-email"
               type="email"
               placeholder="email@example.com"
               @blur="validateField('email')"
@@ -319,6 +323,7 @@ useFormShortcuts({
           <FormField label="Phone" :error="errors.phone">
             <Input
               v-model="phone"
+              data-testid="contact-phone"
               placeholder="08123456789"
               @blur="validateField('phone')"
             />
@@ -336,6 +341,7 @@ useFormShortcuts({
           <FormField label="Street Address" :error="errors.address">
             <Textarea
               v-model="address"
+              data-testid="contact-address"
               :rows="2"
               placeholder="Street address"
             />
@@ -549,7 +555,7 @@ useFormShortcuts({
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="contact-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Contact' : 'Create Contact' }}
         </Button>
       </div>

@@ -163,6 +163,7 @@ async function handleSubmit() {
         <div class="flex gap-2">
           <Button
             type="button"
+            data-testid="adjust-type-set"
             :variant="adjustmentType === 'adjust' ? 'default' : 'secondary'"
             @click="adjustmentType = 'adjust'"
           >
@@ -170,6 +171,7 @@ async function handleSubmit() {
           </Button>
           <Button
             type="button"
+            data-testid="adjust-type-in"
             :variant="adjustmentType === 'in' ? 'default' : 'secondary'"
             @click="adjustmentType = 'in'"
           >
@@ -177,6 +179,7 @@ async function handleSubmit() {
           </Button>
           <Button
             type="button"
+            data-testid="adjust-type-out"
             :variant="adjustmentType === 'out' ? 'default' : 'secondary'"
             @click="adjustmentType = 'out'"
           >
@@ -196,6 +199,7 @@ async function handleSubmit() {
               v-model="form.product_id"
               :options="productOptions"
               placeholder="Select product..."
+              testId="adjust-product"
             />
           </FormField>
 
@@ -204,6 +208,7 @@ async function handleSubmit() {
               v-model="form.warehouse_id"
               :options="warehouseOptions"
               placeholder="Select warehouse..."
+              testId="adjust-warehouse"
             />
           </FormField>
 
@@ -226,7 +231,7 @@ async function handleSubmit() {
         <div class="space-y-4">
           <template v-if="adjustmentType === 'adjust'">
             <FormField label="New Quantity" required :error="errors.new_quantity">
-              <Input v-model.number="form.new_quantity" type="number" min="0" />
+              <Input v-model.number="form.new_quantity" type="number" min="0" data-testid="adjust-new-quantity" />
             </FormField>
             <FormField label="New Unit Cost (optional)">
               <Input v-model.number="form.unit_cost" type="number" min="0" step="1000" />
@@ -236,10 +241,10 @@ async function handleSubmit() {
 
           <template v-else>
             <FormField label="Quantity" required :error="errors.quantity">
-              <Input v-model.number="form.quantity" type="number" min="1" />
+              <Input v-model.number="form.quantity" type="number" min="1" data-testid="adjust-quantity" />
             </FormField>
             <FormField v-if="adjustmentType === 'in'" label="Unit Cost" required :error="errors.unit_cost">
-              <Input v-model.number="form.unit_cost" type="number" min="0" step="1000" />
+              <Input v-model.number="form.unit_cost" type="number" min="0" step="1000" data-testid="adjust-unit-cost" />
             </FormField>
           </template>
 
@@ -266,6 +271,7 @@ async function handleSubmit() {
             v-model="form.notes"
             :rows="3"
             placeholder="e.g., Physical count discrepancy, damaged goods, etc."
+            data-testid="adjust-notes"
           />
         </FormField>
       </Card>
@@ -273,7 +279,7 @@ async function handleSubmit() {
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.push('/inventory')">Cancel</Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting" data-testid="adjust-submit">
           {{ adjustmentType === 'adjust' ? 'Adjust Stock' : adjustmentType === 'in' ? 'Record Stock In' : 'Record Stock Out' }}
         </Button>
       </div>

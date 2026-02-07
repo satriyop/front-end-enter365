@@ -135,6 +135,7 @@ const onSubmit = handleSubmit(async (formValues) => {
               v-model="contactId"
               :options="contactOptions"
               :placeholder="form.type === 'receive' ? 'Select customer' : 'Select vendor'"
+              :test-id="form.type === 'receive' ? 'payment-customer' : 'payment-vendor'"
               @update:model-value="validateField('contact_id')"
             />
           </FormField>
@@ -145,7 +146,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             </FormField>
 
             <FormField label="Amount" required :error="errors.amount">
-              <Input v-model.number="amount" type="number" min="0" step="1000" @blur="validateField('amount')" />
+              <Input v-model.number="amount" type="number" min="0" step="1000" data-testid="payment-amount" @blur="validateField('amount')" />
             </FormField>
           </div>
 
@@ -155,7 +156,7 @@ const onSubmit = handleSubmit(async (formValues) => {
             </FormField>
 
             <FormField label="Cash Account" required :error="errors.cash_account_id">
-              <Select v-model="cashAccountId" :options="accountOptions" placeholder="Select account" @update:model-value="validateField('cash_account_id')" />
+              <Select v-model="cashAccountId" :options="accountOptions" placeholder="Select account" test-id="payment-account" @update:model-value="validateField('cash_account_id')" />
             </FormField>
           </div>
 
@@ -171,7 +172,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.back()">Cancel</Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting" data-testid="payment-submit">
           Record Payment
         </Button>
       </div>

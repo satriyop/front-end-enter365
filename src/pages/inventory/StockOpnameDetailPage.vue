@@ -270,21 +270,22 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
 
         <!-- Workflow Actions -->
         <div class="flex flex-wrap gap-2">
-          <Button v-if="opname.can_start_counting" @click="handleStart" :loading="startMutation.isPending.value">
+          <Button v-if="opname.can_start_counting" data-testid="opname-start-btn" @click="handleStart" :loading="startMutation.isPending.value">
             <Play class="w-4 h-4 mr-2" /> Start Counting
           </Button>
 
-          <Button v-if="opname.can_submit_for_review" @click="handleSubmitReview" :loading="submitMutation.isPending.value">
+          <Button v-if="opname.can_submit_for_review" data-testid="opname-submit-review-btn" @click="handleSubmitReview" :loading="submitMutation.isPending.value">
             <CheckCircle class="w-4 h-4 mr-2" /> Submit Review
           </Button>
 
-          <Button v-if="opname.can_approve" @click="handleApprove" :loading="approveMutation.isPending.value">
+          <Button v-if="opname.can_approve" data-testid="opname-approve-btn" @click="handleApprove" :loading="approveMutation.isPending.value">
             <CheckCircle class="w-4 h-4 mr-2" /> Approve & Complete
           </Button>
 
           <Button
             v-if="opname.can_reject"
             variant="secondary"
+            data-testid="opname-reject-btn"
             @click="handleReject"
             :loading="rejectMutation.isPending.value"
           >
@@ -294,6 +295,7 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
           <Button
             v-if="opname.can_cancel"
             variant="destructive"
+            data-testid="opname-cancel-btn"
             @click="handleCancel"
             :loading="cancelMutation.isPending.value"
           >
@@ -317,13 +319,14 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
                     <Button
                       variant="ghost"
                       size="sm"
+                      data-testid="opname-generate-btn"
                       @click="handleGenerateItems"
                       :loading="generateMutation.isPending.value"
                     >
                       <RefreshCw class="w-4 h-4 mr-1" />
                       Generate
                     </Button>
-                    <Button variant="ghost" size="sm" @click="openAddItemModal">
+                    <Button variant="ghost" size="sm" data-testid="opname-add-item-btn" @click="openAddItemModal">
                       <Plus class="w-4 h-4 mr-1" />
                       Add Item
                     </Button>

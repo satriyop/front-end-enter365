@@ -163,6 +163,7 @@ async function handleSubmit() {
             :options="productOptions"
             placeholder="Select product..."
             searchable
+            testId="transfer-product"
           />
         </FormField>
       </Card>
@@ -178,6 +179,7 @@ async function handleSubmit() {
               v-model="form.from_warehouse_id"
               :options="fromWarehouseOptions"
               placeholder="Select source warehouse..."
+              testId="transfer-source"
             />
           </FormField>
 
@@ -187,6 +189,7 @@ async function handleSubmit() {
               :options="toWarehouseOptions"
               placeholder="Select destination warehouse..."
               :disabled="!form.from_warehouse_id"
+              testId="transfer-target"
             />
           </FormField>
 
@@ -215,6 +218,7 @@ async function handleSubmit() {
               type="number"
               min="1"
               :max="stockAtSource ?? undefined"
+              data-testid="transfer-quantity"
             />
           </FormField>
 
@@ -252,6 +256,7 @@ async function handleSubmit() {
             v-model="form.notes"
             :rows="3"
             placeholder="e.g., Replenishing branch stock, consolidating inventory, etc."
+            data-testid="transfer-notes"
           />
         </FormField>
       </Card>
@@ -261,7 +266,7 @@ async function handleSubmit() {
         <Button type="button" variant="ghost" @click="router.push('/inventory')">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">Transfer Stock</Button>
+        <Button type="submit" :loading="isSubmitting" data-testid="transfer-submit">Transfer Stock</Button>
       </div>
     </form>
   </div>

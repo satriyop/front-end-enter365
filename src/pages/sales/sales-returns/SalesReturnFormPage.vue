@@ -252,6 +252,7 @@ const warehouseOptions = computed(() => {
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
+              test-id="sr-customer"
               @update:model-value="(v) => { setFieldValue('contact_id', Number(v)); validateField('contact_id'); }"
             />
           </FormField>
@@ -327,6 +328,7 @@ const warehouseOptions = computed(() => {
                     v-model="field.value.description"
                     type="text"
                     placeholder="Item description"
+                    :data-testid="`sr-item-${index}-description`"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
@@ -336,6 +338,7 @@ const warehouseOptions = computed(() => {
                     type="number"
                     min="0.0001"
                     step="any"
+                    :data-testid="`sr-item-${index}-quantity`"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                   />
                 </td>
@@ -352,6 +355,7 @@ const warehouseOptions = computed(() => {
                     v-model="field.value.unit_price"
                     size="sm"
                     :min="0"
+                    :data-testid="`sr-item-${index}-price`"
                   />
                 </td>
                 <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
@@ -412,7 +416,7 @@ const warehouseOptions = computed(() => {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting" data-testid="sr-submit">
           {{ isEditing ? 'Update Sales Return' : 'Create Sales Return' }}
         </Button>
       </div>

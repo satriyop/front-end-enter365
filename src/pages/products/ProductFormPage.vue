@@ -244,19 +244,20 @@ useFormShortcuts({
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="SKU" required :error="errors.sku">
-            <Input v-model="sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" @blur="validateField('sku')" />
+            <Input v-model="sku" data-testid="product-sku" placeholder="e.g., SOLAR-PANEL-450W" :disabled="isEditing" @blur="validateField('sku')" />
           </FormField>
           <FormField label="Type" required :error="errors.type">
-            <Select v-model="type" :options="typeOptions" @update:model-value="validateField('type')" />
+            <Select v-model="type" test-id="product-type" :options="typeOptions" @update:model-value="validateField('type')" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
-            <Input v-model="name" placeholder="Product name" @blur="validateField('name')" />
+            <Input v-model="name" data-testid="product-name" placeholder="Product name" @blur="validateField('name')" />
           </FormField>
           <FormField label="Unit" required :error="errors.unit">
-            <Select v-model="unit" :options="unitOptions" @update:model-value="validateField('unit')" />
+            <Select v-model="unit" test-id="product-unit" :options="unitOptions" @update:model-value="validateField('unit')" />
           </FormField>
           <FormField label="Category" :error="errors.category_id">
             <Select
+              test-id="product-category"
               :model-value="categoryId ?? ''"
               :options="categoryOptions"
               @update:model-value="(v) => categoryId = v ? Number(v) : null"
@@ -281,13 +282,13 @@ useFormShortcuts({
         </template>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField label="Purchase Price">
-            <Input v-model.number="purchasePrice" type="number" min="0" step="1000" />
+            <Input v-model.number="purchasePrice" data-testid="product-purchase-price" type="number" min="0" step="1000" />
           </FormField>
           <FormField label="Selling Price">
-            <Input v-model.number="sellingPrice" type="number" min="0" step="1000" />
+            <Input v-model.number="sellingPrice" data-testid="product-selling-price" type="number" min="0" step="1000" />
           </FormField>
           <FormField label="Tax Rate (%)">
-            <Input v-model.number="taxRate" type="number" min="0" max="100" step="0.5" />
+            <Input v-model.number="taxRate" data-testid="product-tax-rate" type="number" min="0" max="100" step="0.5" />
           </FormField>
           <div class="flex items-center gap-4 pt-6">
             <label class="flex items-center gap-2 cursor-pointer">
@@ -404,7 +405,7 @@ useFormShortcuts({
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.back()">Cancel</Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="product-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Product' : 'Create Product' }}
         </Button>
       </div>

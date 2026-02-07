@@ -162,6 +162,7 @@ useFormShortcuts({
           <FormField label="Code" :error="errors.code" hint="Leave empty for auto-generated code">
             <Input
               v-model="code"
+              data-testid="warehouse-code"
               placeholder="e.g., WH-001"
               :disabled="isEditing"
               @blur="validateField('code')"
@@ -171,6 +172,7 @@ useFormShortcuts({
           <FormField label="Name" required :error="errors.name">
             <Input
               v-model="name"
+              data-testid="warehouse-name"
               placeholder="e.g., Main Warehouse"
               @blur="validateField('name')"
             />
@@ -188,6 +190,7 @@ useFormShortcuts({
           <FormField label="Address" :error="errors.address">
             <Textarea
               v-model="address"
+              data-testid="warehouse-address"
               :rows="3"
               placeholder="Warehouse address"
             />
@@ -278,7 +281,7 @@ useFormShortcuts({
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="warehouse-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Warehouse' : 'Create Warehouse' }}
         </Button>
       </div>

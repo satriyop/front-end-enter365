@@ -73,6 +73,7 @@ onMounted(() => {
             :loading="isLoadingWarehouses"
             placeholder="Select a warehouse to count"
             required
+            testId="opname-warehouse"
           />
           <p class="text-xs text-slate-500">The system will snapshot stock levels for this warehouse.</p>
         </div>
@@ -84,6 +85,7 @@ onMounted(() => {
             v-model="form.opname_date"
             type="date"
             required
+            data-testid="opname-date"
           />
         </div>
 
@@ -93,6 +95,7 @@ onMounted(() => {
           <Input
             v-model="form.name"
             placeholder="e.g. Monthly Count - January 2024"
+            data-testid="opname-name"
           />
         </div>
 
@@ -102,6 +105,7 @@ onMounted(() => {
           <textarea
             v-model="form.notes"
             rows="3"
+            data-testid="opname-notes"
             class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
             placeholder="Additional information..."
           ></textarea>
@@ -111,9 +115,10 @@ onMounted(() => {
         <template #footer>
           <div class="flex justify-end gap-3">
             <Button variant="ghost" type="button" @click="router.back()">Cancel</Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               :loading="createMutation.isPending.value"
+              data-testid="opname-submit"
             >
               <Save class="w-4 h-4 mr-2" />
               Create & Continue

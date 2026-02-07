@@ -48,6 +48,7 @@ async function handleSubmit() {
         <!-- Error Alert -->
         <div
           v-if="error"
+          data-testid="login-error"
           class="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm"
         >
           {{ error }}
@@ -62,6 +63,7 @@ async function handleSubmit() {
             v-model="form.email"
             type="email"
             required
+            data-testid="login-email"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="you@company.com"
           />
@@ -76,6 +78,7 @@ async function handleSubmit() {
             v-model="form.password"
             type="password"
             required
+            data-testid="login-password"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="••••••••"
           />
@@ -85,6 +88,7 @@ async function handleSubmit() {
         <button
           type="submit"
           :disabled="loading"
+          data-testid="login-submit"
           class="w-full py-2.5 px-4 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           <span v-if="loading">Signing in...</span>

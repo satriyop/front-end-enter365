@@ -188,21 +188,21 @@ async function handleSubmit() {
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Entry Date <span class="text-red-500">*</span>
             </label>
-            <Input v-model="entryDate" type="date" />
+            <Input v-model="entryDate" data-testid="je-date" type="date" />
           </div>
 
           <div class="sm:col-span-2">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Description <span class="text-red-500">*</span>
             </label>
-            <Input v-model="description" placeholder="Describe this journal entry" />
+            <Input v-model="description" data-testid="je-description" placeholder="Describe this journal entry" />
           </div>
 
           <div class="sm:col-span-3">
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Reference
             </label>
-            <Input v-model="reference" placeholder="Optional reference number or document" />
+            <Input v-model="reference" data-testid="je-reference" placeholder="Optional reference number or document" />
           </div>
         </div>
       </Card>
@@ -249,6 +249,7 @@ async function handleSubmit() {
                 <!-- Account -->
                 <td class="px-4 py-2">
                   <Select
+                    :test-id="`je-line-${index}-account`"
                     :model-value="line.account_id ? String(line.account_id) : ''"
                     :options="accountOptions"
                     :loading="accountsLoading"
@@ -261,6 +262,7 @@ async function handleSubmit() {
                 <td class="px-4 py-2">
                   <Input
                     :model-value="line.description ?? ''"
+                    :data-testid="`je-line-${index}-description`"
                     placeholder="Line description"
                     class="text-sm"
                     @update:model-value="(v) => line.description = v as string"
@@ -271,6 +273,7 @@ async function handleSubmit() {
                 <td class="px-4 py-2">
                   <CurrencyInput
                     :model-value="line.debit"
+                    :data-testid="`je-line-${index}-debit`"
                     size="sm"
                     @update:model-value="(v) => handleDebitChange(index, Number(v) || 0)"
                   />
@@ -280,6 +283,7 @@ async function handleSubmit() {
                 <td class="px-4 py-2">
                   <CurrencyInput
                     :model-value="line.credit"
+                    :data-testid="`je-line-${index}-credit`"
                     size="sm"
                     @update:model-value="(v) => handleCreditChange(index, Number(v) || 0)"
                   />
@@ -351,7 +355,7 @@ async function handleSubmit() {
 
       <!-- Actions -->
       <div class="flex items-center gap-3">
-        <Button type="submit" :disabled="isSubmitting || hasErrors">
+        <Button type="submit" data-testid="je-submit" :disabled="isSubmitting || hasErrors">
           <Loader2 v-if="isSubmitting" class="w-4 h-4 mr-2 animate-spin" />
           <Save v-else class="w-4 h-4 mr-2" />
           Create Entry
