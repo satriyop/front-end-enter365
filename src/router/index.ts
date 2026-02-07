@@ -329,6 +329,13 @@ const router = createRouter({
           component: () => import('@/pages/projects/ProjectFormPage.vue'),
           meta: { breadcrumb: 'Edit Project' }
         },
+        // Project Task routes
+        {
+          path: 'projects/:projectId/tasks/:taskId',
+          name: 'project-task-detail',
+          component: () => import('@/pages/projects/ProjectTaskDetailPage.vue'),
+          meta: { breadcrumb: 'Task Details' }
+        },
         // Work Order routes
         {
           path: 'work-orders',

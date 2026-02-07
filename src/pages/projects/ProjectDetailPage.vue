@@ -16,6 +16,7 @@ import { formatCurrency, formatDate } from '@/utils/format'
 import { Pause, Play, Check, AlertTriangle, Clock } from 'lucide-vue-next'
 import ProjectCostsList from '@/components/projects/ProjectCostsList.vue'
 import ProjectRevenuesList from '@/components/projects/ProjectRevenuesList.vue'
+import ProjectTasksList from '@/components/projects/ProjectTasksList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -55,8 +56,8 @@ async function saveProgress() {
   }
 }
 
-// Financials tab state
-const activeFinancialsTab = ref<'costs' | 'revenues'>('costs')
+// Tab state
+const activeFinancialsTab = ref<'costs' | 'revenues' | 'tasks'>('costs')
 
 // Status colors mapping for Badge component if needed
 // const statusColors: Record<string, 'default' | 'info' | 'success' | 'warning' | 'destructive'> = {
@@ -359,6 +360,23 @@ async function handleResume() {
                   {{ project.revenues_count }}
                 </span>
               </button>
+              <button
+                type="button"
+                @click="activeFinancialsTab = 'tasks'"
+                class="flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors flex items-center justify-center gap-2"
+                :class="activeFinancialsTab === 'tasks'
+                  ? 'bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-sm'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
+              >
+                Tasks
+                <span
+                  v-if="project.tasks_count"
+                  class="px-1.5 py-0.5 text-xs rounded-full"
+                  :class="activeFinancialsTab === 'tasks' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'bg-slate-200 dark:bg-slate-700'"
+                >
+                  {{ project.tasks_count }}
+                </span>
+              </button>
             </div>
 
             <!-- Tab Content -->
@@ -372,6 +390,10 @@ async function handleResume() {
                 v-if="activeFinancialsTab === 'revenues'"
                 :project-id="project.id"
                 :revenues="project.revenues || []"
+              />
+              <ProjectTasksList
+                v-if="activeFinancialsTab === 'tasks'"
+                :project-id="project.id"
               />
             </div>
           </Card>
