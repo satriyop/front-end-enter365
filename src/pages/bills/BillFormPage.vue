@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm, useFieldArray } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useBill, useCreateBill, useUpdateBill } from '@/api/useBills'
-import { toNumber } from '@/utils/format'
+import { toNumber, CURRENCY_OPTIONS } from '@/utils/format'
 import { useContactsLookup } from '@/api/useContacts'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
@@ -61,6 +61,8 @@ const {
     bill_date: today,
     due_date: today,
     description: '',
+    currency: 'IDR',
+    exchange_rate: 1,
     items: [createEmptyItem()],
   },
 })
@@ -70,6 +72,8 @@ const [vendorInvoiceNumber] = defineField('vendor_invoice_number')
 const [billDate] = defineField('bill_date')
 const [dueDate] = defineField('due_date')
 const [description] = defineField('description')
+const [currency] = defineField('currency')
+const [exchangeRate] = defineField('exchange_rate')
 
 // Field array for line items
 const { fields: itemFields, push: pushItem, remove: removeItem } = useFieldArray<BillItemFormData>('items')
@@ -83,6 +87,8 @@ watch(existingBill, (bill) => {
       bill_date: bill.bill_date?.split('T')[0] || today,
       due_date: bill.due_date?.split('T')[0] || today,
       description: bill.description || '',
+      currency: bill.currency ?? 'IDR',
+      exchange_rate: Number(bill.exchange_rate) || 1,
       items: bill.items && bill.items.length > 0
         ? bill.items.map(item => ({
             description: item.description,
@@ -145,6 +151,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     bill_date: formValues.bill_date,
     due_date: formValues.due_date,
     description: formValues.description || undefined,
+    currency: formValues.currency || 'IDR',
+    exchange_rate: formValues.exchange_rate || 1,
     items: itemsPayload,
   }
 
@@ -193,6 +201,7 @@ const onSubmit = handleSubmit(async (formValues) => {
               v-model="contactId"
               :options="contactOptions"
               placeholder="Select vendor"
+              test-id="bill-vendor"
               @update:model-value="validateField('contact_id')"
             />
           </FormField>
@@ -207,6 +216,23 @@ const onSubmit = handleSubmit(async (formValues) => {
           </FormField>
           <FormField label="Description" class="md:col-span-2">
             <Textarea v-model="description" :rows="2" placeholder="Bill description" />
+          </FormField>
+          <FormField label="Currency">
+            <Select
+              v-model="currency"
+              :options="CURRENCY_OPTIONS"
+              test-id="bill-currency"
+            />
+          </FormField>
+          <FormField v-if="currency !== 'IDR'" label="Exchange Rate">
+            <Input
+              v-model.number="exchangeRate"
+              type="number"
+              :min="0"
+              step="0.01"
+              data-testid="bill-exchange-rate"
+              placeholder="e.g. 15500"
+            />
           </FormField>
         </div>
       </Card>
@@ -223,15 +249,15 @@ const onSubmit = handleSubmit(async (formValues) => {
           <div v-for="(field, index) in itemFields" :key="field.key" class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-4">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
-              <Input v-model="field.value.description" placeholder="Item description" />
+              <Input v-model="field.value.description" placeholder="Item description" :data-testid="`bill-item-${index}-description`" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Qty</label>
-              <Input v-model.number="field.value.quantity" type="number" min="1" />
+              <Input v-model.number="field.value.quantity" type="number" min="1" :data-testid="`bill-item-${index}-quantity`" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Unit Price</label>
-              <CurrencyInput v-model="field.value.unit_price" size="sm" :min="0" />
+              <CurrencyInput v-model="field.value.unit_price" size="sm" :min="0" :data-testid="`bill-item-${index}-price`" />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
@@ -267,7 +293,7 @@ const onSubmit = handleSubmit(async (formValues) => {
 
       <div class="flex items-center justify-end gap-3">
         <Button type="button" variant="ghost" @click="router.back()">Cancel</Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting" data-testid="bill-submit">
           {{ isEditing ? 'Update Bill' : 'Create Bill' }}
         </Button>
       </div>

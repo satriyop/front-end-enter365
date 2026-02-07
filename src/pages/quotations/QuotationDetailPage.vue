@@ -549,6 +549,10 @@ const itemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.reference || '-' }}</dd>
               </div>
+              <div v-if="quotation.currency && quotation.currency !== 'IDR'">
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Currency</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ quotation.currency }} ({{ quotation.exchange_rate }})</dd>
+              </div>
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Quotation Date</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(quotation.quotation_date) }}</dd>
@@ -657,6 +661,10 @@ const itemColumns: ResponsiveColumn[] = [
               <div class="flex justify-between">
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
                 <dd class="font-bold text-lg text-orange-600 dark:text-orange-400">{{ formatCurrency(quotation.total_amount) }}</dd>
+              </div>
+              <div v-if="quotation.currency && quotation.currency !== 'IDR'" class="flex justify-between text-sm">
+                <dt class="text-slate-500 dark:text-slate-400">Base Currency (IDR)</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(quotation.base_currency_total) }}</dd>
               </div>
             </dl>
           </div>

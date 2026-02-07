@@ -13,19 +13,34 @@ export function toNumber(value: NumericValue): number {
 }
 
 /**
- * Format number as Indonesian Rupiah
- * Accepts both number and string (from API responses)
+ * Format number as currency
+ * Defaults to Indonesian Rupiah (IDR). Pass currency code for other currencies.
  */
-export function formatCurrency(value: NumericValue): string {
+export function formatCurrency(value: NumericValue, currency: string = 'IDR'): string {
   const num = toNumber(value)
   if (num === 0 && value == null) return 'Rp 0'
+  const fractionDigits = currency === 'IDR' ? 0 : 2
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency,
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: fractionDigits,
   }).format(num)
 }
+
+/**
+ * Common currency options for Select dropdowns
+ */
+export const CURRENCY_OPTIONS = [
+  { value: 'IDR', label: 'IDR - Rupiah' },
+  { value: 'USD', label: 'USD - US Dollar' },
+  { value: 'EUR', label: 'EUR - Euro' },
+  { value: 'SGD', label: 'SGD - Singapore Dollar' },
+  { value: 'CNY', label: 'CNY - Chinese Yuan' },
+  { value: 'JPY', label: 'JPY - Japanese Yen' },
+  { value: 'MYR', label: 'MYR - Malaysian Ringgit' },
+  { value: 'AUD', label: 'AUD - Australian Dollar' },
+]
 
 /**
  * Format currency in compact form (Indonesian style)

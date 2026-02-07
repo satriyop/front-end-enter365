@@ -36,7 +36,6 @@ const ledgerFilters = ref<LedgerFilters>({
 const { data: ledgerData, isLoading: ledgerLoading } = useAccountLedger(accountId, ledgerFilters)
 
 const ledgerEntries = computed(() => {
-  console.log('AccountDetailPage ledgerData:', ledgerData.value)
   return ledgerData.value?.entries ?? []
 })
 

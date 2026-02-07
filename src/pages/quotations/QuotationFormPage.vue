@@ -13,7 +13,7 @@ import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
 import { quotationSchema, type QuotationFormData, type QuotationItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { formatCurrency, toNumber } from '@/utils/format'
+import { formatCurrency, toNumber, CURRENCY_OPTIONS } from '@/utils/format'
 import {
   Button,
   Input,
@@ -64,6 +64,8 @@ const {
     valid_until: '',
     subject: '',
     reference: '',
+    currency: 'IDR',
+    exchange_rate: 1,
     discount_type: 'percentage',
     discount_value: 0,
     tax_rate: 11,
@@ -78,6 +80,8 @@ const [quotationDate] = defineField('quotation_date')
 const [validUntil] = defineField('valid_until')
 const [subject] = defineField('subject')
 const [reference] = defineField('reference')
+const [currency] = defineField('currency')
+const [exchangeRate] = defineField('exchange_rate')
 const [discountType] = defineField('discount_type')
 const [discountValue] = defineField('discount_value')
 const [_taxRate] = defineField('tax_rate')
@@ -109,6 +113,8 @@ watch(existingQuotation, (quotation) => {
       valid_until: quotation.valid_until?.split('T')[0] ?? '',
       subject: quotation.subject ?? '',
       reference: quotation.reference ?? '',
+      currency: quotation.currency ?? 'IDR',
+      exchange_rate: Number(quotation.exchange_rate) || 1,
       discount_type: (quotation.discount_type as 'percentage' | 'fixed') ?? 'percentage',
       discount_value: toNumber(quotation.discount_value),
       tax_rate: toNumber(quotation.tax_rate) || 11,
@@ -219,6 +225,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     valid_until: formValues.valid_until || new Date().toISOString().split('T')[0]!,
     subject: formValues.subject || undefined,
     reference: formValues.reference || undefined,
+    currency: formValues.currency || 'IDR',
+    exchange_rate: formValues.exchange_rate || 1,
     discount_type: formValues.discount_type,
     discount_value: formValues.discount_value || undefined,
     tax_rate: formValues.tax_rate,
@@ -298,6 +306,7 @@ const contactOptions = computed(() => {
           <FormField label="Customer" required :error="errors.contact_id">
             <Select
               v-model="contactId"
+              test-id="quotation-customer"
               :options="contactOptions"
               placeholder="Select customer..."
               :loading="loadingContacts"
@@ -307,22 +316,39 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="reference" placeholder="PO number, etc." />
+            <Input v-model="reference" data-testid="quotation-reference" placeholder="PO number, etc." />
           </FormField>
 
           <!-- Subject -->
           <FormField label="Subject" class="md:col-span-2">
-            <Input v-model="subject" placeholder="Quotation subject or title" />
+            <Input v-model="subject" data-testid="quotation-subject" placeholder="Quotation subject or title" />
           </FormField>
 
           <!-- Quotation Date -->
           <FormField label="Quotation Date" required :error="errors.quotation_date">
-            <Input v-model="quotationDate" type="date" @blur="validateField('quotation_date')" />
+            <Input v-model="quotationDate" data-testid="quotation-date" type="date" @blur="validateField('quotation_date')" />
           </FormField>
 
           <!-- Valid Until -->
           <FormField label="Valid Until">
-            <Input v-model="validUntil" type="date" />
+            <Input v-model="validUntil" data-testid="quotation-valid-until" type="date" />
+          </FormField>
+          <FormField label="Currency">
+            <Select
+              v-model="currency"
+              :options="CURRENCY_OPTIONS"
+              test-id="quotation-currency"
+            />
+          </FormField>
+          <FormField v-if="currency !== 'IDR'" label="Exchange Rate">
+            <Input
+              v-model.number="exchangeRate"
+              type="number"
+              :min="0"
+              step="0.01"
+              data-testid="quotation-exchange-rate"
+              placeholder="e.g. 15500"
+            />
           </FormField>
         </div>
       </Card>
@@ -362,6 +388,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <select
                     :value="field.value.product_id ?? ''"
+                    :data-testid="`quotation-item-${index}-product`"
                     @change="(e) => {
                       const val = (e.target as HTMLSelectElement).value
                       field.value.product_id = val ? Number(val) : null
@@ -382,6 +409,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.description"
+                    :data-testid="`quotation-item-${index}-description`"
                     type="text"
                     placeholder="Item description"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -390,6 +418,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model.number="field.value.quantity"
+                    :data-testid="`quotation-item-${index}-quantity`"
                     type="number"
                     min="1"
                     step="any"
@@ -399,6 +428,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.unit"
+                    :data-testid="`quotation-item-${index}-unit`"
                     type="text"
                     placeholder="pcs"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -407,6 +437,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <CurrencyInput
                     v-model="field.value.unit_price"
+                    :data-testid="`quotation-item-${index}-price`"
                     size="sm"
                     :min="0"
                   />
@@ -414,6 +445,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model.number="field.value.discount_percent"
+                    :data-testid="`quotation-item-${index}-discount`"
                     type="number"
                     min="0"
                     max="100"
@@ -424,6 +456,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model.number="field.value.tax_rate"
+                    :data-testid="`quotation-item-${index}-tax`"
                     type="number"
                     min="0"
                     max="100"
@@ -534,7 +567,7 @@ const contactOptions = computed(() => {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="quotation-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Quotation' : 'Create Quotation' }}
         </Button>
       </div>

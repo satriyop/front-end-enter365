@@ -256,6 +256,8 @@ export const quotationSchema = z.object({
   valid_until: z.string().optional().default(''),
   subject: subjectSchema,
   reference: referenceSchema,
+  currency: z.string().default('IDR'),
+  exchange_rate: z.number().min(0).default(1),
   discount_type: z.enum(['percentage', 'fixed']).default('percentage'),
   discount_value: z.number().min(0).default(0),
   tax_rate: percentageSchema.default(11),
@@ -290,6 +292,8 @@ export const invoiceSchema = z.object({
   due_date: requiredDate('Due date'),
   description: descriptionSchema,
   reference: referenceSchema,
+  currency: z.string().default('IDR'),
+  exchange_rate: z.number().min(0).default(1),
   tax_rate: percentageSchema.default(11),
   discount_amount: currencySchema.default(0),
   receivable_account_id: z.number().optional().nullable(),
@@ -553,6 +557,8 @@ export const billSchema = z.object({
   bill_date: requiredDate('Bill date'),
   due_date: requiredDate('Due date'),
   description: descriptionSchema,
+  currency: z.string().default('IDR'),
+  exchange_rate: z.number().min(0).default(1),
   items: z.array(billItemSchema).min(1, 'At least one item is required'),
 }).refine((data) => {
   if (!data.bill_date || !data.due_date) return true
@@ -1059,4 +1065,24 @@ export const recurringTemplateSchema = z.object({
 
 export type RecurringTemplateItemFormData = z.infer<typeof recurringTemplateItemSchema>
 export type RecurringTemplateFormData = z.infer<typeof recurringTemplateSchema>
+
+// ============================================
+// Project Task Schemas
+// ============================================
+
+/**
+ * Project Task form schema
+ */
+export const projectTaskSchema = z.object({
+  title: requiredString('Title').max(255, 'Title must be at most 255 characters'),
+  description: z.string().optional().default(''),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).default('normal'),
+  assigned_to: z.number().optional().nullable(),
+  start_date: z.string().optional().default(''),
+  due_date: z.string().optional().default(''),
+  estimated_hours: z.number().min(0, 'Estimated hours cannot be negative').optional().nullable(),
+  notes: z.string().optional().default(''),
+})
+
+export type ProjectTaskFormData = z.infer<typeof projectTaskSchema>
 

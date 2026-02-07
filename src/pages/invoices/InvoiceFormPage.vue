@@ -12,7 +12,7 @@ import {
 import { useContactsLookup } from '@/api/useContacts'
 import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { formatCurrency, toNumber } from '@/utils/format'
+import { formatCurrency, toNumber, CURRENCY_OPTIONS } from '@/utils/format'
 import {
   Button,
   Input,
@@ -72,6 +72,8 @@ const {
     due_date: '',
     description: '',
     reference: '',
+    currency: 'IDR',
+    exchange_rate: 1,
     tax_rate: 11,
     discount_amount: 0,
     items: [createEmptyItem()],
@@ -83,6 +85,8 @@ const [invoiceDate] = defineField('invoice_date')
 const [dueDate] = defineField('due_date')
 const [description] = defineField('description')
 const [reference] = defineField('reference')
+const [currency] = defineField('currency')
+const [exchangeRate] = defineField('exchange_rate')
 const [taxRate] = defineField('tax_rate')
 const [discountAmount] = defineField('discount_amount')
 
@@ -98,6 +102,8 @@ watch(existingInvoice, (invoice) => {
       due_date: invoice.due_date.split('T')[0]!,
       description: invoice.description ?? '',
       reference: invoice.reference ?? '',
+      currency: invoice.currency ?? 'IDR',
+      exchange_rate: Number(invoice.exchange_rate) || 1,
       tax_rate: invoice.tax_rate ?? 11,
       discount_amount: toNumber(invoice.discount_amount),
       items: invoice.items && invoice.items.length > 0
@@ -162,6 +168,8 @@ const onSubmit = handleSubmit(async (formValues) => {
     due_date: formValues.due_date || new Date().toISOString().split('T')[0]!,
     description: formValues.description || undefined,
     reference: formValues.reference || undefined,
+    currency: formValues.currency || 'IDR',
+    exchange_rate: formValues.exchange_rate || 1,
     tax_rate: formValues.tax_rate,
     discount_amount: formValues.discount_amount || undefined,
     items: itemsPayload,
@@ -237,6 +245,7 @@ const contactOptions = computed(() => {
           <!-- Customer -->
           <FormField label="Customer" required :error="errors.contact_id">
             <Select
+              test-id="invoice-customer"
               :model-value="contactId"
               :options="contactOptions"
               placeholder="Select customer..."
@@ -247,17 +256,17 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="reference" placeholder="PO number, etc." />
+            <Input v-model="reference" data-testid="invoice-reference" placeholder="PO number, etc." />
           </FormField>
 
           <!-- Invoice Date -->
           <FormField label="Invoice Date" required :error="errors.invoice_date">
-            <Input v-model="invoiceDate" type="date" @blur="validateField('invoice_date')" />
+            <Input v-model="invoiceDate" data-testid="invoice-date" type="date" @blur="validateField('invoice_date')" />
           </FormField>
 
           <!-- Due Date -->
           <FormField label="Due Date" required :error="errors.due_date">
-            <Input v-model="dueDate" type="date" @blur="validateField('due_date')" />
+            <Input v-model="dueDate" data-testid="invoice-due-date" type="date" @blur="validateField('due_date')" />
           </FormField>
 
           <!-- Description -->
@@ -266,6 +275,23 @@ const contactOptions = computed(() => {
               v-model="description"
               :rows="2"
               placeholder="Invoice description"
+            />
+          </FormField>
+          <FormField label="Currency">
+            <Select
+              v-model="currency"
+              :options="CURRENCY_OPTIONS"
+              test-id="invoice-currency"
+            />
+          </FormField>
+          <FormField v-if="currency !== 'IDR'" label="Exchange Rate">
+            <Input
+              v-model.number="exchangeRate"
+              type="number"
+              :min="0"
+              step="0.01"
+              data-testid="invoice-exchange-rate"
+              placeholder="e.g. 15500"
             />
           </FormField>
         </div>
@@ -303,6 +329,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.description"
+                    :data-testid="`invoice-item-${index}-description`"
                     type="text"
                     placeholder="Item description"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -311,6 +338,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model.number="field.value.quantity"
+                    :data-testid="`invoice-item-${index}-quantity`"
                     type="number"
                     min="1"
                     step="any"
@@ -320,6 +348,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.unit"
+                    :data-testid="`invoice-item-${index}-unit`"
                     type="text"
                     placeholder="pcs"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
@@ -328,6 +357,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <CurrencyInput
                     v-model="field.value.unit_price"
+                    :data-testid="`invoice-item-${index}-price`"
                     size="sm"
                     :min="0"
                   />
@@ -404,7 +434,7 @@ const contactOptions = computed(() => {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="invoice-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Invoice' : 'Create Invoice' }}
         </Button>
       </div>

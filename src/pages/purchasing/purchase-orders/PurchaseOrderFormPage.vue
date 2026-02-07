@@ -17,7 +17,7 @@ import {
   type PurchaseOrderItemFormData,
 } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
   Button,
@@ -86,8 +86,8 @@ const [poDate] = defineField('po_date')
 const [expectedDate] = defineField('expected_date')
 const [reference] = defineField('reference')
 const [subject] = defineField('subject')
-const [_currency] = defineField('currency')
-const [_exchangeRate] = defineField('exchange_rate')
+const [currency] = defineField('currency')
+const [exchangeRate] = defineField('exchange_rate')
 const [discountType] = defineField('discount_type')
 const [discountValue] = defineField('discount_value')
 const [_taxRate] = defineField('tax_rate')
@@ -327,6 +327,7 @@ const contactOptions = computed(() => {
           <FormField label="Vendor" required :error="errors.contact_id">
             <Select
               v-model="contactId"
+              test-id="po-vendor"
               :options="contactOptions"
               placeholder="Select vendor..."
               :loading="loadingContacts"
@@ -336,22 +337,22 @@ const contactOptions = computed(() => {
 
           <!-- Reference -->
           <FormField label="Reference">
-            <Input v-model="reference" placeholder="Vendor quote number, etc." />
+            <Input v-model="reference" data-testid="po-reference" placeholder="Vendor quote number, etc." />
           </FormField>
 
           <!-- Subject -->
           <FormField label="Subject" class="md:col-span-2">
-            <Input v-model="subject" placeholder="Order description or title" />
+            <Input v-model="subject" data-testid="po-subject" placeholder="Order description or title" />
           </FormField>
 
           <!-- PO Date -->
           <FormField label="PO Date" required :error="errors.po_date">
-            <Input v-model="poDate" type="date" @blur="validateField('po_date')" />
+            <Input v-model="poDate" data-testid="po-date" type="date" @blur="validateField('po_date')" />
           </FormField>
 
           <!-- Expected Date -->
           <FormField label="Expected Delivery Date">
-            <Input v-model="expectedDate" type="date" />
+            <Input v-model="expectedDate" data-testid="po-expected-date" type="date" />
           </FormField>
 
           <!-- Shipping Address -->
@@ -360,6 +361,23 @@ const contactOptions = computed(() => {
               v-model="shippingAddress"
               :rows="2"
               placeholder="Delivery address for this order"
+            />
+          </FormField>
+          <FormField label="Currency">
+            <Select
+              v-model="currency"
+              :options="CURRENCY_OPTIONS"
+              test-id="po-currency"
+            />
+          </FormField>
+          <FormField v-if="currency !== 'IDR'" label="Exchange Rate">
+            <Input
+              v-model.number="exchangeRate"
+              type="number"
+              :min="0"
+              step="0.01"
+              data-testid="po-exchange-rate"
+              placeholder="e.g. 15500"
             />
           </FormField>
         </div>
@@ -401,6 +419,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <select
                     :value="field.value.product_id ?? ''"
+                    :data-testid="`po-item-${index}-product`"
                     @change="(e) => {
                       const val = (e.target as HTMLSelectElement).value
                       field.value.product_id = val ? Number(val) : null
@@ -421,6 +440,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.description"
+                    :data-testid="`po-item-${index}-description`"
                     type="text"
                     placeholder="Item description"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -429,6 +449,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model.number="field.value.quantity"
+                    :data-testid="`po-item-${index}-quantity`"
                     type="number"
                     min="0.0001"
                     step="any"
@@ -438,6 +459,7 @@ const contactOptions = computed(() => {
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.unit"
+                    :data-testid="`po-item-${index}-unit`"
                     type="text"
                     placeholder="pcs"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -448,6 +470,7 @@ const contactOptions = computed(() => {
                     v-model="field.value.unit_price"
                     size="sm"
                     :min="0"
+                    :data-testid="`po-item-${index}-price`"
                   />
                 </td>
                 <td class="px-3 py-2">
@@ -571,7 +594,7 @@ const contactOptions = computed(() => {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" data-testid="po-submit" :loading="isSubmitting">
           {{ isEditing ? 'Update Purchase Order' : 'Create Purchase Order' }}
         </Button>
       </div>

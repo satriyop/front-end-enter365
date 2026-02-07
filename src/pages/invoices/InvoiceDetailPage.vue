@@ -446,6 +446,10 @@ const itemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Reference</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.reference || '-' }}</dd>
               </div>
+              <div v-if="invoice.currency && invoice.currency !== 'IDR'">
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Currency</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ invoice.currency }} ({{ invoice.exchange_rate }})</dd>
+              </div>
               <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">Invoice Date</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatDate(invoice.invoice_date) }}</dd>
@@ -547,6 +551,10 @@ const itemColumns: ResponsiveColumn[] = [
               <div class="flex justify-between">
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
                 <dd class="font-bold text-lg text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.total_amount) }}</dd>
+              </div>
+              <div v-if="invoice.currency && invoice.currency !== 'IDR'" class="flex justify-between text-sm">
+                <dt class="text-slate-500 dark:text-slate-400">Base Currency (IDR)</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(invoice.base_currency_total) }}</dd>
               </div>
               <div class="flex justify-between">
                 <dt class="text-slate-500 dark:text-slate-400">Paid</dt>

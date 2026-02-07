@@ -11,7 +11,12 @@ import type { components } from './types'
 // Types
 // ============================================
 
-export type Bill = components['schemas']['BillResource']
+export type Bill = components['schemas']['BillResource'] & {
+  // Multi-currency fields (pending backend types regeneration)
+  currency?: string
+  exchange_rate?: number
+  base_currency_total?: number
+}
 export type BillItem = components['schemas']['BillItemResource']
 
 export interface BillFilters {
