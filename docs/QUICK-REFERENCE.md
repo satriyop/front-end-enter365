@@ -285,13 +285,18 @@ URL.revokeObjectURL(url)
 ## File Locations
 
 ```
-API hooks         → src/api/use{Entity}.ts
-UI components     → src/components/ui/
+API hooks         → src/api/use{Entity}.ts (47 files)
+UI components     → src/components/ui/ (30 components)
+Document patterns → src/components/document/ (DetailLayout, FormLayout, LineItems)
 Domain components → src/components/{domain}/
-Pages             → src/pages/{domain}/
-Composables       → src/composables/use{Feature}.ts
+Pages             → src/pages/{domain}/ (173 pages)
+Composables       → src/composables/use{Feature}.ts (22 files)
+Services          → src/services/{service}/ (calculation, pricing, state-machine)
+Infrastructure    → src/infrastructure/ (container, events, features, logger)
+Workflows         → src/services/state-machine/workflows/
 Routes            → src/router/index.ts
 Formatters        → src/utils/format.ts
+Validators        → src/utils/validation.ts
 API types         → src/api/types.ts (auto-generated)
 ```
 

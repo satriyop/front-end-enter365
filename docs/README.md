@@ -74,32 +74,42 @@
 
 ```
 src/
-├── api/                    # TanStack Query hooks + Axios client
+├── api/                    # TanStack Query hooks + Axios client (47 hook files)
 │   ├── client.ts           # Axios instance with interceptors
 │   ├── types.ts            # OpenAPI-generated types (33K+ lines)
-│   ├── useQuotations.ts    # Quotation CRUD + business ops
-│   ├── useSolarProposals.ts # Solar proposal + calculations
-│   └── [20+ hook files]
+│   └── use*.ts             # CRUD + business action hooks
 │
-├── components/
+├── components/             # 76 total components
 │   ├── ui/                 # Design system (30 components)
+│   ├── document/           # Reusable document page patterns
 │   ├── charts/             # Chart.js wrappers
 │   ├── solar/              # Solar-specific components
-│   └── maps/               # Leaflet map components
-│
-├── composables/            # Reusable Vue logic (17 files)
-│   ├── useBatteryCalculator.ts
-│   ├── useFinancingCalculator.ts
+│   ├── projects/           # Project task/cost/revenue modals
 │   └── [more...]
 │
-├── pages/                  # Route-level components
-│   ├── quotations/
-│   ├── solar-proposals/
-│   └── [21 directories]
+├── services/               # Strategy-pattern domain services (8 modules)
+│   ├── calculation/        # Tax, discount, rounding strategies
+│   ├── state-machine/      # Workflow machines (quotation, invoice, PO)
+│   ├── pricing/            # Pricing strategies
+│   └── [more...]
+│
+├── infrastructure/         # Cross-cutting concerns (6 modules)
+│   ├── container/          # Dependency injection
+│   ├── events/             # Publish/subscribe event bus
+│   ├── features/           # Feature flags
+│   └── logger/             # Structured logging
+│
+├── composables/            # Reusable Vue logic (22 files)
+│
+├── pages/                  # Route-level components (173 pages)
+│   ├── accounting/         # Accounts, JE, fiscal periods, budgets
+│   ├── purchasing/         # POs, GRNs, purchase returns
+│   ├── sales/              # DOs, sales returns, follow-up
+│   ├── manufacturing/      # MR, MRP, subcontracting
+│   ├── finance/            # Down payments, reminders
+│   └── [more...]
 │
 ├── stores/                 # Pinia (auth only)
-│   └── auth.ts
-│
 ├── layouts/                # App shell
 ├── router/                 # Vue Router config
 ├── utils/                  # Formatters, validators
@@ -114,13 +124,16 @@ See [FILE-STRUCTURE.md](reference/FILE-STRUCTURE.md) for complete listing.
 
 | Domain | Description | Key Routes |
 |--------|-------------|------------|
-| **Sales** | Quotations, Invoices, Contacts | `/quotations`, `/invoices`, `/contacts` |
-| **Purchasing** | Bills, Payments | `/bills`, `/payments` |
-| **Inventory** | Products, Stock, BOMs | `/products`, `/inventory`, `/boms` |
-| **Projects** | Projects, Work Orders | `/projects`, `/work-orders` |
+| **Accounting** | Chart of Accounts, Journal Entries, Fiscal Periods, Budgets, Bank Reconciliation | `/accounting/*` |
+| **Sales** | Quotations, Invoices, Contacts, Delivery Orders, Sales Returns, Follow-Up | `/quotations`, `/invoices`, `/contacts`, `/sales/*` |
+| **Purchasing** | Purchase Orders, Goods Receipt Notes, Bills, Payments, Purchase Returns | `/purchasing/*`, `/bills`, `/payments` |
+| **Finance** | Down Payments, Payment Reminders | `/finance/*` |
+| **Inventory** | Products, Stock, BOMs, Stock Opname, Warehouses | `/products`, `/inventory`, `/boms` |
+| **Manufacturing** | Work Orders, Material Requisitions, MRP, Subcontracting | `/work-orders`, `/manufacturing/*` |
+| **Projects** | Projects with Tasks, Costs, Revenue | `/projects` |
 | **Solar** | Solar Proposals, Calculations | `/solar-proposals` |
-| **Reports** | Financial Reports (8 types) | `/reports/*` |
-| **Admin** | Users, Company Profiles | `/users`, `/company-profiles` |
+| **Reports** | Financial Reports (8 types) + Exports | `/reports/*` |
+| **Admin** | Users, Roles, Warehouses, Categories, NSFP Ranges | `/users`, `/settings/*` |
 
 ---
 
@@ -233,4 +246,4 @@ npm run types:generate   # Regenerate API types from OpenAPI spec
 
 ---
 
-*Last updated: January 2025*
+*Last updated: February 2025*

@@ -11,30 +11,46 @@ Enter365 is a **Solar ERP system** for Indonesian solar installation companies. 
 ## Business Domains
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                      ENTER365 DOMAINS                            │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐          │
-│  │   SALES     │───▶│  INVENTORY  │───▶│  PROJECTS   │          │
-│  │             │    │             │    │             │          │
-│  │ Quotations  │    │ Products    │    │ Projects    │          │
-│  │ Invoices    │    │ BOMs        │    │ Work Orders │          │
-│  │ Contacts    │    │ Stock       │    │             │          │
-│  └─────────────┘    └─────────────┘    └─────────────┘          │
-│         │                  │                  │                  │
-│         └──────────────────┼──────────────────┘                  │
-│                            ▼                                     │
-│                   ┌─────────────┐                                │
-│                   │   SOLAR     │                                │
-│                   │  PROPOSALS  │                                │
-│                   │             │                                │
-│                   │ Calculations│                                │
-│                   │ Financing   │                                │
-│                   │ BOM Variants│                                │
-│                   └─────────────┘                                │
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│                         ENTER365 DOMAINS                            │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐    ┌──────────────┐            │
+│  │ ACCOUNTING  │    │   SALES     │───▶│  PURCHASING  │            │
+│  │             │    │             │    │              │            │
+│  │ Accounts    │    │ Quotations  │    │ Purchase Ord │            │
+│  │ Journal Ent │    │ Invoices    │    │ GRNs         │            │
+│  │ Fiscal Per  │    │ Delivery Ord│    │ Bills        │            │
+│  │ Budgets     │    │ Sales Ret   │    │ Purch Return │            │
+│  │ Bank Recon  │    │ Contacts    │    │ Payments     │            │
+│  └──────┬──────┘    └──────┬──────┘    └──────────────┘            │
+│         │                  │                                        │
+│         │           ┌──────┴──────┐    ┌──────────────┐            │
+│         │           │  INVENTORY  │───▶│MANUFACTURING │            │
+│         │           │             │    │              │            │
+│         │           │ Products    │    │ Work Orders  │            │
+│         │           │ BOMs        │    │ Material Req │            │
+│         │           │ Warehouses  │    │ MRP          │            │
+│         │           │ Stock Opname│    │ Subcontract  │            │
+│         │           └──────┬──────┘    └──────────────┘            │
+│         │                  │                                        │
+│         │           ┌──────┴──────┐    ┌──────────────┐            │
+│         └──────────▶│  PROJECTS   │    │    SOLAR     │            │
+│                     │             │    │  PROPOSALS   │            │
+│                     │ Tasks       │    │              │            │
+│                     │ Costs       │    │ Calculations │            │
+│                     │ Revenue     │    │ Financing    │            │
+│                     └─────────────┘    └──────────────┘            │
+│                                                                     │
+│  ┌─────────────┐    ┌─────────────┐                                │
+│  │   FINANCE   │    │   REPORTS   │                                │
+│  │             │    │             │                                │
+│  │ Down Paymts │    │ Balance Sht │                                │
+│  │ Reminders   │    │ Income Stmt │                                │
+│  │ Recurring   │    │ Cash Flow   │                                │
+│  └─────────────┘    └─────────────┘                                │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -52,14 +68,43 @@ Enter365 is a **Solar ERP system** for Indonesian solar installation companies. 
 
 ## Key Entities
 
+### Accounting
+
+| Entity | Description |
+|--------|-------------|
+| **Account** | Chart of accounts entry (asset, liability, equity, revenue, expense) |
+| **Journal Entry** | Double-entry bookkeeping record |
+| **Fiscal Period** | Accounting period (open, locked, closed) |
+| **Budget** | Budget plan with line items per account |
+| **Bank Transaction** | Bank statement line for reconciliation |
+| **Recurring Template** | Auto-generate recurring documents |
+
 ### Sales
 
 | Entity | Description |
 |--------|-------------|
 | **Contact** | Customer or supplier |
 | **Quotation** | Sales proposal with line items |
-| **Invoice** | Bill to customer |
+| **Invoice** | Bill to customer (multi-currency supported) |
+| **Delivery Order** | Shipment tracking document |
+| **Sales Return** | Customer return document |
 | **Payment** | Payment received/made |
+
+### Purchasing
+
+| Entity | Description |
+|--------|-------------|
+| **Purchase Order** | Order to vendor with approval workflow |
+| **Goods Receipt Note** | Receiving document for PO items |
+| **Bill** | Vendor invoice (multi-currency supported) |
+| **Purchase Return** | Return goods to vendor |
+
+### Finance
+
+| Entity | Description |
+|--------|-------------|
+| **Down Payment** | Advance payment (applies to invoices/bills) |
+| **Payment Reminder** | Overdue payment notification |
 
 ### Inventory
 
@@ -68,14 +113,27 @@ Enter365 is a **Solar ERP system** for Indonesian solar installation companies. 
 | **Product** | Item in catalog (materials, labor) |
 | **BOM** | Bill of Materials (recipe for a system) |
 | **Stock** | Inventory levels by location |
+| **Stock Opname** | Physical inventory counting |
+| **Warehouse** | Storage location |
 | **Variant Group** | Pre-configured BOM options |
+
+### Manufacturing
+
+| Entity | Description |
+|--------|-------------|
+| **Work Order** | Manufacturing task with material tracking |
+| **Material Requisition** | Request materials for production |
+| **MRP Run** | Material Requirements Planning analysis |
+| **Subcontractor WO** | Outsourced manufacturing task |
 
 ### Projects
 
 | Entity | Description |
 |--------|-------------|
-| **Project** | Installation project |
-| **Work Order** | Task to be performed |
+| **Project** | Installation project with tasks, costs, revenue |
+| **Project Task** | Task within a project |
+| **Project Cost** | Cost entry for a project |
+| **Project Revenue** | Revenue entry for a project |
 
 ### Solar
 
@@ -93,8 +151,32 @@ Enter365 is a **Solar ERP system** for Indonesian solar installation companies. 
 
 ```
 Contact ──▶ Quotation ──▶ Invoice ──▶ Payment
+                │              │
+                │              ├──▶ Delivery Order
+                │              ├──▶ Sales Return
+                │              └──▶ Recurring Template
                 │
-                └──▶ Project ──▶ Work Order
+                └──▶ Project ──▶ Work Order ──▶ Material Requisition
+```
+
+### Purchase Flow
+
+```
+Purchase Order ──▶ Goods Receipt Note
+       │                    │
+       └──▶ Bill ──▶ Payment
+              │
+              └──▶ Purchase Return
+```
+
+### Accounting Flow
+
+```
+Invoice/Bill ──▶ Journal Entry ──▶ Account Ledger
+                                        │
+Payment ──▶ Bank Transaction ──▶ Bank Reconciliation
+                                        │
+                              Fiscal Period Close
 ```
 
 ### Solar Proposal Flow

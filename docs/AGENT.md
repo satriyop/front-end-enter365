@@ -59,8 +59,14 @@ FILE DOWNLOADS:   Use blob pattern with auth headers (NOT window.open)
 │        ├──→ UI Components (src/components/ui/*)                │
 │        │         └─→ Button, Input, Select, Card, Badge...    │
 │        │                                                        │
+│        ├──→ Document Components (src/components/document/*)    │
+│        │         └─→ DetailLayout, FormLayout, LineItems...    │
+│        │                                                        │
 │        ├──→ Feature Components (src/components/*)              │
-│        │         └─→ Charts, Maps, Solar calculators...        │
+│        │         └─→ Charts, Maps, Solar, Projects...          │
+│        │                                                        │
+│        ├──→ Services (src/services/*)                          │
+│        │         └─→ Calculation, Pricing, StateMachine...     │
 │        │                                                        │
 │        └──→ API Hooks (src/api/use*.ts)                        │
 │                 │                                               │
@@ -71,6 +77,7 @@ FILE DOWNLOADS:   Use blob pattern with auth headers (NOT window.open)
 │                                   └─→ Laravel API /api/v1      │
 │                                                                 │
 ├─────────────────────────────────────────────────────────────────┤
+│   Infrastructure: DI Container, EventBus, FeatureFlags, Logger │
 │   Auth State: Pinia (src/stores/auth.ts) ──→ localStorage      │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -336,16 +343,26 @@ await downloadFile('/reports/export', 'report.xlsx')
 
 ## Module Ownership Quick Lookup
 
-| Route Pattern | Module | Owner | Key Files |
-|--------------|--------|-------|-----------|
-| `/solar-proposals/*` | Solar | Solar team | `src/pages/solar-proposals/`, `src/components/solar/` |
-| `/quotations/*` | Sales | Sales team | `src/pages/quotations/`, `src/api/useQuotations.ts` |
-| `/invoices/*` | Sales | Sales team | `src/pages/invoices/`, `src/api/useInvoices.ts` |
-| `/boms/*` | Inventory | Inventory team | `src/pages/boms/`, `src/api/useBoms.ts` |
-| `/products/*` | Inventory | Inventory team | `src/pages/products/`, `src/api/useProducts.ts` |
-| `/contacts/*` | CRM | Sales team | `src/pages/contacts/`, `src/api/useContacts.ts` |
-| `/reports/*` | Finance | Finance team | `src/pages/reports/` |
-| `/settings/*` | Admin | Platform team | `src/pages/settings/` |
+| Route Pattern | Module | Key Files |
+|--------------|--------|-----------|
+| `/accounting/*` | Accounting | `src/pages/accounting/`, `src/api/useAccounts.ts`, `useJournalEntries.ts`, `useFiscalPeriods.ts` |
+| `/solar-proposals/*` | Solar | `src/pages/solar-proposals/`, `src/components/solar/` |
+| `/quotations/*` | Sales | `src/pages/quotations/`, `src/api/useQuotations.ts` |
+| `/invoices/*` | Sales | `src/pages/invoices/`, `src/api/useInvoices.ts` |
+| `/sales/*` | Sales | `src/pages/sales/` (delivery orders, sales returns, follow-up) |
+| `/purchasing/*` | Purchasing | `src/pages/purchasing/` (POs, GRNs, purchase returns) |
+| `/bills/*` | Purchasing | `src/pages/bills/`, `src/api/useBills.ts` |
+| `/payments/*` | Purchasing | `src/pages/payments/`, `src/api/usePayments.ts` |
+| `/finance/*` | Finance | `src/pages/finance/` (down payments, reminders) |
+| `/boms/*` | Inventory | `src/pages/boms/`, `src/api/useBoms.ts` |
+| `/products/*` | Inventory | `src/pages/products/`, `src/api/useProducts.ts` |
+| `/inventory/*` | Inventory | `src/pages/inventory/` (stock, opname, transfers) |
+| `/contacts/*` | CRM | `src/pages/contacts/`, `src/api/useContacts.ts` |
+| `/projects/*` | Projects | `src/pages/projects/`, `src/components/projects/` |
+| `/work-orders/*` | Manufacturing | `src/pages/work-orders/`, `src/api/useWorkOrders.ts` |
+| `/manufacturing/*` | Manufacturing | `src/pages/manufacturing/` (MR, MRP, subcontracting) |
+| `/reports/*` | Finance | `src/pages/reports/` |
+| `/settings/*` | Admin | `src/pages/settings/` (roles, warehouses, categories, NSFP) |
 
 ---
 
@@ -355,12 +372,15 @@ await downloadFile('/reports/export', 'report.xlsx')
 Finding what you need:
 
 API Types?        → src/api/types.ts (auto-generated from OpenAPI)
-API Hooks?        → src/api/use{Entity}.ts
-UI Components?    → src/components/ui/{Component}.vue
+API Hooks?        → src/api/use{Entity}.ts (47 hook files)
+UI Components?    → src/components/ui/{Component}.vue (30 components)
+Doc Patterns?     → src/components/document/ (DetailLayout, FormLayout, LineItems)
 Page Routes?      → src/router/index.ts
 Auth Logic?       → src/stores/auth.ts
-Shared Logic?     → src/composables/use{Feature}.ts
-Domain Logic?     → src/composables/use{Domain}Calculator.ts
+Shared Logic?     → src/composables/use{Feature}.ts (22 composables)
+Domain Services?  → src/services/{service}/ (calculation, pricing, state-machine)
+Infrastructure?   → src/infrastructure/ (container, events, features, logger)
+Workflows?        → src/services/state-machine/workflows/
 Formatters?       → src/utils/format.ts
 Validators?       → src/utils/validation.ts
 ```
