@@ -4,7 +4,7 @@
 
 State machines manage document workflows with formal state transitions, guards, and actions.
 
-Location: `src/services/state-machine/`
+Location: `src/services/state-machine/` (core engine) + `src/composables/useDocumentWorkflow/workflows/` (workflow definitions)
 
 ## Core Concepts
 
@@ -30,7 +30,28 @@ interface Transition<TState, TContext> {
 }
 ```
 
-## Available Workflows
+## Available Workflows (6)
+
+### State Machine Definitions (3 - in `src/services/state-machine/workflows/`)
+
+| Machine | Exports |
+|---------|---------|
+| `quotationMachineConfig` | `createQuotationMachine`, `QuotationContext`, `QuotationEvent` |
+| `invoiceMachineConfig` | `createInvoiceMachine`, `getPaymentTargetState`, `InvoiceContext`, `InvoiceEvent` |
+| `purchaseOrderMachineConfig` | `createPurchaseOrderMachine`, `PurchaseOrderContext`, `PurchaseOrderEvent` |
+
+### Workflow Composables (6 - in `src/composables/useDocumentWorkflow/workflows/`)
+
+| Workflow | File |
+|----------|------|
+| `quotationWorkflow` | `quotationWorkflow.ts` |
+| `invoiceWorkflow` | `invoiceWorkflow.ts` |
+| `billWorkflow` | `billWorkflow.ts` |
+| `purchaseOrderWorkflow` | `purchaseOrderWorkflow.ts` |
+| `workOrderWorkflow` | `workOrderWorkflow.ts` |
+| `solarProposalWorkflow` | `solarProposalWorkflow.ts` |
+
+## Workflow Diagrams
 
 ### Quotation Workflow
 ```
@@ -48,8 +69,6 @@ interface Transition<TState, TContext> {
                          └──────────┘         └───────────┘
 ```
 
-States: `draft` → `pending` → `approved` | `rejected` → `converted`
-
 ### Invoice Workflow
 ```
       ┌──────┐  SEND   ┌──────┐  RECORD_PAYMENT  ┌──────┐
@@ -63,7 +82,12 @@ States: `draft` → `pending` → `approved` | `rejected` → `converted`
                       └─────────┘
 ```
 
-States: `draft` → `sent` → `paid` | `overdue` → `paid`
+### Bill Workflow
+```
+      ┌──────┐  SUBMIT   ┌─────────┐  APPROVE  ┌──────────┐  PAY  ┌──────┐
+      │ draft │─────────▶│ pending │──────────▶│ approved │──────▶│ paid │
+      └──────┘           └─────────┘           └──────────┘       └──────┘
+```
 
 ### Purchase Order Workflow
 ```
@@ -78,55 +102,64 @@ States: `draft` → `sent` → `paid` | `overdue` → `paid`
                       └──────────┘               └──────────┘
 ```
 
-States: `draft` → `sent` → `partial` | `received`
+### Work Order Workflow
+```
+      ┌──────┐  START   ┌─────────────┐  COMPLETE  ┌───────────┐
+      │ draft │────────▶│ in_progress │───────────▶│ completed │
+      └──────┘          └─────────────┘            └───────────┘
+           │                   │
+           │ CANCEL            │ CANCEL
+           ▼                   ▼
+      ┌───────────┐      ┌───────────┐
+      │ cancelled │      │ cancelled │
+      └───────────┘      └───────────┘
+```
+
+### Solar Proposal Workflow
+```
+      ┌──────┐  SUBMIT  ┌───────────┐  REVIEW  ┌────────┐
+      │ draft │─────────▶│ submitted │─────────▶│ review │
+      └──────┘           └───────────┘          └────────┘
+                                                     │
+                                          ┌──────────┼──────────┐
+                                          │ APPROVE  │          │ REJECT
+                                          ▼          │          ▼
+                                     ┌──────────┐   │     ┌──────────┐
+                                     │ approved │   │     │ rejected │
+                                     └──────────┘   │     └──────────┘
+```
 
 ## Usage
 
 ### Basic Usage
 ```typescript
 import { StateMachine } from '@/services/state-machine'
-import { quotationMachine } from '@/services/state-machine/workflows'
+import { quotationMachineConfig } from '@/services/state-machine/workflows'
 
-// Create instance
-const machine = new StateMachine(quotationMachine)
+const machine = new StateMachine(quotationMachineConfig)
 
-// Check current state
 console.log(machine.currentState) // 'draft'
 
-// Check if transition is allowed
 if (machine.can('SUBMIT')) {
   machine.send('SUBMIT')
 }
 
-// Get available transitions
 const available = machine.getAvailableTransitions()
 // ['SUBMIT']
 ```
 
 ### With Context
 ```typescript
-const machine = new StateMachine({
-  ...quotationMachine,
-  context: {
-    documentId: 123,
-    userId: 456,
-    totalAmount: 1000000,
-  },
+import { createQuotationMachine } from '@/services/state-machine/workflows'
+
+const machine = createQuotationMachine({
+  documentId: 123,
+  userId: 456,
+  totalAmount: 1000000,
 })
 
 // Guards can access context
-const machineWithGuard = {
-  states: {
-    pending: {
-      on: {
-        APPROVE: {
-          target: 'approved',
-          guard: (ctx) => ctx.totalAmount < 10000000, // Only auto-approve under 10M
-        },
-      },
-    },
-  },
-}
+// e.g., auto-approve under 10M
 ```
 
 ### With Actions
@@ -138,7 +171,6 @@ const machineWithActions = {
         SUBMIT: {
           target: 'pending',
           actions: [
-            (ctx) => console.log('Submitting...'),
             (ctx) => eventBus.emit('document:status-changed', {
               documentType: 'quotation',
               id: ctx.documentId,
@@ -157,10 +189,9 @@ const machineWithActions = {
 }
 ```
 
-### Vue Composable
+### Vue Composable (Low-level)
 ```typescript
 import { useStateMachine } from '@/services/state-machine'
-import { quotationMachine } from '@/services/state-machine/workflows'
 
 const {
   currentState,
@@ -169,26 +200,16 @@ const {
   send,
   availableTransitions,
   history,
-} = useStateMachine(quotationMachine, {
+} = useStateMachine(quotationMachineConfig, {
   documentId: props.id,
 })
 
-// Reactive state
 watch(currentState, (newState) => {
   console.log('State changed to:', newState)
 })
-
-// In template
-<Button
-  v-for="event in availableTransitions"
-  :key="event"
-  @click="send(event)"
->
-  {{ event }}
-</Button>
 ```
 
-### Document Workflow Composable
+### Document Workflow Composable (High-level)
 ```typescript
 import { useDocumentWorkflow } from '@/composables'
 
@@ -199,17 +220,24 @@ const {
   transition,
   isTransitioning,
 } = useDocumentWorkflow({
-  workflow: 'quotation',
+  workflow: 'quotation',  // or 'invoice', 'bill', 'purchaseOrder', 'workOrder', 'solarProposal'
   initialState: quotation.value?.status ?? 'draft',
   context: { documentId: id },
   onTransition: async (from, to, context) => {
-    // Persist to backend
     await updateStatus.mutateAsync({
       id: context.documentId,
       status: to,
     })
   },
 })
+```
+
+### Invoice Special: Payment Target State
+```typescript
+import { getPaymentTargetState } from '@/services/state-machine/workflows'
+
+// Determines whether payment makes invoice 'paid' or stays 'sent'
+const targetState = getPaymentTargetState(invoiceContext)
 ```
 
 ## Creating a New Workflow
@@ -228,9 +256,7 @@ export interface MyContext {
 
 ### 2. Define the Machine
 ```typescript
-import type { StateMachineDefinition } from '../types'
-
-export const myWorkflowMachine: StateMachineDefinition<MyState, MyEvent, MyContext> = {
+export const myWorkflowMachineConfig: StateMachineDefinition<MyState, MyEvent, MyContext> = {
   id: 'my-workflow',
   initial: 'draft',
   context: { documentId: 0, userId: 0 },
@@ -248,12 +274,8 @@ export const myWorkflowMachine: StateMachineDefinition<MyState, MyEvent, MyConte
       },
       entry: [(ctx) => console.log('Workflow activated')],
     },
-    completed: {
-      // Terminal state - no transitions
-    },
-    cancelled: {
-      // Terminal state
-    },
+    completed: {},
+    cancelled: {},
   },
 }
 ```
@@ -261,20 +283,24 @@ export const myWorkflowMachine: StateMachineDefinition<MyState, MyEvent, MyConte
 ### 3. Export from Index
 ```typescript
 // src/services/state-machine/workflows/index.ts
-export { myWorkflowMachine } from './myWorkflow'
-export type { MyState, MyEvent, MyContext } from './myWorkflow'
+export { myWorkflowMachineConfig } from './myWorkflow'
 ```
 
-### 4. Register in Document Workflow (Optional)
+### 4. Create Workflow Composable (optional)
+```typescript
+// src/composables/useDocumentWorkflow/workflows/myWorkflow.ts
+import { myWorkflowMachineConfig } from '@/services/state-machine/workflows'
+
+export const myWorkflow = {
+  machine: myWorkflowMachineConfig,
+  // ... workflow-specific config
+}
+```
+
+### 5. Register in Workflow Index
 ```typescript
 // src/composables/useDocumentWorkflow/workflows/index.ts
-import { myWorkflowMachine } from '@/services/state-machine/workflows'
-
-export const workflows = {
-  quotation: quotationMachine,
-  invoice: invoiceMachine,
-  myDocument: myWorkflowMachine,  // Add here
-}
+export { myWorkflow } from './myWorkflow'
 ```
 
 ## State Visualization
@@ -282,14 +308,8 @@ export const workflows = {
 ```typescript
 import { visualizeStateMachine } from '@/services/state-machine'
 
-const mermaid = visualizeStateMachine(quotationMachine)
-// Returns Mermaid diagram syntax:
-// stateDiagram-v2
-//   [*] --> draft
-//   draft --> pending: SUBMIT
-//   pending --> approved: APPROVE
-//   pending --> rejected: REJECT
-//   approved --> converted: CONVERT
+const mermaid = visualizeStateMachine(quotationMachineConfig)
+// Returns Mermaid diagram syntax
 ```
 
 ## Best Practices

@@ -13,43 +13,68 @@ Location: `src/infrastructure/`
 | `events` | Pub/sub event bus | `import { eventBus, useEventBus } from '@/infrastructure'` |
 | `logger` | Structured logging | `import { logger, useLogger } from '@/infrastructure'` |
 | `container` | Dependency injection | `import { container, useService } from '@/infrastructure'` |
-| `errors` | Custom error types | `import { AppError, isApiError } from '@/infrastructure'` |
+| `errors` | 8 custom error types + guards | `import { AppError, isApiError } from '@/infrastructure'` |
 | `features` | Feature flags | `import { featureFlags, useFeatureFlag } from '@/infrastructure'` |
 | `performance` | Perf monitoring | `import { performanceMonitor, usePerformance } from '@/infrastructure'` |
+| `types` | Generic type utilities | `import type { PaginatedResponse } from '@/infrastructure'` |
+| `bootstrap` | Init + cleanup | `import { bootstrapInfrastructure, cleanupInfrastructure } from '@/infrastructure'` |
 
 ## Event Bus
 
 ### Purpose
 Decoupled pub/sub communication for observability and cross-component events.
 
-### Event Catalog
+### Event Catalog (24 events, 8 categories)
+
 ```typescript
-// Defined in src/infrastructure/events/types.ts
 interface EventCatalog {
-  // Document lifecycle
+  // Document lifecycle (4)
   'document:created': { documentType: DocumentType; id: number }
   'document:updated': { documentType: DocumentType; id: number; changes: string[] }
   'document:deleted': { documentType: DocumentType; id: number }
   'document:status-changed': { documentType: DocumentType; id: number; from: string; to: string }
 
-  // User actions
+  // Form events (4)
+  'form:submitted': { formName: string; success: boolean }
+  'form:validation-failed': { formName: string; errors: Record<string, string[]> }
+  'form:autosave-triggered': { formName: string }
+  'form:field-changed': { formName: string; field: string }
+
+  // API events (3)
+  'api:request-started': { method: string; url: string }
+  'api:request-completed': { method: string; url: string; status: number; duration: number }
+  'api:request-failed': { method: string; url: string; status: number; error: string }
+
+  // User events (3)
   'user:logged-in': { userId: number }
   'user:logged-out': { userId: number }
+  'user:action': { action: string; context?: Record<string, unknown> }
 
-  // Errors
+  // Navigation events (1)
+  'navigation:route-changed': { from: string; to: string }
+
+  // Error events (3)
   'error:unhandled': { error: Error; context?: string }
   'error:api': { status: number; message: string; url: string }
+  'error:validation': { formName: string; errors: Record<string, string[]> }
 
-  // Performance
-  'perf:slow-operation': { name: string; duration: number }
+  // UI events (3)
+  'ui:modal-opened': { modalName: string }
+  'ui:modal-closed': { modalName: string }
+  'ui:notification-shown': { type: string; message: string }
+
+  // Workflow events (3)
+  'workflow:transition-started': { workflow: string; from: string; to: string }
+  'workflow:transition-completed': { workflow: string; from: string; to: string }
+  'workflow:transition-blocked': { workflow: string; from: string; event: string; reason: string }
 }
 ```
 
 ### Usage
 ```typescript
-// Emit events
 import { eventBus } from '@/infrastructure'
 
+// Emit events
 eventBus.emit('document:created', {
   documentType: 'quotation',
   id: 123,
@@ -64,30 +89,24 @@ const unsubscribe = eventBus.on('document:created', (payload, meta) => {
 // Cleanup
 onUnmounted(() => unsubscribe())
 
-// Vue composable
+// Vue composable (auto-cleanup on component unmount)
 import { useEventBus } from '@/infrastructure'
 
 const { emit, on, once } = useEventBus()
-
-// Auto-cleanup on component unmount
 on('document:updated', handleUpdate)
 ```
 
-### Adding New Events
+### Types
 ```typescript
-// 1. Add to EventCatalog in types.ts
-interface EventCatalog {
-  'my:new-event': { data: string }
-}
-
-// 2. Emit the event
-eventBus.emit('my:new-event', { data: 'value' })
+type AppEvent<T> = { payload: T; meta: EventMeta }
+type EventMeta = { timestamp: number; source?: string }
+type EventHandler<T> = (payload: T, meta: EventMeta) => void
+type Unsubscribe = () => void
+type EventName = keyof EventCatalog
+type EventPayload<E extends EventName> = EventCatalog[E]
 ```
 
 ## Logger
-
-### Purpose
-Structured logging with log levels and transports.
 
 ### Log Levels
 ```typescript
@@ -111,7 +130,6 @@ log.info('Component mounted')  // [MyComponent] Component mounted
 
 ### Configuration
 ```typescript
-// In bootstrap.ts
 import { logger, ConsoleTransport, LOG_LEVELS } from '@/infrastructure'
 
 logger.addTransport(new ConsoleTransport({
@@ -120,14 +138,30 @@ logger.addTransport(new ConsoleTransport({
 }))
 ```
 
-## Dependency Injection Container
+### Types
+```typescript
+interface LogEntry {
+  level: LogLevel
+  message: string
+  data?: Record<string, unknown>
+  error?: Error
+  timestamp: number
+}
 
-### Purpose
-Manage service instances with lifecycle control.
+interface LogTransport {
+  log(entry: LogEntry): void
+}
+
+interface LoggerOptions {
+  transports?: LogTransport[]
+  minLevel?: LogLevel
+}
+```
+
+## Dependency Injection Container
 
 ### Service Tokens
 ```typescript
-// src/infrastructure/container/types.ts
 export const ServiceTokens = {
   Calculation: Symbol('CalculationService'),
   Status: Symbol('StatusService'),
@@ -139,7 +173,6 @@ export const ServiceTokens = {
 ### Registration
 ```typescript
 import { container, ServiceTokens } from '@/infrastructure'
-import { calculationService } from '@/services/calculation'
 
 // Register singleton
 container.register(ServiceTokens.Calculation, () => calculationService, 'singleton')
@@ -150,47 +183,101 @@ container.register(ServiceTokens.Export, () => new ExportService(), 'transient')
 
 ### Usage
 ```typescript
-import { useService, ServiceTokens } from '@/infrastructure'
+import { useService, createServiceHook, ServiceTokens } from '@/infrastructure'
 
 // In components
 const calcService = useService(ServiceTokens.Calculation)
 const result = calcService.calculate(items)
+
+// Create typed hook
+const useCalculationService = createServiceHook(ServiceTokens.Calculation)
 ```
 
-## Error Types
-
-### Custom Errors
+### Types
 ```typescript
-import {
-  AppError,
-  ValidationError,
-  ApiError,
-  NotFoundError,
-  AuthenticationError,
-  PermissionError,
-  NetworkError,
-} from '@/infrastructure'
-
-// Throwing
-throw new ValidationError('Invalid input', {
-  email: ['Email is required'],
-  password: ['Password too short'],
-})
-
-throw new ApiError('Server error', 500, { endpoint: '/api/users' })
+type ServiceFactory<T> = () => T
+type ServiceLifetime = 'singleton' | 'transient'
+type ServiceToken = symbol
 ```
 
-### Type Guards
+## Error Types (8 classes)
+
+### Error Hierarchy
+```typescript
+// Base error
+class AppError extends Error {
+  code: string
+  context?: Record<string, unknown>
+}
+
+// Validation with field-specific errors
+class ValidationError extends AppError {
+  fieldErrors: Record<string, string[]>
+  getFieldError(field: string): string | undefined
+  getFieldErrors(field: string): string[]
+  getErrorFields(): string[]
+  hasFieldError(field: string): boolean
+}
+
+// HTTP errors
+class ApiError extends AppError {
+  statusCode: number
+  endpoint?: string
+}
+
+// Resource not found
+class NotFoundError extends AppError {
+  resourceType?: string
+  resourceId?: string | number
+}
+
+// Auth failures
+class AuthenticationError extends AppError {
+  // codes: 'invalid_credentials', 'session_expired', 'token_invalid', 'unauthorized'
+}
+
+// Authorization errors
+class PermissionError extends AppError {
+  requiredPermission?: string
+}
+
+// Connection issues
+class NetworkError extends AppError {}
+
+// Operation timeouts
+class TimeoutError extends AppError {
+  timeoutMs?: number
+}
+```
+
+### Type Guards (11 functions)
 ```typescript
 import {
+  // Type guards
   isAppError,
   isValidationError,
   isApiError,
   isNotFoundError,
-  getErrorMessage,
-  extractValidationErrors,
-} from '@/infrastructure'
+  isAuthenticationError,
+  isPermissionError,
+  isNetworkError,
 
+  // Message extraction
+  getErrorMessage,           // (error, fallback?) => string
+
+  // Validation helpers
+  extractValidationErrors,   // (error) => Record<string, string[]> | null
+  flattenValidationErrors,   // (errors) => string[]
+  getFirstValidationError,   // (error, field?) => string | null
+
+  // Error metadata
+  getErrorCode,              // (error) => string | undefined
+  getStatusCode,             // (error) => number | null
+} from '@/infrastructure'
+```
+
+### Error Handling Pattern
+```typescript
 try {
   await saveDocument()
 } catch (error) {
@@ -199,6 +286,8 @@ try {
     // { email: ['Email is required'] }
   } else if (isApiError(error) && error.statusCode === 404) {
     router.push({ name: 'not-found' })
+  } else if (isNetworkError(error)) {
+    toast.error('Connection lost. Please check your internet.')
   } else {
     toast.error(getErrorMessage(error))
   }
@@ -206,9 +295,6 @@ try {
 ```
 
 ## Feature Flags
-
-### Purpose
-Safe, incremental feature rollouts with A/B testing support.
 
 ### Configuration
 ```typescript
@@ -219,8 +305,8 @@ export const featureFlagsConfig: FeatureFlagsConfig = {
       name: 'Quotation Form V2',
       description: 'Use refactored quotation form',
       enabled: false,
-      enabledForUsers: [1, 2],  // Test users
-      rolloutPercentage: 10,   // 10% of other users
+      enabledForUsers: [1, 2],
+      rolloutPercentage: 10,
     },
   },
 }
@@ -228,23 +314,22 @@ export const featureFlagsConfig: FeatureFlagsConfig = {
 
 ### Usage
 ```typescript
-import { featureFlags, useFeatureFlag } from '@/infrastructure'
+import { featureFlags, useFeatureFlag, useFeatureFlags, featureFlagComponent } from '@/infrastructure'
 
 // Direct check
-if (featureFlags.isEnabled('page:quotation-form-v2')) {
-  // Use new implementation
-}
+if (featureFlags.isEnabled('page:quotation-form-v2')) { ... }
 
 // Vue composable
 const { isEnabled } = useFeatureFlag('page:quotation-form-v2')
+
+// Multiple flags
+const { isEnabled: isV2, isEnabled: hasDarkMode } = useFeatureFlags()
 
 // In template
 <NewForm v-if="isEnabled" />
 <LegacyForm v-else />
 
 // Conditional component loading
-import { featureFlagComponent } from '@/infrastructure'
-
 const QuotationForm = featureFlagComponent(
   'page:quotation-form-v2',
   () => import('./QuotationFormV2.vue'),
@@ -261,12 +346,9 @@ const QuotationForm = featureFlagComponent(
 
 ## Performance Monitoring
 
-### Purpose
-Track operation durations and identify slow operations.
-
 ### Usage
 ```typescript
-import { performanceMonitor, usePerformance } from '@/infrastructure'
+import { performanceMonitor, usePerformance, useComponentLifecycle } from '@/infrastructure'
 
 // Direct usage
 performanceMonitor.mark('data-load')
@@ -280,14 +362,48 @@ const result = await performanceMonitor.measureAsync('api-call', async () => {
 
 // Vue composable
 const { track, trackAsync } = usePerformance()
-
 await trackAsync('fetchProducts', async () => {
   return await api.get('/products')
 })
 
+// Component lifecycle tracking
+useComponentLifecycle()  // auto-tracks mount/unmount durations
+
 // Get metrics
 const summary = performanceMonitor.getSummary()
 // { 'api-call': { count: 10, avg: 150, max: 500, min: 50 } }
+```
+
+### Types
+```typescript
+interface PerformanceMetric {
+  name: string
+  duration: number
+  timestamp: number
+}
+
+interface PerformanceSummary {
+  [name: string]: {
+    count: number
+    avg: number
+    max: number
+    min: number
+  }
+}
+```
+
+## Type Utilities
+
+```typescript
+import type {
+  RequireKeys, OptionalKeys,
+  WithId, WithTimestamps, WithSoftDelete,
+  PaginatedResponse, ListResponse, SingleResponse, MutationResult,
+  PaginatedFilters,
+  DocumentType, DocumentStatus,
+  LookupItem, SelectOption,
+  DeepPartial, Nullable, Maybe,
+} from '@/infrastructure'
 ```
 
 ## Bootstrap
@@ -295,7 +411,7 @@ const summary = performanceMonitor.getSummary()
 ### Initialization
 ```typescript
 // src/main.ts
-import { bootstrapInfrastructure } from '@/infrastructure'
+import { bootstrapInfrastructure, cleanupInfrastructure } from '@/infrastructure'
 import { featureFlagsConfig } from '@/config/featureFlags'
 
 // Initialize before app creation
@@ -306,6 +422,17 @@ bootstrapInfrastructure({
 
 const app = createApp(App)
 // ...
+
+// Cleanup on app unmount (optional)
+app.onUnmount(() => cleanupInfrastructure())
+```
+
+### Options
+```typescript
+interface BootstrapOptions {
+  logLevel?: LogLevel
+  featureFlags?: FeatureFlagsConfig
+}
 ```
 
 ## Global Error Handler

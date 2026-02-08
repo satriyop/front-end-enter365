@@ -8,87 +8,112 @@ Enter365 is a Vue 3 SPA (Single Page Application) for an ERP system. It follows 
 ```
 src/
 ├── api/                    # TanStack Query hooks for API calls
-│   ├── factory/            # CRUD hook factory
+│   ├── factory/            # CRUD hook factory (createCrudHooks)
 │   ├── queryClient.ts      # Query client configuration
 │   ├── queryKeys.ts        # Cache key factory
-│   └── use*.ts             # Module-specific hooks
+│   └── use*.ts             # 47 module-specific hooks
 │
 ├── components/
-│   ├── document/           # Document-specific components
-│   │   ├── LineItemsTable.vue
+│   ├── charts/             # Data visualization (Bar, Doughnut, Line, etc.)
+│   ├── document/           # Document layouts & shared components
 │   │   ├── DocumentFormLayout.vue
 │   │   ├── DocumentDetailLayout.vue
-│   │   └── TotalsSummary.vue
-│   └── ui/                 # Reusable UI primitives
-│       ├── Button.vue
-│       ├── Input.vue
-│       ├── Select.vue
-│       ├── Card.vue
-│       ├── Badge.vue
-│       ├── Modal.vue
-│       ├── VirtualList.vue
-│       └── ResponsiveTable.vue
+│   │   ├── ListPageContainer.vue
+│   │   ├── LineItemsTable.vue
+│   │   ├── TotalsSummary.vue
+│   │   └── WorkflowActions.vue
+│   ├── invoices/           # Invoice-specific (reminders, scheduling)
+│   ├── maps/               # LocationMapPicker
+│   ├── projects/           # Project tasks, costs, revenues
+│   ├── quotations/         # Follow-up, activity logging, BOM creation
+│   ├── solar/              # Solar proposal components
+│   └── ui/                 # 30+ reusable UI primitives
+│       ├── Button, Input, Select, Textarea, CurrencyInput
+│       ├── Card, StatCard, Badge, StatusBadge, Alert
+│       ├── Modal, ConfirmDialog, ConfirmationModal
+│       ├── DataTable, ResponsiveTable, VirtualTable, VirtualList
+│       ├── FilterBar, FilterGroup, FilterPresetDropdown
+│       ├── FormField, Pagination, Breadcrumbs
+│       ├── EmptyState, LoadingSkeleton, PageSkeleton
+│       ├── CopyButton, ExportButton, ThemeToggle, PullToRefresh
+│       └── Toast/          # Toast notification system
 │
 ├── composables/            # Vue composition functions
 │   ├── useDocumentForm/    # Form state & validation
 │   ├── useLineItems/       # Line item management
-│   ├── useDocumentWorkflow/# State machine integration
+│   ├── useDocumentWorkflow/# State machine integration (6 workflows)
 │   ├── useResourceList/    # List page patterns
-│   └── useResourceDetail/  # Detail page patterns
+│   ├── useResourceDetail/  # Detail page patterns
+│   └── 21 root-level composables (autosave, bulk, clipboard, etc.)
 │
 ├── config/                 # Application configuration
 │   └── featureFlags.ts     # Feature flag definitions
 │
 ├── infrastructure/         # Core infrastructure
-│   ├── events/             # Event bus (pub/sub)
-│   ├── logger/             # Structured logging
+│   ├── events/             # Event bus (24 events, 8 categories)
+│   ├── logger/             # Structured logging with transports
 │   ├── container/          # Dependency injection
-│   ├── errors/             # Custom error types
+│   ├── errors/             # 8 custom error types + 11 guards
 │   ├── features/           # Feature flag system
 │   ├── performance/        # Performance monitoring
-│   └── types/              # Generic type utilities
+│   ├── types/              # Generic type utilities
+│   └── bootstrap.ts        # Infrastructure initialization
 │
 ├── layouts/                # App layout components
 │   ├── AppLayout.vue
 │   └── AppSidebar.vue
 │
-├── pages/                  # Route page components
-│   ├── accounting/
+├── pages/                  # Route page components (26 directories)
+│   ├── accounting/         # accounts, bank-reconciliation, budgets,
+│   │                       # fiscal-periods, journal-entries, recurring-templates
 │   ├── bills/
+│   ├── boms/
+│   ├── company-profiles/
 │   ├── contacts/
-│   ├── finance/
+│   ├── finance/            # down-payments, reminders
+│   ├── inventory/
 │   ├── invoices/
-│   ├── manufacturing/
+│   ├── manufacturing/      # cost-optimization, material-requisitions,
+│   │                       # mrp, subcontractor-invoices, subcontractor-work-orders
+│   ├── payments/
 │   ├── products/
-│   ├── purchasing/
+│   ├── projects/
+│   ├── public/
+│   ├── purchasing/         # goods-receipt-notes, purchase-orders, purchase-returns
 │   ├── quotations/
-│   ├── reports/
-│   ├── sales/
-│   ├── settings/
-│   └── solar-proposals/
+│   ├── reports/            # 30+ report pages
+│   ├── sales/              # delivery-orders, follow-up, overdue, sales-returns
+│   ├── settings/           # accounting-policies, bom-templates, component-library,
+│   │                       # nsfp-ranges, product-categories, roles, rule-sets, warehouses
+│   ├── solar-proposals/
+│   ├── users/
+│   └── work-orders/
 │
-├── services/               # Domain services
+├── router/                 # Vue Router (250+ named routes)
+│   └── index.ts
+│
+├── services/               # Domain services (9 services)
 │   ├── calculation/        # Tax, discount, rounding strategies
-│   ├── document-number/    # Document numbering
-│   ├── export/             # PDF, Excel, CSV export
+│   ├── document-number/    # Document numbering strategies
+│   ├── export/             # CSV, Excel export strategies
 │   ├── line-items/         # Line item operations
-│   ├── notification/       # Toast, browser notifications
-│   ├── pricing/            # Price calculations
-│   ├── state-machine/      # Workflow state machines
-│   └── status/             # Status management
+│   ├── notification/       # Toast, browser push strategies
+│   ├── pricing/            # Price calculation strategies
+│   ├── state-machine/      # Workflow state machines (3 machines)
+│   └── status/             # Status management registry
 │
 ├── stores/                 # Pinia stores (minimal use)
 │   └── auth.ts
 │
 ├── test/                   # Test utilities
-│   ├── factories/          # Test data factories
+│   ├── factories/          # 5 test data factories
 │   └── mocks/              # API mock utilities
 │
 └── utils/                  # Utility functions
     ├── asyncComponent.ts   # Lazy loading
     ├── deprecation.ts      # Migration helpers
     ├── format.ts           # Formatters
-    └── validation.ts       # Validation rules
+    └── validation.ts       # Zod validation schemas
 ```
 
 ## Architecture Layers
@@ -151,6 +176,7 @@ src/
 ### Import Aliases
 ```typescript
 import { Button } from '@/components/ui'
+import { DocumentFormLayout } from '@/components/document'
 import { useDocumentForm } from '@/composables'
 import { calculationService } from '@/services'
 import { eventBus, logger } from '@/infrastructure'
@@ -167,7 +193,15 @@ export * from './strategies'
 export type * from './types'
 ```
 
+### Page Naming Convention
+Resources follow consistent naming:
+- `{Entity}ListPage.vue` - List view
+- `{Entity}FormPage.vue` - Create/Edit form
+- `{Entity}DetailPage.vue` - Detail view
+- Special: `{Entity}WizardPage.vue`, `{Entity}DashboardPage.vue`
+
 ## Backend API
 - Path: `/Users/satriyo/dev/laravel-project/enter365`
 - Laravel API with Sanctum authentication
 - REST endpoints at `/api/*`
+- Types auto-generated from Dedoc Scramble in `src/api/types.ts`

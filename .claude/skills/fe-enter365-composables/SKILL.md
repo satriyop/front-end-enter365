@@ -6,15 +6,43 @@ Composables encapsulate reusable Vue composition logic. They reduce boilerplate 
 
 Location: `src/composables/`
 
-## Available Composables
+## Composable Inventory
+
+### Core Composables (directory-based)
 
 | Composable | Purpose | Used In |
 |------------|---------|---------|
 | `useDocumentForm` | Form state, validation, submission | Form pages |
 | `useLineItems` | Line item CRUD with calculations | Document forms |
-| `useDocumentWorkflow` | State machine integration | Detail pages |
+| `useDocumentWorkflow` | State machine integration (6 workflows) | Detail pages |
 | `useResourceList` | List filtering, pagination, search | List pages |
 | `useResourceDetail` | Single resource CRUD | Detail pages |
+
+### Root-Level Composables (21 total)
+
+| Composable | Purpose |
+|------------|---------|
+| `useAutosave` | Auto-save form data with debounce |
+| `useBatteryCalculator` | Solar battery sizing calculations |
+| `useBulkSelection` | Multi-select with actions |
+| `useClipboard` | Copy to clipboard |
+| `useDarkMode` | Dark/light theme toggle |
+| `useDragAndDrop` | Drag and drop reordering |
+| `useFilterPresets` | Save/load filter configurations |
+| `useFinancingCalculator` | Solar financing calculations |
+| `useFormShortcuts` | Form keyboard shortcuts (Ctrl+S, etc.) |
+| `useGeocoding` | Address geocoding for maps |
+| `useKeyboardShortcuts` | Global keyboard shortcuts |
+| `useNotifications` | Browser notification integration |
+| `useOnlineStatus` | Online/offline detection |
+| `usePrint` | Print document functionality |
+| `usePullToRefresh` | Mobile pull-to-refresh |
+| `useRecentlyViewed` | Track recently viewed documents |
+| `useScenarioCalculator` | Solar what-if scenarios |
+| `useSessionTimeout` | Session timeout with warning |
+| `useUnsavedChanges` | Warn before navigation with unsaved changes |
+| `useValidatedForm` | Form validation with Zod schemas |
+| `useWebSocket` | WebSocket connection management |
 
 ## useDocumentForm
 
@@ -53,9 +81,9 @@ const {
 })
 ```
 
-### Options
+### Config & Return Types
 ```typescript
-interface UseDocumentFormOptions<T> {
+interface DocumentFormConfig<T> {
   initialData: T
   validationSchema?: ZodSchema<T>
   onSubmit: (data: T) => Promise<void>
@@ -63,16 +91,13 @@ interface UseDocumentFormOptions<T> {
   validateOnChange?: boolean  // default: true
   validateOnBlur?: boolean    // default: true
 }
-```
 
-### Returns
-```typescript
-interface UseDocumentFormReturn<T> {
-  form: Ref<T>                    // Reactive form data
-  errors: Ref<ValidationErrors>   // Field errors
-  isDirty: ComputedRef<boolean>   // Has unsaved changes
-  isSubmitting: Ref<boolean>      // Submission in progress
-  isValid: ComputedRef<boolean>   // Passes validation
+interface DocumentFormReturn<T> {
+  form: Ref<T>
+  errors: Ref<ValidationErrors>
+  isDirty: ComputedRef<boolean>
+  isSubmitting: Ref<boolean>
+  isValid: ComputedRef<boolean>
   handleSubmit: () => Promise<void>
   reset: (data?: T) => void
   setFieldValue: (field: keyof T, value: any) => void
@@ -114,7 +139,7 @@ const {
 })
 ```
 
-### Options
+### Options & Return Types
 ```typescript
 interface UseLineItemsOptions {
   initialItems?: BaseLineItem[]
@@ -124,16 +149,12 @@ interface UseLineItemsOptions {
   onItemsChange?: (items: BaseLineItem[]) => void
   validateItem?: (item: BaseLineItem) => string[]
 }
-```
 
-### Returns
-```typescript
 interface UseLineItemsReturn {
   items: Ref<BaseLineItem[]>
   calculations: ComputedRef<LineItemCalculation[]>
   totals: ComputedRef<DocumentTotals>
   errors: ComputedRef<Map<number, string[]>>
-
   addItem: (item?: Partial<BaseLineItem>) => void
   removeItem: (index: number) => void
   updateItem: (index: number, updates: Partial<BaseLineItem>) => void
@@ -148,6 +169,27 @@ interface UseLineItemsReturn {
 
 ### Purpose
 Integrates state machine for document status transitions.
+
+### Available Workflows (6)
+```typescript
+import {
+  quotationWorkflow,
+  invoiceWorkflow,
+  billWorkflow,
+  purchaseOrderWorkflow,
+  workOrderWorkflow,
+  solarProposalWorkflow,
+} from '@/composables'
+```
+
+| Workflow | States |
+|----------|--------|
+| `quotationWorkflow` | draft -> pending -> approved/rejected -> converted |
+| `invoiceWorkflow` | draft -> sent -> paid/overdue -> paid |
+| `billWorkflow` | draft -> pending -> approved -> paid |
+| `purchaseOrderWorkflow` | draft -> sent -> partial/received |
+| `workOrderWorkflow` | draft -> in_progress -> completed/cancelled |
+| `solarProposalWorkflow` | draft -> submitted -> review -> approved/rejected |
 
 ### Usage
 ```typescript
@@ -179,17 +221,28 @@ const {
 </Button>
 ```
 
-### Available Workflows
-- `quotation` - Draft → Pending → Approved/Rejected → Converted
-- `invoice` - Draft → Sent → Paid/Overdue/Cancelled
-- `bill` - Draft → Pending → Approved → Paid
-- `purchaseOrder` - Draft → Sent → Partial/Received/Cancelled
-- `workOrder` - Draft → InProgress → Completed/Cancelled
+### Config & Return Types
+```typescript
+interface WorkflowConfig {
+  workflow: string
+  initialState: string
+  context?: Record<string, any>
+  onTransition?: (from: string, to: string, context: any) => Promise<void>
+}
+
+interface WorkflowReturn {
+  currentState: Ref<string>
+  canTransition: (event: string) => boolean
+  availableTransitions: ComputedRef<string[]>
+  transition: (event: string) => Promise<void>
+  isTransitioning: Ref<boolean>
+}
+```
 
 ## useResourceList
 
 ### Purpose
-Manages list pages with filtering, sorting, pagination.
+Manages list pages with filtering, sorting, pagination. Filters auto-sync with URL query params.
 
 ### Usage
 ```typescript
@@ -216,11 +269,9 @@ const {
   },
   defaultSort: { field: 'created_at', order: 'desc' },
 })
-
-// Filters auto-sync with URL query params
 ```
 
-### Options
+### Options & Return Types
 ```typescript
 interface UseResourceListOptions<T, F> {
   queryKey: string[]
@@ -231,6 +282,10 @@ interface UseResourceListOptions<T, F> {
   syncWithUrl?: boolean      // default: true
   debounceMs?: number        // default: 300
 }
+
+// Exported types
+type BaseFilters, PaginationMeta, PaginatedResponse,
+     DeleteConfirmation, ResourceId
 ```
 
 ## useResourceDetail
@@ -268,6 +323,8 @@ src/composables/{composable-name}/
 └── __tests__/
     └── {composableName}.test.ts
 ```
+
+Root-level composables are single files: `src/composables/useMyComposable.ts`
 
 ### Template
 ```typescript

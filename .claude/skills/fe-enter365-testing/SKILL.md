@@ -20,8 +20,8 @@ Location: `src/test/`
 ```
 src/
 ├── test/
-│   ├── factories/          # Test data factories
-│   │   ├── index.ts
+│   ├── factories/          # Test data factories (5 factories)
+│   │   ├── index.ts        # Master exports + resetAllFactories()
 │   │   ├── contactFactory.ts
 │   │   ├── productFactory.ts
 │   │   ├── lineItemFactory.ts
@@ -38,6 +38,16 @@ src/
 
 ## Test Factories
 
+### Available Factories
+
+| Factory | Creates | Variants |
+|---------|---------|----------|
+| `contactFactory` | Contact, Customer, Vendor | `createContact`, `createContacts`, `createCustomer`, `createVendor` |
+| `productFactory` | Product | `createProduct`, `createProducts` |
+| `lineItemFactory` | LineItem | `createLineItem`, `createLineItems` |
+| `quotationFactory` | Quotation | `createQuotation`, `createQuotations`, `createDraftQuotation`, `createSubmittedQuotation`, `createApprovedQuotation`, `createExpiredQuotation` |
+| `invoiceFactory` | Invoice | `createInvoice`, `createInvoices`, `createDraftInvoice`, `createSentInvoice`, `createPartiallyPaidInvoice`, `createPaidInvoice`, `createOverdueInvoice` |
+
 ### Usage
 ```typescript
 import {
@@ -48,17 +58,26 @@ import {
   createLineItem,
   createLineItems,
   createQuotation,
+  createDraftQuotation,
+  createSubmittedQuotation,
+  createApprovedQuotation,
+  createExpiredQuotation,
   createInvoice,
-  resetFactories,
+  createDraftInvoice,
+  createSentInvoice,
+  createPartiallyPaidInvoice,
+  createPaidInvoice,
+  createOverdueInvoice,
+  resetAllFactories,
 } from '@/test/factories'
 
 // Create single item
 const contact = createContact()
-const customer = createCustomer()  // contact with type: 'customer'
+const customer = createCustomer()
 const product = createProduct({ price: 50000 })
 
 // Create multiple items
-const lineItems = createLineItems(3)  // 3 line items with auto-incrementing IDs
+const lineItems = createLineItems(3)
 
 // Create with overrides
 const quotation = createQuotation({
@@ -67,17 +86,28 @@ const quotation = createQuotation({
   items: createLineItems(5),
 })
 
+// Status-specific shortcuts
+const draft = createDraftQuotation()
+const submitted = createSubmittedQuotation()
+const approved = createApprovedQuotation()
+const expired = createExpiredQuotation()
+
+// Invoice variants
+const draftInvoice = createDraftInvoice()
+const sentInvoice = createSentInvoice()
+const partiallyPaid = createPartiallyPaidInvoice()
+const paidInvoice = createPaidInvoice()
+const overdueInvoice = createOverdueInvoice()
+
 // Reset IDs between tests
 beforeEach(() => {
-  resetFactories()
+  resetAllFactories()
 })
 ```
 
 ### Factory Pattern
 ```typescript
 // src/test/factories/contactFactory.ts
-import type { Contact } from '@/types'
-
 let contactIdCounter = 1
 
 export function resetContactFactory() {
@@ -106,13 +136,24 @@ export function createCustomer(overrides: Partial<Contact> = {}): Contact {
 export function createVendor(overrides: Partial<Contact> = {}): Contact {
   return createContact({ type: 'vendor', ...overrides })
 }
+
+export function createContacts(count: number, overrides: Partial<Contact> = {}): Contact[] {
+  return Array.from({ length: count }, () => createContact(overrides))
+}
+```
+
+### Exported Types
+```typescript
+// Quotation types
+import type { Quotation, LabelValue, QuotationStatus } from '@/test/factories'
+
+// Invoice types
+import type { Invoice, InvoiceStatus } from '@/test/factories'
 ```
 
 ### Creating a New Factory
 ```typescript
 // src/test/factories/myEntityFactory.ts
-import type { MyEntity } from '@/types'
-
 let idCounter = 1
 
 export function resetMyEntityFactory() {
@@ -124,13 +165,22 @@ export function createMyEntity(overrides: Partial<MyEntity> = {}): MyEntity {
   return {
     id,
     name: `Entity ${id}`,
-    // ... default values
     ...overrides,
   }
 }
 
-// Export from index.ts
+// Add to index.ts
 export { createMyEntity, resetMyEntityFactory } from './myEntityFactory'
+
+// Update resetAllFactories()
+export function resetAllFactories() {
+  resetContactFactory()
+  resetProductFactory()
+  resetLineItemFactory()
+  resetQuotationFactory()
+  resetInvoiceFactory()
+  resetMyEntityFactory()  // Add here
+}
 ```
 
 ## API Mocks
@@ -178,7 +228,7 @@ import MyComponent from '../MyComponent.vue'
 
 describe('MyComponent', () => {
   beforeEach(() => {
-    // Reset state if needed
+    resetAllFactories()
   })
 
   it('renders correctly', () => {
@@ -226,8 +276,17 @@ it('uses injected values', () => {
       },
     },
   })
+})
+```
 
-  // assertions
+### Testing with data-testid
+```typescript
+// Components use data-testid for reliable E2E selectors
+it('finds elements by testid', () => {
+  const wrapper = mount(MyComponent)
+
+  expect(wrapper.find('[data-testid="submit-btn"]').exists()).toBe(true)
+  expect(wrapper.find('[data-testid="total-amount"]').text()).toContain('1,000')
 })
 ```
 
@@ -279,7 +338,6 @@ describe('PPNStrategy', () => {
 
 ## Composable Testing
 
-### Testing Composables
 ```typescript
 import { describe, it, expect, vi } from 'vitest'
 import { useLineItems } from '../useLineItems'
@@ -321,6 +379,26 @@ describe('useLineItems', () => {
     addItem()
 
     expect(onChange).toHaveBeenCalled()
+  })
+})
+```
+
+## State Machine Testing
+
+```typescript
+describe('quotationMachine', () => {
+  it('transitions from draft to pending', () => {
+    const machine = createQuotationMachine({ documentId: 1, userId: 1 })
+
+    expect(machine.currentState).toBe('draft')
+    machine.send('SUBMIT')
+    expect(machine.currentState).toBe('pending')
+  })
+
+  it('blocks invalid transitions', () => {
+    const machine = createQuotationMachine({ documentId: 1, userId: 1 })
+
+    expect(machine.can('APPROVE')).toBe(false)  // Can't approve from draft
   })
 })
 ```
@@ -377,3 +455,4 @@ describe('ComponentName', () => {
 5. **No Implementation Details**: Test behavior, not implementation
 6. **Mock External Dependencies**: API calls, timers, etc.
 7. **Use Factories**: Never hardcode test data
+8. **data-testid**: Use for E2E-reliable element selection

@@ -13,7 +13,92 @@ Location: `src/api/`
 | `queryClient.ts` | Query client configuration |
 | `queryKeys.ts` | Cache key factory |
 | `factory/createCrudHooks.ts` | CRUD hook generator |
-| `use*.ts` | Module-specific hooks |
+| `use*.ts` | 47 module-specific hooks |
+
+## API Hook Inventory (47 hooks)
+
+### Documents & Transactions
+| Hook | Module |
+|------|--------|
+| `useQuotations` | Quotations CRUD + statistics |
+| `useInvoices` | Invoices CRUD + statistics |
+| `useBills` | Bills CRUD + statistics |
+| `usePayments` | Payments CRUD |
+| `useDeliveryOrders` | Delivery orders |
+| `useDownPayments` | Down payments |
+| `useSalesReturns` | Sales returns |
+| `usePurchaseOrders` | Purchase orders CRUD |
+| `usePurchaseReturns` | Purchase returns |
+| `useGoodsReceiptNotes` | GRN CRUD |
+
+### Contacts & Products
+| Hook | Module |
+|------|--------|
+| `useContacts` | Contacts with credit status |
+| `useProducts` | Products with low stock |
+| `useProductCategories` | Product categories |
+
+### Accounting
+| Hook | Module |
+|------|--------|
+| `useAccounts` | Chart of accounts |
+| `useJournalEntries` | Journal entries |
+| `useBudgets` | Budgets |
+| `useFiscalPeriods` | Fiscal periods |
+| `useAccountingPolicies` | Accounting policies |
+| `useNsfpRanges` | NSFP range management |
+| `useRecurringTemplates` | Recurring templates |
+| `useBankTransactions` | Bank transactions |
+
+### Manufacturing
+| Hook | Module |
+|------|--------|
+| `useWorkOrders` | Work orders with actions |
+| `useBoms` | Bills of materials |
+| `useBomTemplates` | BOM templates |
+| `useMaterialRequisitions` | Material requisitions |
+| `useSubcontractorWorkOrders` | Subcontractor work orders |
+| `useSubcontractorInvoices` | Subcontractor invoices |
+| `useMrp` | MRP planning |
+| `useComponentStandards` | Component standards |
+
+### Projects & CRM
+| Hook | Module |
+|------|--------|
+| `useProjects` | Projects with progress |
+| `useProjectTasks` | Project tasks |
+| `useQuotationFollowUp` | Follow-up CRM dashboard |
+
+### Inventory
+| Hook | Module |
+|------|--------|
+| `useInventory` | Inventory management |
+| `useStockOpnames` | Stock opnames |
+| `useWarehouses` | Warehouse settings |
+
+### Reports & Dashboard
+| Hook | Module |
+|------|--------|
+| `useReports` | 30+ report types |
+| `useDashboard` | Dashboard summary + activities |
+| `useExports` | CSV/Excel exports |
+
+### Admin & Settings
+| Hook | Module |
+|------|--------|
+| `useUsers` | User management |
+| `useRoles` | Role management |
+| `useCompanyProfiles` | Company profiles |
+| `useSpecRuleSets` | Specification rule sets |
+
+### Utilities
+| Hook | Module |
+|------|--------|
+| `useAttachments` | File attachments |
+| `useGlobalSearch` | Global search |
+| `usePaymentReminders` | Payment reminders |
+| `useSolarProposals` | Solar proposals |
+| `usePublicSolarCalculator` | Public solar calculator |
 
 ## Query Client Configuration
 
@@ -37,33 +122,43 @@ export const queryClient = new QueryClient({
 
 ## Query Keys Factory
 
-### Purpose
-Consistent cache keys for proper cache invalidation.
-
-### Pattern
+### All Modules
 ```typescript
 // src/api/queryKeys.ts
 export const queryKeys = {
-  contacts: {
-    all: ['contacts'] as const,
-    lists: () => [...queryKeys.contacts.all, 'list'] as const,
-    list: (filters?: ContactFilters) => [...queryKeys.contacts.lists(), filters] as const,
-    details: () => [...queryKeys.contacts.all, 'detail'] as const,
-    detail: (id: number | string) => [...queryKeys.contacts.details(), id] as const,
-    lookup: (params?: LookupParams) => [...queryKeys.contacts.all, 'lookup', params] as const,
-  },
-  // ... other modules
+  contacts:    { all, lists, list, details, detail, lookup },
+  products:    { all, lists, list, details, detail, lookup, lowStock },
+  quotations:  { all, lists, list, details, detail, statistics },
+  invoices:    { all, lists, list, details, detail, statistics },
+  bills:       { all, lists, list, details, detail, statistics },
+  workOrders:  { all, lists, list, details, detail },
+  projects:    { all, lists, list, details, detail, lookup },
+  reports:     { profitLoss, balanceSheet, trialBalance, receivableAging, payableAging },
+  dashboard:   { summary, recentActivities },
+  user:        { all, current, permissions },
 }
 ```
 
-### Usage
+### Filter Types
+```typescript
+export type BaseFilters = { search?: string; page?: number; per_page?: number }
+export type ContactFilters = BaseFilters & { type?: string; is_active?: boolean }
+export type ProductFilters = BaseFilters & { category_id?: number; is_active?: boolean }
+export type QuotationFilters = BaseFilters & { status?: string; contact_id?: number }
+export type InvoiceFilters = BaseFilters & { status?: string; contact_id?: number }
+export type BillFilters = BaseFilters & { status?: string; contact_id?: number }
+export type WorkOrderFilters = BaseFilters & { status?: string }
+export type LookupParams = { search?: string; limit?: number }
+```
+
+### Usage Pattern
 ```typescript
 import { queryKeys } from '@/api/queryKeys'
 
 // In queries
 useQuery({
-  queryKey: queryKeys.contacts.list({ type: 'customer' }),
-  queryFn: () => fetchContacts({ type: 'customer' }),
+  queryKey: computed(() => queryKeys.contacts.list(filters?.value)),
+  queryFn: () => fetchContacts(filters?.value),
 })
 
 // Invalidation
@@ -81,7 +176,6 @@ Generate consistent CRUD hooks for any resource.
 ```typescript
 // src/api/useQuotations.ts
 import { createCrudHooks } from './factory/createCrudHooks'
-import type { Quotation, QuotationFormData } from '@/types'
 
 const {
   useList,
@@ -106,15 +200,14 @@ export {
 }
 ```
 
-## Module-Specific Hooks
+## Module-Specific Hook Pattern
 
-### Structure
+### Full Example
 ```typescript
 // src/api/useQuotations.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { api } from './client'
 import { queryKeys } from './queryKeys'
-import type { Quotation, QuotationFormData, PaginatedResponse } from '@/types'
 
 // List query
 export function useQuotations(filters?: Ref<QuotationFilters>) {
@@ -144,7 +237,6 @@ export function useQuotation(id: Ref<number | string>) {
 // Create mutation
 export function useCreateQuotation() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async (data: QuotationFormData) => {
       const response = await api.post<Quotation>('/quotations', data)
@@ -156,40 +248,9 @@ export function useCreateQuotation() {
   })
 }
 
-// Update mutation
-export function useUpdateQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, ...data }: { id: number } & Partial<QuotationFormData>) => {
-      const response = await api.patch<Quotation>(`/quotations/${id}`, data)
-      return response.data
-    },
-    onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.quotations.detail(id) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.quotations.lists() })
-    },
-  })
-}
-
-// Delete mutation
-export function useDeleteQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (id: number) => {
-      await api.delete(`/quotations/${id}`)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.quotations.all })
-    },
-  })
-}
-
 // Status update
 export function useUpdateQuotationStatus() {
   const queryClient = useQueryClient()
-
   return useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const response = await api.patch<Quotation>(`/quotations/${id}/status`, { status })
@@ -217,127 +278,6 @@ export function useQuotationLookup(params?: Ref<LookupParams>) {
 }
 ```
 
-## Usage in Components
-
-### List Page
-```typescript
-<script setup lang="ts">
-import { ref } from 'vue'
-import { useQuotations } from '@/api/useQuotations'
-
-const filters = ref({
-  search: '',
-  status: '',
-  page: 1,
-})
-
-const { data, isLoading, error, refetch } = useQuotations(filters)
-</script>
-
-<template>
-  <div v-if="isLoading">Loading...</div>
-  <div v-else-if="error">Error: {{ error.message }}</div>
-  <div v-else>
-    <QuotationTable :items="data.data" />
-    <Pagination
-      :current-page="data.current_page"
-      :total="data.total"
-      @change="(page) => filters.page = page"
-    />
-  </div>
-</template>
-```
-
-### Form Page
-```typescript
-<script setup lang="ts">
-import { useQuotation, useUpdateQuotation } from '@/api/useQuotations'
-
-const route = useRoute()
-const router = useRouter()
-const id = computed(() => route.params.id)
-
-const { data: quotation, isLoading } = useQuotation(id)
-const updateMutation = useUpdateQuotation()
-
-async function handleSubmit(formData: QuotationFormData) {
-  await updateMutation.mutateAsync({ id: Number(id.value), ...formData })
-  router.push({ name: 'quotation-detail', params: { id: id.value } })
-}
-</script>
-```
-
-## Optimistic Updates
-
-```typescript
-export function useUpdateQuotation() {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async ({ id, ...data }) => {
-      const response = await api.patch(`/quotations/${id}`, data)
-      return response.data
-    },
-
-    // Optimistic update
-    onMutate: async ({ id, ...data }) => {
-      // Cancel outgoing refetches
-      await queryClient.cancelQueries({ queryKey: queryKeys.quotations.detail(id) })
-
-      // Snapshot previous value
-      const previous = queryClient.getQueryData(queryKeys.quotations.detail(id))
-
-      // Optimistically update
-      queryClient.setQueryData(queryKeys.quotations.detail(id), (old: Quotation) => ({
-        ...old,
-        ...data,
-      }))
-
-      return { previous }
-    },
-
-    // Rollback on error
-    onError: (err, { id }, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(queryKeys.quotations.detail(id), context.previous)
-      }
-    },
-
-    // Always refetch after error or success
-    onSettled: (_, __, { id }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.quotations.detail(id) })
-    },
-  })
-}
-```
-
-## Prefetching
-
-```typescript
-import { useQueryClient } from '@tanstack/vue-query'
-
-// Prefetch on hover
-function usePrefetchQuotation() {
-  const queryClient = useQueryClient()
-
-  return (id: number) => {
-    queryClient.prefetchQuery({
-      queryKey: queryKeys.quotations.detail(id),
-      queryFn: () => api.get(`/quotations/${id}`).then(r => r.data),
-      staleTime: 60 * 1000, // Consider fresh for 1 minute
-    })
-  }
-}
-
-// Usage
-const prefetch = usePrefetchQuotation()
-
-<tr
-  v-for="quotation in quotations"
-  @mouseenter="prefetch(quotation.id)"
->
-```
-
 ## File Downloads
 
 **IMPORTANT**: Always use blob pattern for authenticated downloads.
@@ -350,7 +290,6 @@ export function useDownloadInvoice() {
         responseType: 'blob',
       })
 
-      // Extract filename from header
       const contentDisposition = response.headers['content-disposition']
       let filename = `invoice-${id}.pdf`
       if (contentDisposition) {
@@ -358,7 +297,6 @@ export function useDownloadInvoice() {
         if (match) filename = match[1]
       }
 
-      // Trigger download
       const blob = new Blob([response.data])
       const link = document.createElement('a')
       link.href = URL.createObjectURL(blob)
@@ -372,7 +310,34 @@ export function useDownloadInvoice() {
 }
 ```
 
+## Export as Mutation
+
+Use `useMutation` for file exports (action, not data fetching):
+
+```typescript
+export function useExportPriceList() {
+  return useMutation({
+    mutationFn: async () => {
+      const response = await api.get('/products-price-list', { responseType: 'blob' })
+      const blob = new Blob([response.data], { type: 'text/csv' })
+      const link = document.createElement('a')
+      link.href = URL.createObjectURL(blob)
+      link.download = `price-list-${new Date().toISOString().split('T')[0]}.csv`
+      link.click()
+      URL.revokeObjectURL(link.href)
+      return true
+    },
+  })
+}
+```
+
 ## Creating New API Module
+
+### Checklist
+1. Add query keys to `queryKeys.ts`
+2. Create `use{Module}.ts` with CRUD hooks
+3. Use `createCrudHooks` for standard resources
+4. Add custom hooks for non-standard operations
 
 ### Template
 ```typescript
@@ -381,13 +346,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 import { api } from './client'
 import { queryKeys } from './queryKeys'
-import type { MyEntity, MyEntityFormData } from '@/types'
 
-// 1. Add to queryKeys.ts
+// 1. Add to queryKeys.ts first:
 // myModule: {
 //   all: ['my-module'] as const,
 //   lists: () => [...queryKeys.myModule.all, 'list'] as const,
-//   ...
+//   list: (filters?) => [...queryKeys.myModule.lists(), filters] as const,
+//   details: () => [...queryKeys.myModule.all, 'detail'] as const,
+//   detail: (id) => [...queryKeys.myModule.details(), id] as const,
 // }
 
 export function useMyModuleList(filters?: Ref<Filters>) {
@@ -399,32 +365,6 @@ export function useMyModuleList(filters?: Ref<Filters>) {
     },
   })
 }
-
-export function useMyModuleDetail(id: Ref<number | string>) {
-  return useQuery({
-    queryKey: computed(() => queryKeys.myModule.detail(id.value)),
-    queryFn: async () => {
-      const response = await api.get(`/my-module/${id.value}`)
-      return response.data
-    },
-    enabled: computed(() => !!id.value),
-  })
-}
-
-export function useCreateMyModule() {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: async (data: MyEntityFormData) => {
-      const response = await api.post('/my-module', data)
-      return response.data
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.myModule.lists() })
-    },
-  })
-}
-
-// ... update, delete mutations
 ```
 
 ## Best Practices
@@ -436,3 +376,4 @@ export function useCreateMyModule() {
 5. **Stale Time**: Increase for stable data (lookups, settings)
 6. **Error Handling**: Let error boundaries catch query errors
 7. **Blob Downloads**: Always use blob for authenticated file downloads
+8. **Exports as Mutations**: Use `useMutation` for downloads/exports
