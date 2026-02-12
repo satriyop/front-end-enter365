@@ -97,7 +97,7 @@ function formatAmount(amount: number): string {
         <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
           <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ report.report_name }}</h2>
           <p class="text-slate-500 dark:text-slate-400">
-            Period: {{ report.period?.start_date || startDate }} to {{ report.period?.end_date || endDate }}
+            Period: {{ report.period_start || startDate }} to {{ report.period_end || endDate }}
           </p>
         </div>
 

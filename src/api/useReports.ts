@@ -62,10 +62,8 @@ export interface IncomeStatementSection {
 
 export interface IncomeStatementReport {
   report_name: string
-  period: {
-    start_date: string
-    end_date: string
-  }
+  period_start: string
+  period_end: string
   revenue: IncomeStatementSection[]
   expenses: IncomeStatementSection[]
   total_revenue: number
@@ -756,8 +754,8 @@ export function useTrialBalance(asOfDate?: Ref<string | undefined>) {
     queryKey: ['reports', 'trial-balance', asOfDate],
     queryFn: async () => {
       const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<TrialBalanceReport>('/reports/trial-balance', { params })
-      return response.data
+      const response = await api.get<{ data: TrialBalanceReport }>('/reports/trial-balance', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
@@ -768,8 +766,8 @@ export function useBalanceSheet(asOfDate?: Ref<string | undefined>) {
     queryKey: ['reports', 'balance-sheet', asOfDate],
     queryFn: async () => {
       const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<BalanceSheetReport>('/reports/balance-sheet', { params })
-      return response.data
+      const response = await api.get<{ data: BalanceSheetReport }>('/reports/balance-sheet', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -785,8 +783,8 @@ export function useIncomeStatement(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<IncomeStatementReport>('/reports/income-statement', { params })
-      return response.data
+      const response = await api.get<{ data: IncomeStatementReport }>('/reports/income-statement', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -802,8 +800,8 @@ export function useCashFlow(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<CashFlowReport>('/reports/cash-flow', { params })
-      return response.data
+      const response = await api.get<{ data: CashFlowReport }>('/reports/cash-flow', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -814,8 +812,8 @@ export function useReceivablesAging(asOfDate?: Ref<string | undefined>) {
     queryKey: ['reports', 'receivables-aging', asOfDate],
     queryFn: async () => {
       const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<AgingReport>('/reports/receivable-aging', { params })
-      return response.data
+      const response = await api.get<{ data: AgingReport }>('/reports/receivable-aging', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -826,8 +824,8 @@ export function usePayablesAging(asOfDate?: Ref<string | undefined>) {
     queryKey: ['reports', 'payables-aging', asOfDate],
     queryFn: async () => {
       const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<AgingReport>('/reports/payable-aging', { params })
-      return response.data
+      const response = await api.get<{ data: AgingReport }>('/reports/payable-aging', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -843,8 +841,8 @@ export function useGeneralLedger(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<GeneralLedgerReport>('/reports/general-ledger', { params })
-      return response.data
+      const response = await api.get<{ data: GeneralLedgerReport }>('/reports/general-ledger', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -860,8 +858,8 @@ export function usePpnSummary(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<PpnSummaryReport>('/reports/ppn-summary', { params })
-      return response.data
+      const response = await api.get<{ data: PpnSummaryReport }>('/reports/ppn-summary', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -873,10 +871,10 @@ export function usePpnMonthly(year?: Ref<number | undefined>) {
   return useQuery({
     queryKey: ['reports', 'ppn-monthly', yearParam],
     queryFn: async () => {
-      const response = await api.get<PpnMonthlyReport>('/reports/ppn-monthly', {
+      const response = await api.get<{ data: PpnMonthlyReport }>('/reports/ppn-monthly', {
         params: { year: yearParam.value }
       })
-      return response.data
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -892,8 +890,8 @@ export function useDailyCashMovement(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<DailyCashMovementReport>('/reports/daily-cash-movement', { params })
-      return response.data
+      const response = await api.get<{ data: DailyCashMovementReport }>('/reports/daily-cash-movement', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -907,8 +905,8 @@ export function useContactAging(
     queryKey: ['reports', 'contact-aging', contactId, asOfDate],
     queryFn: async () => {
       const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<ContactAgingReport>(`/reports/contacts/${contactId.value}/aging`, { params })
-      return response.data
+      const response = await api.get<{ data: ContactAgingReport }>(`/reports/contacts/${contactId.value}/aging`, { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!contactId.value),
@@ -920,8 +918,8 @@ export function useInventorySummary(warehouseId?: Ref<number | undefined>) {
     queryKey: ['reports', 'inventory-summary', warehouseId],
     queryFn: async () => {
       const params = warehouseId?.value ? { warehouse_id: warehouseId.value } : {}
-      const response = await api.get<InventorySummaryReport>('/inventory/summary', { params })
-      return response.data
+      const response = await api.get<{ data: InventorySummaryReport }>('/inventory/summary', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -939,8 +937,8 @@ export function useMovementSummary(
       if (startDate.value) params.start_date = startDate.value
       if (endDate.value) params.end_date = endDate.value
       if (warehouseId?.value) params.warehouse_id = warehouseId.value
-      const response = await api.get<MovementSummaryReport>('/inventory/movement-summary', { params })
-      return response.data
+      const response = await api.get<{ data: MovementSummaryReport }>('/inventory/movement-summary', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!startDate.value && !!endDate.value),
@@ -957,8 +955,8 @@ export function useChangesInEquity(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<ChangesInEquityReport>('/reports/changes-in-equity', { params })
-      return response.data
+      const response = await api.get<{ data: ChangesInEquityReport }>('/reports/changes-in-equity', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -974,8 +972,8 @@ export function useInputTaxList(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<InputTaxListReport>('/reports/input-tax-list', { params })
-      return response.data
+      const response = await api.get<{ data: InputTaxListReport }>('/reports/input-tax-list', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -991,8 +989,8 @@ export function useTaxInvoiceList(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<TaxInvoiceListReport>('/reports/tax-invoice-list', { params })
-      return response.data
+      const response = await api.get<{ data: TaxInvoiceListReport }>('/reports/tax-invoice-list', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1008,8 +1006,8 @@ export function useCogsSummary(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<CogsSummaryReport>('/reports/cogs-summary', { params })
-      return response.data
+      const response = await api.get<{ data: CogsSummaryReport }>('/reports/cogs-summary', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1025,8 +1023,8 @@ export function useCogsByCategory(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<CogsByCategoryReport>('/reports/cogs-by-category', { params })
-      return response.data
+      const response = await api.get<{ data: CogsByCategoryReport }>('/reports/cogs-by-category', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1042,8 +1040,8 @@ export function useCogsByProduct(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<CogsByProductReport>('/reports/cogs-by-product', { params })
-      return response.data
+      const response = await api.get<{ data: CogsByProductReport }>('/reports/cogs-by-product', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1055,10 +1053,10 @@ export function useCogsMonthlyTrend(year?: Ref<number | undefined>) {
   return useQuery({
     queryKey: ['reports', 'cogs-monthly-trend', yearParam],
     queryFn: async () => {
-      const response = await api.get<CogsMonthlyTrendReport>('/reports/cogs-monthly-trend', {
+      const response = await api.get<{ data: CogsMonthlyTrendReport }>('/reports/cogs-monthly-trend', {
         params: { year: yearParam.value }
       })
-      return response.data
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1074,8 +1072,8 @@ export function useCostVariance(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<CostVarianceReport>('/reports/cost-variance', { params })
-      return response.data
+      const response = await api.get<{ data: CostVarianceReport }>('/reports/cost-variance', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1093,8 +1091,8 @@ export function useProjectProfitability(
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
       if (status?.value) params.status = status.value
-      const response = await api.get<ProjectProfitabilityReport>('/reports/project-profitability', { params })
-      return response.data
+      const response = await api.get<{ data: ProjectProfitabilityReport }>('/reports/project-profitability', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1110,8 +1108,8 @@ export function useProjectCostAnalysis(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<ProjectCostAnalysisReport>('/reports/project-cost-analysis', { params })
-      return response.data
+      const response = await api.get<{ data: ProjectCostAnalysisReport }>('/reports/project-cost-analysis', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1131,8 +1129,8 @@ export function useWorkOrderCosts(
       if (endDate?.value) params.end_date = endDate.value
       if (status?.value) params.status = status.value
       if (projectId?.value) params.project_id = projectId.value
-      const response = await api.get<WorkOrderCostsReport>('/reports/work-order-costs', { params })
-      return response.data
+      const response = await api.get<{ data: WorkOrderCostsReport }>('/reports/work-order-costs', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1148,8 +1146,8 @@ export function useSubcontractorSummary(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<SubcontractorSummaryReport>('/reports/subcontractor-summary', { params })
-      return response.data
+      const response = await api.get<{ data: SubcontractorSummaryReport }>('/reports/subcontractor-summary', { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1159,8 +1157,8 @@ export function useSubcontractorRetention() {
   return useQuery({
     queryKey: ['reports', 'subcontractor-retention'],
     queryFn: async () => {
-      const response = await api.get<SubcontractorRetentionReport>('/reports/subcontractor-retention')
-      return response.data
+      const response = await api.get<{ data: SubcontractorRetentionReport }>('/reports/subcontractor-retention')
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -1177,8 +1175,8 @@ export function useSubcontractorDetail(
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<SubcontractorDetailReport>(`/reports/subcontractors/${contactId.value}/summary`, { params })
-      return response.data
+      const response = await api.get<{ data: SubcontractorDetailReport }>(`/reports/subcontractors/${contactId.value}/summary`, { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!contactId.value),
@@ -1194,8 +1192,8 @@ export function useBankReconciliationReport(
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (asOfDate?.value) params.as_of_date = asOfDate.value
-      const response = await api.get<BankReconciliationReport>(`/reports/accounts/${accountId.value}/bank-reconciliation`, { params })
-      return response.data
+      const response = await api.get<{ data: BankReconciliationReport }>(`/reports/accounts/${accountId.value}/bank-reconciliation`, { params })
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!accountId.value),
@@ -1288,8 +1286,8 @@ export function useProjectProfitabilityDetail(projectId: Ref<number>) {
   return useQuery({
     queryKey: ['reports', 'project-profitability-detail', projectId],
     queryFn: async () => {
-      const response = await api.get<ProjectProfitabilityDetail>(`/reports/projects/${projectId.value}/profitability`)
-      return response.data
+      const response = await api.get<{ data: ProjectProfitabilityDetail }>(`/reports/projects/${projectId.value}/profitability`)
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!projectId.value),
@@ -1300,8 +1298,8 @@ export function useWorkOrderCostDetail(workOrderId: Ref<number>) {
   return useQuery({
     queryKey: ['reports', 'work-order-cost-detail', workOrderId],
     queryFn: async () => {
-      const response = await api.get<WorkOrderCostDetail>(`/reports/work-orders/${workOrderId.value}/costs`)
-      return response.data
+      const response = await api.get<{ data: WorkOrderCostDetail }>(`/reports/work-orders/${workOrderId.value}/costs`)
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!workOrderId.value),
@@ -1312,8 +1310,8 @@ export function useProductCOGSDetail(productId: Ref<number>) {
   return useQuery({
     queryKey: ['reports', 'product-cogs-detail', productId],
     queryFn: async () => {
-      const response = await api.get<ProductCOGSDetail>(`/reports/products/${productId.value}/cogs`)
-      return response.data
+      const response = await api.get<{ data: ProductCOGSDetail }>(`/reports/products/${productId.value}/cogs`)
+      return response.data.data
     },
     staleTime: 5 * 60 * 1000,
     enabled: computed(() => !!productId.value),
