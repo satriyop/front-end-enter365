@@ -4,11 +4,11 @@ import { useRouter } from 'vue-router'
 import { useBalanceSheet } from '@/api/useReports'
 import { useExportBalanceSheet } from '@/api/useExports'
 import { Button, Input, Card, Badge, ExportButton } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
-const asOfDate = ref(new Date().toISOString().split('T')[0])
+const asOfDate = ref(toLocalISODate())
 const asOfDateRef = computed(() => asOfDate.value)
 
 const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef)
@@ -49,7 +49,7 @@ function formatAmount(amount: number): string {
           <Button
             variant="secondary"
             size="sm"
-            @click="asOfDate = new Date().toISOString().split('T')[0]"
+            @click="asOfDate = toLocalISODate()"
           >
             Today
           </Button>
@@ -58,7 +58,7 @@ function formatAmount(amount: number): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              asOfDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
+              asOfDate = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 0))
             }"
           >
             End of Last Month
@@ -68,7 +68,7 @@ function formatAmount(amount: number): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              asOfDate = new Date(now.getFullYear() - 1, 11, 31).toISOString().split('T')[0]
+              asOfDate = toLocalISODate(new Date(now.getFullYear() - 1, 11, 31))
             }"
           >
             End of Last Year

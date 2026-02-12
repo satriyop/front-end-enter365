@@ -4,11 +4,11 @@ import { useRouter } from 'vue-router'
 import { useTrialBalance } from '@/api/useReports'
 import { useExportTrialBalance } from '@/api/useExports'
 import { Button, Input, Card, Badge, ExportButton } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
-const asOfDate = ref(new Date().toISOString().split('T')[0])
+const asOfDate = ref(toLocalISODate())
 const asOfDateRef = computed(() => asOfDate.value)
 
 const { data: report, isLoading, error } = useTrialBalance(asOfDateRef)
@@ -66,7 +66,7 @@ function getAccountTypeColor(type: string): string {
           <Button
             variant="secondary"
             size="sm"
-            @click="asOfDate = new Date().toISOString().split('T')[0]"
+            @click="asOfDate = toLocalISODate()"
           >
             Today
           </Button>
@@ -75,7 +75,7 @@ function getAccountTypeColor(type: string): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              asOfDate = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().split('T')[0]
+              asOfDate = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 0))
             }"
           >
             End of Last Month

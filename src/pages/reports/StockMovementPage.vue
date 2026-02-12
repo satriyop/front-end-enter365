@@ -4,14 +4,14 @@ import { useRouter } from 'vue-router'
 import { useMovementSummary } from '@/api/useReports'
 import { useWarehousesLookup } from '@/api/useInventory'
 import { Button, Card, Input, Select } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 // Default to current month
 const now = new Date()
-const startDate = ref(new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0])
-const endDate = ref(now.toISOString().split('T')[0])
+const startDate = ref(toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1)))
+const endDate = ref(toLocalISODate(now))
 const warehouseId = ref<number | undefined>(undefined)
 
 const startDateRef = computed(() => startDate.value)
@@ -35,14 +35,14 @@ function handleWarehouseChange(value: string | number | null) {
 
 function setThisMonth() {
   const today = new Date()
-  startDate.value = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().split('T')[0]
-  endDate.value = new Date(today.getFullYear(), today.getMonth() + 1, 0).toISOString().split('T')[0]
+  startDate.value = toLocalISODate(new Date(today.getFullYear(), today.getMonth(), 1))
+  endDate.value = toLocalISODate(new Date(today.getFullYear(), today.getMonth() + 1, 0))
 }
 
 function setLastMonth() {
   const today = new Date()
-  startDate.value = new Date(today.getFullYear(), today.getMonth() - 1, 1).toISOString().split('T')[0]
-  endDate.value = new Date(today.getFullYear(), today.getMonth(), 0).toISOString().split('T')[0]
+  startDate.value = toLocalISODate(new Date(today.getFullYear(), today.getMonth() - 1, 1))
+  endDate.value = toLocalISODate(new Date(today.getFullYear(), today.getMonth(), 0))
 }
 
 function formatQuantity(qty: number): string {

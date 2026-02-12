@@ -139,6 +139,20 @@ export function formatRelativeTime(date: string | Date): string {
 }
 
 /**
+ * Convert a Date to local YYYY-MM-DD string (timezone-safe).
+ *
+ * Unlike `date.toISOString().split('T')[0]` which converts to UTC first
+ * (causing e.g. Feb 1 midnight in UTC+7 to become "2026-01-31"),
+ * this uses local date components directly.
+ */
+export function toLocalISODate(date: Date = new Date()): string {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/**
  * Calculate days remaining until date
  */
 export function daysRemaining(dueDate: string | Date): { days: number; isOverdue: boolean } {

@@ -4,13 +4,13 @@ import { useRouter } from 'vue-router'
 import { useIncomeStatement } from '@/api/useReports'
 import { useExportIncomeStatement } from '@/api/useExports'
 import { Button, Input, Card, ExportButton } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 // Date filter state
-const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
-const endDate = ref(new Date().toISOString().split('T')[0])
+const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
+const endDate = ref(toLocalISODate())
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
@@ -59,8 +59,8 @@ function formatAmount(amount: number): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-              endDate = now.toISOString().split('T')[0]
+              startDate = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+              endDate = toLocalISODate(now)
             }"
           >
             This Month
@@ -70,8 +70,8 @@ function formatAmount(amount: number): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              startDate = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0]
-              endDate = now.toISOString().split('T')[0]
+              startDate = toLocalISODate(new Date(now.getFullYear(), 0, 1))
+              endDate = toLocalISODate(now)
             }"
           >
             Year to Date

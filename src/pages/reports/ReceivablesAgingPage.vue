@@ -4,11 +4,11 @@ import { useRouter } from 'vue-router'
 import { useReceivablesAging } from '@/api/useReports'
 import { useExportReceivablesAging } from '@/api/useExports'
 import { Button, Input, Card, ExportButton } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
-const asOfDate = ref(new Date().toISOString().split('T')[0])
+const asOfDate = ref(toLocalISODate())
 const asOfDateRef = computed(() => asOfDate.value)
 
 const { data: report, isLoading, error } = useReceivablesAging(asOfDateRef)
@@ -43,7 +43,7 @@ function handleExport() {
         <Button
           variant="secondary"
           size="sm"
-          @click="asOfDate = new Date().toISOString().split('T')[0]"
+          @click="asOfDate = toLocalISODate()"
         >
           Today
         </Button>

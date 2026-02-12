@@ -4,7 +4,7 @@ import { useRouter } from 'vue-router'
 import { usePpnSummary, usePpnMonthly } from '@/api/useReports'
 import { useExportTaxReport } from '@/api/useExports'
 import { Button, Input, Card, ExportButton } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
@@ -12,8 +12,8 @@ const router = useRouter()
 const viewMode = ref<'summary' | 'monthly'>('summary')
 
 // Summary view dates
-const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().split('T')[0])
-const endDate = ref(new Date().toISOString().split('T')[0])
+const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
+const endDate = ref(toLocalISODate())
 
 // Monthly view year
 const year = ref(new Date().getFullYear())
@@ -91,8 +91,8 @@ function formatAmount(amount: number): string {
             size="sm"
             @click="() => {
               const now = new Date()
-              startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-              endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
+              startDate = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+              endDate = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
             }"
           >
             This Month

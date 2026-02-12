@@ -4,12 +4,12 @@ import { useRouter } from 'vue-router'
 import { useContactAging } from '@/api/useReports'
 import { useContactsLookup } from '@/api/useContacts'
 import { Button, Card, Input, Select } from '@/components/ui'
-import { formatCurrency, formatDate } from '@/utils/format'
+import { formatCurrency, formatDate, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 const contactId = ref<number | undefined>(undefined)
-const asOfDate = ref(new Date().toISOString().split('T')[0])
+const asOfDate = ref(toLocalISODate())
 
 const contactIdRef = computed(() => contactId.value)
 const asOfDateRef = computed(() => asOfDate.value)
@@ -31,7 +31,7 @@ function handleCustomerChange(value: string | number | null) {
 
 // Reset to today
 function setToday() {
-  asOfDate.value = new Date().toISOString().split('T')[0]
+  asOfDate.value = toLocalISODate()
 }
 </script>
 
