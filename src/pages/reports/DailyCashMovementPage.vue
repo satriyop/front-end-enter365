@@ -161,11 +161,11 @@
 import { ref, computed } from 'vue'
 import { useDailyCashMovement } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency, formatDate } from '@/utils/format'
+import { formatCurrency, formatDate, toLocalISODate } from '@/utils/format'
 
 // Date range state
-const startDate = ref(new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10))
-const endDate = ref(new Date().toISOString().slice(0, 10))
+const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
+const endDate = ref(toLocalISODate())
 
 // Computed refs for query
 const startDateRef = computed(() => startDate.value)
@@ -177,13 +177,13 @@ const { data: report, isLoading, error } = useDailyCashMovement(startDateRef, en
 // Quick date range filters
 function setThisMonth() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-  endDate.value = new Date().toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+  endDate.value = toLocalISODate()
 }
 
 function setYearToDate() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 10)
-  endDate.value = new Date().toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), 0, 1))
+  endDate.value = toLocalISODate()
 }
 </script>

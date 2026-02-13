@@ -115,7 +115,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCogsByCategory } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency, formatNumber, formatPercent } from '@/utils/format'
+import { formatCurrency, formatNumber, formatPercent, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
@@ -155,16 +155,16 @@ function setThisMonth() {
   const now = new Date()
   const start = new Date(now.getFullYear(), now.getMonth(), 1)
   const end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setLastMonth() {
   const now = new Date()
   const start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const end = new Date(now.getFullYear(), now.getMonth(), 0)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setThisQuarter() {
@@ -172,24 +172,24 @@ function setThisQuarter() {
   const quarter = Math.floor(now.getMonth() / 3)
   const start = new Date(now.getFullYear(), quarter * 3, 1)
   const end = new Date(now.getFullYear(), quarter * 3 + 3, 0)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setThisYear() {
   const now = new Date()
   const start = new Date(now.getFullYear(), 0, 1)
   const end = new Date(now.getFullYear(), 11, 31)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setLastYear() {
   const now = new Date()
   const start = new Date(now.getFullYear() - 1, 0, 1)
   const end = new Date(now.getFullYear() - 1, 11, 31)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 // Set default to this month on mount

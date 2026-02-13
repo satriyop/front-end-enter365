@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCostVariance } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency, formatPercent } from '@/utils/format'
+import { formatCurrency, formatPercent, toLocalISODate } from '@/utils/format'
 import { ArrowLeft } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -25,8 +25,8 @@ function setQuickRange(days: number) {
   const start = new Date()
   start.setDate(start.getDate() - days)
 
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setThisMonth() {
@@ -34,8 +34,8 @@ function setThisMonth() {
   const start = new Date(now.getFullYear(), now.getMonth(), 1)
   const end = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setLastMonth() {
@@ -43,8 +43,8 @@ function setLastMonth() {
   const start = new Date(now.getFullYear(), now.getMonth() - 1, 1)
   const end = new Date(now.getFullYear(), now.getMonth(), 0)
 
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 // Format variance with color

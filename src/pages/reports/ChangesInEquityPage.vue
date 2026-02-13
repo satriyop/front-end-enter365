@@ -218,15 +218,13 @@
 import { ref, computed } from 'vue'
 import { useChangesInEquity } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
+import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 // Date range filters - default to current month
 const startDate = ref(
-  new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-    .toISOString()
-    .slice(0, 10)
+  toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1))
 )
-const endDate = ref(new Date().toISOString().slice(0, 10))
+const endDate = ref(toLocalISODate())
 
 // Computed refs for reactivity
 const startDateRef = computed(() => startDate.value)
@@ -238,18 +236,14 @@ const { data: report, isLoading, error } = useChangesInEquity(startDateRef, endD
 // Quick date range setters
 function setThisMonth() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth(), 1)
-    .toISOString()
-    .slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-    .toISOString()
-    .slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
 }
 
 function setYearToDate() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 10)
-  endDate.value = now.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), 0, 1))
+  endDate.value = toLocalISODate(now)
 }
 
 // Format date for display

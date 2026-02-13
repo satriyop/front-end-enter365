@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTaxInvoiceList } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency, formatDate } from '@/utils/format'
+import { formatCurrency, formatDate, toLocalISODate } from '@/utils/format'
 import { ArrowLeft } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -22,20 +22,20 @@ const { data: report, isLoading, error } = useTaxInvoiceList(startDateRef, endDa
 // Quick date range buttons
 const setThisMonth = () => {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
 }
 
 const setLastMonth = () => {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth() - 1, 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 0))
 }
 
 const setThisYear = () => {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), 0, 1).toISOString().slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), 11, 31).toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), 0, 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), 11, 31))
 }
 </script>
 

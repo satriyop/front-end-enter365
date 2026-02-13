@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSubcontractorSummary } from '@/api/useReports'
 import { Button, Input, Card } from '@/components/ui'
-import { formatCurrency, formatPercent } from '@/utils/format'
+import { formatCurrency, formatPercent, toLocalISODate } from '@/utils/format'
 import { ArrowLeft } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -20,20 +20,20 @@ function setQuickRange(days: number) {
   const end = new Date()
   const start = new Date()
   start.setDate(start.getDate() - days)
-  startDate.value = start.toISOString().slice(0, 10)
-  endDate.value = end.toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(start)
+  endDate.value = toLocalISODate(end)
 }
 
 function setThisMonth() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
 }
 
 function setLastMonth() {
   const now = new Date()
-  startDate.value = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString().slice(0, 10)
-  endDate.value = new Date(now.getFullYear(), now.getMonth(), 0).toISOString().slice(0, 10)
+  startDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth() - 1, 1))
+  endDate.value = toLocalISODate(new Date(now.getFullYear(), now.getMonth(), 0))
 }
 </script>
 
