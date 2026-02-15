@@ -24,7 +24,7 @@ const quarterlyData = computed(() => {
   ]
 
   return quarters.map(q => {
-    const quarterMonths = report.value!.months.filter(m => q.months.includes(m.month))
+    const quarterMonths = report.value!.months.filter(m => q.months.includes(Number(m.month)))
     return {
       name: q.name,
       output: quarterMonths.reduce((sum, m) => sum + m.output, 0),

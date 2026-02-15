@@ -146,7 +146,7 @@ function getVarianceColor(variance: number): string {
         <Card class="p-6 bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800">
           <div class="text-center">
             <div class="text-4xl font-bold text-destructive dark:text-red-400">
-              {{ report.summary.over_budget }}
+              {{ report.summary.over_budget_count }}
             </div>
             <div class="text-sm text-red-700 dark:text-red-300 mt-2">
               Over Budget
@@ -158,7 +158,7 @@ function getVarianceColor(variance: number): string {
         <Card class="p-6 bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800">
           <div class="text-center">
             <div class="text-4xl font-bold text-green-600 dark:text-green-400">
-              {{ report.summary.under_budget }}
+              {{ report.summary.under_budget_count }}
             </div>
             <div class="text-sm text-green-700 dark:text-green-300 mt-2">
               Under Budget
@@ -170,7 +170,7 @@ function getVarianceColor(variance: number): string {
         <Card class="p-6 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
           <div class="text-center">
             <div class="text-4xl font-bold text-blue-600 dark:text-blue-400">
-              {{ report.summary.on_budget }}
+              {{ report.summary.on_budget_count }}
             </div>
             <div class="text-sm text-blue-700 dark:text-blue-300 mt-2">
               On Budget
@@ -185,7 +185,7 @@ function getVarianceColor(variance: number): string {
           <h3 class="text-lg font-semibold text-destructive dark:text-red-400 mb-4">
             Over Budget Work Orders
           </h3>
-          <div v-if="report.over_budget_items.length === 0" class="text-center py-8 text-muted-foreground">
+          <div v-if="report.over_budget.length === 0" class="text-center py-8 text-muted-foreground">
             No work orders in this category
           </div>
           <div v-else class="overflow-x-auto">
@@ -203,15 +203,15 @@ function getVarianceColor(variance: number): string {
               </thead>
               <tbody>
                 <tr
-                  v-for="item in report.over_budget_items"
+                  v-for="item in report.over_budget"
                   :key="item.id"
                   class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
                 >
                   <td class="py-3 font-mono text-sm text-foreground">{{ item.wo_number }}</td>
                   <td class="py-3 text-sm text-foreground">{{ item.name }}</td>
-                  <td class="py-3 text-sm text-muted-foreground">{{ item.project }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated_cost) }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual_cost) }}</td>
+                  <td class="py-3 text-sm text-muted-foreground">{{ item.project_number }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated) }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual) }}</td>
                   <td class="py-3 text-sm text-right" :class="getVarianceColor(item.variance)">
                     {{ formatCurrency(item.variance) }}
                   </td>
@@ -231,7 +231,7 @@ function getVarianceColor(variance: number): string {
           <h3 class="text-lg font-semibold text-green-600 dark:text-green-400 mb-4">
             Under Budget Work Orders
           </h3>
-          <div v-if="report.under_budget_items.length === 0" class="text-center py-8 text-muted-foreground">
+          <div v-if="report.under_budget.length === 0" class="text-center py-8 text-muted-foreground">
             No work orders in this category
           </div>
           <div v-else class="overflow-x-auto">
@@ -249,15 +249,15 @@ function getVarianceColor(variance: number): string {
               </thead>
               <tbody>
                 <tr
-                  v-for="item in report.under_budget_items"
+                  v-for="item in report.under_budget"
                   :key="item.id"
                   class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
                 >
                   <td class="py-3 font-mono text-sm text-foreground">{{ item.wo_number }}</td>
                   <td class="py-3 text-sm text-foreground">{{ item.name }}</td>
-                  <td class="py-3 text-sm text-muted-foreground">{{ item.project }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated_cost) }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual_cost) }}</td>
+                  <td class="py-3 text-sm text-muted-foreground">{{ item.project_number }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated) }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual) }}</td>
                   <td class="py-3 text-sm text-right" :class="getVarianceColor(item.variance)">
                     {{ formatCurrency(item.variance) }}
                   </td>
@@ -277,7 +277,7 @@ function getVarianceColor(variance: number): string {
           <h3 class="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-4">
             On Budget Work Orders
           </h3>
-          <div v-if="report.on_budget_items.length === 0" class="text-center py-8 text-muted-foreground">
+          <div v-if="report.on_budget.length === 0" class="text-center py-8 text-muted-foreground">
             No work orders in this category
           </div>
           <div v-else class="overflow-x-auto">
@@ -295,15 +295,15 @@ function getVarianceColor(variance: number): string {
               </thead>
               <tbody>
                 <tr
-                  v-for="item in report.on_budget_items"
+                  v-for="item in report.on_budget"
                   :key="item.id"
                   class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
                 >
                   <td class="py-3 font-mono text-sm text-foreground">{{ item.wo_number }}</td>
                   <td class="py-3 text-sm text-foreground">{{ item.name }}</td>
-                  <td class="py-3 text-sm text-muted-foreground">{{ item.project }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated_cost) }}</td>
-                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual_cost) }}</td>
+                  <td class="py-3 text-sm text-muted-foreground">{{ item.project_number }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.estimated) }}</td>
+                  <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.actual) }}</td>
                   <td class="py-3 text-sm text-right" :class="getVarianceColor(item.variance)">
                     {{ formatCurrency(item.variance) }}
                   </td>

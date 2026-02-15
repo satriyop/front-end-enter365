@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProductCOGSDetail } from '@/api/useReports'
 import { Button, Card } from '@/components/ui'
-import { formatCurrency, formatPercent, formatNumber } from '@/utils/format'
+import { formatCurrency, formatNumber } from '@/utils/format'
 import { ArrowLeft } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -12,6 +12,11 @@ const router = useRouter()
 const productId = computed(() => Number(route.params.id))
 
 const { data: report, isPending, isError, error } = useProductCOGSDetail(productId)
+
+const avgCostPerUnit = computed(() => {
+  if (!report.value || report.value.total_quantity === 0) return 0
+  return Math.round(report.value.total_cogs / report.value.total_quantity)
+})
 </script>
 
 <template>
@@ -49,78 +54,45 @@ const { data: report, isPending, isError, error } = useProductCOGSDetail(product
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- COGS Breakdown -->
+          <!-- Movements Table -->
           <Card>
             <div class="p-6">
-              <h3 class="text-lg font-semibold text-foreground mb-4">COGS Breakdown by Component</h3>
-              <div v-if="report.breakdown.length === 0" class="text-center py-8 text-muted-foreground">
-                No breakdown data available
+              <h3 class="text-lg font-semibold text-foreground mb-4">COGS Movements</h3>
+              <div v-if="report.movements.length === 0" class="text-center py-8 text-muted-foreground">
+                No movements in this period
               </div>
               <div v-else class="overflow-x-auto">
                 <table class="w-full">
                   <thead class="border-b border-border">
                     <tr class="text-left">
-                      <th class="pb-3 text-sm font-semibold text-foreground">Component</th>
-                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Amount</th>
-                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Percentage</th>
+                      <th class="pb-3 text-sm font-semibold text-foreground">Date</th>
+                      <th class="pb-3 text-sm font-semibold text-foreground">Movement #</th>
+                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Quantity</th>
+                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Unit Cost</th>
+                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Total Cost</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr
-                      v-for="item in report.breakdown"
-                      :key="item.component"
-                      class="border-b border-border last:border-0"
+                      v-for="item in report.movements"
+                      :key="item.id"
+                      class="border-b border-border last:border-0 hover:bg-muted/50 transition-colors"
                     >
-                      <td class="py-3 text-sm text-foreground capitalize">{{ item.component }}</td>
-                      <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.amount) }}</td>
-                      <td class="py-3 text-sm text-muted-foreground text-right">{{ formatPercent(item.percentage) }}</td>
+                      <td class="py-3 text-sm text-foreground">{{ item.date }}</td>
+                      <td class="py-3 text-sm font-mono text-foreground">{{ item.movement_number }}</td>
+                      <td class="py-3 text-sm text-foreground text-right">{{ formatNumber(item.quantity) }}</td>
+                      <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.unit_cost) }}</td>
+                      <td class="py-3 text-sm font-semibold text-foreground text-right">{{ formatCurrency(item.total_cost) }}</td>
                     </tr>
                   </tbody>
-                  <tfoot class="border-t border-border">
-                    <tr>
-                      <td class="pt-3 text-sm font-semibold text-foreground">Total COGS</td>
-                      <td class="pt-3 text-sm font-semibold text-foreground text-right">
-                        {{ formatCurrency(report.summary.total_cogs) }}
-                      </td>
+                  <tfoot class="border-t-2 border-border">
+                    <tr class="font-semibold">
+                      <td colspan="2" class="pt-3 text-sm text-foreground">Total</td>
+                      <td class="pt-3 text-sm text-foreground text-right">{{ formatNumber(report.total_quantity) }}</td>
                       <td class="pt-3"></td>
+                      <td class="pt-3 text-sm text-foreground text-right">{{ formatCurrency(report.total_cogs) }}</td>
                     </tr>
                   </tfoot>
-                </table>
-              </div>
-            </div>
-          </Card>
-
-          <!-- Monthly Trend -->
-          <Card>
-            <div class="p-6">
-              <h3 class="text-lg font-semibold text-foreground mb-4">Monthly COGS Trend</h3>
-              <div v-if="report.monthly_trend.length === 0" class="text-center py-8 text-muted-foreground">
-                No monthly data available
-              </div>
-              <div v-else class="overflow-x-auto">
-                <table class="w-full">
-                  <thead class="border-b border-border">
-                    <tr class="text-left">
-                      <th class="pb-3 text-sm font-semibold text-foreground">Month</th>
-                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Units Sold</th>
-                      <th class="pb-3 text-sm font-semibold text-foreground text-right">COGS</th>
-                      <th class="pb-3 text-sm font-semibold text-foreground text-right">Avg per Unit</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr
-                      v-for="item in report.monthly_trend"
-                      :key="item.month"
-                      class="border-b border-border last:border-0"
-                    >
-                      <td class="py-3 text-sm text-foreground">{{ item.month }}</td>
-                      <td class="py-3 text-sm text-foreground text-right">{{ formatNumber(item.units_sold) }}</td>
-                      <td class="py-3 text-sm text-foreground text-right">{{ formatCurrency(item.cogs) }}</td>
-                      <td class="py-3 text-sm text-muted-foreground text-right">
-                        {{ item.units_sold > 0 ? formatCurrency(item.cogs / item.units_sold) : '-' }}
-                      </td>
-                    </tr>
-                  </tbody>
                 </table>
               </div>
             </div>
@@ -135,10 +107,13 @@ const { data: report, isPending, isError, error } = useProductCOGSDetail(product
             <div class="space-y-2">
               <p class="font-mono text-sm text-muted-foreground">{{ report.product.sku }}</p>
               <p class="text-lg font-semibold text-foreground">{{ report.product.name }}</p>
-              <div v-if="report.product.category" class="text-sm text-muted-foreground">
-                <span class="text-xs">Category:</span> {{ report.product.category }}
-              </div>
             </div>
+          </Card>
+
+          <!-- Period -->
+          <Card class="p-6">
+            <h3 class="text-sm font-semibold text-muted-foreground mb-3">Period</h3>
+            <p class="text-sm text-foreground">{{ report.period.start }} &mdash; {{ report.period.end }}</p>
           </Card>
 
           <!-- Summary Stats -->
@@ -147,29 +122,15 @@ const { data: report, isPending, isError, error } = useProductCOGSDetail(product
             <div class="space-y-4">
               <div>
                 <div class="text-xs text-muted-foreground">Total COGS</div>
-                <div class="text-2xl font-bold text-foreground">{{ formatCurrency(report.summary.total_cogs) }}</div>
+                <div class="text-2xl font-bold text-foreground">{{ formatCurrency(report.total_cogs) }}</div>
               </div>
               <div class="pt-3 border-t border-border">
                 <div class="text-xs text-muted-foreground">Units Sold</div>
-                <div class="text-2xl font-bold text-foreground">{{ formatNumber(report.summary.units_sold) }}</div>
+                <div class="text-2xl font-bold text-foreground">{{ formatNumber(report.total_quantity) }}</div>
               </div>
               <div class="pt-3 border-t border-border">
                 <div class="text-xs text-muted-foreground">Average COGS per Unit</div>
-                <div class="text-2xl font-bold text-foreground">{{ formatCurrency(report.summary.avg_cogs_per_unit) }}</div>
-              </div>
-            </div>
-          </Card>
-
-          <!-- Cost per Unit Metric -->
-          <Card class="p-6">
-            <h3 class="text-sm font-semibold text-muted-foreground mb-3">Unit Cost Analysis</h3>
-            <div class="text-center">
-              <div class="text-foreground">
-                <div class="text-xs text-muted-foreground mb-1">Cost per Unit</div>
-                <div class="text-3xl font-bold">{{ formatCurrency(report.summary.avg_cogs_per_unit) }}</div>
-                <div class="text-xs text-muted-foreground mt-2">
-                  Based on {{ formatNumber(report.summary.units_sold) }} units sold
-                </div>
+                <div class="text-2xl font-bold text-foreground">{{ formatCurrency(avgCostPerUnit) }}</div>
               </div>
             </div>
           </Card>

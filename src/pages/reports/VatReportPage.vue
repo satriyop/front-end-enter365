@@ -127,27 +127,27 @@ function formatAmount(amount: number): string {
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card class="text-center">
           <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">Output VAT (PPN Keluaran)</div>
-          <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(summaryReport.output_tax || 0) }}</div>
-          <div class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ summaryReport.output_count || 0 }} invoices</div>
+          <div class="text-2xl font-bold text-red-600 dark:text-red-400">{{ formatCurrency(summaryReport.output_tax?.tax ?? 0) }}</div>
+          <div class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ summaryReport.output_tax?.count ?? 0 }} invoices</div>
         </Card>
         <Card class="text-center">
           <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">Input VAT (PPN Masukan)</div>
-          <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(summaryReport.input_tax || 0) }}</div>
-          <div class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ summaryReport.input_count || 0 }} bills</div>
+          <div class="text-2xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(summaryReport.input_tax?.tax ?? 0) }}</div>
+          <div class="text-xs text-slate-400 dark:text-slate-500 mt-1">{{ summaryReport.input_tax?.count ?? 0 }} bills</div>
         </Card>
         <Card
           class="text-center"
-          :class="(summaryReport.net_vat || 0) >= 0 ? 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'"
+          :class="(summaryReport.net_tax ?? 0) >= 0 ? 'bg-red-50 dark:bg-red-900/30 border-red-200 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800'"
         >
           <div class="text-sm text-slate-500 dark:text-slate-400 mb-1">Net VAT Payable</div>
           <div
             class="text-2xl font-bold"
-            :class="(summaryReport.net_vat || 0) >= 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'"
+            :class="(summaryReport.net_tax ?? 0) >= 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'"
           >
-            {{ formatAmount(summaryReport.net_vat || 0) }}
+            {{ formatAmount(summaryReport.net_tax ?? 0) }}
           </div>
-          <div class="text-xs mt-1" :class="(summaryReport.net_vat || 0) >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'">
-            {{ (summaryReport.net_vat || 0) >= 0 ? 'To Pay' : 'Refundable' }}
+          <div class="text-xs mt-1" :class="(summaryReport.net_tax ?? 0) >= 0 ? 'text-red-500 dark:text-red-400' : 'text-green-500 dark:text-green-400'">
+            {{ (summaryReport.net_tax ?? 0) >= 0 ? 'To Pay' : 'Refundable' }}
           </div>
         </Card>
       </div>
@@ -168,7 +168,7 @@ function formatAmount(amount: number): string {
             </div>
             <div class="text-right">
               <div class="text-xl font-mono font-semibold text-red-600 dark:text-red-400">
-                {{ formatCurrency(summaryReport.output_tax || 0) }}
+                {{ formatCurrency(summaryReport.output_tax?.tax ?? 0) }}
               </div>
             </div>
           </div>
@@ -180,27 +180,27 @@ function formatAmount(amount: number): string {
             </div>
             <div class="text-right">
               <div class="text-xl font-mono font-semibold text-green-600 dark:text-green-400">
-                ({{ formatCurrency(summaryReport.input_tax || 0) }})
+                ({{ formatCurrency(summaryReport.input_tax?.tax ?? 0) }})
               </div>
             </div>
           </div>
 
           <div
             class="flex justify-between items-center p-4 rounded border-2"
-            :class="(summaryReport.net_vat || 0) >= 0 ? 'bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-800'"
+            :class="(summaryReport.net_tax ?? 0) >= 0 ? 'bg-red-50 dark:bg-red-900/30 border-red-300 dark:border-red-800' : 'bg-green-50 dark:bg-green-900/30 border-green-300 dark:border-green-800'"
           >
             <div>
               <div class="font-semibold text-slate-900 dark:text-slate-100">Net VAT</div>
               <div class="text-sm text-slate-500 dark:text-slate-400">
-                {{ (summaryReport.net_vat || 0) >= 0 ? 'Amount to pay to tax authority' : 'Amount refundable / carry forward' }}
+                {{ (summaryReport.net_tax ?? 0) >= 0 ? 'Amount to pay to tax authority' : 'Amount refundable / carry forward' }}
               </div>
             </div>
             <div class="text-right">
               <div
                 class="text-2xl font-mono font-bold"
-                :class="(summaryReport.net_vat || 0) >= 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'"
+                :class="(summaryReport.net_tax ?? 0) >= 0 ? 'text-red-700 dark:text-red-400' : 'text-green-700 dark:text-green-400'"
               >
-                {{ formatAmount(summaryReport.net_vat || 0) }}
+                {{ formatAmount(summaryReport.net_tax ?? 0) }}
               </div>
             </div>
           </div>

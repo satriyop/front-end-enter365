@@ -88,9 +88,9 @@
               :key="index"
               class="border-b border-border hover:bg-muted/50 dark:hover:bg-muted/20 transition-colors"
             >
-              <td class="py-3 px-4 text-foreground">{{ item.category }}</td>
+              <td class="py-3 px-4 text-foreground">{{ item.category_name }}</td>
               <td class="py-3 px-4 text-right text-foreground">{{ formatNumber(item.product_count) }}</td>
-              <td class="py-3 px-4 text-right text-foreground">{{ formatNumber(item.qty_sold) }}</td>
+              <td class="py-3 px-4 text-right text-foreground">{{ formatNumber(item.quantity_sold) }}</td>
               <td class="py-3 px-4 text-right text-foreground">{{ formatCurrency(item.total_cogs) }}</td>
               <td class="py-3 px-4 text-right text-foreground">{{ formatPercent(item.percentage) }}</td>
             </tr>
@@ -138,7 +138,7 @@ const totalProducts = computed(() => {
 
 const totalQty = computed(() => {
   if (!report.value?.categories) return 0
-  return report.value.categories.reduce((sum, item) => sum + item.qty_sold, 0)
+  return report.value.categories.reduce((sum, item) => sum + item.quantity_sold, 0)
 })
 
 // Date formatting helper

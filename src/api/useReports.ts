@@ -160,18 +160,46 @@ export interface PpnSummaryReport {
     start: string
     end: string
   }
-  output_tax: number
-  input_tax: number
-  net_vat: number
-  output_count: number
-  input_count: number
+  output_tax: {
+    count: number
+    base: number
+    tax: number
+  }
+  input_tax: {
+    count: number
+    base: number
+    tax: number
+  }
+  net_tax: number
+  net_tax_status: string
+  details: {
+    invoices: Array<{
+      date: string
+      number: string
+      contact: string
+      npwp: string | null
+      base: number
+      tax_rate: number
+      tax: number
+    }>
+    bills: Array<{
+      date: string
+      number: string
+      vendor_invoice: string | null
+      contact: string
+      npwp: string | null
+      base: number
+      tax_rate: number
+      tax: number
+    }>
+  }
 }
 
 export interface PpnMonthlyReport {
   report_name: string
   year: number
   months: Array<{
-    month: number
+    month: string
     month_name: string
     output: number
     input: number
@@ -388,9 +416,10 @@ export interface CogsSummaryReport {
 }
 
 export interface CogsByCategoryItem {
-  category: string
+  category_id: number | null
+  category_name: string
   product_count: number
-  qty_sold: number
+  quantity_sold: number
   total_cogs: number
   percentage: number
 }
@@ -410,8 +439,8 @@ export interface CogsByProductItem {
   sku: string
   name: string
   category: string
-  qty_sold: number
-  avg_unit_cost: number
+  quantity_sold: number
+  average_unit_cost: number
   total_cogs: number
   percentage: number
 }
@@ -427,7 +456,7 @@ export interface CogsByProductReport {
 }
 
 export interface CogsMonthlyTrendItem {
-  month: number
+  month: string
   month_name: string
   beginning_inventory: number
   purchases: number
@@ -446,9 +475,10 @@ export interface CostVarianceWorkOrder {
   id: number
   wo_number: string
   name: string
-  project: string
-  estimated_cost: number
-  actual_cost: number
+  project_number: string | null
+  status: string
+  estimated: number
+  actual: number
   variance: number
   variance_percent: number
 }
@@ -456,19 +486,22 @@ export interface CostVarianceWorkOrder {
 export interface CostVarianceReport {
   report_name: string
   period: {
-    start: string
-    end: string
+    start: string | null
+    end: string | null
   }
   summary: {
     total_work_orders: number
-    over_budget: number
-    under_budget: number
-    on_budget: number
+    over_budget_count: number
+    under_budget_count: number
+    on_budget_count: number
+    total_estimated: number
+    total_actual: number
     total_variance: number
+    overall_variance_percent: number
   }
-  over_budget_items: CostVarianceWorkOrder[]
-  under_budget_items: CostVarianceWorkOrder[]
-  on_budget_items: CostVarianceWorkOrder[]
+  over_budget: CostVarianceWorkOrder[]
+  under_budget: CostVarianceWorkOrder[]
+  on_budget: CostVarianceWorkOrder[]
 }
 
 export interface ProjectProfitabilityProject {
@@ -1255,27 +1288,29 @@ export interface WorkOrderCostDetail {
 }
 
 export interface ProductCOGSDetail {
+  report_name: string
   product: {
     id: number
     sku: string
     name: string
-    category: string | null
   }
-  summary: {
-    total_cogs: number
-    units_sold: number
-    avg_cogs_per_unit: number
+  period: {
+    start: string
+    end: string
   }
-  breakdown: Array<{
-    component: string
-    amount: number
-    percentage: number
+  movements: Array<{
+    id: number
+    date: string
+    movement_number: string
+    reference_type: string | null
+    reference_id: number | null
+    quantity: number
+    unit_cost: number
+    total_cost: number
+    notes: string | null
   }>
-  monthly_trend: Array<{
-    month: string
-    cogs: number
-    units_sold: number
-  }>
+  total_quantity: number
+  total_cogs: number
 }
 
 // ─────────────────────────────────────────────────────────────

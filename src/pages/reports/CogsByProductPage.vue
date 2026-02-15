@@ -176,10 +176,10 @@ function clearDates() {
                 {{ product.category }}
               </td>
               <td class="px-4 py-3 text-sm text-right text-slate-900 dark:text-slate-100">
-                {{ formatNumber(product.qty_sold) }}
+                {{ formatNumber(product.quantity_sold) }}
               </td>
               <td class="px-4 py-3 text-sm text-right text-slate-900 dark:text-slate-100">
-                {{ formatCurrency(product.avg_unit_cost) }}
+                {{ formatCurrency(product.average_unit_cost) }}
               </td>
               <td class="px-4 py-3 text-sm text-right font-semibold text-slate-900 dark:text-slate-100">
                 {{ formatCurrency(product.total_cogs) }}
