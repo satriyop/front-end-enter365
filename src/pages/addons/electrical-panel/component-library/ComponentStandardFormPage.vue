@@ -223,11 +223,11 @@ const onSubmit = handleSubmit(async (formValues) => {
     if (isEditing.value && standardId.value) {
       await updateMutation.mutateAsync({ id: standardId.value, data })
       toast.success('Component standard updated')
-      router.push(`/settings/component-library/${standardId.value}`)
+      router.push(`/addons/electrical-panel/component-library/${standardId.value}`)
     } else {
       const result = await createMutation.mutateAsync(data)
       toast.success('Component standard created')
-      router.push(`/settings/component-library/${result.id}`)
+      router.push(`/addons/electrical-panel/component-library/${result.id}`)
     }
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data

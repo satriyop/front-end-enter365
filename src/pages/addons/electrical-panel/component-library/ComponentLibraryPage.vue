@@ -345,7 +345,7 @@ const columns: ResponsiveColumn[] = [
           <Upload class="w-4 h-4 mr-2" />
           Import
         </Button>
-        <RouterLink to="/settings/component-library/new">
+        <RouterLink to="/addons/electrical-panel/component-library/new">
           <Button>
             <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -438,7 +438,7 @@ const columns: ResponsiveColumn[] = [
         title="No component standards found"
         description="Create component standards to enable cross-brand BOM swapping"
         action-label="New Standard"
-        @action="$router.push('/settings/component-library/new')"
+        @action="$router.push('/addons/electrical-panel/component-library/new')"
       />
     </div>
 
@@ -450,7 +450,7 @@ const columns: ResponsiveColumn[] = [
         :loading="isLoading"
         title-field="name"
         subtitle-field="code"
-        @row-click="(item) => $router.push(`/settings/component-library/${item.id}`)"
+        @row-click="(item) => $router.push(`/addons/electrical-panel/component-library/${item.id}`)"
       >
         <!-- Custom cell: Code -->
         <template #cell-code="{ item }">
@@ -519,10 +519,10 @@ const columns: ResponsiveColumn[] = [
         <!-- Actions -->
         <template #actions="{ item }">
           <div class="flex items-center justify-end gap-2">
-            <RouterLink :to="`/settings/component-library/${item.id}`">
+            <RouterLink :to="`/addons/electrical-panel/component-library/${item.id}`">
               <Button variant="ghost" size="xs">View</Button>
             </RouterLink>
-            <RouterLink :to="`/settings/component-library/${item.id}/edit`">
+            <RouterLink :to="`/addons/electrical-panel/component-library/${item.id}/edit`">
               <Button variant="ghost" size="xs">Edit</Button>
             </RouterLink>
             <Button

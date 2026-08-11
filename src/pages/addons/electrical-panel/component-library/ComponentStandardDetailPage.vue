@@ -65,7 +65,7 @@ async function handleDelete() {
     await deleteMutation.mutateAsync(standardId.value)
     showDeleteModal.value = false
     toast.success('Component standard deleted')
-    router.push('/settings/component-library')
+    router.push('/addons/electrical-panel/component-library')
   } catch (err: unknown) {
     const message = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || 'Failed to delete'
     toast.error(message)
@@ -195,7 +195,7 @@ const mappingColumns: ResponsiveColumn[] = [
     <template v-else-if="standard">
       <!-- Breadcrumb -->
       <div class="text-sm text-slate-500 dark:text-slate-400 mb-4">
-        <RouterLink to="/settings/component-library" class="hover:text-slate-700 dark:hover:text-slate-300">Component Library</RouterLink>
+        <RouterLink to="/addons/electrical-panel/component-library" class="hover:text-slate-700 dark:hover:text-slate-300">Component Library</RouterLink>
         <span class="mx-2">/</span>
         <span class="text-slate-900 dark:text-slate-100">{{ standard.code }}</span>
       </div>
@@ -222,7 +222,7 @@ const mappingColumns: ResponsiveColumn[] = [
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
-            <RouterLink :to="`/settings/component-library/${standardId}/edit`">
+            <RouterLink :to="`/addons/electrical-panel/component-library/${standardId}/edit`">
               <Button variant="secondary" size="sm">Edit</Button>
             </RouterLink>
             <Button

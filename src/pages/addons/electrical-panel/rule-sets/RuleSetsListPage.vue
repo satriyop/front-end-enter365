@@ -99,7 +99,7 @@ const columns: ResponsiveColumn[] = [
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Validation Rule Sets</h1>
         <p class="text-muted-foreground">Configure validation rules for component swapping</p>
       </div>
-      <RouterLink to="/settings/rule-sets/new">
+      <RouterLink to="/addons/electrical-panel/rule-sets/new">
         <Button>
           <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -167,7 +167,7 @@ const columns: ResponsiveColumn[] = [
         title="No rule sets found"
         description="Create validation rule sets to control component swap behavior"
         action-label="New Rule Set"
-        @action="$router.push('/settings/rule-sets/new')"
+        @action="$router.push('/addons/electrical-panel/rule-sets/new')"
       />
     </div>
 
@@ -179,7 +179,7 @@ const columns: ResponsiveColumn[] = [
         :loading="isLoading"
         title-field="name"
         subtitle-field="code"
-        @row-click="(item) => $router.push(`/settings/rule-sets/${item.id}`)"
+        @row-click="(item) => $router.push(`/addons/electrical-panel/rule-sets/${item.id}`)"
       >
         <!-- Custom cell: Code -->
         <template #cell-code="{ item }">
@@ -249,12 +249,12 @@ const columns: ResponsiveColumn[] = [
         <!-- Actions -->
         <template #actions="{ item }">
           <div class="flex items-center justify-end gap-1">
-            <RouterLink :to="`/settings/rule-sets/${item.id}`">
+            <RouterLink :to="`/addons/electrical-panel/rule-sets/${item.id}`">
               <Button variant="ghost" size="xs" title="View Details">
                 <Eye class="w-4 h-4" />
               </Button>
             </RouterLink>
-            <RouterLink :to="`/settings/rule-sets/${item.id}/edit`">
+            <RouterLink :to="`/addons/electrical-panel/rule-sets/${item.id}/edit`">
               <Button variant="ghost" size="xs" title="Edit">
                 <Pencil class="w-4 h-4" />
               </Button>

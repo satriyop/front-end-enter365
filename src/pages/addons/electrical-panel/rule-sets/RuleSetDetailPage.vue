@@ -264,7 +264,7 @@ function formatAllowedValues(values: unknown[] | null): string {
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-4">
-          <RouterLink to="/settings/rule-sets">
+          <RouterLink to="/addons/electrical-panel/rule-sets">
             <Button variant="ghost" size="sm">
               <ArrowLeft class="w-4 h-4 mr-2" />
               Back
@@ -294,7 +294,7 @@ function formatAllowedValues(values: unknown[] | null): string {
             <Star class="w-4 h-4 mr-2" />
             Set as Default
           </Button>
-          <RouterLink :to="`/settings/rule-sets/${ruleSet.id}/edit`">
+          <RouterLink :to="`/addons/electrical-panel/rule-sets/${ruleSet.id}/edit`">
             <Button variant="outline">
               <Pencil class="w-4 h-4 mr-2" />
               Edit

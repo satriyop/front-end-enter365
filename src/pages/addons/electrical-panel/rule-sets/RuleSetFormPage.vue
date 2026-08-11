@@ -84,11 +84,11 @@ const onSubmit = handleSubmit(async (formValues) => {
         data: payload,
       })
       toast.success('Rule set updated')
-      router.push(`/settings/rule-sets/${ruleSetId.value}`)
+      router.push(`/addons/electrical-panel/rule-sets/${ruleSetId.value}`)
     } else {
       const newRuleSet = await createMutation.mutateAsync(payload)
       toast.success('Rule set created')
-      router.push(`/settings/rule-sets/${newRuleSet.id}`)
+      router.push(`/addons/electrical-panel/rule-sets/${newRuleSet.id}`)
     }
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
@@ -115,7 +115,7 @@ function generateCode() {
   <div class="max-w-2xl mx-auto">
     <!-- Header -->
     <div class="flex items-center gap-4 mb-6">
-      <RouterLink to="/settings/rule-sets">
+      <RouterLink to="/addons/electrical-panel/rule-sets">
         <Button variant="ghost" size="sm">
           <ArrowLeft class="w-4 h-4 mr-2" />
           Back
@@ -226,7 +226,7 @@ function generateCode() {
 
       <!-- Actions -->
       <div class="flex justify-end gap-3">
-        <RouterLink to="/settings/rule-sets">
+        <RouterLink to="/addons/electrical-panel/rule-sets">
           <Button type="button" variant="ghost">Cancel</Button>
         </RouterLink>
         <Button type="submit" :loading="isSaving">

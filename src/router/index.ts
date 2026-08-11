@@ -33,8 +33,9 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/manufacturing/subcontractor-work-orders', feature: 'subcontracting' },
   { prefix: '/manufacturing/subcontractor-invoices', feature: 'subcontracting' },
   { prefix: '/boms', feature: 'bom' },
-  { prefix: '/settings/component-library', feature: 'electrical_panel' },
-  { prefix: '/settings/rule-sets', feature: 'electrical_panel' },
+  
+  { prefix: '/settings/component-library', feature: 'electrical_panel' }, // legacy redirect
+  { prefix: '/settings/rule-sets', feature: 'electrical_panel' }, // legacy redirect
   { prefix: '/settings/bom-templates', feature: 'bom' },
   { prefix: '/accounting/budgets', feature: 'budgeting' },
   { prefix: '/accounting/bank-reconciliation', feature: 'bank_reconciliation' },
@@ -1037,56 +1038,64 @@ const router = createRouter({
           component: () => import('@/pages/settings/accounting-policies/AccountingPoliciesPage.vue'),
           meta: { breadcrumb: 'Accounting Policies' }
         },
-        // Component Library routes (under settings)
+        // Electrical panel add-on: component library + rule sets
         {
-          path: 'settings/component-library',
+          path: 'addons/electrical-panel/component-library',
           name: 'component-library',
-          component: () => import('@/pages/settings/component-library/ComponentLibraryPage.vue'),
-          meta: { breadcrumb: 'Component Library' }
+          component: () => import('@/pages/addons/electrical-panel/component-library/ComponentLibraryPage.vue'),
+          meta: { breadcrumb: 'Component Library', feature: 'electrical_panel' }
         },
         {
-          path: 'settings/component-library/new',
+          path: 'addons/electrical-panel/component-library/new',
           name: 'component-standard-new',
-          component: () => import('@/pages/settings/component-library/ComponentStandardFormPage.vue'),
-          meta: { breadcrumb: 'New Component' }
+          component: () => import('@/pages/addons/electrical-panel/component-library/ComponentStandardFormPage.vue'),
+          meta: { breadcrumb: 'New Component', feature: 'electrical_panel' }
         },
         {
-          path: 'settings/component-library/:id',
+          path: 'addons/electrical-panel/component-library/:id',
           name: 'component-standard-detail',
-          component: () => import('@/pages/settings/component-library/ComponentStandardDetailPage.vue'),
-          meta: { breadcrumb: (route) => `Component #${route.params.id}` }
+          component: () => import('@/pages/addons/electrical-panel/component-library/ComponentStandardDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Component #${route.params.id}`, feature: 'electrical_panel' }
         },
         {
-          path: 'settings/component-library/:id/edit',
+          path: 'addons/electrical-panel/component-library/:id/edit',
           name: 'component-standard-edit',
-          component: () => import('@/pages/settings/component-library/ComponentStandardFormPage.vue'),
-          meta: { breadcrumb: 'Edit Component' }
+          component: () => import('@/pages/addons/electrical-panel/component-library/ComponentStandardFormPage.vue'),
+          meta: { breadcrumb: 'Edit Component', feature: 'electrical_panel' }
         },
-        // Validation Rule Sets routes (under settings)
         {
-          path: 'settings/rule-sets',
+          path: 'addons/electrical-panel/rule-sets',
           name: 'rule-sets',
-          component: () => import('@/pages/settings/rule-sets/RuleSetsListPage.vue'),
-          meta: { breadcrumb: 'Validation Rule Sets' }
+          component: () => import('@/pages/addons/electrical-panel/rule-sets/RuleSetsListPage.vue'),
+          meta: { breadcrumb: 'Validation Rule Sets', feature: 'electrical_panel' }
         },
         {
-          path: 'settings/rule-sets/new',
+          path: 'addons/electrical-panel/rule-sets/new',
           name: 'rule-set-new',
-          component: () => import('@/pages/settings/rule-sets/RuleSetFormPage.vue'),
-          meta: { breadcrumb: 'New Rule Set' }
+          component: () => import('@/pages/addons/electrical-panel/rule-sets/RuleSetFormPage.vue'),
+          meta: { breadcrumb: 'New Rule Set', feature: 'electrical_panel' }
         },
         {
-          path: 'settings/rule-sets/:id',
+          path: 'addons/electrical-panel/rule-sets/:id',
           name: 'rule-set-detail',
-          component: () => import('@/pages/settings/rule-sets/RuleSetDetailPage.vue'),
-          meta: { breadcrumb: (route) => `Rule Set #${route.params.id}` }
+          component: () => import('@/pages/addons/electrical-panel/rule-sets/RuleSetDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Rule Set #${route.params.id}`, feature: 'electrical_panel' }
         },
         {
-          path: 'settings/rule-sets/:id/edit',
+          path: 'addons/electrical-panel/rule-sets/:id/edit',
           name: 'rule-set-edit',
-          component: () => import('@/pages/settings/rule-sets/RuleSetFormPage.vue'),
-          meta: { breadcrumb: 'Edit Rule Set' }
+          component: () => import('@/pages/addons/electrical-panel/rule-sets/RuleSetFormPage.vue'),
+          meta: { breadcrumb: 'Edit Rule Set', feature: 'electrical_panel' }
         },
+        // Legacy settings paths → add-on routes
+        { path: 'settings/component-library', redirect: { name: 'component-library' } },
+        { path: 'settings/component-library/new', redirect: { name: 'component-standard-new' } },
+        { path: 'settings/component-library/:id', redirect: to => ({ name: 'component-standard-detail', params: { id: to.params.id } }) },
+        { path: 'settings/component-library/:id/edit', redirect: to => ({ name: 'component-standard-edit', params: { id: to.params.id } }) },
+        { path: 'settings/rule-sets', redirect: { name: 'rule-sets' } },
+        { path: 'settings/rule-sets/new', redirect: { name: 'rule-set-new' } },
+        { path: 'settings/rule-sets/:id', redirect: to => ({ name: 'rule-set-detail', params: { id: to.params.id } }) },
+        { path: 'settings/rule-sets/:id/edit', redirect: to => ({ name: 'rule-set-edit', params: { id: to.params.id } }) },
         // BOM Templates routes (under settings)
         {
           path: 'settings/bom-templates',
