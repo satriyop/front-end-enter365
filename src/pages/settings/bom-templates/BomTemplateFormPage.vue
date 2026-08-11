@@ -10,6 +10,7 @@ import {
   useUpdateBomTemplate,
 } from '@/api/useBomTemplates'
 import { useActiveRuleSets } from '@/api/useSpecRuleSets'
+import { useFeaturesStore } from '@/stores/features'
 import { bomTemplateSchema, type BomTemplateFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, Select, FormField, Card, useToast } from '@/components/ui'
@@ -18,6 +19,8 @@ import { ArrowLeft } from 'lucide-vue-next'
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+const electricalPanelEnabled = computed(() => features.enabled('electrical_panel'))
 
 const templateId = computed(() => route.params.id ? Number(route.params.id) : null)
 const isEditing = computed(() => templateId.value !== null)
@@ -27,7 +30,7 @@ const { data: existingTemplate, isLoading: isLoadingTemplate } = useBomTemplate(
   computed(() => templateId.value ?? 0)
 )
 const { data: metadata, isLoading: isLoadingMetadata } = useBomTemplateMetadata()
-const { data: ruleSets, isLoading: isLoadingRuleSets } = useActiveRuleSets()
+const { data: ruleSets, isLoading: isLoadingRuleSets } = useActiveRuleSets(electricalPanelEnabled)
 
 // Mutations
 const createMutation = useCreateBomTemplate()
@@ -106,16 +109,22 @@ const ruleSetOptions = computed(() => {
   return options
 })
 
-const isLoading = computed(() => isLoadingTemplate.value || isLoadingMetadata.value || isLoadingRuleSets.value)
+const isLoading = computed(() =>
+  isLoadingTemplate.value
+  || isLoadingMetadata.value
+  || (electricalPanelEnabled.value && isLoadingRuleSets.value)
+)
 const isSaving = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
 const onSubmit = handleSubmit(async (formValues) => {
-  // Convert empty string to null for rule_set_id
+  // Convert empty string to null for rule_set_id; omit when electrical_panel off
   // Cast category to match API expected type
   const data = {
     ...formValues,
     category: formValues.category as "other" | "distribution" | "motor_control" | "solar" | "lighting" | null,
-    default_rule_set_id: formValues.default_rule_set_id || null,
+    default_rule_set_id: electricalPanelEnabled.value
+      ? (formValues.default_rule_set_id || null)
+      : null,
   }
 
   try {
@@ -233,13 +242,13 @@ function generateCode() {
         </div>
       </Card>
 
-      <Card>
+      <Card v-if="electricalPanelEnabled">
         <template #header>
           <h2 class="font-medium text-foreground">Defaults</h2>
         </template>
 
         <div class="space-y-4">
-          <FormField label="Validation Rule Set" hint="Applied when creating BOMs from this template">
+          <FormField label="Validation Rule Set" hint="Applied when creating BOMs from this template (panel add-on)">
             <Select
               v-model="defaultRuleSetId"
               :options="ruleSetOptions"

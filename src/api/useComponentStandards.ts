@@ -99,9 +99,12 @@ export interface Category {
 // ============================================
 
 /**
- * Fetch paginated list of component standards
+ * Fetch paginated list of component standards (electrical_panel add-on).
  */
-export function useComponentStandards(filters: Ref<ComponentStandardFilters>) {
+export function useComponentStandards(
+  filters: Ref<ComponentStandardFilters>,
+  enabled: MaybeRef<boolean> = true,
+) {
   return useQuery({
     queryKey: computed(() => ['component-standards', filters.value]),
     queryFn: async () => {
@@ -113,6 +116,7 @@ export function useComponentStandards(filters: Ref<ComponentStandardFilters>) {
       })
       return response.data
     },
+    enabled: computed(() => unref(enabled)),
   })
 }
 

@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
+import { computed, unref, type MaybeRef, type Ref } from 'vue'
 import { api, type PaginatedResponse } from './client'
 
 // ============================================
@@ -126,7 +126,7 @@ export function useRuleSetMetadata() {
 /**
  * Fetch active rule sets for dropdown
  */
-export function useActiveRuleSets() {
+export function useActiveRuleSets(enabled: MaybeRef<boolean> = true) {
   return useQuery({
     queryKey: ['spec-rule-sets', 'active'],
     queryFn: async () => {
@@ -135,6 +135,7 @@ export function useActiveRuleSets() {
       })
       return response.data.data
     },
+    enabled: computed(() => unref(enabled)),
     staleTime: 5 * 60 * 1000,
   })
 }

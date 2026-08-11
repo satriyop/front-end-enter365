@@ -12,21 +12,26 @@ import {
 } from '@/api/useBomTemplates'
 import { useComponentStandards, type ComponentStandardFilters } from '@/api/useComponentStandards'
 import { useProducts } from '@/api/useProducts'
+import { useFeaturesStore } from '@/stores/features'
 import { Button, Input, Select, Modal, Badge, FormField, Card, useToast } from '@/components/ui'
 import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, PlayCircle, Package, Settings } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+
+/** Vahana electrical_panel: component standards, brand coverage, rule sets */
+const electricalPanelEnabled = computed(() => features.enabled('electrical_panel'))
 
 const templateId = computed(() => Number(route.params.id))
 const { data: template, isLoading, error } = useBomTemplate(templateId)
 const { data: metadata } = useBomTemplateMetadata()
-const { data: availableBrands } = useTemplateAvailableBrands(templateId)
+const { data: availableBrands } = useTemplateAvailableBrands(templateId, electricalPanelEnabled)
 
-// Component standards for selection
+// Component standards for selection (only fetch when industry add-on on)
 const standardFilters = ref<ComponentStandardFilters>({ per_page: 100, is_active: true })
-const { data: standardsData } = useComponentStandards(standardFilters)
+const { data: standardsData } = useComponentStandards(standardFilters, electricalPanelEnabled)
 const standards = computed(() => standardsData.value?.data ?? [])
 
 // Products for selection
@@ -169,10 +174,12 @@ function validateItemForm(): boolean {
 async function handleSaveItem() {
   if (!validateItemForm()) return
 
-  // Convert empty strings to null
+  // Convert empty strings to null; strip industry fields when add-on off
   const data = {
     ...itemForm.value,
-    component_standard_id: itemForm.value.component_standard_id || null,
+    component_standard_id: electricalPanelEnabled.value
+      ? (itemForm.value.component_standard_id || null)
+      : null,
     product_id: itemForm.value.product_id || null,
   }
 
@@ -346,7 +353,7 @@ function getTypeLabel(type: string): string {
           </div>
         </Card>
 
-        <Card>
+        <Card v-if="electricalPanelEnabled">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
               <Settings class="w-5 h-5 text-purple-600 dark:text-purple-400" />
@@ -361,8 +368,8 @@ function getTypeLabel(type: string): string {
         </Card>
       </div>
 
-      <!-- Available Brands -->
-      <Card v-if="availableBrands && availableBrands.length > 0" class="mb-6">
+      <!-- Available Brands (electrical_panel only) -->
+      <Card v-if="electricalPanelEnabled && availableBrands && availableBrands.length > 0" class="mb-6">
         <template #header>
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Available Brands for This Template</h2>
         </template>
@@ -433,7 +440,7 @@ function getTypeLabel(type: string): string {
                   </div>
                   <div class="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mt-1">
                     <span>Qty: {{ item.default_quantity }} {{ item.unit }}</span>
-                    <span v-if="item.component_standard" class="font-mono text-xs">
+                    <span v-if="electricalPanelEnabled && item.component_standard" class="font-mono text-xs">
                       Standard: {{ item.component_standard.code }}
                     </span>
                     <span v-if="item.product" class="text-xs">
@@ -509,7 +516,11 @@ function getTypeLabel(type: string): string {
           </FormField>
         </div>
 
-        <FormField label="Component Standard" hint="Link to IEC standard for brand swapping">
+        <FormField
+          v-if="electricalPanelEnabled"
+          label="Component Standard"
+          hint="Link to IEC standard for brand swapping"
+        >
           <Select
             :model-value="itemForm.component_standard_id ? String(itemForm.component_standard_id) : ''"
             :options="standardOptions"
@@ -517,7 +528,7 @@ function getTypeLabel(type: string): string {
           />
         </FormField>
 
-        <FormField label="Specific Product" hint="Optional: use specific product instead of standard">
+        <FormField label="Specific Product" hint="Optional product link for this template line">
           <Select
             :model-value="itemForm.product_id ? String(itemForm.product_id) : ''"
             :options="productOptions"
