@@ -2546,8 +2546,8 @@ export interface paths {
         };
         /**
          * Get feature flags status
-         * @description Returns all feature modules with their enabled/disabled status.
-         *     Frontend applications can use this to conditionally render UI elements.
+         * @description Available to any authenticated user so the SPA can hide nav/routes
+         *     for disabled packs (odoo apps + industry add-ons: solar, electrical_panel).
          *
          *     GET /api/v1/features
          */
@@ -5458,6 +5458,142 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/changes-in-equity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Perubahan Ekuitas (Statement of Changes in Equity) */
+        get: operations["reports.changes-in-equity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/accounts/{account}/bank-reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Rekonsiliasi Bank */
+        get: operations["reports.bank-reconciliation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/accounts/{account}/bank-reconciliation/outstanding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Item Outstanding untuk Rekonsiliasi Bank */
+        get: operations["reports.bank-reconciliation-outstanding"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Ringkasan HPP (COGS Summary) */
+        get: operations["reports.cogs-summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-by-product": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan HPP per Produk */
+        get: operations["reports.cogs-by-product"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan HPP per Kategori */
+        get: operations["reports.cogs-by-category"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-monthly-trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Trend HPP Bulanan */
+        get: operations["reports.cogs-monthly-trend"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/products/{product}/cogs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Detail HPP Produk */
+        get: operations["reports.product-cogs-detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/project-profitability": {
         parameters: {
             query?: never;
@@ -5603,142 +5739,6 @@ export interface paths {
         };
         /** Laporan Retensi Subkontraktor */
         get: operations["reports.subcontractor-retention"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/changes-in-equity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Perubahan Ekuitas (Statement of Changes in Equity) */
-        get: operations["reports.changes-in-equity"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/accounts/{account}/bank-reconciliation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Rekonsiliasi Bank */
-        get: operations["reports.bank-reconciliation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/accounts/{account}/bank-reconciliation/outstanding": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Item Outstanding untuk Rekonsiliasi Bank */
-        get: operations["reports.bank-reconciliation-outstanding"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Ringkasan HPP (COGS Summary) */
-        get: operations["reports.cogs-summary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-by-product": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan HPP per Produk */
-        get: operations["reports.cogs-by-product"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-by-category": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan HPP per Kategori */
-        get: operations["reports.cogs-by-category"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-monthly-trend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Trend HPP Bulanan */
-        get: operations["reports.cogs-monthly-trend"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/products/{product}/cogs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Detail HPP Produk */
-        get: operations["reports.product-cogs-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -7492,10 +7492,10 @@ export interface components {
             is_system: boolean;
             opening_balance: number;
             current_balance?: string;
-            parent?: components["schemas"]["AccountResource"];
+            parent?: components["schemas"]["AccountResource"] | null;
             children?: components["schemas"]["AccountResource"][];
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** AccountingPolicyResource */
         AccountingPolicyResource: {
@@ -7506,7 +7506,7 @@ export interface components {
             manufacturing_costing: string;
             closing_strategy: string;
             costing_method: string;
-            updated_at: string;
+            updated_at: string | null;
         };
         /** AddBomToVariantGroupRequest */
         AddBomToVariantGroupRequest: {
@@ -7547,11 +7547,11 @@ export interface components {
             download_url: string;
             uploaded_by: number | null;
             uploader?: {
-                id: string;
-                name: string;
+                id: number | null;
+                name: string | null;
             };
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BankTransaction */
         BankTransaction: {
@@ -7596,14 +7596,14 @@ export interface components {
             status: components["schemas"]["StatusResource"];
             is_reconciled: boolean;
             matched_payment_id: number | null;
-            matched_payment?: components["schemas"]["PaymentResource"];
+            matched_payment?: components["schemas"]["PaymentResource"] | null;
             matched_journal_line_id: number | null;
-            reconciled_at: string;
+            reconciled_at: string | null;
             reconciled_by: number | null;
             import_batch: string | null;
             external_id: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /**
          * BankTransactionStatus
@@ -7626,9 +7626,9 @@ export interface components {
             sort_order: number;
             notes: string | null;
             expense_account_id: number | null;
-            expense_account?: components["schemas"]["AccountResource"];
-            created_at: string;
-            updated_at: string;
+            expense_account?: components["schemas"]["AccountResource"] | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BillResource */
         BillResource: {
@@ -7658,11 +7658,11 @@ export interface components {
             payable_account_id: number | null;
             contact?: components["schemas"]["ContactResource"];
             items?: components["schemas"]["BillItemResource"][];
-            journal_entry?: components["schemas"]["JournalEntryResource"];
+            journal_entry?: components["schemas"]["JournalEntryResource"] | null;
             payments?: components["schemas"]["PaymentResource"][];
-            created_by: number;
-            created_at: string;
-            updated_at: string;
+            created_by: number | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BomItem */
         BomItem: {
@@ -7682,7 +7682,6 @@ export interface components {
             created_at: string | null;
             /** Format: date-time */
             updated_at: string | null;
-            component_standard_id: number | null;
         };
         /** BomItemResource */
         BomItemResource: {
@@ -7704,7 +7703,7 @@ export interface components {
             effective_quantity: number;
             sort_order: number;
             notes: string | null;
-            component_standard_id: number | null;
+            component_standard_id?: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -7749,7 +7748,7 @@ export interface components {
                 name: string;
             };
             approved_by: number | null;
-            approved_at: string;
+            approved_at: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -7759,13 +7758,13 @@ export interface components {
             template_id: number;
             type: string;
             type_label: string;
-            component_standard_id: number | null;
+            component_standard_id?: string | null;
             component_standard?: {
-                id: number;
+                id: string;
                 code: string;
                 name: string;
                 category: string;
-            };
+            } | null;
             product_id: number | null;
             product?: {
                 id: number;
@@ -7780,10 +7779,10 @@ export interface components {
             is_quantity_variable: boolean;
             sort_order: number;
             notes: string | null;
-            has_component_standard: boolean;
+            has_component_standard: string;
             has_product: boolean;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BomTemplateResource */
         BomTemplateResource: {
@@ -7798,7 +7797,7 @@ export interface components {
             is_active: boolean;
             usage_count: number;
             default_rule_set?: {
-                id: number;
+                id: string;
                 name: string;
                 code: string;
             };
@@ -7813,8 +7812,8 @@ export interface components {
                 id: number;
                 name: string;
             };
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BomVariantGroupResource */
         BomVariantGroupResource: {
@@ -7834,16 +7833,51 @@ export interface components {
                 id: number;
                 name: string;
             };
-            boms?: string;
-            active_boms?: string;
+            boms?: {
+                id: number;
+                bom_number: string;
+                name: string;
+                variant_name: string | null;
+                variant_label: string | null;
+                is_primary_variant: boolean;
+                variant_sort_order: number;
+                status: components["schemas"]["DocumentStatus"];
+                total_cost: number;
+                unit_cost: number;
+                cost_breakdown: {
+                    material: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    labor: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    overhead: {
+                        amount: number;
+                        percentage: number;
+                    };
+                    total: number;
+                    unit_cost: number;
+                };
+            }[];
+            active_boms?: {
+                id: number;
+                bom_number: string;
+                name: string;
+                variant_name: string | null;
+                variant_label: string | null;
+                is_primary_variant: boolean;
+                total_cost: number;
+            }[];
             variants_count?: number;
             cost_summary?: {
-                min: unknown;
-                max: unknown;
+                min: string;
+                max: string;
                 difference: string;
             } | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BudgetLineResource */
         BudgetLineResource: {
@@ -7878,8 +7912,8 @@ export interface components {
             q3_amount: number;
             q4_amount: number;
             notes: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** BudgetResource */
         BudgetResource: {
@@ -7907,13 +7941,13 @@ export interface components {
                 id: number;
                 name: string;
             };
-            approved_at: string;
+            approved_at: string | null;
             notes: string | null;
             /** @description Lines */
             lines?: components["schemas"]["BudgetLineResource"][];
             lines_count?: number;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /**
          * BudgetStatus
@@ -7950,11 +7984,11 @@ export interface components {
             primary_color: string;
             secondary_color: string | null;
             /** @description Content arrays */
-            services: unknown[] | null | string[];
-            portfolio: unknown[] | null | string[];
-            team: string | null | string[];
-            certifications: unknown[] | null | string[];
-            social_links: unknown[] | null | string[];
+            services: unknown[];
+            portfolio: unknown[];
+            team: string | string[];
+            certifications: unknown[];
+            social_links: unknown[];
             /** @description Contact */
             email: string | null;
             phone: string | null;
@@ -7966,8 +8000,8 @@ export interface components {
             /** @description Status */
             is_active: boolean;
             /** @description Timestamps */
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ComponentBrandMappingResource */
         ComponentBrandMappingResource: {
@@ -7991,9 +8025,9 @@ export interface components {
             variant_specs: string;
             notes: string | null;
             verified_by: number | null;
-            verified_at: string;
-            created_at: string;
-            updated_at: string;
+            verified_at: string | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ComponentStandardResource */
         ComponentStandardResource: {
@@ -8008,15 +8042,15 @@ export interface components {
             description: string | null;
             unit: string;
             is_active: boolean;
-            brand_mappings?: components["schemas"]["ComponentBrandMappingResource"][];
+            brand_mappings?: (components["schemas"]["ComponentBrandMappingResource"] & Record<string, never>)[];
             available_brands?: unknown[];
             brand_count?: number;
             creator?: {
                 id: number;
                 name: string;
             };
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ContactResource */
         ContactResource: {
@@ -8051,18 +8085,17 @@ export interface components {
             is_active: boolean;
             receivable_balance?: string;
             payable_balance?: string;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** CreateBomFromTemplateRequest */
         CreateBomFromTemplateRequest: {
             product_id: number;
-            /** @enum {string|null} */
-            target_brand?: "schneider" | "abb" | "siemens" | "chint" | "ls" | "legrand" | "eaton" | "hager" | "mitsubishi" | null;
             name?: string | null;
             notes?: string | null;
             output_quantity?: number | null;
             quantity_overrides?: number[] | null;
+            target_brand?: string;
         };
         /** CreateVariantFromBomRequest */
         CreateVariantFromBomRequest: {
@@ -8110,14 +8143,14 @@ export interface components {
                 address: string | null;
                 phone: string | null;
             };
-            warehouse_id: number | null;
+            warehouse_id: number;
             warehouse?: {
                 id: number;
                 name: string;
             };
             do_date: string;
-            shipping_date: string;
-            received_date: string;
+            shipping_date: string | null;
+            received_date: string | null;
             shipping_address: string | null;
             shipping_method: string | null;
             tracking_number: string | null;
@@ -8138,11 +8171,11 @@ export interface components {
                 name: string;
             };
             confirmed_by: number | null;
-            confirmed_at: string;
+            confirmed_at: string | null;
             shipped_by: number | null;
-            shipped_at: string;
+            shipped_at: string | null;
             delivered_by: number | null;
-            delivered_at: string;
+            delivered_at: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -8159,7 +8192,7 @@ export interface components {
             applicable_type: string;
             applicable_id: number;
             applicable: {
-                /** @enum {string} */
+                /** @constant */
                 type: "bill";
                 id: number;
                 number: string;
@@ -8194,7 +8227,7 @@ export interface components {
             dp_date: string;
             amount: number;
             applied_amount: number;
-            remaining_amount: number | null;
+            remaining_amount: number;
             payment_method: string;
             cash_account_id: number;
             cash_account?: {
@@ -8221,7 +8254,10 @@ export interface components {
         };
         /** ExecuteBankStatementImportRequest */
         ExecuteBankStatementImportRequest: {
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 10240 kilobytes.
+             */
             file: string;
             account_id: number;
         };
@@ -8234,19 +8270,19 @@ export interface components {
             is_closed: boolean;
             is_locked: boolean;
             is_open: boolean;
-            closed_at: string;
+            closed_at: string | null;
             closed_by: number | null;
             closing_entry_id: number | null;
             retained_earnings_amount: number | null;
             closing_notes: string | null;
-            closing_entry?: components["schemas"]["JournalEntryResource"];
-            created_at: string;
-            updated_at: string;
+            closing_entry?: components["schemas"]["JournalEntryResource"] | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** GenerateBrandVariantsRequest */
         GenerateBrandVariantsRequest: {
-            group_name?: string | null;
             brands: string[];
+            group_name?: string | null;
         };
         /** GoodsReceiptNoteItemResource */
         GoodsReceiptNoteItemResource: {
@@ -8278,8 +8314,8 @@ export interface components {
             /** @description Lot tracking */
             lot_number: string | null;
             expiry_date: string | null;
-            created_at: string | "";
-            updated_at: string;
+            created_at: string;
+            updated_at: string | null;
         };
         /** GoodsReceiptNoteResource */
         GoodsReceiptNoteResource: {
@@ -8338,8 +8374,8 @@ export interface components {
             can_delete: boolean;
             can_complete: boolean;
             can_cancel: boolean;
-            completed_at: string;
-            cancelled_at: string;
+            completed_at: string | null;
+            cancelled_at: string | null;
             created_by: number | null;
             created_at: string;
             updated_at: string;
@@ -8382,7 +8418,7 @@ export interface components {
             reference_id: number | null;
             /** @description Transfer info */
             transfer_warehouse_id: number | null;
-            transfer_warehouse?: components["schemas"]["WarehouseResource"];
+            transfer_warehouse?: components["schemas"]["WarehouseResource"] | null;
             movement_date: string;
             notes: string | null;
             /** @description Audit */
@@ -8391,8 +8427,8 @@ export interface components {
                 id: number;
                 name: string;
             };
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** InvoiceItemResource */
         InvoiceItemResource: {
@@ -8411,9 +8447,9 @@ export interface components {
             sort_order: number;
             notes: string | null;
             revenue_account_id: number | null;
-            revenue_account?: components["schemas"]["AccountResource"];
-            created_at: string;
-            updated_at: string;
+            revenue_account?: components["schemas"]["AccountResource"] | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** InvoiceResource */
         InvoiceResource: {
@@ -8434,7 +8470,7 @@ export interface components {
             } | string[];
             /** @description NSFP (Nomor Seri Faktur Pajak) */
             nsfp_number: string | null;
-            nsfp_assigned_at: string;
+            nsfp_assigned_at: string | null;
             is_nsfp_cancelled: boolean;
             has_nsfp: boolean;
             /** @description Currency */
@@ -8465,7 +8501,7 @@ export interface components {
             /** @description Journal entry */
             journal_entry_id: number | null;
             has_journal_entry: boolean;
-            journal_entry?: components["schemas"]["JournalEntryResource"];
+            journal_entry?: components["schemas"]["JournalEntryResource"] | null;
             /** @description Receivable account */
             receivable_account_id: number | null;
             /** @description Items */
@@ -8486,13 +8522,11 @@ export interface components {
                 };
                 next_statuses: unknown[];
                 all_statuses: unknown[];
-                transitions: [
-                    {
-                        from: string;
-                        to: string;
-                        available: string;
-                    }
-                ];
+                transitions: {
+                    from: string;
+                    to: string;
+                    available: string;
+                }[];
             };
             /** @description Status history (optional - include with ?include_history=true) */
             status_history?: {
@@ -8514,10 +8548,10 @@ export interface components {
             };
             /** @description Metadata */
             reminder_count: number;
-            last_reminder_at: string;
-            created_by: number;
-            created_at: string;
-            updated_at: string;
+            last_reminder_at: string | null;
+            created_by: number | null;
+            created_at: string | null;
+            updated_at: string | null;
             /** @description Links (for HATEOAS-style responses) */
             links?: {
                 self: string;
@@ -8528,12 +8562,12 @@ export interface components {
             id: number;
             journal_entry_id: number;
             account_id: number;
-            description: string | null;
+            description: string;
             debit: number;
             credit: number;
             account?: components["schemas"]["AccountResource"];
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** JournalEntryResource */
         JournalEntryResource: {
@@ -8551,12 +8585,12 @@ export interface components {
             total_credit: number;
             is_balanced: boolean;
             lines?: components["schemas"]["JournalEntryLineResource"][];
-            fiscal_period?: components["schemas"]["FiscalPeriodResource"];
-            reversed_by?: components["schemas"]["JournalEntryResource"];
-            reversal_of?: components["schemas"]["JournalEntryResource"];
+            fiscal_period?: components["schemas"]["FiscalPeriodResource"] | null;
+            reversed_by?: components["schemas"]["JournalEntryResource"] | null;
+            reversal_of?: components["schemas"]["JournalEntryResource"] | null;
             created_by: number | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** JsonResource */
         JsonResource: string;
@@ -8564,11 +8598,6 @@ export interface components {
         LabelValueResource: {
             value: string;
             label: string;
-        } | {
-            /** @enum {string} */
-            value: "";
-            /** @enum {string} */
-            label: "";
         };
         /** LoginRequest */
         LoginRequest: {
@@ -8621,8 +8650,8 @@ export interface components {
                 id: number;
                 name: string;
             } | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** MaterialRequisitionItemResource */
         MaterialRequisitionItemResource: {
@@ -8645,8 +8674,8 @@ export interface components {
                 name: string;
                 unit: string;
             } | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** MaterialRequisitionResource */
         MaterialRequisitionResource: {
@@ -8654,7 +8683,7 @@ export interface components {
             requisition_number: string;
             status: components["schemas"]["StatusResource"];
             requested_date: string;
-            required_date: string;
+            required_date: string | null;
             total_items: number;
             total_quantity: number;
             notes: string | null;
@@ -8665,17 +8694,17 @@ export interface components {
                 wo_number: string;
                 name: string;
             } | null;
-            warehouse_id: number | null;
+            warehouse_id: number;
             warehouse?: {
                 id: number;
                 name: string;
             } | null;
             items?: components["schemas"]["MaterialRequisitionItemResource"][];
             /** @description Timestamps */
-            approved_at: string;
-            issued_at: string;
-            created_at: string;
-            updated_at: string;
+            approved_at: string | null;
+            issued_at: string | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** MrpDemandResource */
         MrpDemandResource: {
@@ -8714,14 +8743,14 @@ export interface components {
                 id: number;
                 name: string;
             } | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** MrpRunResource */
         MrpRunResource: {
             id: number;
             run_number: string;
-            name: string;
+            name: string | null;
             status: components["schemas"]["StatusResource"];
             planning_horizon_start: string | null;
             planning_horizon_end: string | null;
@@ -8747,10 +8776,10 @@ export interface components {
             demands?: components["schemas"]["MrpDemandResource"][];
             suggestions?: components["schemas"]["MrpSuggestionResource"][];
             /** @description Timestamps */
-            completed_at: string;
-            applied_at: string;
-            created_at: string;
-            updated_at: string;
+            completed_at: string | null;
+            applied_at: string | null;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** MrpSuggestionResource */
         MrpSuggestionResource: {
@@ -8804,8 +8833,8 @@ export interface components {
             can_be_accepted: boolean;
             can_be_rejected: boolean;
             can_be_converted: boolean;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** NsfpRangeResource */
         NsfpRangeResource: {
@@ -8824,18 +8853,18 @@ export interface components {
             remaining: number;
             is_exhausted: boolean;
             is_low_stock: boolean;
-            utilization_percent: number | 0;
+            utilization_percent: number;
             /** @description Formatted range display */
             formatted_range_start: string;
             formatted_range_end: string;
             formatted_next_number: string | null;
             /** @description Relationships */
             created_by: number | null;
-            creator?: components["schemas"]["UserResource"];
+            creator?: components["schemas"]["UserResource"] | null;
             invoice_count?: string;
             /** @description Timestamps */
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** PaymentReminderResource */
         PaymentReminderResource: {
@@ -8848,15 +8877,15 @@ export interface components {
             type: string;
             days_offset: number;
             scheduled_date: string;
-            sent_date: string;
+            sent_date: string | null;
             status: string;
             channel: string;
             message: string | null;
             metadata: unknown[] | null;
-            creator?: components["schemas"]["UserResource"];
+            creator?: components["schemas"]["UserResource"] | null;
             created_by: number | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** PaymentResource */
         PaymentResource: {
@@ -8888,7 +8917,7 @@ export interface components {
             void_reason?: string | null;
             contact?: components["schemas"]["ContactResource"];
             cash_account?: components["schemas"]["AccountResource"];
-            journal_entry?: components["schemas"]["JournalEntryResource"];
+            journal_entry?: components["schemas"]["JournalEntryResource"] | null;
             allocations?: {
                 id: number;
                 allocatable_type: string;
@@ -8896,8 +8925,8 @@ export interface components {
                 amount: number;
             }[];
             created_by: number | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** PermissionResource */
         PermissionResource: {
@@ -8906,8 +8935,8 @@ export interface components {
             display_name: string;
             group: string;
             description: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** PlnTariff */
         PlnTariff: {
@@ -9016,7 +9045,7 @@ export interface components {
             name: string;
             description: string | null;
             parent_id: number | null;
-            parent?: components["schemas"]["ProductCategoryResource"];
+            parent?: components["schemas"]["ProductCategoryResource"] | null;
             children?: components["schemas"]["ProductCategoryResource"][];
             descendants?: components["schemas"]["ProductCategoryResource"][];
             full_path: string;
@@ -9024,8 +9053,8 @@ export interface components {
             sort_order: number;
             products_count?: number;
             has_children?: boolean;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ProductResource */
         ProductResource: {
@@ -9037,7 +9066,7 @@ export interface components {
             /** @enum {string} */
             type_label: "Produk" | "Jasa";
             category_id: number | null;
-            category?: components["schemas"]["ProductCategoryResource"];
+            category?: components["schemas"]["ProductCategoryResource"] | null;
             unit: string;
             /** @description Pricing */
             purchase_price: number;
@@ -9056,13 +9085,13 @@ export interface components {
             is_out_of_stock: boolean;
             /** @description Accounting links */
             inventory_account_id: number | null;
-            inventory_account?: components["schemas"]["AccountResource"];
+            inventory_account?: components["schemas"]["AccountResource"] | null;
             cogs_account_id: number | null;
-            cogs_account?: components["schemas"]["AccountResource"];
+            cogs_account?: components["schemas"]["AccountResource"] | null;
             sales_account_id: number | null;
-            sales_account?: components["schemas"]["AccountResource"];
+            sales_account?: components["schemas"]["AccountResource"] | null;
             purchase_account_id: number | null;
-            purchase_account?: components["schemas"]["AccountResource"];
+            purchase_account?: components["schemas"]["AccountResource"] | null;
             /** @description Status */
             is_active: boolean;
             is_purchasable: boolean;
@@ -9071,8 +9100,8 @@ export interface components {
             barcode: string | null;
             brand: string | null;
             custom_fields: unknown[] | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ProductStockResource */
         ProductStockResource: {
@@ -9084,8 +9113,8 @@ export interface components {
             quantity: number;
             average_cost: number;
             total_value: number;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ProjectCostResource */
         ProjectCostResource: {
@@ -9121,7 +9150,7 @@ export interface components {
             project_number: string;
             name: string;
             description: string | null;
-            contact_id: number;
+            contact_id: number | null;
             contact?: {
                 id: number;
                 name: string;
@@ -9133,10 +9162,10 @@ export interface components {
                 quotation_number: string;
                 total_amount: number;
             };
-            start_date: string;
-            end_date: string;
-            actual_start_date: string;
-            actual_end_date: string;
+            start_date: string | null;
+            end_date: string | null;
+            actual_start_date: string | null;
+            actual_end_date: string | null;
             status: components["schemas"]["StatusResource"];
             budget_amount: number;
             contract_amount: number;
@@ -9225,7 +9254,7 @@ export interface components {
             delivery_date: string | null;
             /** @enum {string} */
             delivery_status: "Received" | "Pending";
-            created_at: string | "";
+            created_at: string;
         };
         /** PurchaseOrderResource */
         PurchaseOrderResource: {
@@ -9236,7 +9265,7 @@ export interface components {
             contact_id: number;
             contact?: components["schemas"]["ContactResource"];
             po_date: string;
-            expected_date: string;
+            expected_date: string | null;
             reference: string | null;
             subject: string | null;
             status: components["schemas"]["StatusResource"];
@@ -9258,21 +9287,21 @@ export interface components {
             receiving_progress: number;
             is_fully_received: boolean;
             has_received_items: boolean;
-            first_received_at: string;
-            fully_received_at: string;
+            first_received_at: string | null;
+            fully_received_at: string | null;
             /** @description Workflow info */
-            submitted_at: string;
+            submitted_at: string | null;
             submitted_by: number | null;
-            approved_at: string;
+            approved_at: string | null;
             approved_by: number | null;
-            rejected_at: string;
+            rejected_at: string | null;
             rejected_by: number | null;
             rejection_reason: string | null;
-            cancelled_at: string;
+            cancelled_at: string | null;
             cancelled_by: number | null;
             cancellation_reason: string | null;
             converted_to_bill_id: number | null;
-            converted_at: string;
+            converted_at: string | null;
             original_po_id: number | null;
             /** @description Permissions */
             can_edit: boolean;
@@ -9286,8 +9315,8 @@ export interface components {
             /** @description Relations */
             items?: components["schemas"]["PurchaseOrderItemResource"][];
             revisions?: components["schemas"]["PurchaseOrderResource"][];
-            converted_bill?: components["schemas"]["BillResource"];
-            created_by: number;
+            converted_bill?: components["schemas"]["BillResource"] | null;
+            created_by: number | null;
             created_at: string;
             updated_at: string;
         };
@@ -9334,7 +9363,7 @@ export interface components {
                 address: string | null;
                 phone: string | null;
             };
-            warehouse_id: number | null;
+            warehouse_id: number;
             warehouse?: {
                 id: number;
                 name: string;
@@ -9390,14 +9419,14 @@ export interface components {
             description: string | null;
             outcome: string | null;
             duration_minutes: number | null;
-            created_at: string;
+            created_at: string | null;
         };
         /** QuotationItemResource */
         QuotationItemResource: {
             id: number;
             quotation_id: number;
             product_id: number | null;
-            product?: components["schemas"]["ProductResource"];
+            product?: components["schemas"]["ProductResource"] | null;
             description: string;
             quantity: number;
             unit: string;
@@ -9433,12 +9462,12 @@ export interface components {
             is_expired: boolean;
             reference: string | null;
             subject: string | null;
-            quotation_type: components["schemas"]["LabelValueResource"];
+            quotation_type: components["schemas"]["LabelValueResource"] | null;
             is_multi_option: boolean;
             variant_group_id: number | null;
-            variant_group?: components["schemas"]["BomVariantGroupResource"];
+            variant_group?: components["schemas"]["BomVariantGroupResource"] | null;
             selected_variant_id: number | null;
-            selected_variant?: components["schemas"]["BomResource"];
+            selected_variant?: components["schemas"]["BomResource"] | null;
             has_selected_variant: boolean;
             status: components["schemas"]["StatusResource"];
             status_label: string;
@@ -9455,33 +9484,32 @@ export interface components {
             notes: string | null;
             terms_conditions: string | null;
             /** @description Workflow info */
-            submitted_at: string;
+            submitted_at: string | null;
             submitted_by: number | null;
-            approved_at: string;
+            approved_at: string | null;
             approved_by: number | null;
-            rejected_at: string;
+            rejected_at: string | null;
             rejected_by: number | null;
             rejection_reason: string | null;
             /** @description Follow-up tracking */
-            next_follow_up_at: string;
-            last_contacted_at: string;
+            next_follow_up_at: string | null;
+            last_contacted_at: string | null;
             assigned_to: number | null;
-            assigned_user?: components["schemas"]["UserResource"];
+            assigned_user?: components["schemas"]["UserResource"] | null;
             follow_up_count: number;
-            priority: components["schemas"]["LabelValueResource"];
+            priority: components["schemas"]["LabelValueResource"] | null;
             priority_label: string;
             needs_follow_up: boolean;
             days_since_last_contact: number | null;
-            /** @description Win/Loss outcome */
-            outcome: components["schemas"]["LabelValueResource"];
+            outcome: components["schemas"]["LabelValueResource"] | null;
             outcome_label: string | null;
             won_reason: string | null;
             lost_reason: string | null;
             lost_to_competitor: string | null;
             outcome_notes: string | null;
-            outcome_at: string;
+            outcome_at: string | null;
             converted_to_invoice_id: number | null;
-            converted_at: string;
+            converted_at: string | null;
             original_quotation_id: number | null;
             /** @description Permissions */
             can_edit: boolean;
@@ -9493,7 +9521,7 @@ export interface components {
             /** @description Relations */
             items?: components["schemas"]["QuotationItemResource"][];
             revisions?: components["schemas"]["QuotationResource"][];
-            converted_invoice?: components["schemas"]["InvoiceResource"];
+            converted_invoice?: components["schemas"]["InvoiceResource"] | null;
             activities?: components["schemas"]["QuotationActivityResource"][];
             variant_options?: components["schemas"]["QuotationVariantOptionResource"][];
             variant_comparison?: {
@@ -9506,7 +9534,7 @@ export interface components {
                     difference: number;
                 };
             } | null;
-            created_by: number;
+            created_by: number | null;
             created_at: string;
             updated_at: string;
         };
@@ -9542,8 +9570,8 @@ export interface components {
                 total: number;
                 unit_cost: number;
             };
-            created_at: string | "";
-            updated_at: string | "";
+            created_at: string;
+            updated_at: string;
         };
         /** ReconcileBankTransactionRequest */
         ReconcileBankTransactionRequest: {
@@ -9569,10 +9597,10 @@ export interface components {
             tax_rate: number;
             discount_amount: number;
             early_discount_percent: number;
-            early_discount_days: number;
-            payment_term_days: number;
+            early_discount_days: number | null;
+            payment_term_days: number | null;
             currency: string;
-            items: unknown[];
+            items: unknown[] | null;
             is_active: boolean;
             auto_post: boolean;
             auto_send: boolean;
@@ -9610,8 +9638,8 @@ export interface components {
             permissions?: components["schemas"]["PermissionResource"][];
             permissions_count?: number;
             users_count?: number;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** SalesReturnItemResource */
         SalesReturnItemResource: {
@@ -9683,14 +9711,14 @@ export interface components {
                 name: string;
             };
             submitted_by: number | null;
-            submitted_at: string;
+            submitted_at: string | null;
             approved_by: number | null;
-            approved_at: string;
+            approved_at: string | null;
             rejected_by: number | null;
-            rejected_at: string;
+            rejected_at: string | null;
             rejection_reason: string | null;
             completed_by: number | null;
-            completed_at: string;
+            completed_at: string | null;
             created_at: string;
             updated_at: string;
         };
@@ -9709,9 +9737,9 @@ export interface components {
             system_cost: number | null;
             payback_years: number | null;
             roi_percent: number | null;
-            valid_until: string;
+            valid_until: string | null;
             is_expired: boolean;
-            created_by: number;
+            created_by: number | null;
             creator?: components["schemas"]["UserResource"];
             created_at: string;
             updated_at: string;
@@ -9734,9 +9762,9 @@ export interface components {
             longitude: number | null;
             roof_area_m2: number | null;
             roof_polygon: unknown[] | null;
-            roof_type: string;
+            roof_type: string | null;
             roof_type_label: string;
-            roof_orientation: string;
+            roof_orientation: string | null;
             roof_orientation_label: string;
             roof_tilt_degrees: number | null;
             shading_percentage: number | null;
@@ -9751,9 +9779,9 @@ export interface components {
             performance_ratio: number | null;
             /** @description System Selection */
             variant_group_id: number | null;
-            variant_group?: components["schemas"]["BomVariantGroupResource"];
+            variant_group?: components["schemas"]["BomVariantGroupResource"] | null;
             selected_bom_id: number | null;
-            selected_bom?: components["schemas"]["BomResource"];
+            selected_bom?: components["schemas"]["BomResource"] | null;
             system_capacity_kwp: number | null;
             annual_production_kwh: number | null;
             monthly_production_kwh: number | null;
@@ -9775,19 +9803,19 @@ export interface components {
             /** @description Proposal Settings */
             sections_config: unknown[] | null;
             custom_content: unknown[] | null;
-            valid_until: string;
+            valid_until: string | null;
             days_until_expiry: number | null;
             is_expired: boolean;
             notes: string | null;
             /** @description Metadata */
-            created_by: number;
+            created_by: number | null;
             creator?: components["schemas"]["UserResource"];
-            sent_at: string;
-            accepted_at: string;
-            rejected_at: string;
+            sent_at: string | null;
+            accepted_at: string | null;
+            rejected_at: string | null;
             rejection_reason: string | null;
             converted_quotation_id: number | null;
-            converted_quotation?: components["schemas"]["QuotationResource"];
+            converted_quotation?: components["schemas"]["QuotationResource"] | null;
             /** @description Public Access */
             public_url: string | null;
             has_valid_public_token: boolean;
@@ -9816,8 +9844,8 @@ export interface components {
             sort_order: number;
             description: string;
             requires_threshold: boolean;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** SpecValidationRuleSet */
         SpecValidationRuleSet: Record<string, never>;
@@ -9831,13 +9859,13 @@ export interface components {
             is_active: boolean;
             rules?: components["schemas"]["SpecValidationRuleResource"][];
             rules_count?: number;
-            boms_count?: number;
+            boms_count?: string;
             creator?: {
                 id: number;
                 name: string;
             };
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** StatusResource */
         StatusResource: {
@@ -9880,7 +9908,7 @@ export interface components {
             unit_cost: number;
             difference_value: number;
             notes: string | null;
-            created_at: string;
+            created_at: string | null;
         };
         /** StockOpnameResource */
         StockOpnameResource: {
@@ -9902,21 +9930,21 @@ export interface components {
                 id: number;
                 name: string;
             };
-            counting_started_at: string;
+            counting_started_at: string | null;
             reviewed_by: number | null;
             reviewed_by_user?: {
                 id: number;
                 name: string;
             };
-            reviewed_at: string;
+            reviewed_at: string | null;
             approved_by: number | null;
             approved_by_user?: {
                 id: number;
                 name: string;
             };
-            approved_at: string;
-            completed_at: string;
-            cancelled_at: string;
+            approved_at: string | null;
+            completed_at: string | null;
+            cancelled_at: string | null;
             /** @description Summary */
             total_items: number;
             total_counted: number;
@@ -9967,7 +9995,10 @@ export interface components {
         };
         /** StoreAttachmentRequest */
         StoreAttachmentRequest: {
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 10240 kilobytes.
+             */
             file: string;
             /** @description 10MB max */
             attachable_type: string;
@@ -10002,16 +10033,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            vendor_invoice_number?: string | null;
-            /** Format: date-time */
-            bill_date: string;
-            /** Format: date-time */
-            due_date: string;
-            description?: string | null;
-            /** @description Override common description */
-            discount_amount?: number | null;
-            /** @description Override common discount_value */
-            payable_account_id?: number | null;
             items: {
                 product_id?: number | null;
                 description: string;
@@ -10024,6 +10045,16 @@ export interface components {
                 sort_order?: number | null;
                 expense_account_id?: number | null;
             }[];
+            vendor_invoice_number?: string | null;
+            /** Format: date-time */
+            bill_date: string;
+            /** Format: date-time */
+            due_date: string;
+            description?: string | null;
+            /** @description Override common description */
+            discount_amount?: number | null;
+            /** @description Override common discount_value */
+            payable_account_id?: number | null;
         };
         /** StoreBomRequest */
         StoreBomRequest: {
@@ -10049,7 +10080,6 @@ export interface components {
         StoreBomTemplateItemRequest: {
             /** @enum {string} */
             type: "material" | "labor" | "overhead";
-            component_standard_id?: number | null;
             product_id?: number | null;
             description: string;
             default_quantity?: number | null;
@@ -10058,6 +10088,7 @@ export interface components {
             is_quantity_variable?: boolean | null;
             sort_order?: number | null;
             notes?: string | null;
+            component_standard_id?: string;
         };
         /** StoreBomTemplateRequest */
         StoreBomTemplateRequest: {
@@ -10066,10 +10097,13 @@ export interface components {
             description?: string | null;
             /** @enum {string|null} */
             category?: "distribution" | "motor_control" | "solar" | "lighting" | "other" | null;
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 2048 kilobytes.
+             */
             thumbnail?: string | null;
-            default_rule_set_id?: number | null;
             is_active?: boolean | null;
+            default_rule_set_id?: string;
         };
         /** StoreBomVariantGroupRequest */
         StoreBomVariantGroupRequest: {
@@ -10079,8 +10113,8 @@ export interface components {
             comparison_notes?: string | null;
             /** @enum {string|null} */
             status?: "draft" | "active" | "archived" | null;
-            variant_names?: string[] | null;
             bom_ids?: number[] | null;
+            variant_names?: string[] | null;
         };
         /** StoreBudgetLineRequest */
         StoreBudgetLineRequest: {
@@ -10148,29 +10182,6 @@ export interface components {
             /** @description 5MB max */
             primary_color?: string | null;
             secondary_color?: string | null;
-            /**
-             * Format: email
-             * @description Contact
-             */
-            email?: string | null;
-            phone?: string | null;
-            address?: string | null;
-            /** Format: uri */
-            website?: string | null;
-            /** @description Custom domain */
-            custom_domain?: string | null;
-            /** @description Status */
-            is_active?: boolean;
-            social_links?: {
-                /** Format: uri */
-                instagram?: string | null;
-                /** Format: uri */
-                linkedin?: string | null;
-                /** Format: uri */
-                facebook?: string | null;
-                /** Format: uri */
-                youtube?: string | null;
-            };
             /** @description JSON arrays */
             services?: {
                 title?: string;
@@ -10192,6 +10203,29 @@ export interface components {
                 issuer?: string | null;
                 year?: number | null;
             }[] | null;
+            social_links?: {
+                /** Format: uri */
+                instagram?: string | null;
+                /** Format: uri */
+                linkedin?: string | null;
+                /** Format: uri */
+                facebook?: string | null;
+                /** Format: uri */
+                youtube?: string | null;
+            };
+            /**
+             * Format: email
+             * @description Contact
+             */
+            email?: string | null;
+            phone?: string | null;
+            address?: string | null;
+            /** Format: uri */
+            website?: string | null;
+            /** @description Custom domain */
+            custom_domain?: string | null;
+            /** @description Status */
+            is_active?: boolean;
         };
         /** StoreComponentBrandMappingRequest */
         StoreComponentBrandMappingRequest: {
@@ -10244,11 +10278,11 @@ export interface components {
             bank_account_name?: string | null;
             /** @description Subcontractor fields */
             is_subcontractor?: boolean;
+            subcontractor_services?: string[] | null;
             hourly_rate?: number | null;
             daily_rate?: number | null;
             notes?: string | null;
             is_active?: boolean;
-            subcontractor_services?: string[] | null;
         };
         /** StoreDeliveryOrderRequest */
         StoreDeliveryOrderRequest: {
@@ -10330,15 +10364,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            invoice_date: string;
-            /** Format: date-time */
-            due_date: string;
-            description?: string | null;
-            /** @description Override common description */
-            discount_amount?: number | null;
-            /** @description Override common discount_value */
-            receivable_account_id?: number | null;
             items: {
                 product_id?: number | null;
                 description: string;
@@ -10352,6 +10377,15 @@ export interface components {
                 /** @description Override common unit (make nullable) */
                 revenue_account_id?: number | null;
             }[];
+            /** Format: date-time */
+            invoice_date: string;
+            /** Format: date-time */
+            due_date: string;
+            description?: string | null;
+            /** @description Override common description */
+            discount_amount?: number | null;
+            /** @description Override common discount_value */
+            receivable_account_id?: number | null;
         };
         /** StoreJournalEntryRequest */
         StoreJournalEntryRequest: {
@@ -10359,13 +10393,13 @@ export interface components {
             entry_date: string;
             description: string;
             reference?: string | null;
-            auto_post?: boolean;
             lines: {
                 account_id: number;
                 description?: string | null;
                 debit?: number;
                 credit?: number;
             }[];
+            auto_post?: boolean;
         };
         /** StoreMaterialRequisitionRequest */
         StoreMaterialRequisitionRequest: {
@@ -10392,12 +10426,12 @@ export interface components {
             /** Format: date-time */
             planning_horizon_end: string;
             warehouse_id?: number | null;
-            notes?: string | null;
             parameters?: {
                 include_safety_stock?: boolean | null;
                 respect_moq?: boolean | null;
                 respect_order_multiple?: boolean | null;
             };
+            notes?: string | null;
         };
         /** StoreNsfpRangeRequest */
         StoreNsfpRangeRequest: {
@@ -10506,11 +10540,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            po_date: string;
-            /** Format: date-time */
-            expected_date?: string | null;
-            shipping_address?: string | null;
             items: {
                 product_id?: number | null;
                 description: string;
@@ -10522,6 +10551,11 @@ export interface components {
                 notes?: string | null;
                 sort_order?: number | null;
             }[];
+            /** Format: date-time */
+            po_date: string;
+            /** Format: date-time */
+            expected_date?: string | null;
+            shipping_address?: string | null;
         };
         /** StorePurchaseReturnRequest */
         StorePurchaseReturnRequest: {
@@ -10599,10 +10633,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            quotation_date: string;
-            /** Format: date-time */
-            valid_until?: string | null;
             items: {
                 product_id?: number | null;
                 description: string;
@@ -10614,6 +10644,10 @@ export interface components {
                 notes?: string | null;
                 sort_order?: number | null;
             }[];
+            /** Format: date-time */
+            quotation_date: string;
+            /** Format: date-time */
+            valid_until?: string | null;
         };
         /** StoreRecurringTemplateRequest */
         StoreRecurringTemplateRequest: {
@@ -10637,9 +10671,6 @@ export interface components {
             early_discount_days?: number | null;
             payment_term_days?: number;
             currency?: string;
-            is_active?: boolean;
-            auto_post?: boolean;
-            auto_send?: boolean;
             items: {
                 description: string;
                 quantity: number;
@@ -10648,6 +10679,9 @@ export interface components {
                 revenue_account_id?: number | null;
                 expense_account_id?: number | null;
             }[];
+            is_active?: boolean;
+            auto_post?: boolean;
+            auto_send?: boolean;
         };
         /** StoreRoleRequest */
         StoreRoleRequest: {
@@ -10691,6 +10725,11 @@ export interface components {
             latitude?: number | null;
             longitude?: number | null;
             roof_area_m2?: number | null;
+            roof_polygon?: {
+                /** @enum {string} */
+                type?: "Polygon";
+                coordinates?: string[];
+            };
             /** @enum {string|null} */
             roof_type?: "flat" | "sloped" | "carport" | "ground" | null;
             /** @enum {string|null} */
@@ -10716,11 +10755,6 @@ export interface components {
              */
             valid_until?: string | null;
             notes?: string | null;
-            roof_polygon?: {
-                /** @enum {string} */
-                type?: "Polygon";
-                coordinates?: string[];
-            };
         };
         /** StoreSpecValidationRuleRequest */
         StoreSpecValidationRuleRequest: {
@@ -10802,8 +10836,8 @@ export interface components {
             email: string;
             password: string;
             is_active?: boolean;
-            password_confirmation: string;
             roles?: number[];
+            password_confirmation: string;
         };
         /** StoreWarehouseRequest */
         StoreWarehouseRequest: {
@@ -10871,8 +10905,8 @@ export interface components {
             status_label: "Draft" | "Dibatalkan" | "Diajukan" | "Disetujui" | "Ditolak" | "Selesai" | "Dikonversi" | "Kedaluwarsa" | "Terkirim" | "Sebagian" | "Lunas" | "Jatuh Tempo" | "Diterima" | "Selesai Digunakan" | "Direfund" | "Aktif" | "Tidak Aktif" | "Dikonfirmasi" | "Dalam Proses" | "Memproses" | "Diterapkan" | "Dikeluarkan" | "Ditugaskan" | "Penghitungan" | "Direview" | "Dikirim" | "Menerima" | "Perencanaan" | "Ditunda" | "Belum Dikerjakan" | "Diarsipkan";
             rejection_reason: string | null;
             notes: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** SubcontractorWorkOrderResource */
         SubcontractorWorkOrderResource: {
@@ -10914,11 +10948,11 @@ export interface components {
             amount_due: number;
             remaining_invoiceable: number;
             /** @description Schedule */
-            scheduled_start_date: string;
-            scheduled_end_date: string;
-            actual_start_date: string;
-            actual_end_date: string;
-            completion_percentage: number;
+            scheduled_start_date: string | null;
+            scheduled_end_date: string | null;
+            actual_start_date: string | null;
+            actual_end_date: string | null;
+            completion_percentage: number | null;
             /** @description Location */
             work_location: string | null;
             location_address: string | null;
@@ -10935,13 +10969,13 @@ export interface components {
             can_create_invoice: boolean;
             is_fully_invoiced: boolean;
             /** @description Workflow timestamps */
-            assigned_at: string;
-            started_at: string;
-            completed_at: string;
-            cancelled_at: string;
+            assigned_at: string | null;
+            started_at: string | null;
+            completed_at: string | null;
+            cancelled_at: string | null;
             cancellation_reason: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** SuggestMappingsBatchRequest */
         SuggestMappingsBatchRequest: {
@@ -10978,9 +11012,9 @@ export interface components {
                 id: number;
                 name: string;
             };
-            start_date: string;
-            due_date: string;
-            completed_at: string;
+            start_date: string | null;
+            due_date: string | null;
+            completed_at: string | null;
             estimated_hours: number | null;
             actual_hours: number | null;
             sort_order: number;
@@ -11039,14 +11073,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            vendor_invoice_number?: string | null;
-            /** Format: date-time */
-            bill_date?: string;
-            /** Format: date-time */
-            due_date?: string;
-            description?: string | null;
-            discount_amount?: number | null;
-            payable_account_id?: number | null;
             items?: {
                 product_id?: number | null;
                 description?: string;
@@ -11060,6 +11086,14 @@ export interface components {
                 id?: number | null;
                 expense_account_id?: number | null;
             }[];
+            vendor_invoice_number?: string | null;
+            /** Format: date-time */
+            bill_date?: string;
+            /** Format: date-time */
+            due_date?: string;
+            description?: string | null;
+            discount_amount?: number | null;
+            payable_account_id?: number | null;
         };
         /** UpdateBomRequest */
         UpdateBomRequest: {
@@ -11085,7 +11119,6 @@ export interface components {
         UpdateBomTemplateItemRequest: {
             /** @enum {string} */
             type?: "material" | "labor" | "overhead";
-            component_standard_id?: number | null;
             product_id?: number | null;
             description?: string;
             default_quantity?: number | null;
@@ -11094,6 +11127,7 @@ export interface components {
             is_quantity_variable?: boolean | null;
             sort_order?: number | null;
             notes?: string | null;
+            component_standard_id?: string;
         };
         /** UpdateBomTemplateRequest */
         UpdateBomTemplateRequest: {
@@ -11102,10 +11136,13 @@ export interface components {
             description?: string | null;
             /** @enum {string|null} */
             category?: "distribution" | "motor_control" | "solar" | "lighting" | "other" | null;
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 2048 kilobytes.
+             */
             thumbnail?: string | null;
-            default_rule_set_id?: number | null;
             is_active?: boolean | null;
+            default_rule_set_id?: string;
         };
         /** UpdateBomVariantGroupRequest */
         UpdateBomVariantGroupRequest: {
@@ -11154,33 +11191,13 @@ export interface components {
              * @description Branding - restrict to safe image formats (no SVG)
              */
             logo?: string | null;
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 5120 kilobytes.
+             */
             cover_image?: string | null;
             primary_color?: string | null;
             secondary_color?: string | null;
-            /**
-             * Format: email
-             * @description Contact
-             */
-            email?: string | null;
-            phone?: string | null;
-            address?: string | null;
-            /** Format: uri */
-            website?: string | null;
-            /** @description Custom domain */
-            custom_domain?: string | null;
-            /** @description Status */
-            is_active?: boolean;
-            social_links?: {
-                /** Format: uri */
-                instagram?: string | null;
-                /** Format: uri */
-                linkedin?: string | null;
-                /** Format: uri */
-                facebook?: string | null;
-                /** Format: uri */
-                youtube?: string | null;
-            };
             /** @description JSON arrays */
             services?: {
                 title?: string;
@@ -11202,6 +11219,29 @@ export interface components {
                 issuer?: string | null;
                 year?: number | null;
             }[] | null;
+            social_links?: {
+                /** Format: uri */
+                instagram?: string | null;
+                /** Format: uri */
+                linkedin?: string | null;
+                /** Format: uri */
+                facebook?: string | null;
+                /** Format: uri */
+                youtube?: string | null;
+            };
+            /**
+             * Format: email
+             * @description Contact
+             */
+            email?: string | null;
+            phone?: string | null;
+            address?: string | null;
+            /** Format: uri */
+            website?: string | null;
+            /** @description Custom domain */
+            custom_domain?: string | null;
+            /** @description Status */
+            is_active?: boolean;
         };
         /** UpdateComponentBrandMappingRequest */
         UpdateComponentBrandMappingRequest: {
@@ -11254,11 +11294,11 @@ export interface components {
             bank_account_name?: string | null;
             /** @description Subcontractor fields */
             is_subcontractor?: boolean;
+            subcontractor_services?: string[] | null;
             hourly_rate?: number | null;
             daily_rate?: number | null;
             notes?: string | null;
             is_active?: boolean;
-            subcontractor_services?: string[] | null;
         };
         /** UpdateDeliveryOrderRequest */
         UpdateDeliveryOrderRequest: {
@@ -11318,13 +11358,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            invoice_date?: string;
-            /** Format: date-time */
-            due_date?: string;
-            description?: string | null;
-            discount_amount?: number | null;
-            receivable_account_id?: number | null;
             items?: {
                 product_id?: number | null;
                 description?: string;
@@ -11338,6 +11371,13 @@ export interface components {
                 id?: number | null;
                 revenue_account_id?: number | null;
             }[];
+            /** Format: date-time */
+            invoice_date?: string;
+            /** Format: date-time */
+            due_date?: string;
+            description?: string | null;
+            discount_amount?: number | null;
+            receivable_account_id?: number | null;
         };
         /** UpdateMaterialRequisitionRequest */
         UpdateMaterialRequisitionRequest: {
@@ -11440,11 +11480,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            po_date?: string;
-            /** Format: date-time */
-            expected_date?: string;
-            shipping_address?: string | null;
             items?: {
                 product_id?: number | null;
                 description?: string;
@@ -11456,6 +11491,11 @@ export interface components {
                 notes?: string | null;
                 sort_order?: number | null;
             }[];
+            /** Format: date-time */
+            po_date?: string;
+            /** Format: date-time */
+            expected_date?: string;
+            shipping_address?: string | null;
         };
         /** UpdatePurchaseReturnRequest */
         UpdatePurchaseReturnRequest: {
@@ -11493,10 +11533,6 @@ export interface components {
             tax_rate?: number | null;
             notes?: string | null;
             terms_conditions?: string | null;
-            /** Format: date-time */
-            quotation_date?: string;
-            /** Format: date-time */
-            valid_until?: string;
             items?: {
                 product_id?: number | null;
                 description?: string;
@@ -11508,6 +11544,10 @@ export interface components {
                 notes?: string | null;
                 sort_order?: number | null;
             }[];
+            /** Format: date-time */
+            quotation_date?: string;
+            /** Format: date-time */
+            valid_until?: string;
         };
         /** UpdateRecurringTemplateRequest */
         UpdateRecurringTemplateRequest: {
@@ -11526,9 +11566,6 @@ export interface components {
             early_discount_days?: number | null;
             payment_term_days?: number;
             currency?: string;
-            is_active?: boolean;
-            auto_post?: boolean;
-            auto_send?: boolean;
             items?: {
                 description?: string;
                 quantity?: number;
@@ -11537,6 +11574,9 @@ export interface components {
                 revenue_account_id?: number | null;
                 expense_account_id?: number | null;
             }[];
+            is_active?: boolean;
+            auto_post?: boolean;
+            auto_send?: boolean;
         };
         /** UpdateRoleRequest */
         UpdateRoleRequest: {
@@ -11580,6 +11620,11 @@ export interface components {
             latitude?: number | null;
             longitude?: number | null;
             roof_area_m2?: number | null;
+            roof_polygon?: {
+                /** @enum {string} */
+                type?: "Polygon";
+                coordinates?: string[];
+            };
             /** @enum {string|null} */
             roof_type?: "flat" | "sloped" | "carport" | "ground" | null;
             /** @enum {string|null} */
@@ -11606,11 +11651,6 @@ export interface components {
             /** @description Proposal customization */
             sections_config?: string[] | null;
             custom_content?: string[] | null;
-            roof_polygon?: {
-                /** @enum {string} */
-                type?: "Polygon";
-                coordinates?: string[];
-            };
         };
         /** UpdateSpecValidationRuleRequest */
         UpdateSpecValidationRuleRequest: {
@@ -11728,7 +11768,7 @@ export interface components {
             id: number;
             name: string;
             email: string;
-            email_verified_at: string;
+            email_verified_at: string | null;
             is_active: boolean;
             roles?: {
                 id: number;
@@ -11736,12 +11776,15 @@ export interface components {
                 display_name: string;
             }[];
             permissions?: unknown[];
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ValidateBankStatementImportRequest */
         ValidateBankStatementImportRequest: {
-            /** Format: binary */
+            /**
+             * Format: binary
+             * @description Maximum file size: 10240 kilobytes.
+             */
             file: string;
             account_id: number;
         };
@@ -11773,8 +11816,8 @@ export interface components {
             /** @description Related counts */
             product_stocks_count?: number;
             product_stocks?: components["schemas"]["ProductStockResource"][];
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** WorkOrderItemResource */
         WorkOrderItemResource: {
@@ -11808,8 +11851,8 @@ export interface components {
                 unit: string;
             } | null;
             child_items?: components["schemas"]["WorkOrderItemResource"][];
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** WorkOrderResource */
         WorkOrderResource: {
@@ -11826,10 +11869,10 @@ export interface components {
             quantity_scrapped: number;
             completion_percentage: number;
             /** @description Dates */
-            planned_start_date: string;
-            planned_end_date: string;
-            actual_start_date: string;
-            actual_end_date: string;
+            planned_start_date: string | null;
+            planned_end_date: string | null;
+            actual_start_date: string | null;
+            actual_end_date: string | null;
             /** @description Costs */
             estimated_material_cost: number;
             estimated_labor_cost: number;
@@ -11886,13 +11929,11 @@ export interface components {
                 };
                 next_statuses: unknown[];
                 all_statuses: unknown[];
-                transitions: [
-                    {
-                        from: string;
-                        to: string;
-                        available: string;
-                    }
-                ];
+                transitions: {
+                    from: string;
+                    to: string;
+                    available: string;
+                }[];
             };
             /** @description Status history (optional) */
             status_history?: {
@@ -11912,13 +11953,13 @@ export interface components {
                 can_delete: boolean;
             };
             /** @description Timestamps */
-            confirmed_at: string;
-            started_at: string;
-            completed_at: string;
-            cancelled_at: string;
+            confirmed_at: string | null;
+            started_at: string | null;
+            completed_at: string | null;
+            cancelled_at: string | null;
             cancellation_reason: string | null;
-            created_at: string;
-            updated_at: string;
+            created_at: string | null;
+            updated_at: string | null;
         };
     };
     responses: {
@@ -12079,7 +12120,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["AccountResource"];
+                        data: components["schemas"]["AccountResource"] & Record<string, never>;
                     };
                 };
             };
@@ -12139,7 +12180,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Akun berhasil dihapus.";
                     };
                 };
@@ -12232,7 +12273,7 @@ export interface operations {
                             reference: string | null;
                             debit: number;
                             credit: number;
-                            running_balance: number;
+                            balance: number;
                         }[];
                     };
                 };
@@ -12269,45 +12310,45 @@ export interface operations {
                             };
                             descriptions: {
                                 inventory_method: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     perpetual: "Jurnal otomatis setiap pergerakan stok (GRN, DO)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     periodic: "Tanpa jurnal otomatis, penyesuaian di akhir periode";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     hybrid: "Jurnal hanya pada event tertentu (rekomendasi EPC)";
                                 };
                                 cogs_recognition: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     on_invoice: "HPP diakui saat invoice diposting (matching revenue)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     on_delivery: "HPP diakui saat barang dikirim";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     manual: "Tanpa HPP otomatis, jurnal manual";
                                 };
                                 return_accounting: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     full_journal: "Buat jurnal pembalikan lengkap (AP/AR + Pajak)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     inventory_only: "Update stok saja, tanpa jurnal";
                                 };
                                 manufacturing_costing: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     project_based: "Biaya mengalir ke proyek (rekomendasi EPC)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     job_costing: "Biaya terakumulasi per work order";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     wip_accounting: "Jurnal WIP lengkap";
                                 };
                                 closing_strategy: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     direct: "Tutup langsung ke retained earnings (lebih sederhana)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     income_summary: "Melalui akun income summary (audit trail lebih jelas)";
                                 };
                                 costing_method: {
-                                    /** @enum {string} */
+                                    /** @constant */
                                     weighted_average: "Rata-rata tertimbang (default, cocok untuk barang sejenis)";
-                                    /** @enum {string} */
+                                    /** @constant */
                                     fifo: "First-In First-Out (wajib SAK EMKM untuk industri tertentu)";
                                 };
                             };
@@ -12447,19 +12488,19 @@ export interface operations {
                 content: {
                     "application/json": {
                         categories: {
-                            /** @enum {string} */
+                            /** @constant */
                             invoice_pdf: "Faktur PDF";
-                            /** @enum {string} */
+                            /** @constant */
                             receipt: "Kwitansi";
-                            /** @enum {string} */
+                            /** @constant */
                             contract: "Kontrak";
-                            /** @enum {string} */
+                            /** @constant */
                             delivery_note: "Surat Jalan";
-                            /** @enum {string} */
+                            /** @constant */
                             bank_statement: "Rekening Koran";
-                            /** @enum {string} */
+                            /** @constant */
                             tax_document: "Dokumen Pajak";
-                            /** @enum {string} */
+                            /** @constant */
                             other: "Lainnya";
                         };
                     };
@@ -12514,7 +12555,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Lampiran berhasil dihapus.";
                     };
                 };
@@ -12538,10 +12579,11 @@ export interface operations {
         responses: {
             200: {
                 headers: {
+                    "Transfer-Encoding": "chunked";
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/octet-stream": string;
                 };
             };
             401: components["responses"]["AuthenticationException"];
@@ -12623,11 +12665,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Login berhasil.";
-                        user: components["schemas"]["UserResource"];
+                        user: components["schemas"]["UserResource"] & Record<string, never>;
                         token: string;
-                        /** @enum {string} */
+                        /** @constant */
                         token_type: "Bearer";
                     };
                 };
@@ -12651,7 +12693,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Logout berhasil.";
                         data: null;
                     };
@@ -12676,7 +12718,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Logout dari semua perangkat berhasil.";
                         data: null;
                     };
@@ -12701,7 +12743,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"] & Record<string, never>;
                     };
                 };
             };
@@ -12730,10 +12772,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Token berhasil diperbarui.";
                         token: string;
-                        /** @enum {string} */
+                        /** @constant */
                         token_type: "Bearer";
                     };
                 };
@@ -12764,7 +12806,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BankTransactionResource"][];
+                        data: (components["schemas"]["BankTransactionResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -12850,7 +12892,7 @@ export interface operations {
                         total_debits: string;
                         total_credits: string;
                         account: {
-                            id: string;
+                            id: number;
                             code: string;
                             name: string;
                         };
@@ -12883,7 +12925,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
-                        reconciled_count: string;
+                        reconciled_count: number;
                     };
                 };
             };
@@ -12911,7 +12953,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BankTransactionResource"];
+                        data: components["schemas"]["BankTransactionResource"] & Record<string, never>;
                     };
                 };
             };
@@ -12938,7 +12980,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi bank berhasil dihapus.";
                     };
                 };
@@ -12978,7 +13020,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi berhasil di-match dengan pembayaran.";
                         data: components["schemas"]["BankTransactionResource"];
                     };
@@ -12993,7 +13035,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi sudah di-match atau direkonsiliasi.";
                     };
                 };
@@ -13018,7 +13060,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi berhasil di-unmatch.";
                         data: components["schemas"]["BankTransactionResource"];
                     };
@@ -13033,7 +13075,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tidak dapat unmatch transaksi yang sudah direkonsiliasi.";
                     };
                 };
@@ -13062,7 +13104,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi berhasil direkonsiliasi.";
                         data: components["schemas"]["BankTransactionResource"];
                     };
@@ -13094,7 +13136,7 @@ export interface operations {
                     "application/json": {
                         transaction: components["schemas"]["BankTransactionResource"];
                         suggestions: {
-                            /** @enum {string} */
+                            /** @constant */
                             type: "payment";
                             id: number;
                             number: string;
@@ -13103,7 +13145,7 @@ export interface operations {
                             description: string | null;
                         }[];
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Transaksi sudah di-match.";
                         suggestions: string[];
                     };
@@ -13124,7 +13166,10 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": {
-                    /** Format: binary */
+                    /**
+                     * Format: binary
+                     * @description Maximum file size: 10240 kilobytes.
+                     */
                     file: string;
                 };
             };
@@ -13136,15 +13181,13 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Format berhasil terdeteksi.";
                         data: {
                             bank: string;
                             date_format: string;
                             delimiter: string;
-                            sample_rows: [
-                                string
-                            ];
+                            sample_rows: string[];
                         };
                     };
                 };
@@ -13172,29 +13215,20 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Validasi selesai.";
                         data: {
-                            /** @enum {integer} */
-                            valid_count: 0;
-                            /** @enum {integer} */
-                            error_count: 0;
-                            /** @enum {integer} */
-                            duplicate_count: 0;
-                            preview_rows: [
-                                {
-                                    /** @enum {integer} */
-                                    row_number: 2;
-                                    is_duplicate: string;
-                                    ""?: string;
-                                }
-                            ];
-                            errors: [
-                                string
-                            ];
-                            warnings: [
-                                string
-                            ];
+                            valid_count: number;
+                            error_count: number;
+                            duplicate_count: number;
+                            preview_rows: {
+                                /** @constant */
+                                row_number: 2;
+                                is_duplicate: string;
+                                ""?: string;
+                            }[];
+                            errors: string[];
+                            warnings: string[];
                         };
                     };
                 };
@@ -13226,13 +13260,9 @@ export interface operations {
                         message: string;
                         data: {
                             import_batch: string;
-                            /** @enum {integer} */
-                            imported_count: 0;
-                            /** @enum {integer} */
-                            skipped_count: 0;
-                            errors: [
-                                string
-                            ];
+                            imported_count: number;
+                            skipped_count: number;
+                            errors: string[];
                         };
                     };
                 };
@@ -13287,39 +13317,34 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
-                        data: [
-                            {
-                                transaction_id: string;
-                                transaction_date: string;
-                                transaction_amount: string;
-                                matches: [
-                                    {
-                                        /** @enum {string} */
-                                        type: "payment";
-                                        id: string;
-                                        number: string;
-                                        amount: string;
-                                        date: string;
-                                        /** @enum {integer} */
-                                        confidence: 99;
-                                        /** @enum {string} */
-                                        reason: "Reference match";
-                                    },
-                                    {
-                                        /** @enum {string} */
-                                        type: "payment";
-                                        id: string;
-                                        number: string;
-                                        amount: string;
-                                        date: string;
-                                        /** @enum {integer} */
-                                        confidence: 85;
-                                        /** @enum {string} */
-                                        reason: "Amount and date match";
-                                    }
-                                ];
-                            }
-                        ];
+                        data: {
+                            transaction_id: string;
+                            transaction_date: string;
+                            transaction_amount: string;
+                            matches: ({
+                                /** @constant */
+                                type: "payment";
+                                id: number;
+                                number: string;
+                                amount: number;
+                                date: string;
+                                /** @constant */
+                                confidence: 99;
+                                /** @constant */
+                                reason: "Reference match";
+                            } | {
+                                /** @constant */
+                                type: "payment";
+                                id: number;
+                                number: string;
+                                amount: number;
+                                date: string;
+                                /** @constant */
+                                confidence: 85;
+                                /** @constant */
+                                reason: "Amount and date match";
+                            })[];
+                        }[];
                     };
                 };
             };
@@ -13333,7 +13358,7 @@ export interface operations {
                     "application/json": {
                         message: string;
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "account_id wajib diisi.";
                     };
                 };
@@ -13391,7 +13416,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BillResource"][];
+                        data: (components["schemas"]["BillResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -13472,7 +13497,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BillResource"];
+                        data: components["schemas"]["BillResource"] & Record<string, never>;
                     };
                 };
             };
@@ -13533,7 +13558,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tagihan berhasil dihapus.";
                     };
                 };
@@ -13618,7 +13643,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tagihan berhasil dibatalkan.";
                         data: components["schemas"]["BillResource"];
                     };
@@ -13679,7 +13704,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomResource"][];
+                        data: (components["schemas"]["BomResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -13760,7 +13785,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomResource"];
+                        data: components["schemas"]["BomResource"] & Record<string, never>;
                     };
                 };
             };
@@ -13820,7 +13845,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "BOM berhasil dihapus.";
                     };
                 };
@@ -13934,7 +13959,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "BOM berhasil diduplikasi.";
                         data: components["schemas"]["BomResource"];
                     };
@@ -13963,7 +13988,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomResource"];
+                        data: components["schemas"]["BomResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14064,7 +14089,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"][];
+                        data: (components["schemas"]["BomTemplateResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -14116,7 +14141,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"];
+                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14172,7 +14197,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"];
+                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14230,7 +14255,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template berhasil dihapus.";
                     };
                 };
@@ -14265,7 +14290,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"];
+                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14325,7 +14350,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateItemResource"];
+                        data: components["schemas"]["BomTemplateItemResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14388,7 +14413,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil dihapus.";
                     };
                 };
@@ -14569,7 +14594,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomVariantGroupResource"][];
+                        data: (components["schemas"]["BomVariantGroupResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -14650,7 +14675,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomVariantGroupResource"];
+                        data: components["schemas"]["BomVariantGroupResource"] & Record<string, never>;
                     };
                 };
             };
@@ -14710,7 +14735,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Variant group berhasil dihapus.";
                     };
                 };
@@ -14764,7 +14789,7 @@ export interface operations {
                                     total: number;
                                     unit_cost: number;
                                 };
-                                items: string[][];
+                                items: string;
                             }[];
                             summary: {
                                 total_variants: string;
@@ -14772,7 +14797,7 @@ export interface operations {
                                     min: string;
                                     max: string;
                                     difference: string;
-                                    difference_percentage: number | 0;
+                                    difference_percentage: number;
                                 };
                                 material_cost_range: {
                                     min: string;
@@ -14782,8 +14807,8 @@ export interface operations {
                                     min: string;
                                     max: string;
                                 };
-                                cheapest_variant: string;
-                                most_expensive_variant: string;
+                                cheapest_variant: string | null;
+                                most_expensive_variant: string | null;
                             };
                         } | {
                             product: components["schemas"]["Product"];
@@ -14826,16 +14851,14 @@ export interface operations {
                                 total_cost: number;
                                 unit_cost: number;
                             }[];
-                            item_comparison: {
-                                [key: string]: unknown;
-                            };
+                            item_comparison: string;
                             summary: {
                                 total_variants: string;
                                 cost_range: {
                                     min: string;
                                     max: string;
                                     difference: string;
-                                    difference_percentage: number | 0;
+                                    difference_percentage: number;
                                 };
                                 material_cost_range: {
                                     min: string;
@@ -14845,8 +14868,8 @@ export interface operations {
                                     min: string;
                                     max: string;
                                 };
-                                cheapest_variant: string;
-                                most_expensive_variant: string;
+                                cheapest_variant: string | null;
+                                most_expensive_variant: string | null;
                             };
                         } | {
                             product: components["schemas"]["Product"];
@@ -14883,7 +14906,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "BOM berhasil ditambahkan ke variant group.";
                         data: components["schemas"]["BomResource"];
                     };
@@ -14915,7 +14938,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "BOM berhasil dihapus dari variant group.";
                     };
                 };
@@ -14955,7 +14978,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Primary variant berhasil diubah.";
                         data: components["schemas"]["BomResource"];
                     };
@@ -14998,7 +15021,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Urutan variant berhasil diubah.";
                         data: components["schemas"]["BomVariantGroupResource"];
                     };
@@ -15032,7 +15055,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Variant baru berhasil dibuat.";
                         data: components["schemas"]["BomResource"];
                     };
@@ -15066,7 +15089,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BudgetResource"][];
+                        data: (components["schemas"]["BudgetResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -15147,7 +15170,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BudgetResource"];
+                        data: components["schemas"]["BudgetResource"] & Record<string, never>;
                     };
                 };
             };
@@ -15178,7 +15201,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil diperbarui.";
                         data: components["schemas"]["BudgetResource"];
                     };
@@ -15208,7 +15231,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil dihapus.";
                     };
                 };
@@ -15222,7 +15245,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran yang sudah disetujui atau ditutup tidak bisa dihapus.";
                     };
                 };
@@ -15251,9 +15274,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Baris anggaran berhasil ditambahkan.";
-                        data: components["schemas"]["BudgetLineResource"];
+                        data: components["schemas"]["BudgetLineResource"] & Record<string, never>;
                     };
                 };
             };
@@ -15287,7 +15310,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Baris anggaran berhasil diperbarui.";
                         data: components["schemas"]["BudgetLineResource"];
                     };
@@ -15319,7 +15342,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Baris anggaran berhasil dihapus.";
                     };
                 };
@@ -15333,7 +15356,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran yang sudah disetujui tidak bisa diubah.";
                     };
                 };
@@ -15358,7 +15381,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil disetujui.";
                         data: components["schemas"]["BudgetResource"];
                     };
@@ -15373,10 +15396,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran harus memiliki minimal satu baris.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran ini sudah disetujui atau ditutup.";
                     };
                 };
@@ -15401,7 +15424,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil dibuka kembali.";
                         data: components["schemas"]["BudgetResource"];
                     };
@@ -15416,7 +15439,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran yang sudah ditutup tidak bisa dibuka kembali.";
                     };
                 };
@@ -15441,7 +15464,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil ditutup.";
                         data: components["schemas"]["BudgetResource"];
                     };
@@ -15456,7 +15479,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Hanya anggaran yang sudah disetujui yang bisa ditutup.";
                     };
                 };
@@ -15488,7 +15511,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Anggaran berhasil disalin.";
                         data: components["schemas"]["BudgetResource"];
                     };
@@ -15558,14 +15581,12 @@ export interface operations {
                         };
                         monthly_breakdown: [
                             {
-                                /** @enum {integer} */
+                                /** @constant */
                                 month: 1;
                                 month_name: string;
                                 budget: {
-                                    /** @enum {integer} */
-                                    revenue: 0;
-                                    /** @enum {integer} */
-                                    expense: 0;
+                                    revenue: number;
+                                    expense: number;
                                     net: string;
                                 };
                                 actual: {
@@ -15620,10 +15641,8 @@ export interface operations {
                         ytd: {
                             through_month: string;
                             through_month_name: string;
-                            /** @enum {integer} */
-                            budget_revenue: 0;
-                            /** @enum {integer} */
-                            budget_expense: 0;
+                            budget_revenue: number;
+                            budget_expense: number;
                             budget_net: string;
                             actual_revenue: number;
                             actual_expense: number;
@@ -15664,7 +15683,7 @@ export interface operations {
                         };
                         month: number | null;
                         over_budget_count: number;
-                        accounts: Record<string, never>[];
+                        accounts: string[];
                     };
                 };
             };
@@ -15826,7 +15845,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Profil perusahaan berhasil dihapus.";
                     };
                 };
@@ -15912,7 +15931,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ComponentBrandMappingResource"];
+                        data: components["schemas"]["ComponentBrandMappingResource"] & Record<string, never>;
                     };
                 };
             };
@@ -15975,7 +15994,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Brand mapping berhasil dihapus.";
                     };
                 };
@@ -16004,7 +16023,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Brand mapping berhasil diverifikasi.";
                         data: components["schemas"]["ComponentBrandMappingResource"];
                     };
@@ -16034,7 +16053,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Brand mapping berhasil di-set sebagai preferred.";
                         data: components["schemas"]["ComponentBrandMappingResource"];
                     };
@@ -16064,7 +16083,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ComponentBrandMappingResource"][];
+                        data: (components["schemas"]["ComponentBrandMappingResource"] & Record<string, never>)[];
                         source_product: {
                             id: number;
                             name: string;
@@ -16098,7 +16117,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ComponentStandardResource"][];
+                        data: (components["schemas"]["ComponentStandardResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -16156,21 +16175,16 @@ export interface operations {
                                 total: string;
                                 total_items: number;
                             };
-                            brands: [
-                                {
-                                    brand: string;
-                                    brand_label: string;
-                                    /** @enum {integer} */
-                                    estimated_total: 0;
-                                    savings: string;
-                                    savings_percentage: number;
-                                    coverage_percentage: number | 0;
-                                    /** @enum {integer} */
-                                    swappable_items: 0;
-                                    /** @enum {integer} */
-                                    no_mapping_items: 0;
-                                }
-                            ];
+                            brands: {
+                                brand: string;
+                                brand_label: string;
+                                estimated_total: number;
+                                savings: string;
+                                savings_percentage: number;
+                                coverage_percentage: number;
+                                swappable_items: number;
+                                no_mapping_items: number;
+                            }[];
                             recommendations: {
                                 best_value: string;
                                 best_coverage: string;
@@ -16208,44 +16222,38 @@ export interface operations {
                     "application/json": {
                         data: {
                             target_brand: unknown;
-                            /** @enum {integer} */
-                            current_total: 0;
-                            /** @enum {integer} */
-                            estimated_total: 0;
+                            current_total: number;
+                            estimated_total: number;
                             savings: string;
                             savings_percentage: number;
                             coverage: {
                                 total: number;
-                                /** @enum {integer} */
-                                swappable: 0;
-                                /** @enum {integer} */
-                                no_mapping: 0;
-                                percentage: number | 0;
+                                swappable: number;
+                                no_mapping: number;
+                                percentage: number;
                             };
-                            items: [
-                                {
-                                    bom_item_id: string;
-                                    description: string;
-                                    quantity: string;
-                                    current_unit_cost: string;
-                                    current_total: string;
-                                    estimated_unit_cost: string;
-                                    estimated_total: string;
-                                    cost_change: string;
-                                    can_swap: string;
-                                    target_product: string;
-                                    target_sku: string;
-                                    validation: {
-                                        status: string | "valid";
-                                        warnings: string | string[];
-                                        errors: string | string[];
-                                    } | null;
-                                }
-                            ];
+                            items: {
+                                bom_item_id: string;
+                                description: string;
+                                quantity: string;
+                                current_unit_cost: string;
+                                current_total: string;
+                                estimated_unit_cost: string;
+                                estimated_total: string;
+                                cost_change: string;
+                                can_swap: string;
+                                target_product: string;
+                                target_sku: string;
+                                validation: {
+                                    status: string | "valid";
+                                    warnings: string | string[];
+                                    errors: string | string[];
+                                } | null;
+                            }[];
                             validation: {
                                 valid: string;
                                 rule_set: {
-                                    id: string;
+                                    id: number;
                                     name: string;
                                     code: string;
                                 } | null;
@@ -16283,7 +16291,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Brand swap berhasil.";
                         data: {
                             bom: components["schemas"]["BomResource"];
@@ -16322,7 +16330,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Brand variants berhasil dibuat.";
                         data: {
                             variant_group: components["schemas"]["BomVariantGroupResource"];
@@ -16359,10 +16367,8 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            /** @enum {integer} */
-                            current_total: 0;
-                            /** @enum {integer} */
-                            optimized_total: 0;
+                            current_total: number;
+                            optimized_total: number;
                             savings: string;
                             savings_percentage: number;
                             summary: {
@@ -16371,28 +16377,26 @@ export interface operations {
                                 already_cheapest: number;
                                 no_alternative: number;
                             };
-                            items: [
-                                {
-                                    bom_item_id: string;
-                                    description: string;
-                                    quantity: string;
-                                    unit: string;
-                                    current_brand: string;
-                                    current_unit_cost: string;
-                                    current_total: string;
-                                    cheapest_brand: string;
-                                    cheapest_brand_label: string;
-                                    cheapest_unit_cost: string;
-                                    cheapest_total: string;
-                                    cheapest_product_id: string;
-                                    cheapest_product_name: string;
-                                    cheapest_sku: string;
-                                    savings: string;
-                                    savings_percentage: number | 0;
-                                    can_optimize: string;
-                                    is_already_cheapest: string;
-                                }
-                            ];
+                            items: {
+                                bom_item_id: string;
+                                description: string;
+                                quantity: string;
+                                unit: string;
+                                current_brand: string | null;
+                                current_unit_cost: string;
+                                current_total: string;
+                                cheapest_brand: string | null;
+                                cheapest_brand_label: string | null;
+                                cheapest_unit_cost: number;
+                                cheapest_total: string;
+                                cheapest_product_id: number | null;
+                                cheapest_product_name: string | null;
+                                cheapest_sku: string | null;
+                                savings: string;
+                                savings_percentage: number;
+                                can_optimize: boolean;
+                                is_already_cheapest: boolean;
+                            }[];
                         };
                     };
                 };
@@ -16424,11 +16428,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Cost optimization berhasil diterapkan.";
                         data: {
                             bom: components["schemas"]["BomResource"];
-                            optimization_report: unknown[];
+                            optimization_report: string;
                         };
                     };
                 };
@@ -16466,10 +16470,10 @@ export interface operations {
                                 product_sku: string | null;
                                 unit_cost: number;
                                 brand: string | null;
-                                component_standard_id: number | null;
+                                component_standard_id: string | null;
                                 brand_label: string | null;
                             };
-                            alternatives: string;
+                            alternatives: unknown[];
                             has_standard: boolean;
                         } | {
                             current: {
@@ -16478,7 +16482,7 @@ export interface operations {
                                 product_sku: string | null;
                                 unit_cost: number;
                                 brand: null;
-                                component_standard_id: number | null;
+                                component_standard_id: string | null;
                             };
                             alternatives: string[];
                             has_standard: boolean;
@@ -16515,7 +16519,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil diganti.";
                         data: {
                             success: boolean;
@@ -16607,23 +16611,21 @@ export interface operations {
                                     ac_category: string;
                                     width_mm: number;
                                     thickness_mm: number;
-                                    /** @enum {string} */
+                                    /** @constant */
                                     material: "aluminium";
                                 };
                                 brand: string;
                             };
-                            suggestions: [
-                                {
-                                    component_standard_id: string;
-                                    code: string;
-                                    name: string;
-                                    category: string;
-                                    subcategory: string;
-                                    specifications: string;
-                                    match_score: string;
-                                    existing_brands: string;
-                                }
-                            ];
+                            suggestions: {
+                                component_standard_id: string;
+                                code: string;
+                                name: string;
+                                category: string;
+                                subcategory: string;
+                                specifications: string;
+                                match_score: string;
+                                existing_brands: string;
+                            }[];
                             has_suggestions: boolean;
                         };
                     };
@@ -16686,9 +16688,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Mapping berhasil dibuat.";
-                        data: components["schemas"]["ComponentBrandMappingResource"];
+                        data: components["schemas"]["ComponentBrandMappingResource"] & Record<string, never>;
                     };
                 };
             };
@@ -16756,7 +16758,7 @@ export interface operations {
                                 ac_category: string;
                                 width_mm: number;
                                 thickness_mm: number;
-                                /** @enum {string} */
+                                /** @constant */
                                 material: "aluminium";
                             };
                             brand: string;
@@ -16802,7 +16804,10 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": {
-                    /** Format: binary */
+                    /**
+                     * Format: binary
+                     * @description Maximum file size: 10240 kilobytes.
+                     */
                     file: string;
                 };
             };
@@ -16830,7 +16835,10 @@ export interface operations {
         requestBody: {
             content: {
                 "multipart/form-data": {
-                    /** Format: binary */
+                    /**
+                     * Format: binary
+                     * @description Maximum file size: 10240 kilobytes.
+                     */
                     file: string;
                     skip_errors?: boolean | null;
                 };
@@ -16893,7 +16901,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ComponentStandardResource"][];
+                        data: (components["schemas"]["ComponentStandardResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -16998,7 +17006,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ComponentStandardResource"];
+                        data: components["schemas"]["ComponentStandardResource"] & Record<string, never>;
                     };
                 };
             };
@@ -17056,7 +17064,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Component standard berhasil dihapus.";
                     };
                 };
@@ -17252,7 +17260,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Kontak berhasil dihapus.";
                     };
                 };
@@ -17293,7 +17301,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             contact_id: number;
@@ -17329,7 +17337,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             contact_id: number;
@@ -17341,7 +17349,7 @@ export interface operations {
                             is_exceeded: boolean;
                             is_warning: boolean;
                             can_create_invoice: boolean;
-                            last_transaction_date: string;
+                            last_transaction_date: string | null;
                         };
                     };
                 };
@@ -17356,7 +17364,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Status kredit hanya tersedia untuk pelanggan.";
                         errors: string;
                     };
@@ -17383,7 +17391,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             period: {
@@ -17403,16 +17411,13 @@ export interface operations {
                                 overdue_count: number;
                             };
                             cash_position: {
-                                /** @enum {integer} */
-                                total: 0;
-                                accounts: [
-                                    {
-                                        account_id: string;
-                                        code: string;
-                                        name: string;
-                                        balance: string;
-                                    }
-                                ];
+                                total: number;
+                                accounts: {
+                                    account_id: string;
+                                    code: string;
+                                    name: string;
+                                    balance: string;
+                                }[];
                             };
                             recent_activity: unknown[];
                             monthly_comparison: {
@@ -17442,7 +17447,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             total_outstanding: string;
@@ -17454,14 +17459,15 @@ export interface operations {
                                 buckets: string;
                                 contacts: string[];
                                 totals: {
-                                    [key: string]: number;
+                                    current: number;
+                                    days_1_30: number;
+                                    days_31_60: number;
+                                    days_61_90: number;
+                                    over_90: number;
+                                    total: number;
                                 };
                             };
-                            top_debtors: {
-                                id: number;
-                                name: string;
-                                outstanding: number;
-                            }[];
+                            top_debtors: unknown[];
                         };
                     };
                 };
@@ -17486,7 +17492,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             total_outstanding: string;
@@ -17498,14 +17504,15 @@ export interface operations {
                                 buckets: string;
                                 contacts: string[];
                                 totals: {
-                                    [key: string]: number;
+                                    current: number;
+                                    days_1_30: number;
+                                    days_31_60: number;
+                                    days_61_90: number;
+                                    over_90: number;
+                                    total: number;
                                 };
                             };
-                            top_creditors: {
-                                id: number;
-                                name: string;
-                                outstanding: number;
-                            }[];
+                            top_creditors: unknown[];
                         };
                     };
                 };
@@ -17530,14 +17537,14 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             period_days: number;
                             total_inflow: string;
                             total_outflow: string;
                             net_flow: string;
-                            daily_movement: Record<string, never>;
+                            daily_movement: Record<string, never>[];
                         };
                     };
                 };
@@ -17565,7 +17572,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             period: {
@@ -17575,7 +17582,7 @@ export interface operations {
                             total_revenue: string;
                             total_expense: string;
                             net_income: string;
-                            profit_margin: number | 0;
+                            profit_margin: number;
                         };
                     };
                 };
@@ -17600,13 +17607,13 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             revenue: {
                                 current_month: unknown;
                                 last_month: unknown;
-                                growth_percent: number | 0;
+                                growth_percent: number;
                             };
                             collection: {
                                 average_days: number;
@@ -17640,7 +17647,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DeliveryOrderResource"][];
+                        data: (components["schemas"]["DeliveryOrderResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -17692,7 +17699,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order created successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17722,7 +17729,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DeliveryOrderResource"];
+                        data: components["schemas"]["DeliveryOrderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -17753,7 +17760,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order updated successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17783,7 +17790,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order deleted successfully.";
                     };
                 };
@@ -17811,7 +17818,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order confirmed successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17850,7 +17857,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order shipped successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17889,7 +17896,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order marked as delivered.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17925,7 +17932,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order cancelled successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17963,7 +17970,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery progress updated successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -17993,7 +18000,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order duplicated successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -18033,7 +18040,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Delivery order created from invoice successfully.";
                         data: components["schemas"]["DeliveryOrderResource"];
                     };
@@ -18064,7 +18071,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DeliveryOrderResource"][];
+                        data: (components["schemas"]["DeliveryOrderResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -18121,7 +18128,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DownPaymentResource"][];
+                        data: (components["schemas"]["DownPaymentResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -18173,7 +18180,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Down payment created successfully.";
                         data: components["schemas"]["DownPaymentResource"];
                     };
@@ -18203,7 +18210,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DownPaymentResource"];
+                        data: components["schemas"]["DownPaymentResource"] & Record<string, never>;
                     };
                 };
             };
@@ -18234,7 +18241,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Down payment updated successfully.";
                         data: components["schemas"]["DownPaymentResource"];
                     };
@@ -18264,7 +18271,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Down payment deleted successfully.";
                     };
                 };
@@ -18438,7 +18445,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Down payment cancelled successfully.";
                         data: components["schemas"]["DownPaymentResource"];
                     };
@@ -18468,7 +18475,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["DownPaymentApplicationResource"][];
+                        data: (components["schemas"]["DownPaymentApplicationResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -18604,15 +18611,15 @@ export interface operations {
                     "application/json": {
                         data: unknown[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             code: "Kode";
-                            /** @enum {string} */
+                            /** @constant */
                             name: "Nama Akun";
-                            /** @enum {string} */
+                            /** @constant */
                             type: "Tipe";
-                            /** @enum {string} */
+                            /** @constant */
                             debit: "Debit";
-                            /** @enum {string} */
+                            /** @constant */
                             credit: "Kredit";
                         };
                     };
@@ -18642,22 +18649,20 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: [
-                            {
-                                category: string;
-                                code: string;
-                                name: string;
-                                balance: string;
-                            }
-                        ];
+                        data: {
+                            category: string;
+                            code: string;
+                            name: string;
+                            balance: string;
+                        }[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             category: "Kategori";
-                            /** @enum {string} */
+                            /** @constant */
                             code: "Kode";
-                            /** @enum {string} */
+                            /** @constant */
                             name: "Nama Akun";
-                            /** @enum {string} */
+                            /** @constant */
                             balance: "Saldo";
                         };
                     };
@@ -18688,39 +18693,33 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: [
-                            {
-                                /** @enum {string} */
-                                category: "Pendapatan";
-                                code: string;
-                                name: string;
-                                balance: string;
-                            },
-                            {
-                                /** @enum {string} */
-                                category: "Beban";
-                                code: string;
-                                name: string;
-                                balance: string;
-                            },
-                            {
-                                /** @enum {string} */
-                                category: "LABA/RUGI BERSIH";
-                                /** @enum {string} */
-                                code: "";
-                                /** @enum {string} */
-                                name: "";
-                                balance: string | 0;
-                            }
-                        ];
+                        data: ({
+                            /** @constant */
+                            category: "Pendapatan";
+                            code: string;
+                            name: string;
+                            balance: string;
+                        } | {
+                            /** @constant */
+                            category: "Beban";
+                            code: string;
+                            name: string;
+                            balance: string;
+                        } | {
+                            /** @constant */
+                            category: "LABA/RUGI BERSIH";
+                            code: string;
+                            name: string;
+                            balance: string | 0;
+                        })[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             category: "Kategori";
-                            /** @enum {string} */
+                            /** @constant */
                             code: "Kode";
-                            /** @enum {string} */
+                            /** @constant */
                             name: "Nama Akun";
-                            /** @enum {string} */
+                            /** @constant */
                             balance: "Jumlah";
                         };
                     };
@@ -18754,17 +18753,17 @@ export interface operations {
                     "application/json": {
                         data: unknown[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             date: "Tanggal";
-                            /** @enum {string} */
+                            /** @constant */
                             entry_number: "No. Jurnal";
-                            /** @enum {string} */
+                            /** @constant */
                             description: "Deskripsi";
-                            /** @enum {string} */
+                            /** @constant */
                             debit: "Debit";
-                            /** @enum {string} */
+                            /** @constant */
                             credit: "Kredit";
-                            /** @enum {string} */
+                            /** @constant */
                             balance: "Saldo";
                         };
                     };
@@ -18808,31 +18807,29 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: [
-                            {
-                                contact: string;
-                                bucket_0: string | 0;
-                                bucket_1: string | 0;
-                                bucket_2: string | 0;
-                                bucket_3: string | 0;
-                                bucket_4: string | 0;
-                                total: string | 0;
-                            }
-                        ];
+                        data: {
+                            contact: string;
+                            current: string | 0;
+                            days_1_30: string | 0;
+                            days_31_60: string | 0;
+                            days_61_90: string | 0;
+                            over_90: string | 0;
+                            total: string | 0;
+                        }[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             contact: "Pelanggan";
-                            /** @enum {string} */
-                            bucket_0: "Belum Jatuh Tempo";
-                            /** @enum {string} */
-                            bucket_1: "1-30 Hari";
-                            /** @enum {string} */
-                            bucket_2: "31-60 Hari";
-                            /** @enum {string} */
-                            bucket_3: "61-90 Hari";
-                            /** @enum {string} */
-                            bucket_4: "> 90 Hari";
-                            /** @enum {string} */
+                            /** @constant */
+                            current: "Belum Jatuh Tempo";
+                            /** @constant */
+                            days_1_30: "1-30 Hari";
+                            /** @constant */
+                            days_31_60: "31-60 Hari";
+                            /** @constant */
+                            days_61_90: "61-90 Hari";
+                            /** @constant */
+                            over_90: "> 90 Hari";
+                            /** @constant */
                             total: "Total";
                         };
                     };
@@ -18861,31 +18858,29 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: [
-                            {
-                                contact: string;
-                                bucket_0: string | 0;
-                                bucket_1: string | 0;
-                                bucket_2: string | 0;
-                                bucket_3: string | 0;
-                                bucket_4: string | 0;
-                                total: string | 0;
-                            }
-                        ];
+                        data: {
+                            contact: string;
+                            current: string | 0;
+                            days_1_30: string | 0;
+                            days_31_60: string | 0;
+                            days_61_90: string | 0;
+                            over_90: string | 0;
+                            total: string | 0;
+                        }[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             contact: "Supplier";
-                            /** @enum {string} */
-                            bucket_0: "Belum Jatuh Tempo";
-                            /** @enum {string} */
-                            bucket_1: "1-30 Hari";
-                            /** @enum {string} */
-                            bucket_2: "31-60 Hari";
-                            /** @enum {string} */
-                            bucket_3: "61-90 Hari";
-                            /** @enum {string} */
-                            bucket_4: "> 90 Hari";
-                            /** @enum {string} */
+                            /** @constant */
+                            current: "Belum Jatuh Tempo";
+                            /** @constant */
+                            days_1_30: "1-30 Hari";
+                            /** @constant */
+                            days_31_60: "31-60 Hari";
+                            /** @constant */
+                            days_61_90: "61-90 Hari";
+                            /** @constant */
+                            over_90: "> 90 Hari";
+                            /** @constant */
                             total: "Total";
                         };
                     };
@@ -18917,27 +18912,27 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: string;
+                        data: unknown[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             invoice_number: "No. Faktur";
-                            /** @enum {string} */
+                            /** @constant */
                             date: "Tanggal";
-                            /** @enum {string} */
+                            /** @constant */
                             due_date: "Jatuh Tempo";
-                            /** @enum {string} */
+                            /** @constant */
                             contact: "Pelanggan";
-                            /** @enum {string} */
+                            /** @constant */
                             subtotal: "Subtotal";
-                            /** @enum {string} */
+                            /** @constant */
                             tax: "PPN";
-                            /** @enum {string} */
+                            /** @constant */
                             total: "Total";
-                            /** @enum {string} */
+                            /** @constant */
                             paid: "Dibayar";
-                            /** @enum {string} */
+                            /** @constant */
                             outstanding: "Sisa";
-                            /** @enum {string} */
+                            /** @constant */
                             status: "Status";
                         };
                     };
@@ -18969,29 +18964,29 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: string;
+                        data: unknown[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             bill_number: "No. Tagihan";
-                            /** @enum {string} */
+                            /** @constant */
                             vendor_ref: "No. Vendor";
-                            /** @enum {string} */
+                            /** @constant */
                             date: "Tanggal";
-                            /** @enum {string} */
+                            /** @constant */
                             due_date: "Jatuh Tempo";
-                            /** @enum {string} */
+                            /** @constant */
                             contact: "Supplier";
-                            /** @enum {string} */
+                            /** @constant */
                             subtotal: "Subtotal";
-                            /** @enum {string} */
+                            /** @constant */
                             tax: "PPN";
-                            /** @enum {string} */
+                            /** @constant */
                             total: "Total";
-                            /** @enum {string} */
+                            /** @constant */
                             paid: "Dibayar";
-                            /** @enum {string} */
+                            /** @constant */
                             outstanding: "Sisa";
-                            /** @enum {string} */
+                            /** @constant */
                             status: "Status";
                         };
                     };
@@ -19022,42 +19017,39 @@ export interface operations {
                 content: {
                     "text/csv; charset=UTF-8": string;
                     "application/json": {
-                        data: [
-                            {
-                                /** @enum {string} */
-                                type: "Faktur Keluaran";
-                                number: string;
-                                date: string;
-                                contact: string;
-                                npwp: string | "-";
-                                dpp: string;
-                                ppn: string;
-                            },
-                            {
-                                /** @enum {string} */
-                                type: "Faktur Masukan";
-                                number: string;
-                                date: string;
-                                contact: string;
-                                npwp: string | "-";
-                                dpp: string;
-                                ppn: string;
-                            }
-                        ];
+                        data: ({
+                            /** @constant */
+                            type: "Faktur Keluaran";
+                            number: string;
+                            date: string;
+                            contact: string;
+                            npwp: string | "-";
+                            dpp: string;
+                            ppn: string;
+                        } | {
+                            /** @constant */
+                            type: "Faktur Masukan";
+                            number: string;
+                            date: string;
+                            contact: string;
+                            npwp: string | "-";
+                            dpp: string;
+                            ppn: string;
+                        })[];
                         headers: {
-                            /** @enum {string} */
+                            /** @constant */
                             type: "Jenis";
-                            /** @enum {string} */
+                            /** @constant */
                             number: "Nomor";
-                            /** @enum {string} */
+                            /** @constant */
                             date: "Tanggal";
-                            /** @enum {string} */
+                            /** @constant */
                             contact: "Lawan Transaksi";
-                            /** @enum {string} */
+                            /** @constant */
                             npwp: "NPWP";
-                            /** @enum {string} */
+                            /** @constant */
                             dpp: "DPP";
-                            /** @enum {string} */
+                            /** @constant */
                             ppn: "PPN";
                         };
                     };
@@ -19083,9 +19075,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
+                            preset: string;
                             modules: {
                                 [key: string]: boolean;
                             };
@@ -19096,7 +19089,6 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
         };
     };
     "fiscal-periods.index": {
@@ -19201,7 +19193,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["FiscalPeriodResource"];
+                        data: components["schemas"]["FiscalPeriodResource"] & Record<string, never>;
                     };
                 };
             };
@@ -19228,7 +19220,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode fiskal berhasil dikunci.";
                         data: components["schemas"]["FiscalPeriodResource"];
                     };
@@ -19243,10 +19235,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode sudah dikunci.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode yang sudah ditutup tidak bisa dikunci.";
                     };
                 };
@@ -19271,7 +19263,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode fiskal berhasil dibuka kuncinya.";
                         data: components["schemas"]["FiscalPeriodResource"];
                     };
@@ -19286,10 +19278,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode tidak dalam keadaan terkunci.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode yang sudah ditutup tidak bisa dibuka kuncinya.";
                     };
                 };
@@ -19322,7 +19314,7 @@ export interface operations {
                     "application/json": {
                         message: string;
                         data: components["schemas"]["FiscalPeriodResource"];
-                        closing_entry_id: string;
+                        closing_entry_id: string | null;
                     };
                 };
             };
@@ -19359,7 +19351,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode fiskal berhasil dibuka kembali.";
                         data: components["schemas"]["FiscalPeriodResource"];
                     };
@@ -19374,7 +19366,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Periode belum ditutup.";
                     };
                 };
@@ -19385,7 +19377,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Gagal membuka kembali periode fiskal.";
                     };
                 };
@@ -19445,7 +19437,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["GoodsReceiptNoteResource"][];
+                        data: (components["schemas"]["GoodsReceiptNoteResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -19496,7 +19488,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil dibuat.";
                         data: components["schemas"]["GoodsReceiptNoteResource"];
                     };
@@ -19525,7 +19517,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["GoodsReceiptNoteResource"];
+                        data: components["schemas"]["GoodsReceiptNoteResource"] & Record<string, never>;
                     };
                 };
             };
@@ -19555,9 +19547,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil diperbarui.";
-                        data: components["schemas"]["GoodsReceiptNoteResource"];
+                        data: components["schemas"]["GoodsReceiptNoteResource"] & Record<string, never>;
                     };
                 };
             };
@@ -19584,7 +19576,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil dihapus.";
                     };
                 };
@@ -19624,7 +19616,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil dibuat dari Purchase Order.";
                         data: components["schemas"]["GoodsReceiptNoteResource"];
                     };
@@ -19667,9 +19659,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil diperbarui.";
-                        data: components["schemas"]["GoodsReceiptNoteItemResource"];
+                        data: components["schemas"]["GoodsReceiptNoteItemResource"] & Record<string, never>;
                     };
                 };
             };
@@ -19696,9 +19688,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proses penerimaan dimulai.";
-                        data: components["schemas"]["GoodsReceiptNoteResource"];
+                        data: components["schemas"]["GoodsReceiptNoteResource"] & Record<string, never>;
                     };
                 };
             };
@@ -19724,7 +19716,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil diselesaikan dan stok telah diperbarui.";
                         data: components["schemas"]["GoodsReceiptNoteResource"];
                     };
@@ -19752,7 +19744,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "GRN berhasil dibatalkan.";
                         data: components["schemas"]["GoodsReceiptNoteResource"];
                     };
@@ -19781,7 +19773,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["GoodsReceiptNoteResource"][];
+                        data: (components["schemas"]["GoodsReceiptNoteResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -19805,7 +19797,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["InventoryMovementResource"][];
+                        data: (components["schemas"]["InventoryMovementResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -20104,7 +20096,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductStockResource"][];
+                        data: (components["schemas"]["ProductStockResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -20152,7 +20144,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["InvoiceResource"][];
+                        data: (components["schemas"]["InvoiceResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -20230,7 +20222,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["InvoiceResource"];
+                        data: components["schemas"]["InvoiceResource"] & Record<string, never>;
                     };
                 };
             };
@@ -20291,7 +20283,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Faktur berhasil dihapus.";
                     };
                 };
@@ -20320,7 +20312,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: components["schemas"]["InvoiceResource"];
                     };
@@ -20354,7 +20346,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: components["schemas"]["InvoiceResource"];
                     };
@@ -20496,7 +20488,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["JournalEntryResource"];
+                        data: components["schemas"]["JournalEntryResource"] & Record<string, never>;
                     };
                 };
             };
@@ -20524,7 +20516,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["JournalEntryResource"];
+                        data: components["schemas"]["JournalEntryResource"] & Record<string, never>;
                     };
                 };
             };
@@ -20686,7 +20678,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["MaterialRequisitionResource"];
+                        data: components["schemas"]["MaterialRequisitionResource"] & Record<string, never>;
                     };
                 };
             };
@@ -20744,7 +20736,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Material requisition berhasil dihapus.";
                     };
                 };
@@ -20916,7 +20908,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["MrpRunResource"];
+                        data: components["schemas"]["MrpRunResource"] & Record<string, never>;
                     };
                 };
             };
@@ -20976,7 +20968,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "MRP run berhasil dihapus.";
                     };
                 };
@@ -21183,10 +21175,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Saran berhasil dikonversi ke Purchase Order.";
                         purchase_order: {
-                            id: number;
+                            id: string;
                             po_number: string;
                         };
                     };
@@ -21215,10 +21207,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Saran berhasil dikonversi ke Work Order.";
                         work_order: {
-                            id: number;
+                            id: string;
                             wo_number: string;
                         };
                     };
@@ -21253,10 +21245,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Saran berhasil dikonversi ke Subcontractor Work Order.";
                         subcontractor_work_order: {
-                            id: number;
+                            id: string;
                             sc_wo_number: string;
                         };
                     };
@@ -21290,8 +21282,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
-                        /** @enum {integer} */
-                        accepted_count: 0;
+                        accepted_count: number;
                     };
                 };
             };
@@ -21310,8 +21301,8 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": {
-                    reason?: string | null;
                     suggestion_ids: number[];
+                    reason?: string | null;
                 };
             };
         };
@@ -21323,8 +21314,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         message: string;
-                        /** @enum {integer} */
-                        rejected_count: 0;
+                        rejected_count: number;
                     };
                 };
             };
@@ -21356,22 +21346,20 @@ export interface operations {
                         horizon_end: unknown;
                         warehouse_id: unknown;
                         total_shortages: number;
-                        shortages: [
-                            {
-                                product_id: string;
-                                product_code: string;
-                                product_name: string;
-                                procurement_type: string;
-                                quantity_required: string;
-                                quantity_on_hand: number | 0;
-                                quantity_on_order: number;
-                                quantity_reserved: number | 0;
-                                quantity_available: string;
-                                quantity_short: Record<string, never> | null;
-                                earliest_required: string;
-                                work_orders: string;
-                            }
-                        ];
+                        shortages: {
+                            product_id: string;
+                            product_code: string;
+                            product_name: string;
+                            procurement_type: string;
+                            quantity_required: string;
+                            quantity_on_hand: number;
+                            quantity_on_order: number;
+                            quantity_reserved: number;
+                            quantity_available: string;
+                            quantity_short: Record<string, never> | null;
+                            earliest_required: string;
+                            work_orders: string;
+                        }[];
                     };
                 };
             };
@@ -21398,15 +21386,17 @@ export interface operations {
                         total_runs: number;
                         by_status: string;
                         last_completed_run: {
-                            id: string;
+                            id: number;
                             run_number: string;
-                            completed_at: string;
+                            /** Format: date-time */
+                            completed_at: string | null;
                             total_suggestions: string;
                         } | null;
                         last_applied_run: {
-                            id: string;
+                            id: number;
                             run_number: string;
-                            applied_at: string;
+                            /** Format: date-time */
+                            applied_at: string | null;
                         } | null;
                     };
                 };
@@ -21435,7 +21425,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["NsfpRangeResource"][];
+                        data: (components["schemas"]["NsfpRangeResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -21488,7 +21478,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["NsfpRangeResource"];
+                        data: components["schemas"]["NsfpRangeResource"] & Record<string, never>;
                     };
                 };
             };
@@ -21516,7 +21506,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["NsfpRangeResource"];
+                        data: components["schemas"]["NsfpRangeResource"] & Record<string, never>;
                     };
                 };
             };
@@ -21576,7 +21566,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Range NSFP berhasil dinonaktifkan.";
                         data: components["schemas"]["NsfpRangeResource"];
                     };
@@ -21610,7 +21600,7 @@ export interface operations {
                             total_capacity: string;
                             total_used: string;
                             total_remaining: string;
-                            utilization_percent: number | 0;
+                            utilization_percent: number;
                         };
                         ranges: components["schemas"]["NsfpRangeResource"][];
                     };
@@ -21636,7 +21626,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentResource"][];
+                        data: (components["schemas"]["PaymentResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -21717,7 +21707,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentResource"];
+                        data: components["schemas"]["PaymentResource"] & Record<string, never>;
                     };
                 };
             };
@@ -21745,7 +21735,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Pembayaran berhasil dibatalkan.";
                         data: components["schemas"]["PaymentResource"];
                     };
@@ -21781,7 +21771,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentReminderResource"][];
+                        data: (components["schemas"]["PaymentReminderResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -21858,7 +21848,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentReminderResource"];
+                        data: components["schemas"]["PaymentReminderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -21897,10 +21887,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Gagal mengirim pengingat. Dokumen mungkin sudah dibayar atau dibatalkan.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Hanya pengingat dengan status pending yang dapat dikirim.";
                     };
                 };
@@ -21938,7 +21928,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Hanya pengingat dengan status pending yang dapat dibatalkan.";
                     };
                 };
@@ -21964,7 +21954,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentReminderResource"][];
+                        data: (components["schemas"]["PaymentReminderResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -21995,7 +21985,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PaymentReminderResource"];
+                        data: components["schemas"]["PaymentReminderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -22186,7 +22176,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductResource"][];
+                        data: (components["schemas"]["ProductResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -22267,7 +22257,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductResource"];
+                        data: components["schemas"]["ProductResource"] & Record<string, never>;
                     };
                 };
             };
@@ -22423,7 +22413,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductResource"][];
+                        data: (components["schemas"]["ProductResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -22533,7 +22523,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductCategoryResource"][];
+                        data: (components["schemas"]["ProductCategoryResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -22585,7 +22575,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductCategoryResource"];
+                        data: components["schemas"]["ProductCategoryResource"] & Record<string, never>;
                     };
                 };
             };
@@ -22612,7 +22602,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductCategoryResource"];
+                        data: components["schemas"]["ProductCategoryResource"] & Record<string, never>;
                     };
                 };
             };
@@ -22670,7 +22660,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Kategori berhasil dihapus.";
                     };
                 };
@@ -22694,7 +22684,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProductCategoryResource"][];
+                        data: (components["schemas"]["ProductCategoryResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -22717,7 +22707,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProjectResource"][];
+                        data: (components["schemas"]["ProjectResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -22798,7 +22788,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["ProjectResource"];
+                        data: components["schemas"]["ProjectResource"] & Record<string, never>;
                     };
                 };
             };
@@ -22858,7 +22848,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proyek berhasil dihapus.";
                     };
                 };
@@ -22903,7 +22893,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proyek berhasil dibuat dari penawaran.";
                         data: components["schemas"]["ProjectResource"];
                     };
@@ -23147,7 +23137,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Biaya berhasil ditambahkan.";
                         data: components["schemas"]["ProjectCostResource"];
                     };
@@ -23194,7 +23184,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Biaya berhasil diperbarui.";
                         data: components["schemas"]["ProjectCostResource"];
                     };
@@ -23226,7 +23216,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Biaya berhasil dihapus.";
                     };
                 };
@@ -23267,7 +23257,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Pendapatan berhasil ditambahkan.";
                         data: components["schemas"]["ProjectRevenueResource"];
                     };
@@ -23312,7 +23302,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Pendapatan berhasil diperbarui.";
                         data: components["schemas"]["ProjectRevenueResource"];
                     };
@@ -23344,7 +23334,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Pendapatan berhasil dihapus.";
                     };
                 };
@@ -23394,10 +23384,10 @@ export interface operations {
                                 [key: string]: unknown;
                             };
                             timeline: {
-                                start_date: string;
-                                end_date: string;
-                                actual_start: string;
-                                actual_end: string;
+                                start_date: string | null;
+                                end_date: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
                                 duration_days: number | null;
                                 days_until_deadline: number | null;
                                 is_overdue: boolean;
@@ -23521,9 +23511,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Profil perusahaan tidak ditemukan.";
-                        /** @enum {string} */
+                        /** @constant */
                         error: "profile_not_found";
                     };
                 };
@@ -23541,7 +23531,9 @@ export interface operations {
             content: {
                 "application/json": {
                     monthly_bill: number;
+                    /** @description Min Rp 5 juta for B2B */
                     pln_power_va?: number | null;
+                    /** @description Min 5.5 kVA for B2B */
                     pln_category?: string | null;
                     target_savings?: number | null;
                     price_per_kwp?: number | null;
@@ -23563,7 +23555,7 @@ export interface operations {
                                 pln_tariff: {
                                     code: string;
                                     name: string;
-                                    rate_per_kwh: string;
+                                    rate_per_kwh: number;
                                 };
                                 peak_sun_hours: number;
                             };
@@ -23592,9 +23584,8 @@ export interface operations {
                                 investment_cost: number;
                                 price_per_kwp: number;
                                 payback_years: number | null;
-                                roi_percent: number | 0;
-                                /** @enum {integer} */
-                                lifetime_savings: 0;
+                                roi_percent: number;
+                                lifetime_savings: number;
                                 npv: number;
                             };
                             /** @description Environmental impact */
@@ -23613,9 +23604,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tarif PLN tidak ditemukan.";
-                        /** @enum {string} */
+                        /** @constant */
                         error: "tariff_not_found";
                     };
                 };
@@ -23640,7 +23631,7 @@ export interface operations {
                     "application/json": {
                         data: {
                             tariffs: components["schemas"]["PlnTariff"][];
-                            grouped: string[][];
+                            grouped: string;
                         };
                     };
                 };
@@ -23674,7 +23665,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal tidak ditemukan.";
                     };
                 };
@@ -23685,7 +23676,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Link proposal sudah kedaluwarsa.";
                     };
                 };
@@ -23709,7 +23700,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal berhasil diterima.";
                         data: components["schemas"]["SolarProposalResource"];
                     };
@@ -23721,7 +23712,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal tidak ditemukan.";
                     };
                 };
@@ -23732,7 +23723,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Link proposal sudah kedaluwarsa.";
                     };
                 };
@@ -23743,7 +23734,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal tidak dapat diterima.";
                         /** @enum {string} */
                         reason: "Proposal sudah diterima sebelumnya." | "Proposal sudah ditolak." | "Proposal belum dikirim." | "Proposal sudah kedaluwarsa." | "Status proposal tidak valid.";
@@ -23775,7 +23766,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal berhasil ditolak.";
                         data: components["schemas"]["SolarProposalResource"];
                     };
@@ -23787,7 +23778,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal tidak ditemukan.";
                     };
                 };
@@ -23798,7 +23789,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Link proposal sudah kedaluwarsa.";
                     };
                 };
@@ -23822,7 +23813,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseOrderResource"][];
+                        data: (components["schemas"]["PurchaseOrderResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -23903,7 +23894,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseOrderResource"];
+                        data: components["schemas"]["PurchaseOrderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -23964,7 +23955,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "PO berhasil dihapus.";
                     };
                 };
@@ -23979,7 +23970,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Hanya PO draft yang dapat dihapus.";
                         errors: string;
                     };
@@ -24132,10 +24123,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "PO berhasil dikonversi menjadi tagihan.";
                         data: {
-                            bill: components["schemas"]["BillResource"];
+                            bill: components["schemas"]["BillResource"] & Record<string, never>;
                             purchase_order: components["schemas"]["PurchaseOrderResource"];
                         };
                     };
@@ -24192,7 +24183,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseOrderResource"][];
+                        data: (components["schemas"]["PurchaseOrderResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -24219,7 +24210,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             total: string;
@@ -24258,7 +24249,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseReturnResource"][];
+                        data: (components["schemas"]["PurchaseReturnResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -24284,7 +24275,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil dibuat.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24313,7 +24304,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseReturnResource"];
+                        data: components["schemas"]["PurchaseReturnResource"] & Record<string, never>;
                     };
                 };
             };
@@ -24343,7 +24334,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil diperbarui.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24372,7 +24363,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil dihapus.";
                     };
                 };
@@ -24399,7 +24390,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil diajukan.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24427,7 +24418,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil disetujui.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24461,7 +24452,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil ditolak.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24490,7 +24481,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil diselesaikan.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24524,7 +24515,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil dibatalkan.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24562,7 +24553,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur pembelian berhasil dibuat dari bill.";
                         data: components["schemas"]["PurchaseReturnResource"];
                     };
@@ -24592,7 +24583,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["PurchaseReturnResource"][];
+                        data: (components["schemas"]["PurchaseReturnResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -24625,10 +24616,7 @@ export interface operations {
                         completed_count: number;
                         cancelled_count: number;
                         total_value: string;
-                        by_reason: {
-                            count: number;
-                            total: string;
-                        }[];
+                        by_reason: string;
                     };
                 };
             };
@@ -24651,7 +24639,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"][];
+                        data: (components["schemas"]["QuotationResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -24732,7 +24720,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"];
+                        data: components["schemas"]["QuotationResource"] & Record<string, never>;
                     };
                 };
             };
@@ -24793,7 +24781,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Penawaran berhasil dihapus.";
                     };
                 };
@@ -25012,7 +25000,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Penawaran berhasil dikonversi menjadi faktur.";
                         data: {
                             invoice: components["schemas"]["InvoiceResource"];
@@ -25098,10 +25086,23 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
-                            [key: string]: unknown;
+                            total: string;
+                            by_status: {
+                                draft: string;
+                                submitted: string;
+                                approved: string;
+                                rejected: string;
+                                expired: string;
+                                converted: string;
+                            };
+                            total_value: string;
+                            approved_value: string;
+                            converted_value: string;
+                            approval_rate: number;
+                            conversion_rate: number;
                         };
                     };
                 };
@@ -25158,10 +25159,10 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
-                            options: components["schemas"]["QuotationVariantOptionResource"][];
+                            options: (components["schemas"]["QuotationVariantOptionResource"] & Record<string, never>)[];
                             meta: {
                                 quotation_id: number;
                                 quotation_number: string;
@@ -25183,7 +25184,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Penawaran ini bukan tipe multi-option.";
                         errors: string;
                     };
@@ -25225,7 +25226,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Opsi varian berhasil disimpan.";
                         data: components["schemas"]["QuotationVariantOptionResource"][];
                     };
@@ -25262,7 +25263,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"];
+                        data: components["schemas"]["QuotationResource"] & Record<string, never>;
                     };
                 };
             };
@@ -25291,7 +25292,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             quotation: {
@@ -25320,7 +25321,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Penawaran ini bukan tipe multi-option.";
                         errors: string;
                     };
@@ -25350,7 +25351,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"][];
+                        data: (components["schemas"]["QuotationResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -25415,19 +25416,9 @@ export interface operations {
                             lost: string;
                             pending: string;
                         };
-                        conversion_rate: number | 0;
-                        lost_reasons: {
-                            reason: string;
-                            label: string;
-                            count: number;
-                            value: number;
-                        }[];
-                        won_reasons: {
-                            reason: string;
-                            label: string;
-                            count: number;
-                            value: number;
-                        }[];
+                        conversion_rate: number;
+                        lost_reasons: unknown[];
+                        won_reasons: unknown[];
                     };
                 };
             };
@@ -25483,7 +25474,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationActivityResource"][];
+                        data: (components["schemas"]["QuotationActivityResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -25539,7 +25530,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationActivityResource"];
+                        data: components["schemas"]["QuotationActivityResource"] & Record<string, never>;
                     };
                 };
             };
@@ -25749,7 +25740,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["RecurringTemplateResource"][];
+                        data: (components["schemas"]["RecurringTemplateResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -25828,7 +25819,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["RecurringTemplateResource"];
+                        data: components["schemas"]["RecurringTemplateResource"] & Record<string, never>;
                     };
                 };
             };
@@ -25886,10 +25877,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template dinonaktifkan karena sudah memiliki dokumen yang dihasilkan.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template berhasil dihapus.";
                     };
                 };
@@ -25918,7 +25909,7 @@ export interface operations {
                     "application/json": {
                         message: string;
                         document_type: string;
-                        document_id: string;
+                        document_id: number;
                         document_number: string;
                     };
                 };
@@ -25931,10 +25922,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Belum waktunya untuk menghasilkan dokumen dari template ini.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template tidak aktif.";
                     };
                 };
@@ -25959,7 +25950,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template berhasil dijeda.";
                         data: components["schemas"]["RecurringTemplateResource"];
                     };
@@ -25973,7 +25964,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template sudah tidak aktif.";
                     };
                 };
@@ -25998,7 +25989,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template berhasil diaktifkan kembali.";
                         data: components["schemas"]["RecurringTemplateResource"];
                     };
@@ -26012,13 +26003,13 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tanggal akhir template sudah terlewat.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template sudah mencapai batas maksimal pengulangan.";
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Template sudah aktif.";
                     };
                 };
@@ -26043,12 +26034,12 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
+                            /** @constant */
                             report_name: "Neraca Saldo";
-                            as_of_date: unknown | string;
+                            as_of_date: unknown;
                             accounts: string;
                             total_debit: string;
                             total_credit: string;
@@ -26080,16 +26071,16 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
+                            /** @constant */
                             report_name: "Laporan Posisi Keuangan";
                             ""?: string;
                         };
                     } | {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: string;
                     };
@@ -26121,16 +26112,16 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
-                            /** @enum {string} */
+                            /** @constant */
                             report_name: "Laporan Laba Rugi";
                             ""?: string;
                         };
                     } | {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: string;
                     };
@@ -26215,16 +26206,24 @@ export interface operations {
                                 max: number | null;
                             }[];
                             contacts: {
-                                contact_id: number;
-                                contact_code: string;
-                                contact_name: string;
-                                buckets: {
-                                    [key: string]: number;
-                                };
+                                id: number;
+                                code: string;
+                                name: string;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
                                 invoice_count: number;
                             }[];
                             totals: {
-                                [key: string]: number;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
                             };
                         };
                     };
@@ -26260,16 +26259,24 @@ export interface operations {
                                 max: number | null;
                             }[];
                             contacts: {
-                                contact_id: number;
-                                contact_code: string;
-                                contact_name: string;
-                                buckets: {
-                                    [key: string]: number;
-                                };
+                                id: number;
+                                code: string;
+                                name: string;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
                                 bill_count: number;
                             }[];
                             totals: {
-                                [key: string]: number;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
                             };
                         };
                     };
@@ -26300,7 +26307,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Operasi berhasil.";
                         data: {
                             report_name: string;
@@ -26584,552 +26591,6 @@ export interface operations {
                             total_receipts: number;
                             total_payments: number;
                             net_movement: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.project-profitability": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-                status?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            projects: {
-                                id: number;
-                                project_number: string;
-                                name: string;
-                                customer: string | null;
-                                status: string;
-                                start_date: string | null;
-                                end_date: string | null;
-                                contract_amount: number;
-                                total_revenue: number;
-                                costs: {
-                                    material: number;
-                                    labor: number;
-                                    subcontractor: number;
-                                    equipment: number;
-                                    overhead: number;
-                                    other: number;
-                                    total: number;
-                                };
-                                gross_profit: number;
-                                profit_margin: number;
-                                budget_amount: number;
-                                budget_variance: number;
-                                budget_utilization: number;
-                                is_over_budget: boolean;
-                                progress_percentage: number;
-                            }[];
-                            totals: {
-                                total_contract: number;
-                                total_revenue: number;
-                                total_costs: number;
-                                total_profit: number;
-                                average_margin: number;
-                                projects_count: number;
-                                profitable_count: number;
-                                loss_count: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.project-profitability-detail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The project ID */
-                project: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            project: {
-                                id: number;
-                                project_number: string;
-                                name: string;
-                                description: string | null;
-                                customer: {
-                                    id: number;
-                                    name: string;
-                                    code: string;
-                                } | null;
-                                status: string;
-                                priority: string | null;
-                                location: string | null;
-                                manager_id: number | null;
-                            };
-                            financials: {
-                                contract_amount: number;
-                                budget_amount: number;
-                                total_revenue: number;
-                                total_cost: number;
-                                gross_profit: number;
-                                profit_margin: number;
-                                budget_variance: number;
-                                budget_utilization: number;
-                                is_over_budget: boolean;
-                            };
-                            cost_breakdown: {
-                                material: number;
-                                labor: number;
-                                subcontractor: number;
-                                equipment: number;
-                                overhead: number;
-                                other: number;
-                                total: number;
-                            };
-                            revenue_breakdown: {
-                                items: {
-                                    type: string;
-                                    total: number;
-                                    count: number;
-                                }[];
-                                total: number;
-                            };
-                            timeline: {
-                                planned_start: string | null;
-                                planned_end: string | null;
-                                actual_start: string | null;
-                                actual_end: string | null;
-                                duration_days: number;
-                                days_until_deadline: number | null;
-                                is_overdue: boolean;
-                            };
-                            progress: {
-                                percentage: number;
-                                work_orders_count: number;
-                                work_orders_completed: number;
-                                invoices_count: number;
-                                invoices_paid: number;
-                            };
-                            monthly_costs: {
-                                [key: string]: number;
-                            };
-                            kpis: {
-                                cost_per_progress: number;
-                                revenue_per_progress: number;
-                                burn_rate: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.project-cost-analysis": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            by_type: {
-                                [key: string]: {
-                                    total: number;
-                                    count: number;
-                                    label: string;
-                                };
-                            };
-                            by_project: {
-                                project_id: number;
-                                project_number: string | null;
-                                project_name: string | null;
-                                total_cost: number;
-                            }[];
-                            totals: {
-                                grand_total: number;
-                                cost_types_count: number;
-                                projects_count: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.work-order-costs": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-                status?: string;
-                project_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.work-order-cost-detail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The work order ID */
-                workOrder: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @enum {string} */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.cost-variance": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            over_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            under_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            on_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            summary: {
-                                total_work_orders: number;
-                                over_budget_count: number;
-                                under_budget_count: number;
-                                on_budget_count: number;
-                                total_estimated: number;
-                                total_actual: number;
-                                total_variance: number;
-                                overall_variance_percent: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.subcontractor-summary": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            subcontractors: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                work_orders: {
-                                    total: number;
-                                    completed: number;
-                                    in_progress: number;
-                                    draft: number;
-                                };
-                                financials: {
-                                    total_agreed: number;
-                                    total_actual: number;
-                                    total_invoiced: number;
-                                    total_paid: number;
-                                    outstanding: number;
-                                    retention_held: number;
-                                };
-                                performance: {
-                                    on_time_completion: number;
-                                    average_completion_days: number;
-                                };
-                            }[];
-                            totals: {
-                                total_subcontractors: number;
-                                total_agreed: number;
-                                total_paid: number;
-                                total_outstanding: number;
-                                total_retention: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.subcontractor-detail": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The contact ID */
-                contact: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            subcontractor: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                phone: string | null;
-                                email: string | null;
-                                hourly_rate: number | null;
-                                daily_rate: number | null;
-                            };
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            work_orders: {
-                                id: number;
-                                sc_wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                project_name: string | null;
-                                status: string;
-                                agreed_amount: number;
-                                actual_amount: number;
-                                retention_amount: number;
-                                amount_invoiced: number;
-                                amount_paid: number;
-                                scheduled_start: string | null;
-                                scheduled_end: string | null;
-                                actual_start: string | null;
-                                actual_end: string | null;
-                                completion_percentage: number;
-                            }[];
-                            invoices: {
-                                id: number;
-                                invoice_number: string;
-                                invoice_date: string | null;
-                                amount: number;
-                                status: string;
-                                sc_wo_number: string | null;
-                            }[];
-                            summary: {
-                                total_work_orders: number;
-                                completed_work_orders: number;
-                                total_agreed: number;
-                                total_actual: number;
-                                total_invoiced: number;
-                                total_paid: number;
-                                outstanding: number;
-                                retention_held: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.subcontractor-retention": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            retentions: {
-                                id: number;
-                                sc_wo_number: string;
-                                name: string;
-                                subcontractor_name: string | null;
-                                project_number: string | null;
-                                status: string;
-                                agreed_amount: number;
-                                retention_percent: number;
-                                retention_amount: number;
-                                scheduled_end: string | null;
-                                actual_end: string | null;
-                                is_releasable: boolean;
-                            }[];
-                            by_subcontractor: {
-                                subcontractor: string;
-                                total_retention: number;
-                                work_orders_count: number;
-                                releasable_amount: number;
-                            }[];
-                            totals: {
-                                total_retention_held: number;
-                                releasable_amount: number;
-                                pending_amount: number;
-                                work_orders_count: number;
-                            };
                         };
                     };
                 };
@@ -27547,6 +27008,552 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "reports.project-profitability": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            projects: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                customer: string | null;
+                                status: string;
+                                start_date: string | null;
+                                end_date: string | null;
+                                contract_amount: number;
+                                total_revenue: number;
+                                costs: {
+                                    material: number;
+                                    labor: number;
+                                    subcontractor: number;
+                                    equipment: number;
+                                    overhead: number;
+                                    other: number;
+                                    total: number;
+                                };
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_amount: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                                progress_percentage: number;
+                            }[];
+                            totals: {
+                                total_contract: number;
+                                total_revenue: number;
+                                total_costs: number;
+                                total_profit: number;
+                                average_margin: number;
+                                projects_count: number;
+                                profitable_count: number;
+                                loss_count: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.project-profitability-detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            project: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                description: string | null;
+                                customer: {
+                                    id: number;
+                                    name: string;
+                                    code: string;
+                                } | null;
+                                status: string;
+                                priority: string | null;
+                                location: string | null;
+                                manager_id: number | null;
+                            };
+                            financials: {
+                                contract_amount: number;
+                                budget_amount: number;
+                                total_revenue: number;
+                                total_cost: number;
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                            };
+                            cost_breakdown: {
+                                material: number;
+                                labor: number;
+                                subcontractor: number;
+                                equipment: number;
+                                overhead: number;
+                                other: number;
+                                total: number;
+                            };
+                            revenue_breakdown: {
+                                items: {
+                                    type: string;
+                                    total: number;
+                                    count: number;
+                                }[];
+                                total: number;
+                            };
+                            timeline: {
+                                planned_start: string | null;
+                                planned_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                duration_days: number;
+                                days_until_deadline: number | null;
+                                is_overdue: boolean;
+                            };
+                            progress: {
+                                percentage: number;
+                                work_orders_count: number;
+                                work_orders_completed: number;
+                                invoices_count: number;
+                                invoices_paid: number;
+                            };
+                            monthly_costs: {
+                                [key: string]: number;
+                            };
+                            kpis: {
+                                cost_per_progress: number;
+                                revenue_per_progress: number;
+                                burn_rate: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.project-cost-analysis": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            by_type: {
+                                [key: string]: {
+                                    total: number;
+                                    count: number;
+                                    label: string;
+                                };
+                            };
+                            by_project: {
+                                project_id: number;
+                                project_number: string | null;
+                                project_name: string | null;
+                                total_cost: number;
+                            }[];
+                            totals: {
+                                grand_total: number;
+                                cost_types_count: number;
+                                projects_count: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.work-order-costs": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+                status?: string;
+                project_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.work-order-cost-detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The work order ID */
+                workOrder: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.cost-variance": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            over_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            under_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            on_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                over_budget_count: number;
+                                under_budget_count: number;
+                                on_budget_count: number;
+                                total_estimated: number;
+                                total_actual: number;
+                                total_variance: number;
+                                overall_variance_percent: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.subcontractor-summary": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            subcontractors: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                work_orders: {
+                                    total: number;
+                                    completed: number;
+                                    in_progress: number;
+                                    draft: number;
+                                };
+                                financials: {
+                                    total_agreed: number;
+                                    total_actual: number;
+                                    total_invoiced: number;
+                                    total_paid: number;
+                                    outstanding: number;
+                                    retention_held: number;
+                                };
+                                performance: {
+                                    on_time_completion: number;
+                                    average_completion_days: number;
+                                };
+                            }[];
+                            totals: {
+                                total_subcontractors: number;
+                                total_agreed: number;
+                                total_paid: number;
+                                total_outstanding: number;
+                                total_retention: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.subcontractor-detail": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The contact ID */
+                contact: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            subcontractor: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                phone: string | null;
+                                email: string | null;
+                                hourly_rate: number | null;
+                                daily_rate: number | null;
+                            };
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            work_orders: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                project_name: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                actual_amount: number;
+                                retention_amount: number;
+                                amount_invoiced: number;
+                                amount_paid: number;
+                                scheduled_start: string | null;
+                                scheduled_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                completion_percentage: number;
+                            }[];
+                            invoices: {
+                                id: number;
+                                invoice_number: string;
+                                invoice_date: string | null;
+                                amount: number;
+                                status: string;
+                                sc_wo_number: string | null;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                completed_work_orders: number;
+                                total_agreed: number;
+                                total_actual: number;
+                                total_invoiced: number;
+                                total_paid: number;
+                                outstanding: number;
+                                retention_held: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.subcontractor-retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            retentions: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                subcontractor_name: string | null;
+                                project_number: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                retention_percent: number;
+                                retention_amount: number;
+                                scheduled_end: string | null;
+                                actual_end: string | null;
+                                is_releasable: boolean;
+                            }[];
+                            by_subcontractor: {
+                                subcontractor: string;
+                                total_retention: number;
+                                work_orders_count: number;
+                                releasable_amount: number;
+                            }[];
+                            totals: {
+                                total_retention_held: number;
+                                releasable_amount: number;
+                                pending_amount: number;
+                                work_orders_count: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
     "roles.index": {
         parameters: {
             query?: never;
@@ -27642,7 +27649,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["RoleResource"];
+                        data: components["schemas"]["RoleResource"] & Record<string, never>;
                     };
                 };
             };
@@ -27701,7 +27708,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Role berhasil dihapus.";
                     };
                 };
@@ -27747,7 +27754,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Permission berhasil diperbarui.";
                         data: components["schemas"]["RoleResource"];
                     };
@@ -27811,7 +27818,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SalesReturnResource"][];
+                        data: (components["schemas"]["SalesReturnResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -27863,7 +27870,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil dibuat.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -27893,7 +27900,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SalesReturnResource"];
+                        data: components["schemas"]["SalesReturnResource"] & Record<string, never>;
                     };
                 };
             };
@@ -27924,7 +27931,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil diperbarui.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -27954,7 +27961,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil dihapus.";
                     };
                 };
@@ -27982,7 +27989,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil diajukan.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28011,7 +28018,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil disetujui.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28046,7 +28053,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil ditolak.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28076,7 +28083,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil diselesaikan.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28111,7 +28118,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil dibatalkan.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28150,7 +28157,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Retur penjualan berhasil dibuat dari invoice.";
                         data: components["schemas"]["SalesReturnResource"];
                     };
@@ -28181,7 +28188,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SalesReturnResource"][];
+                        data: (components["schemas"]["SalesReturnResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -28215,10 +28222,7 @@ export interface operations {
                         completed_count: number;
                         cancelled_count: number;
                         total_value: string;
-                        by_reason: {
-                            count: number;
-                            total: string;
-                        }[];
+                        by_reason: string;
                     };
                 };
             };
@@ -28258,11 +28262,11 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tidak ada data untuk kota ini. Gunakan koordinat untuk mencari lokasi terdekat.";
                         data: null;
                     } | {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tidak ada data solar untuk lokasi ini.";
                         data: null;
                     };
@@ -28418,7 +28422,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tarif tidak ditemukan.";
                     };
                 };
@@ -28441,7 +28445,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SolarProposalListResource"][];
+                        data: (components["schemas"]["SolarProposalListResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -28520,7 +28524,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SolarProposalResource"];
+                        data: components["schemas"]["SolarProposalResource"] & Record<string, never>;
                     };
                 };
             };
@@ -28578,7 +28582,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal berhasil dihapus.";
                     };
                 };
@@ -28791,7 +28795,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Proposal berhasil dikonversi ke quotation.";
                         quotation: components["schemas"]["QuotationResource"];
                         proposal: components["schemas"]["SolarProposalResource"];
@@ -28905,7 +28909,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SpecValidationRuleSetResource"][];
+                        data: (components["schemas"]["SpecValidationRuleSetResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -28957,7 +28961,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                        data: components["schemas"]["SpecValidationRuleSetResource"] & Record<string, never>;
                     };
                 };
             };
@@ -28982,43 +28986,43 @@ export interface operations {
                     "application/json": {
                         data: {
                             categories: {
-                                /** @enum {string} */
+                                /** @constant */
                                 circuit_breaker: "Circuit Breaker";
-                                /** @enum {string} */
+                                /** @constant */
                                 contactor: "Kontaktor";
-                                /** @enum {string} */
+                                /** @constant */
                                 relay: "Relay";
-                                /** @enum {string} */
+                                /** @constant */
                                 cable: "Kabel";
-                                /** @enum {string} */
+                                /** @constant */
                                 busbar: "Busbar";
-                                /** @enum {string} */
+                                /** @constant */
                                 enclosure: "Panel Enclosure";
-                                /** @enum {string} */
+                                /** @constant */
                                 terminal: "Terminal Block";
-                                /** @enum {string} */
+                                /** @constant */
                                 meter: "Meter";
-                                /** @enum {string} */
+                                /** @constant */
                                 transformer: "Trafo";
-                                /** @enum {string} */
+                                /** @constant */
                                 capacitor: "Kapasitor";
                             };
                             validation_types: {
-                                /** @enum {string} */
+                                /** @constant */
                                 warn_if_lower: "Warn if Lower";
-                                /** @enum {string} */
+                                /** @constant */
                                 warn_if_higher: "Warn if Higher";
-                                /** @enum {string} */
+                                /** @constant */
                                 must_match: "Must Match";
-                                /** @enum {string} */
+                                /** @constant */
                                 min_value: "Minimum Value";
-                                /** @enum {string} */
+                                /** @constant */
                                 max_value: "Maximum Value";
                             };
                             severity_levels: {
-                                /** @enum {string} */
+                                /** @constant */
                                 warning: "Warning";
-                                /** @enum {string} */
+                                /** @constant */
                                 error: "Error";
                             };
                             common_spec_keys: {
@@ -29084,7 +29088,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SpecValidationRuleSetResource"];
+                        data: components["schemas"]["SpecValidationRuleSetResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29142,7 +29146,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Rule set berhasil dihapus.";
                     };
                 };
@@ -29169,7 +29173,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Rule set berhasil dijadikan default.";
                         data: components["schemas"]["SpecValidationRuleSetResource"];
                     };
@@ -29265,7 +29269,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Rule berhasil dihapus.";
                     };
                 };
@@ -29298,7 +29302,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Urutan rule berhasil diubah.";
                         data: components["schemas"]["SpecValidationRuleSetResource"];
                     };
@@ -29325,7 +29329,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["StockOpnameResource"][];
+                        data: (components["schemas"]["StockOpnameResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -29376,7 +29380,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil dibuat.";
                         data: components["schemas"]["StockOpnameResource"];
                     };
@@ -29405,7 +29409,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["StockOpnameResource"];
+                        data: components["schemas"]["StockOpnameResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29435,9 +29439,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil diperbarui.";
-                        data: components["schemas"]["StockOpnameResource"];
+                        data: components["schemas"]["StockOpnameResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29464,7 +29468,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil dihapus.";
                     };
                 };
@@ -29491,7 +29495,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil di-generate dari stok gudang.";
                         data: components["schemas"]["StockOpnameResource"];
                     };
@@ -29525,9 +29529,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil ditambahkan.";
-                        data: components["schemas"]["StockOpnameItemResource"];
+                        data: components["schemas"]["StockOpnameItemResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29563,9 +29567,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil diperbarui.";
-                        data: components["schemas"]["StockOpnameItemResource"];
+                        data: components["schemas"]["StockOpnameItemResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29594,7 +29598,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Item berhasil dihapus.";
                     };
                 };
@@ -29621,7 +29625,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Penghitungan stock opname dimulai.";
                         data: components["schemas"]["StockOpnameResource"];
                     };
@@ -29649,9 +29653,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil disubmit untuk review.";
-                        data: components["schemas"]["StockOpnameResource"];
+                        data: components["schemas"]["StockOpnameResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29677,7 +29681,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil diapprove dan penyesuaian stok telah diterapkan.";
                         data: components["schemas"]["StockOpnameResource"];
                     };
@@ -29711,9 +29715,9 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname ditolak dan dikembalikan ke status counting.";
-                        data: components["schemas"]["StockOpnameResource"];
+                        data: components["schemas"]["StockOpnameResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29740,7 +29744,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Stock opname berhasil dibatalkan.";
                         data: components["schemas"]["StockOpnameResource"];
                     };
@@ -29787,7 +29791,7 @@ export interface operations {
                                 total_variance_qty: string;
                                 total_variance_value: string;
                             };
-                            variances: string;
+                            variances: unknown[];
                         };
                     };
                 };
@@ -29812,7 +29816,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SubcontractorInvoiceResource"][];
+                        data: (components["schemas"]["SubcontractorInvoiceResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -29838,7 +29842,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SubcontractorInvoiceResource"];
+                        data: components["schemas"]["SubcontractorInvoiceResource"] & Record<string, never>;
                     };
                 };
             };
@@ -29957,10 +29961,10 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Invoice berhasil dikonversi ke bill.";
                         bill: {
-                            id: number;
+                            id: string;
                             bill_number: string;
                         };
                     };
@@ -30040,7 +30044,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SubcontractorWorkOrderResource"];
+                        data: components["schemas"]["SubcontractorWorkOrderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -30098,7 +30102,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Subcontractor work order berhasil dihapus.";
                     };
                 };
@@ -30282,7 +30286,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["SubcontractorInvoiceResource"][];
+                        data: (components["schemas"]["SubcontractorInvoiceResource"] & Record<string, never>)[];
                     };
                 };
             };
@@ -30345,8 +30349,8 @@ export interface operations {
                             subcontractor_services: unknown[] | null;
                             hourly_rate: number | null;
                             daily_rate: number | null;
-                            active_work_orders_count: string;
-                            completed_work_orders_count: string;
+                            active_work_orders_count: number | null;
+                            completed_work_orders_count: number | null;
                         }[];
                     };
                 };
@@ -30408,7 +30412,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["TaskResource"][];
+                        data: (components["schemas"]["TaskResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -30496,7 +30500,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["TaskResource"];
+                        data: components["schemas"]["TaskResource"] & Record<string, never>;
                     };
                 };
             };
@@ -30560,7 +30564,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Tugas berhasil dihapus.";
                     };
                 };
@@ -30728,7 +30732,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Dependensi berhasil ditambahkan.";
                     };
                 };
@@ -30761,7 +30765,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Dependensi berhasil dihapus.";
                     };
                 };
@@ -30795,7 +30799,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Urutan tugas berhasil diperbarui.";
                     };
                 };
@@ -30854,7 +30858,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["UserResource"][];
+                        data: (components["schemas"]["UserResource"] & Record<string, never>)[];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -30935,7 +30939,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["UserResource"];
+                        data: components["schemas"]["UserResource"] & Record<string, never>;
                     };
                 };
             };
@@ -30992,7 +30996,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "User berhasil dihapus.";
                     };
                 };
@@ -31037,7 +31041,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Password berhasil diperbarui.";
                         data: null;
                     };
@@ -31074,7 +31078,7 @@ export interface operations {
                 content: {
                     "application/json": {
                         success: boolean;
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Role berhasil diperbarui.";
                         data: components["schemas"]["UserResource"];
                     };
@@ -31223,7 +31227,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["WarehouseResource"];
+                        data: components["schemas"]["WarehouseResource"] & Record<string, never>;
                     };
                 };
             };
@@ -31281,7 +31285,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Gudang berhasil dihapus.";
                     };
                 };
@@ -31308,7 +31312,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Gudang berhasil ditetapkan sebagai default.";
                         data: components["schemas"]["WarehouseResource"];
                     };
@@ -31459,7 +31463,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["WorkOrderResource"];
+                        data: components["schemas"]["WorkOrderResource"] & Record<string, never>;
                     };
                 };
             };
@@ -31519,7 +31523,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Work order berhasil dihapus.";
                     };
                 };
@@ -31596,7 +31600,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Work order berhasil dibuat dari BOM.";
                         data: components["schemas"]["WorkOrderResource"];
                     };
@@ -31860,7 +31864,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @enum {string} */
+                        /** @constant */
                         message: "Konsumsi material berhasil dicatat.";
                         data: components["schemas"]["WorkOrderResource"];
                     };
@@ -31911,7 +31915,7 @@ export interface operations {
                                 overhead: string;
                                 total: number;
                             };
-                            variance_percentage: number | 0;
+                            variance_percentage: number;
                         };
                     };
                 };
@@ -31942,20 +31946,18 @@ export interface operations {
                         data: {
                             work_order_id: number;
                             wo_number: string;
-                            materials: [
-                                {
-                                    item_id: string;
-                                    product_id: string;
-                                    product_name: string;
-                                    quantity_required: string;
-                                    quantity_reserved: string;
-                                    quantity_consumed: string;
-                                    quantity_remaining: string;
-                                    unit: string;
-                                    /** @enum {string} */
-                                    status: "pending" | "partial" | "consumed";
-                                }
-                            ];
+                            materials: {
+                                item_id: string;
+                                product_id: string;
+                                product_name: string;
+                                quantity_required: string;
+                                quantity_reserved: string;
+                                quantity_consumed: string;
+                                quantity_remaining: string;
+                                unit: string;
+                                /** @enum {string} */
+                                status: "pending" | "partial" | "consumed";
+                            }[];
                             summary: {
                                 total_items: number;
                                 fully_consumed: number;
