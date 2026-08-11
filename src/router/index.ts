@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { useFeaturesStore } from '@/stores/features'
 
 // Type for breadcrumb meta
 type BreadcrumbMeta = string | ((route: RouteLocationNormalized) => string)
@@ -10,7 +11,51 @@ declare module 'vue-router' {
     breadcrumb?: BreadcrumbMeta
     requiresAuth?: boolean
     guest?: boolean
+    /** Backend product module (config/features.php) */
+    feature?: string
   }
+}
+
+/**
+ * Path prefixes gated by product packs (longest match first).
+ * Aligns with AppSidebar feature keys.
+ */
+const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
+  { prefix: '/solar-proposals', feature: 'solar_proposals' },
+  { prefix: '/solar-calculator', feature: 'solar_proposals' },
+  { prefix: '/p/', feature: 'solar_proposals' },
+  { prefix: '/projects', feature: 'projects' },
+  { prefix: '/work-orders', feature: 'work_orders' },
+  { prefix: '/manufacturing/mrp', feature: 'mrp' },
+  { prefix: '/manufacturing/material-requisitions', feature: 'material_requisitions' },
+  { prefix: '/manufacturing/cost-optimization', feature: 'bom' },
+  { prefix: '/manufacturing/subcontractor-work-orders', feature: 'subcontracting' },
+  { prefix: '/manufacturing/subcontractor-invoices', feature: 'subcontracting' },
+  { prefix: '/boms', feature: 'bom' },
+  { prefix: '/settings/component-library', feature: 'bom' },
+  { prefix: '/settings/rule-sets', feature: 'bom' },
+  { prefix: '/settings/bom-templates', feature: 'bom' },
+  { prefix: '/accounting/budgets', feature: 'budgeting' },
+  { prefix: '/accounting/bank-reconciliation', feature: 'bank_reconciliation' },
+  { prefix: '/accounting/recurring-templates', feature: 'recurring' },
+  { prefix: '/finance/down-payments', feature: 'down_payments' },
+  { prefix: '/purchasing/purchase-orders', feature: 'purchase_orders' },
+  { prefix: '/purchasing/goods-receipt-notes', feature: 'goods_receipt_notes' },
+  { prefix: '/purchasing/purchase-returns', feature: 'purchase_returns' },
+  { prefix: '/sales/delivery-orders', feature: 'delivery_orders' },
+  { prefix: '/sales/sales-returns', feature: 'sales_returns' },
+  { prefix: '/sales/follow-up', feature: 'quotations' },
+  { prefix: '/quotations', feature: 'quotations' },
+  { prefix: '/inventory/opnames', feature: 'stock_opname' },
+  { prefix: '/inventory', feature: 'inventory' },
+  { prefix: '/products', feature: 'products' },
+  { prefix: '/settings/warehouses', feature: 'warehouses' },
+].sort((a, b) => b.prefix.length - a.prefix.length)
+
+function requiredFeatureForPath(path: string): string | null {
+  const match = FEATURE_ROUTE_PREFIXES.find(({ prefix }) => path === prefix || path.startsWith(prefix + '/') || path.startsWith(prefix))
+  // Special-case: '/inventory' must not steal unrelated paths; prefixes already ordered
+  return match?.feature ?? null
 }
 
 const router = createRouter({
@@ -1282,31 +1327,16 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore()
-  
+  const features = useFeaturesStore()
+
   // Check both store and localStorage for token (store might not be reactive in guard)
   const hasToken = !!auth.token || !!localStorage.getItem('token')
   const isAuthenticated = auth.isAuthenticated || hasToken
-  
-  console.log('[Router Guard] Navigation:', {
-    to: to.path,
-    toName: to.name,
-    from: from.path,
-    fromName: from.name,
-    requiresAuth: to.meta.requiresAuth,
-    guest: to.meta.guest,
-    isAuthenticated: isAuthenticated,
-    storeIsAuthenticated: auth.isAuthenticated,
-    hasToken: hasToken,
-    localStorageToken: !!localStorage.getItem('token'),
-    query: to.query
-  })
 
   // If route requires auth but user is not authenticated
   if (to.meta.requiresAuth && !isAuthenticated) {
-    console.log('[Router Guard] Route requires auth but user not authenticated, redirecting to login')
-    // Only redirect to login if we're not already there
     if (to.name !== 'login') {
       next({ name: 'login', query: { redirect: to.fullPath } })
     } else {
@@ -1316,26 +1346,30 @@ router.beforeEach((to, from, next) => {
   }
 
   // If user is authenticated and trying to access guest route (like login)
-  if (to.meta.guest && isAuthenticated) {
-    console.log('[Router Guard] User authenticated on guest route, redirecting')
-    // If we're on login page and authenticated, redirect to dashboard or redirect target
-    if (to.name === 'login') {
-      const redirect = to.query.redirect as string
-      if (redirect) {
-        console.log('[Router Guard] Redirecting to:', redirect)
-        next(redirect)
-      } else {
-        console.log('[Router Guard] Redirecting to dashboard')
-        next({ name: 'dashboard' })
-      }
-      return
-    }
-    // For other guest routes, allow access if authenticated
-    next()
+  if (to.meta.guest && isAuthenticated && to.name === 'login') {
+    const redirect = to.query.redirect as string
+    next(redirect || { name: 'dashboard' })
     return
   }
 
-  console.log('[Router Guard] Allowing navigation')
+  // Ensure product packs loaded for authenticated users (deep links / refresh)
+  if (isAuthenticated && !features.loaded) {
+    await features.fetchFeatures()
+  }
+
+  // Gate authenticated deep links to disabled packs (menu already hidden).
+  // Guest/public pages cannot call /features without auth — API middleware enforces packs.
+  if (isAuthenticated) {
+    const feature =
+      (typeof to.meta.feature === 'string' ? to.meta.feature : null) ||
+      requiredFeatureForPath(to.path)
+
+    if (feature && !features.enabled(feature)) {
+      next({ name: 'dashboard', query: { pack_disabled: feature } })
+      return
+    }
+  }
+
   next()
 })
 
