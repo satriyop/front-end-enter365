@@ -80,7 +80,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'MRP', path: '/manufacturing/mrp', icon: '🧮', permission: 'mrp.view', feature: 'mrp' },
       { name: 'Material Requisitions', path: '/manufacturing/material-requisitions', icon: '📋', permission: 'material_requisitions.view', feature: 'material_requisitions' },
-      { name: 'Cost Optimization', path: '/manufacturing/cost-optimization', icon: '💡', permission: 'boms.view', feature: 'bom' },
+      { name: 'Cost Optimization', path: '/manufacturing/cost-optimization', icon: '💡', permission: 'boms.view', feature: 'electrical_panel' },
       { name: 'Subcontractor WO', path: '/manufacturing/subcontractor-work-orders', icon: '🔨', permission: 'subcontractor_work_orders.view', feature: 'subcontracting' },
       { name: 'SC Invoices', path: '/manufacturing/subcontractor-invoices', icon: '📄', permission: 'subcontractor_invoices.view', feature: 'subcontracting' },
     ]
@@ -123,10 +123,10 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'Company Profiles', path: '/company-profiles', icon: '🏢', permission: 'company_profiles.view' },
       { name: 'Warehouses', path: '/settings/warehouses', icon: '🏭', permission: 'warehouses.view', feature: 'warehouses' },
-      { name: 'Component Library', path: '/settings/component-library', icon: '🔌', permission: 'products.view', feature: 'bom' },
+      { name: 'Component Library', path: '/settings/component-library', icon: '🔌', permission: 'products.view', feature: 'electrical_panel' },
       { name: 'Roles', path: '/settings/roles', icon: '🔐', permission: 'roles.view' },
       { name: 'Product Categories', path: '/settings/product-categories', icon: '📂', permission: 'product_categories.view' },
-      { name: 'Rule Sets', path: '/settings/rule-sets', icon: '⚙️', permission: 'products.view', feature: 'bom' },
+      { name: 'Rule Sets', path: '/settings/rule-sets', icon: '⚙️', permission: 'products.view', feature: 'electrical_panel' },
       { name: 'BOM Templates', path: '/settings/bom-templates', icon: '📋', permission: 'bom_templates.view', feature: 'bom' },
       { name: 'Accounting Policies', path: '/settings/accounting-policies', icon: '📒', permission: 'settings.manage_accounting' },
       { name: 'NSFP Ranges', path: '/settings/nsfp-ranges', icon: '🔢', permission: 'nsfp_ranges.view' },

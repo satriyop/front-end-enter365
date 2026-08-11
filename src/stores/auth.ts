@@ -66,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', response.data.token)
     console.log('[Auth] Token and user set, isAuthenticated:', isAuthenticated.value)
 
-    // Product packs (solar / manufacturing / projects) for nav gating
+    // Product packs (odoo apps + industry add-ons) for nav gating
     await useFeaturesStore().fetchFeatures()
 
     // Get redirect target before navigation

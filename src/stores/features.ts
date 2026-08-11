@@ -4,9 +4,24 @@ import { api } from '@/api/client'
 
 /**
  * Backend product modules (config/features.php).
- * Used to hide nav for vertical packs that are OFF by default.
+ * Layers: core_erp | odoo_packs (MFG/projects) | industry add-ons.
  */
 export type FeatureModule = string
+
+/** Fail closed until /features loads — optional packs + industry add-ons */
+const OPTIONAL_PACKS = new Set([
+  // Odoo-like packs
+  'projects',
+  'manufacturing',
+  'bom',
+  'work_orders',
+  'material_requisitions',
+  'mrp',
+  'subcontracting',
+  // Industry add-ons
+  'solar_proposals',
+  'electrical_panel',
+])
 
 interface FeaturesPayload {
   preset?: string
@@ -30,28 +45,15 @@ export const useFeaturesStore = defineStore('features', () => {
   /**
    * Whether a product module is enabled.
    * Unknown keys: treat as enabled (core routes without a feature gate).
-   * Before first successful fetch: fail closed for known vertical packs only.
+   * Before first successful fetch: fail closed for optional packs only.
    */
   function enabled(module: string): boolean {
     if (module in modules.value) {
       return modules.value[module] === true
     }
 
-    if (!loaded.value) {
-      // Fail closed for vertical packs until API responds
-      const vertical = new Set([
-        'solar_proposals',
-        'projects',
-        'manufacturing',
-        'bom',
-        'work_orders',
-        'material_requisitions',
-        'mrp',
-        'subcontracting',
-      ])
-      if (vertical.has(module)) {
-        return false
-      }
+    if (!loaded.value && OPTIONAL_PACKS.has(module)) {
+      return false
     }
 
     return true
