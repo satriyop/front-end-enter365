@@ -5,7 +5,7 @@
 | Aspect | Value |
 |--------|-------|
 | **Type** | Vue 3 SPA (NOT Livewire/Volt) |
-| **Backend** | `/Users/satriyo/dev/laravel-project/enter365` (Laravel API) |
+| **Backend** | `/Users/satriyo/dev/laravel-project/enter365` (Laravel API) | https://enter365.test |
 | **Stack** | Vue 3, Vite, TanStack Query, Radix Vue, Tailwind CSS |
 
 ## Skills (Detailed Patterns)

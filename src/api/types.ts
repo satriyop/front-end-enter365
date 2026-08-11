@@ -381,6 +381,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/bank-statements/detect-format": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Detect format of uploaded bank statement */
+        post: operations["bank-statements.detect-format"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-statements/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate import without saving */
+        post: operations["bank-statements.validate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-statements/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Execute import and save to database */
+        post: operations["bank-statements.import"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-statements/batches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List all import batches */
+        get: operations["bank-statements.batches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-statements/batches/{batch}/suggest-matches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Suggest matches for transactions in a batch */
+        get: operations["bank-statements.suggest-matches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bank-statements/batches/{batch}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete an import batch */
+        delete: operations["bank-statements.delete-batch"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/bills": {
         parameters: {
             query?: never;
@@ -7451,6 +7553,34 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** BankTransaction */
+        BankTransaction: {
+            id: number;
+            account_id: number;
+            /** Format: date-time */
+            transaction_date: string;
+            description: string;
+            reference: string | null;
+            debit: number;
+            credit: number;
+            balance: number;
+            status: components["schemas"]["BankTransactionStatus"];
+            matched_payment_id: number | null;
+            matched_journal_line_id: number | null;
+            /** Format: date-time */
+            reconciled_at: string | null;
+            reconciled_by: number | null;
+            import_batch: string | null;
+            external_id: string | null;
+            created_by: number | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            session_id: number | null;
+            match_confidence: number | null;
+            match_rule: string | null;
+        };
         /** BankTransactionResource */
         BankTransactionResource: {
             id: number;
@@ -7475,6 +7605,11 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /**
+         * BankTransactionStatus
+         * @enum {string}
+         */
+        BankTransactionStatus: "unmatched" | "matched" | "reconciled";
         /** BillItemResource */
         BillItemResource: {
             id: number;
@@ -8059,7 +8194,7 @@ export interface components {
             dp_date: string;
             amount: number;
             applied_amount: number;
-            remaining_amount: number;
+            remaining_amount: number | null;
             payment_method: string;
             cash_account_id: number;
             cash_account?: {
@@ -8083,6 +8218,12 @@ export interface components {
             };
             created_at: string | null;
             updated_at: string | null;
+        };
+        /** ExecuteBankStatementImportRequest */
+        ExecuteBankStatementImportRequest: {
+            /** Format: binary */
+            file: string;
+            account_id: number;
         };
         /** FiscalPeriodResource */
         FiscalPeriodResource: {
@@ -8728,8 +8869,8 @@ export interface components {
             currency: string;
             exchange_rate: string;
             base_currency_amount: number | null;
-            pph_category: string | null;
-            pph_rate: number | null;
+            pph_category: string | components["schemas"]["PphCategory"] | null;
+            pph_rate: string | null;
             pph_base_amount: number;
             pph_amount: number;
             pph_account_id: number | null;
@@ -8742,12 +8883,18 @@ export interface components {
             payable_type: string | null;
             payable_id: number | null;
             is_voided: boolean;
-            voided_at?: string;
+            voided_at?: string | null;
             voided_by?: number | null;
             void_reason?: string | null;
             contact?: components["schemas"]["ContactResource"];
             cash_account?: components["schemas"]["AccountResource"];
             journal_entry?: components["schemas"]["JournalEntryResource"];
+            allocations?: {
+                id: number;
+                allocatable_type: string;
+                allocatable_id: number;
+                amount: number;
+            }[];
             created_by: number | null;
             created_at: string;
             updated_at: string;
@@ -8811,6 +8958,11 @@ export interface components {
             effective_until: string | null;
             notes: string | null;
         };
+        /**
+         * PphCategory
+         * @enum {string}
+         */
+        PphCategory: "pph23_jasa" | "pph23_sewa" | "pph23_bunga" | "pph23_royalti" | "pph4_2_konstruksi" | "pph4_2_sewa" | "pph26";
         /** PreviewSwapBrandRequest */
         PreviewSwapBrandRequest: {
             target_brand: string;
@@ -10282,8 +10434,8 @@ export interface components {
             exchange_rate?: number | null;
             invoice_id?: number | null;
             bill_id?: number | null;
-            /** @enum {string} */
-            pph_category?: string | null;
+            /** @enum {string|null} */
+            pph_category?: "pph23_jasa" | "pph23_sewa" | "pph23_bunga" | "pph23_royalti" | "pph4_2_konstruksi" | "pph4_2_sewa" | "pph26" | null;
             pph_rate?: number | null;
             pph_withhold?: boolean | null;
         };
@@ -11586,6 +11738,12 @@ export interface components {
             permissions?: unknown[];
             created_at: string;
             updated_at: string;
+        };
+        /** ValidateBankStatementImportRequest */
+        ValidateBankStatementImportRequest: {
+            /** Format: binary */
+            file: string;
+            account_id: number;
         };
         /**
          * VoidBillRequest
@@ -12954,6 +13112,267 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "bank-statements.detect-format": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Format berhasil terdeteksi.";
+                        data: {
+                            bank: string;
+                            date_format: string;
+                            delimiter: string;
+                            sample_rows: [
+                                string
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bank-statements.validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ValidateBankStatementImportRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        message: "Validasi selesai.";
+                        data: {
+                            /** @enum {integer} */
+                            valid_count: 0;
+                            /** @enum {integer} */
+                            error_count: 0;
+                            /** @enum {integer} */
+                            duplicate_count: 0;
+                            preview_rows: [
+                                {
+                                    /** @enum {integer} */
+                                    row_number: 2;
+                                    is_duplicate: string;
+                                    ""?: string;
+                                }
+                            ];
+                            errors: [
+                                string
+                            ];
+                            warnings: [
+                                string
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bank-statements.import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ExecuteBankStatementImportRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                        data: {
+                            import_batch: string;
+                            /** @enum {integer} */
+                            imported_count: 0;
+                            /** @enum {integer} */
+                            skipped_count: 0;
+                            errors: [
+                                string
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "bank-statements.batches": {
+        parameters: {
+            query?: {
+                account_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["BankTransaction"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "bank-statements.suggest-matches": {
+        parameters: {
+            query?: {
+                account_id?: string;
+            };
+            header?: never;
+            path: {
+                batch: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                        data: [
+                            {
+                                transaction_id: string;
+                                transaction_date: string;
+                                transaction_amount: string;
+                                matches: [
+                                    {
+                                        /** @enum {string} */
+                                        type: "payment";
+                                        id: string;
+                                        number: string;
+                                        amount: string;
+                                        date: string;
+                                        /** @enum {integer} */
+                                        confidence: 99;
+                                        /** @enum {string} */
+                                        reason: "Reference match";
+                                    },
+                                    {
+                                        /** @enum {string} */
+                                        type: "payment";
+                                        id: string;
+                                        number: string;
+                                        amount: string;
+                                        date: string;
+                                        /** @enum {integer} */
+                                        confidence: 85;
+                                        /** @enum {string} */
+                                        reason: "Amount and date match";
+                                    }
+                                ];
+                            }
+                        ];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    } | {
+                        /** @enum {string} */
+                        message: "account_id wajib diisi.";
+                    };
+                };
+            };
+        };
+    };
+    "bank-statements.delete-batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                batch: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                    };
+                };
+            };
         };
     };
     "bills.index": {
@@ -18225,22 +18644,7 @@ export interface operations {
                     "application/json": {
                         data: [
                             {
-                                /** @enum {string} */
-                                category: "Aset";
-                                code: string;
-                                name: string;
-                                balance: string;
-                            },
-                            {
-                                /** @enum {string} */
-                                category: "Liabilitas";
-                                code: string;
-                                name: string;
-                                balance: string;
-                            },
-                            {
-                                /** @enum {string} */
-                                category: "Ekuitas";
+                                category: string;
                                 code: string;
                                 name: string;
                                 balance: string;
@@ -23137,9 +23541,7 @@ export interface operations {
             content: {
                 "application/json": {
                     monthly_bill: number;
-                    /** @description Min Rp 5 juta for B2B */
                     pln_power_va?: number | null;
-                    /** @description Min 5.5 kVA for B2B */
                     pln_category?: string | null;
                     target_savings?: number | null;
                     price_per_kwp?: number | null;
@@ -25761,7 +26163,7 @@ export interface operations {
                             start_date: string | null;
                             end_date: string | null;
                             accounts: {
-                                account_id: number;
+                                id: number;
                                 code: string;
                                 name: string;
                                 type: string;
@@ -25775,7 +26177,7 @@ export interface operations {
                                     reference: string | null;
                                     debit: number;
                                     credit: number;
-                                    running_balance: number;
+                                    balance: number;
                                 }[];
                                 closing_balance: number;
                             }[];
@@ -26119,30 +26521,30 @@ export interface operations {
                                 start: string;
                                 end: string;
                             };
-                            operating: {
+                            operating_activities: {
                                 items: {
                                     description: string;
                                     amount: number;
                                 }[];
-                                subtotal: number;
+                                total: number;
                             };
-                            investing: {
+                            investing_activities: {
                                 items: {
                                     description: string;
                                     amount: number;
                                 }[];
-                                subtotal: number;
+                                total: number;
                             };
-                            financing: {
+                            financing_activities: {
                                 items: {
                                     description: string;
                                     amount: number;
                                 }[];
-                                subtotal: number;
+                                total: number;
                             };
-                            net_cash_flow: number;
-                            beginning_cash: number;
-                            ending_cash: number;
+                            net_cash_change: number;
+                            opening_balance: number;
+                            closing_balance: number;
                         };
                     };
                 };

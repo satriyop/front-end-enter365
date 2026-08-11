@@ -10,7 +10,7 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx --fix",
+    "lint": "eslint src/ --fix",
     "type-check": "vue-tsc --noEmit",
     "types:generate": "openapi-typescript ../enter365/api.json -o src/api/types.ts",
     "test:e2e": "playwright test",
