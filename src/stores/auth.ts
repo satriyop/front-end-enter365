@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed, nextTick } from 'vue'
 import { api } from '@/api/client'
 import router from '@/router'
+import { useFeaturesStore } from '@/stores/features'
 
 // Role and Permission types matching UserResource from API
 export interface Role {
@@ -65,6 +66,9 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', response.data.token)
     console.log('[Auth] Token and user set, isAuthenticated:', isAuthenticated.value)
 
+    // Product packs (solar / manufacturing / projects) for nav gating
+    await useFeaturesStore().fetchFeatures()
+
     // Get redirect target before navigation
     const redirect = router.currentRoute.value.query.redirect as string
     const targetPath = redirect || '/'
@@ -99,6 +103,7 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = null
       user.value = null
       localStorage.removeItem('token')
+      useFeaturesStore().reset()
       router.push('/login')
     }
   }
@@ -110,6 +115,7 @@ export const useAuthStore = defineStore('auth', () => {
       const response = await api.get<{ data: User }>('/auth/me')
       // API returns { data: UserResource } (Laravel API Resource wrapping)
       user.value = response.data.data
+      await useFeaturesStore().fetchFeatures()
     } catch {
       // Token invalid, logout
       await logout()
