@@ -1,7 +1,27 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { Card } from '@/components/ui'
+import { useFeaturesStore } from '@/stores/features'
 
-const reportCategories = [
+interface ReportLink {
+  name: string
+  path: string
+  description: string
+  /** Backend product module; omit = always shown when category visible */
+  feature?: string
+}
+
+interface ReportCategory {
+  title: string
+  description: string
+  /** If set, entire category hidden when module off */
+  feature?: string
+  reports: ReportLink[]
+}
+
+const features = useFeaturesStore()
+
+const reportCategories: ReportCategory[] = [
   {
     title: 'Financial Reports',
     description: 'Balance sheet, income statement, cash flow',
@@ -13,7 +33,7 @@ const reportCategories = [
       { name: 'General Ledger', path: '/reports/general-ledger', description: 'Detailed account transactions' },
       { name: 'Changes in Equity', path: '/reports/changes-in-equity', description: 'Equity movement breakdown' },
       { name: 'Daily Cash Movement', path: '/reports/daily-cash-movement', description: 'Daily receipts and payments' },
-      { name: 'Bank Reconciliation', path: '/reports/bank-reconciliation-report', description: 'Bank vs book balance reconciliation' },
+      { name: 'Bank Reconciliation', path: '/reports/bank-reconciliation-report', description: 'Bank vs book balance reconciliation', feature: 'bank_reconciliation' },
     ],
   },
   {
@@ -35,6 +55,7 @@ const reportCategories = [
   {
     title: 'Inventory Reports',
     description: 'Stock levels and movements',
+    feature: 'inventory',
     reports: [
       { name: 'Stock Summary', path: '/reports/stock-summary', description: 'Current stock by warehouse' },
       { name: 'Stock Movement', path: '/reports/stock-movement', description: 'Inventory transactions' },
@@ -55,17 +76,20 @@ const reportCategories = [
   {
     title: 'COGS Reports',
     description: 'Cost of goods sold analysis',
+    // General trading — keep available with inventory/core
     reports: [
       { name: 'COGS Summary', path: '/reports/cogs-summary', description: 'Cost of goods sold overview' },
       { name: 'COGS by Category', path: '/reports/cogs-by-category', description: 'COGS breakdown by product category' },
       { name: 'COGS by Product', path: '/reports/cogs-by-product', description: 'COGS breakdown by individual product' },
       { name: 'COGS Monthly Trend', path: '/reports/cogs-monthly-trend', description: 'Monthly COGS comparison' },
-      { name: 'Cost Variance', path: '/reports/cost-variance', description: 'Production cost vs estimate analysis' },
+      // Production variance is work-order oriented
+      { name: 'Cost Variance', path: '/reports/cost-variance', description: 'Production cost vs estimate analysis', feature: 'work_orders' },
     ],
   },
   {
     title: 'Project Reports',
     description: 'Project profitability and cost analysis',
+    feature: 'projects',
     reports: [
       { name: 'Project Profitability', path: '/reports/project-profitability', description: 'Revenue, costs, and margins per project' },
       { name: 'Project Cost Analysis', path: '/reports/project-cost-analysis', description: 'Cost breakdown by type and project' },
@@ -74,13 +98,37 @@ const reportCategories = [
   {
     title: 'Manufacturing Reports',
     description: 'Work orders and subcontractor analysis',
+    // Mixed packs: filter per-report
     reports: [
-      { name: 'Work Order Costs', path: '/reports/work-order-costs', description: 'Estimated vs actual work order costs' },
-      { name: 'Subcontractor Summary', path: '/reports/subcontractor-summary', description: 'Subcontractor performance and financials' },
-      { name: 'Subcontractor Retention', path: '/reports/subcontractor-retention', description: 'Retention held and releasable amounts' },
+      { name: 'Work Order Costs', path: '/reports/work-order-costs', description: 'Estimated vs actual work order costs', feature: 'work_orders' },
+      { name: 'Subcontractor Summary', path: '/reports/subcontractor-summary', description: 'Subcontractor performance and financials', feature: 'subcontracting' },
+      { name: 'Subcontractor Retention', path: '/reports/subcontractor-retention', description: 'Retention held and releasable amounts', feature: 'subcontracting' },
     ],
   },
 ]
+
+const visibleCategories = computed(() => {
+  return reportCategories
+    .map((category) => {
+      if (category.feature && !features.enabled(category.feature)) {
+        return null
+      }
+
+      const reports = category.reports.filter((report) => {
+        if (!report.feature) {
+          return true
+        }
+        return features.enabled(report.feature)
+      })
+
+      if (reports.length === 0) {
+        return null
+      }
+
+      return { ...category, reports }
+    })
+    .filter((c): c is ReportCategory => c !== null)
+})
 </script>
 
 <template>
@@ -91,7 +139,7 @@ const reportCategories = [
     </div>
 
     <div class="space-y-8">
-      <div v-for="category in reportCategories" :key="category.title">
+      <div v-for="category in visibleCategories" :key="category.title">
         <h2 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-4">{{ category.title }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <RouterLink

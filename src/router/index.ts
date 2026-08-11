@@ -50,6 +50,14 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/inventory', feature: 'inventory' },
   { prefix: '/products', feature: 'products' },
   { prefix: '/settings/warehouses', feature: 'warehouses' },
+  // Vertical report pages
+  { prefix: '/reports/project-profitability', feature: 'projects' },
+  { prefix: '/reports/project-cost-analysis', feature: 'projects' },
+  { prefix: '/reports/work-order-costs', feature: 'work_orders' },
+  { prefix: '/reports/cost-variance', feature: 'work_orders' },
+  { prefix: '/reports/subcontractor-summary', feature: 'subcontracting' },
+  { prefix: '/reports/subcontractor-retention', feature: 'subcontracting' },
+  { prefix: '/reports/bank-reconciliation-report', feature: 'bank_reconciliation' },
 ].sort((a, b) => b.prefix.length - a.prefix.length)
 
 function requiredFeatureForPath(path: string): string | null {
