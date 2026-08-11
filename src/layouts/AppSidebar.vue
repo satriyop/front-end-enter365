@@ -80,7 +80,7 @@ const navigation: NavGroup[] = [
     items: [
       { name: 'MRP', path: '/manufacturing/mrp', icon: '🧮', permission: 'mrp.view', feature: 'mrp' },
       { name: 'Material Requisitions', path: '/manufacturing/material-requisitions', icon: '📋', permission: 'material_requisitions.view', feature: 'material_requisitions' },
-      { name: 'Cost Optimization', path: '/manufacturing/cost-optimization', icon: '💡', permission: 'boms.view', feature: 'electrical_panel' },
+      { name: 'Cost Optimization', path: '/addons/electrical-panel/cost-optimization', icon: '💡', permission: 'boms.view', feature: 'electrical_panel' },
       { name: 'Subcontractor WO', path: '/manufacturing/subcontractor-work-orders', icon: '🔨', permission: 'subcontractor_work_orders.view', feature: 'subcontracting' },
       { name: 'SC Invoices', path: '/manufacturing/subcontractor-invoices', icon: '📄', permission: 'subcontractor_invoices.view', feature: 'subcontracting' },
     ]

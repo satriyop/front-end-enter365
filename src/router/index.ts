@@ -28,7 +28,8 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/work-orders', feature: 'work_orders' },
   { prefix: '/manufacturing/mrp', feature: 'mrp' },
   { prefix: '/manufacturing/material-requisitions', feature: 'material_requisitions' },
-  { prefix: '/manufacturing/cost-optimization', feature: 'electrical_panel' },
+  { prefix: '/addons/electrical-panel', feature: 'electrical_panel' },
+  { prefix: '/manufacturing/cost-optimization', feature: 'electrical_panel' }, // legacy redirect
   { prefix: '/manufacturing/subcontractor-work-orders', feature: 'subcontracting' },
   { prefix: '/manufacturing/subcontractor-invoices', feature: 'subcontracting' },
   { prefix: '/boms', feature: 'bom' },
@@ -789,9 +790,14 @@ const router = createRouter({
           meta: { breadcrumb: 'Material Status' }
         },
         {
-          path: 'manufacturing/cost-optimization',
+          path: 'addons/electrical-panel/cost-optimization',
           name: 'cost-optimization',
-          component: () => import('@/pages/manufacturing/cost-optimization/CostOptimizationPage.vue'),
+          component: () => import('@/pages/addons/electrical-panel/CostOptimizationPage.vue'),
+          meta: { breadcrumb: 'Cost Optimization', feature: 'electrical_panel' },
+        },
+        {
+          path: 'manufacturing/cost-optimization',
+          redirect: { name: 'cost-optimization' },
           meta: { breadcrumb: 'Cost Optimization' }
         },
         {
