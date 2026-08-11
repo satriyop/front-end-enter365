@@ -74,7 +74,7 @@ async function handleDelete() {
     <div class="flex items-center justify-between mb-6">
       <div>
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Projects</h1>
-        <p class="text-slate-500 dark:text-slate-400">Manage solar installation projects</p>
+        <p class="text-slate-500 dark:text-slate-400">Manage projects, costs, and delivery</p>
       </div>
       <RouterLink to="/projects/new">
         <Button>
@@ -118,7 +118,7 @@ async function handleDelete() {
     <div v-else-if="isEmpty" class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
       <EmptyState
         title="No projects found"
-        description="Create projects to track solar installations"
+        description="Create projects to track jobs, costs, and progress"
         action-label="New Project"
         @action="$router.push('/projects/new')"
       />

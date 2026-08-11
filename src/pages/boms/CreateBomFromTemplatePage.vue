@@ -12,6 +12,7 @@ import {
 } from '@/api/useBomTemplates'
 import { useProducts } from '@/api/useProducts'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
+import { useFeaturesStore } from '@/stores/features'
 import { Button, Input, Select, FormField, Card, Badge, Modal, useToast } from '@/components/ui'
 import {
   ArrowLeft,
@@ -37,6 +38,8 @@ import {
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+const electricalPanelEnabled = computed(() => features.enabled('electrical_panel'))
 
 // ============================================
 // Constants
@@ -112,7 +115,8 @@ const { data: selectedTemplate, isLoading: isLoadingTemplate } = useBomTemplate(
   computed(() => selectedTemplateId.value ?? 0)
 )
 const { data: availableBrands, isLoading: isLoadingBrands } = useTemplateAvailableBrands(
-  computed(() => selectedTemplateId.value ?? 0)
+  computed(() => selectedTemplateId.value ?? 0),
+  electricalPanelEnabled,
 )
 
 // Products for output selection
@@ -559,7 +563,7 @@ async function loadPreview() {
     const result = await previewMutation.mutateAsync({
       templateId: selectedTemplateId.value,
       data: {
-        target_brand: selectedBrand.value || undefined,
+        target_brand: electricalPanelEnabled.value ? (selectedBrand.value || undefined) : undefined,
         quantity_overrides: Object.keys(quantityOverrides.value).length > 0
           ? quantityOverrides.value as any
           : undefined,
@@ -600,7 +604,7 @@ async function createBom() {
       templateId: selectedTemplateId.value,
       data: {
         product_id: outputProductId.value,
-        target_brand: (selectedBrand.value || null) as "schneider" | "abb" | "siemens" | "chint" | "ls" | "legrand" | "eaton" | "hager" | "mitsubishi" | null,
+        target_brand: (electricalPanelEnabled.value ? (selectedBrand.value || null) : null) as "schneider" | "abb" | "siemens" | "chint" | "ls" | "legrand" | "eaton" | "hager" | "mitsubishi" | null,
         name: bomName.value.trim(),
         notes: bomNotes.value.trim() || undefined,
         output_quantity: Math.min(Math.max(outputQuantity.value, MIN_QUANTITY), MAX_QUANTITY),
@@ -890,7 +894,7 @@ function getPercentage(value: number, total: number): number {
         </div>
       </Card>
 
-      <Card v-if="selectedTemplateId">
+      <Card v-if="selectedTemplateId && electricalPanelEnabled">
         <template #header>
           <div class="flex items-center gap-2">
             <Palette class="w-5 h-5 text-purple-500" />

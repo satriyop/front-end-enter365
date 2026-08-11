@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
+import { computed, unref, type MaybeRef, type Ref } from 'vue'
 import { api, type PaginatedResponse } from './client'
 
 // ============================================
@@ -159,15 +159,16 @@ export function useStandardBrands(standardId: Ref<number>) {
 }
 
 /**
- * Fetch all available brands from mappings
+ * Fetch all available brands from mappings (electrical_panel add-on).
  */
-export function useAvailableBrands() {
+export function useAvailableBrands(enabled: MaybeRef<boolean> = true) {
   return useQuery({
     queryKey: ['available-brands'],
     queryFn: async () => {
       const response = await api.get<{ data: Brand[] }>('/available-brands')
       return response.data.data
     },
+    enabled: computed(() => unref(enabled)),
     staleTime: 5 * 60 * 1000,
   })
 }
@@ -534,9 +535,9 @@ export interface BrandComparison {
 }
 
 /**
- * Get brand comparison for a BOM (all brands at once)
+ * Get brand comparison for a BOM (all brands at once) — electrical_panel add-on.
  */
-export function useBrandComparison(bomId: Ref<number>) {
+export function useBrandComparison(bomId: Ref<number>, enabled: MaybeRef<boolean> = true) {
   return useQuery({
     queryKey: computed(() => ['bom-brand-comparison', bomId.value]),
     queryFn: async () => {
@@ -545,7 +546,7 @@ export function useBrandComparison(bomId: Ref<number>) {
       )
       return response.data.data
     },
-    enabled: computed(() => !!bomId.value && bomId.value > 0),
+    enabled: computed(() => unref(enabled) && !!bomId.value && bomId.value > 0),
     staleTime: 30 * 1000, // Cache for 30 seconds
   })
 }
@@ -777,9 +778,9 @@ export interface CostOptimizationReport {
 }
 
 /**
- * Preview cost optimization (find cheapest per item across all brands)
+ * Preview cost optimization (find cheapest per item across all brands) — electrical_panel.
  */
-export function useCostOptimizationPreview(bomId: Ref<number>) {
+export function useCostOptimizationPreview(bomId: Ref<number>, enabled: MaybeRef<boolean> = true) {
   return useQuery({
     queryKey: computed(() => ['bom-cost-optimization', bomId.value]),
     queryFn: async () => {
@@ -788,7 +789,7 @@ export function useCostOptimizationPreview(bomId: Ref<number>) {
       )
       return response.data.data
     },
-    enabled: computed(() => !!bomId.value && bomId.value > 0),
+    enabled: computed(() => unref(enabled) && !!bomId.value && bomId.value > 0),
     staleTime: 30 * 1000,
   })
 }

@@ -25,10 +25,15 @@ import {
 import { Check, TrendingDown, ArrowLeftRight, Loader2 } from 'lucide-vue-next'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { useFeaturesStore } from '@/stores/features'
 
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+
+/** Vahana electrical_panel industry add-on (brand swap / cost opt / standards) */
+const electricalPanelEnabled = computed(() => features.enabled('electrical_panel'))
 
 const bomId = computed(() => Number(route.params.id))
 
@@ -43,12 +48,12 @@ const swapBrandMutation = useSwapBomBrand()
 const swapPreviewMutation = useSwapBrandPreview()
 const generateVariantsMutation = useGenerateBrandVariants()
 
-// Brand data
-const { data: availableBrands } = useAvailableBrands()
-const { data: brandComparison, isLoading: isLoadingComparison, refetch: refetchComparison } = useBrandComparison(bomId)
+// Brand data (gated — do not call industry APIs when add-on off)
+const { data: availableBrands } = useAvailableBrands(electricalPanelEnabled)
+const { data: brandComparison, isLoading: isLoadingComparison, refetch: refetchComparison } = useBrandComparison(bomId, electricalPanelEnabled)
 
 // Cost optimization
-const { data: costOptimization, isLoading: isLoadingOptimization, refetch: refetchOptimization } = useCostOptimizationPreview(bomId)
+const { data: costOptimization, isLoading: isLoadingOptimization, refetch: refetchOptimization } = useCostOptimizationPreview(bomId, electricalPanelEnabled)
 const applyCostOptimizationMutation = useApplyCostOptimization()
 
 // Best value brand recommendation
@@ -292,6 +297,9 @@ function viewOptimizedBom() {
 
 // Quick Swap handlers
 function openQuickSwapModal(item: { id: number; description: string; product?: { sku?: string }; component_standard_id?: number | null }) {
+  if (!electricalPanelEnabled.value) {
+    return
+  }
   if (!item.component_standard_id) {
     toast.info('This item has no component standard mapping')
     return
@@ -446,46 +454,48 @@ const bomItemColumns: ResponsiveColumn[] = [
 
           <!-- Action Buttons -->
           <div class="flex gap-2">
-            <!-- Brand Swap Buttons (Primary Feature) -->
-            <Button
-              variant="success"
-              size="sm"
-              @click="openOptimizeModal"
-            >
-              <TrendingDown class="w-4 h-4 mr-1" />
-              Optimize Cost
-            </Button>
-            <Button
-              size="sm"
-              @click="openCompareModal"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-              </svg>
-              Compare Brands
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              @click="showSwapBrandModal = true"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
-              </svg>
-              Swap Brand
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              @click="showGenerateVariantsModal = true"
-            >
-              <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              Generate Variants
-            </Button>
+            <!-- Brand / panel tools (electrical_panel add-on only) -->
+            <template v-if="electricalPanelEnabled">
+              <Button
+                variant="success"
+                size="sm"
+                @click="openOptimizeModal"
+              >
+                <TrendingDown class="w-4 h-4 mr-1" />
+                Optimize Cost
+              </Button>
+              <Button
+                size="sm"
+                @click="openCompareModal"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Compare Brands
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                @click="showSwapBrandModal = true"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                Swap Brand
+              </Button>
+              <Button
+                variant="secondary"
+                size="sm"
+                @click="showGenerateVariantsModal = true"
+              >
+                <svg class="w-4 h-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Generate Variants
+              </Button>
 
-            <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
+              <div class="w-px h-6 bg-slate-200 dark:bg-slate-700 self-center mx-1"></div>
+            </template>
 
             <Button
               variant="ghost"
@@ -633,10 +643,10 @@ const bomItemColumns: ResponsiveColumn[] = [
                 </span>
               </template>
 
-              <!-- Actions -->
+              <!-- Actions (quick swap = electrical_panel) -->
               <template #actions="{ item }">
                 <button
-                  v-if="item.component_standard_id"
+                  v-if="electricalPanelEnabled && item.component_standard_id"
                   type="button"
                   class="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-colors"
                   title="Swap to equivalent product"

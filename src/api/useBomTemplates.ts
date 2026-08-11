@@ -143,7 +143,10 @@ export function useActiveTemplates() {
 /**
  * Fetch available brands for a template
  */
-export function useTemplateAvailableBrands(id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>) {
+export function useTemplateAvailableBrands(
+  id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>,
+  enabled: Ref<boolean> | ComputedRef<boolean> | boolean = true,
+) {
   return useQuery({
     queryKey: computed(() => ['bom-template', id.value, 'brands']),
     queryFn: async () => {
@@ -152,7 +155,10 @@ export function useTemplateAvailableBrands(id: Ref<number | string | null | unde
       )
       return response.data.data
     },
-    enabled: computed(() => !!id.value),
+    enabled: computed(() => {
+      const flag = typeof enabled === 'boolean' ? enabled : enabled.value
+      return flag && !!id.value
+    }),
     staleTime: 30 * 1000,
   })
 }

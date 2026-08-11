@@ -18,7 +18,8 @@ const toast = useToast()
 
 /** Human labels for product packs (backend feature modules) */
 const PACK_LABELS: Record<string, string> = {
-  solar_proposals: 'Solar Proposals (NEX pack)',
+  solar_proposals: 'Solar Proposals',
+  electrical_panel: 'Electrical Panel Tools',
   projects: 'Projects',
   manufacturing: 'Manufacturing',
   bom: 'BOM / Bill of Materials',
