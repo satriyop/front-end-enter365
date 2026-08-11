@@ -1,21 +1,82 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuery } from '@tanstack/vue-query'
 import { useAuthStore } from '@/stores/auth'
+import { useFeaturesStore } from '@/stores/features'
 import { useDashboardSummary, useDashboardKPIs } from '@/api/useDashboard'
-import { useProjects } from '@/api/useProjects'
+import { api } from '@/api/client'
 import { formatCurrency } from '@/utils/format'
-import { Card, Badge } from '@/components/ui'
+import { Card, Badge, useToast } from '@/components/ui'
 import { BarChart, DoughnutChart } from '@/components/charts'
 
 const auth = useAuthStore()
+const features = useFeaturesStore()
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+
+/** Human labels for product packs (backend feature modules) */
+const PACK_LABELS: Record<string, string> = {
+  solar_proposals: 'Solar Proposals (NEX pack)',
+  projects: 'Projects',
+  manufacturing: 'Manufacturing',
+  bom: 'BOM / Bill of Materials',
+  work_orders: 'Work Orders',
+  material_requisitions: 'Material Requisitions',
+  mrp: 'MRP',
+  subcontracting: 'Subcontracting',
+  budgeting: 'Budgets',
+  bank_reconciliation: 'Bank Reconciliation',
+  recurring: 'Recurring Templates',
+  quotations: 'Quotations',
+  delivery_orders: 'Delivery Orders',
+  sales_returns: 'Sales Returns',
+  purchase_orders: 'Purchase Orders',
+  goods_receipt_notes: 'Goods Receipt',
+  purchase_returns: 'Purchase Returns',
+  inventory: 'Inventory',
+  stock_opname: 'Stock Opname',
+  products: 'Products',
+  warehouses: 'Warehouses',
+  down_payments: 'Down Payments',
+}
+
+onMounted(() => {
+  const pack = route.query.pack_disabled
+  if (typeof pack !== 'string' || !pack) {
+    return
+  }
+
+  const label = PACK_LABELS[pack] ?? pack
+  toast.warning({
+    title: 'Modul tidak aktif',
+    message: `${label} dimatikan di konfigurasi produk (FEATURE_PRESET / pack). Nyalakan di .env bila diperlukan.`,
+    duration: 8000,
+  })
+
+  // Clear query so refresh does not re-toast
+  const nextQuery = { ...route.query }
+  delete nextQuery.pack_disabled
+  router.replace({ path: route.path, query: nextQuery })
+})
 
 // Fetch dashboard data
 const { data: summary, isLoading: loadingSummary } = useDashboardSummary()
 const { data: kpis, isLoading: loadingKPIs } = useDashboardKPIs()
 
-// Fetch active projects
-const projectFilters = computed(() => ({ status: 'in_progress', per_page: 5 }))
-const { data: projectsData, isLoading: loadingProjects } = useProjects(projectFilters)
+// Projects pack is off for general company — skip the API call
+const projectsEnabled = computed(() => features.enabled('projects'))
+const { data: projectsData, isLoading: loadingProjects } = useQuery({
+  queryKey: ['projects', 'dashboard-active'],
+  queryFn: async () => {
+    const response = await api.get('/projects', {
+      params: { status: 'in_progress', per_page: 5 },
+    })
+    return response.data as { data: Array<Record<string, unknown>> }
+  },
+  enabled: projectsEnabled,
+})
 
 // Computed stats from API data
 const stats = computed(() => {
@@ -156,8 +217,8 @@ const cashBreakdownData = computed(() => {
 
     <!-- Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <!-- Active Projects -->
-      <Card class="lg:col-span-2">
+      <!-- Active Projects (only when projects pack is on) -->
+      <Card v-if="projectsEnabled" class="lg:col-span-2">
         <template #header>
           <div class="flex items-center justify-between">
             <h2 class="font-semibold text-slate-900 dark:text-slate-100">Active Projects</h2>
@@ -173,27 +234,44 @@ const cashBreakdownData = computed(() => {
         <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
           <RouterLink
             v-for="project in projectsData.data"
-            :key="project.id"
-            :to="`/projects/${project.id}`"
+            :key="(project as { id: number }).id"
+            :to="`/projects/${(project as { id: number }).id}`"
             class="block py-3 hover:bg-slate-50 dark:hover:bg-slate-800 -mx-6 px-6 transition-colors"
           >
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium text-slate-900 dark:text-slate-100">{{ project.name }}</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">{{ project.project_number }} • {{ project.contact?.name }}</div>
+                <div class="font-medium text-slate-900 dark:text-slate-100">{{ (project as { name: string }).name }}</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">
+                  {{ (project as { project_number?: string }).project_number }}
+                  •
+                  {{ (project as { contact?: { name?: string } }).contact?.name }}
+                </div>
               </div>
               <div class="text-right">
-                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ project.progress_percentage ?? 0 }}%</div>
+                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ (project as { progress_percentage?: number }).progress_percentage ?? 0 }}%</div>
                 <div class="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     class="h-full bg-primary-500 rounded-full"
-                    :style="{ width: `${project.progress_percentage ?? 0}%` }"
+                    :style="{ width: `${(project as { progress_percentage?: number }).progress_percentage ?? 0}%` }"
                   />
                 </div>
               </div>
             </div>
           </RouterLink>
         </div>
+      </Card>
+
+      <!-- When projects pack off, expand attention card -->
+      <Card v-else class="lg:col-span-2">
+        <template #header>
+          <h2 class="font-semibold text-slate-900 dark:text-slate-100">Welcome</h2>
+        </template>
+        <p class="text-sm text-slate-600 dark:text-slate-400">
+          Mode perusahaan umum: fokus, Purchasing, Inventory, dan Accounting aktif.
+          Pack Solar / Manufacturing / Projects bisa dinyalakan lewat
+          <code class="text-xs bg-slate-100 dark:bg-slate-800 px-1 rounded">FEATURE_PRESET</code>
+          di server.
+        </p>
       </Card>
 
       <!-- Requires Attention -->
