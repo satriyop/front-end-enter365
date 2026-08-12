@@ -7,20 +7,24 @@ import {
 } from '@/api/useStockOpnames'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatDate } from '@/utils/format'
-import { 
-  Badge, 
-  Button, 
-  Input, 
-  Select, 
-  Pagination, 
-  EmptyState, 
-  useToast, 
-  ResponsiveTable, 
-  type ResponsiveColumn 
+import {
+  Badge,
+  Button,
+  Input,
+  Select,
+  Pagination,
+  EmptyState,
+  useToast,
+  ResponsiveTable,
+  Modal,
+  type ResponsiveColumn,
 } from '@/components/ui'
 import { Plus, Search, Package } from 'lucide-vue-next'
+import { ref } from 'vue'
 
 const toast = useToast()
+const showDeleteModal = ref(false)
+const pendingDeleteId = ref<number | string | null>(null)
 
 // Resource list with filters and pagination
 const {
@@ -66,11 +70,20 @@ const columns: ResponsiveColumn[] = [
   { key: 'counting_progress', label: 'Progress', align: 'right', showInMobile: false },
 ]
 
-async function handleDelete(id: number | string) {
-  if (!confirm('Are you sure you want to delete this stock opname?')) return
-  
+function openDeleteModal(id: number | string) {
+  pendingDeleteId.value = id
+  showDeleteModal.value = true
+}
+
+async function confirmDelete() {
+  if (pendingDeleteId.value === null) {
+    return
+  }
+
   try {
-    await deleteMutation.mutateAsync(id)
+    await deleteMutation.mutateAsync(pendingDeleteId.value)
+    showDeleteModal.value = false
+    pendingDeleteId.value = null
     toast.success('Stock opname deleted')
   } catch {
     toast.error('Failed to delete stock opname')
@@ -199,12 +212,13 @@ async function handleDelete(id: number | string) {
               <RouterLink :to="`/inventory/opnames/${item.id}`">
                 <Button variant="ghost" size="xs">View</Button>
               </RouterLink>
-              <Button 
+              <Button
                 v-if="item.can_delete"
-                variant="ghost" 
-                size="xs" 
+                variant="ghost"
+                size="xs"
                 class="text-red-500 hover:text-red-600"
-                @click.stop="handleDelete(item.id)"
+                data-testid="opname-list-delete"
+                @click.stop="openDeleteModal(item.id)"
               >
                 Delete
               </Button>
@@ -224,5 +238,27 @@ async function handleDelete(id: number | string) {
         </div>
       </template>
     </div>
+
+    <Modal
+      :open="showDeleteModal"
+      title="Delete Stock Opname"
+      size="sm"
+      @update:open="showDeleteModal = $event"
+    >
+      <p class="text-slate-600 dark:text-slate-400">
+        Are you sure you want to delete this stock opname?
+      </p>
+      <template #footer>
+        <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+        <Button
+          variant="destructive"
+          data-testid="opname-list-delete-confirm"
+          :loading="deleteMutation.isPending.value"
+          @click="confirmDelete"
+        >
+          Delete
+        </Button>
+      </template>
+    </Modal>
   </div>
 </template>

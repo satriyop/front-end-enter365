@@ -66,6 +66,15 @@ const addItemMutation = useAddOpnameItem()
 const deleteItemMutation = useDeleteOpnameItem()
 const updateItemMutation = useUpdateOpnameItem()
 
+// Confirmation modals (native confirm/prompt is auto-dismissed by Playwright)
+const showGenerateModal = ref(false)
+const showApproveModal = ref(false)
+const showRejectModal = ref(false)
+const showCancelModal = ref(false)
+const showDeleteItemModal = ref(false)
+const rejectReason = ref('')
+const pendingDeleteItemId = ref<number | string | null>(null)
+
 // Table Columns
 const columns: ResponsiveColumn[] = [
   { key: 'product.name', label: 'Product', mobilePriority: 1 },
@@ -99,10 +108,10 @@ async function handleSubmitReview() {
   }
 }
 
-async function handleApprove() {
-  if (!confirm('Approve this stock opname? This will adjust your inventory levels permanently.')) return
+async function confirmApprove() {
   try {
     await approveMutation.mutateAsync(opnameId.value)
+    showApproveModal.value = false
     toast.success('Stock opname approved and completed')
   } catch (err: unknown) {
     const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -110,11 +119,14 @@ async function handleApprove() {
   }
 }
 
-async function handleReject() {
-  const reason = prompt('Reason for rejection (optional):')
-  if (reason === null) return // user pressed Cancel on prompt
+async function confirmReject() {
   try {
-    await rejectMutation.mutateAsync({ id: opnameId.value, reason: reason || undefined })
+    await rejectMutation.mutateAsync({
+      id: opnameId.value,
+      reason: rejectReason.value.trim() || undefined,
+    })
+    showRejectModal.value = false
+    rejectReason.value = ''
     toast.success('Stock opname rejected — returned to counting')
   } catch (err: unknown) {
     const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -122,10 +134,10 @@ async function handleReject() {
   }
 }
 
-async function handleCancel() {
-  if (!confirm('Cancel this stock opname? This action cannot be undone.')) return
+async function confirmCancel() {
   try {
     await cancelMutation.mutateAsync(opnameId.value)
+    showCancelModal.value = false
     toast.success('Stock opname cancelled')
   } catch (err: unknown) {
     const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -137,10 +149,10 @@ async function handleCancel() {
 // Generate Items
 // ============================================
 
-async function handleGenerateItems() {
-  if (!confirm('Generate items from warehouse stock? This will replace any existing items.')) return
+async function confirmGenerateItems() {
   try {
     await generateMutation.mutateAsync(opnameId.value)
+    showGenerateModal.value = false
     toast.success('Items generated from warehouse stock')
   } catch (err: unknown) {
     const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -200,10 +212,20 @@ async function handleAddItem() {
 // Delete Item
 // ============================================
 
-async function handleDeleteItem(itemId: number | string) {
-  if (!confirm('Remove this item from the count?')) return
+function openDeleteItemModal(itemId: number | string) {
+  pendingDeleteItemId.value = itemId
+  showDeleteItemModal.value = true
+}
+
+async function confirmDeleteItem() {
+  if (pendingDeleteItemId.value === null) return
   try {
-    await deleteItemMutation.mutateAsync({ opnameId: opnameId.value, itemId })
+    await deleteItemMutation.mutateAsync({
+      opnameId: opnameId.value,
+      itemId: pendingDeleteItemId.value,
+    })
+    showDeleteItemModal.value = false
+    pendingDeleteItemId.value = null
     toast.success('Item removed')
   } catch (err: unknown) {
     const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
@@ -278,7 +300,12 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
             <CheckCircle class="w-4 h-4 mr-2" /> Submit Review
           </Button>
 
-          <Button v-if="opname.can_approve" data-testid="opname-approve-btn" @click="handleApprove" :loading="approveMutation.isPending.value">
+          <Button
+            v-if="opname.can_approve"
+            data-testid="opname-approve-btn"
+            @click="showApproveModal = true"
+            :loading="approveMutation.isPending.value"
+          >
             <CheckCircle class="w-4 h-4 mr-2" /> Approve & Complete
           </Button>
 
@@ -286,7 +313,7 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
             v-if="opname.can_reject"
             variant="secondary"
             data-testid="opname-reject-btn"
-            @click="handleReject"
+            @click="showRejectModal = true; rejectReason = ''"
             :loading="rejectMutation.isPending.value"
           >
             <XCircle class="w-4 h-4 mr-2" /> Reject
@@ -296,7 +323,7 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
             v-if="opname.can_cancel"
             variant="destructive"
             data-testid="opname-cancel-btn"
-            @click="handleCancel"
+            @click="showCancelModal = true"
             :loading="cancelMutation.isPending.value"
           >
             Cancel
@@ -320,7 +347,7 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
                       variant="ghost"
                       size="sm"
                       data-testid="opname-generate-btn"
-                      @click="handleGenerateItems"
+                      @click="showGenerateModal = true"
                       :loading="generateMutation.isPending.value"
                     >
                       <RefreshCw class="w-4 h-4 mr-1" />
@@ -342,7 +369,11 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
             >
               <p class="text-muted-foreground mb-4">No items to count yet</p>
               <div v-if="canManageItems" class="flex gap-2 justify-center">
-                <Button @click="handleGenerateItems" :loading="generateMutation.isPending.value">
+                <Button
+                  data-testid="opname-generate-empty-btn"
+                  @click="showGenerateModal = true"
+                  :loading="generateMutation.isPending.value"
+                >
                   <RefreshCw class="w-4 h-4 mr-1" />
                   Generate from Stock
                 </Button>
@@ -368,15 +399,24 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
                     type="number"
                     class="w-20 h-8 text-right"
                     autofocus
+                    data-testid="opname-count-input"
                     @keyup.enter="saveEdit(item)"
                     @keyup.esc="editingItemId = null"
                   />
-                  <Button size="xs" @click="saveEdit(item)" :loading="updateItemMutation.isPending.value">Save</Button>
+                  <Button
+                    size="xs"
+                    data-testid="opname-count-save"
+                    @click="saveEdit(item)"
+                    :loading="updateItemMutation.isPending.value"
+                  >
+                    Save
+                  </Button>
                 </div>
                 <div
                   v-else
                   class="cursor-pointer hover:bg-muted p-1 rounded transition-colors text-right"
                   :class="{ 'text-muted-foreground italic': item.actual_quantity === null }"
+                  :data-testid="`opname-count-cell-${item.id}`"
                   @click="startEdit(item)"
                 >
                   {{ item.actual_quantity !== null ? formatNumber(item.actual_quantity) : 'Not counted' }}
@@ -400,7 +440,8 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
                 <button
                   v-if="canManageItems"
                   class="text-muted-foreground hover:text-destructive transition-colors"
-                  @click.stop="handleDeleteItem(item.id)"
+                  data-testid="opname-delete-item-btn"
+                  @click.stop="openDeleteItemModal(item.id)"
                 >
                   <Trash2 class="w-4 h-4" />
                 </button>
@@ -528,6 +569,131 @@ const canManageItems = computed(() => opname.value?.can_edit === true)
             :disabled="!selectedProductId"
           >
             Add Item
+          </Button>
+        </template>
+      </Modal>
+
+      <!-- Generate Items Modal -->
+      <Modal
+        :open="showGenerateModal"
+        title="Generate Items"
+        size="sm"
+        @update:open="showGenerateModal = $event"
+      >
+        <p class="text-muted-foreground">
+          Generate items from warehouse stock? This will replace any existing items.
+        </p>
+        <template #footer>
+          <Button variant="ghost" @click="showGenerateModal = false">Cancel</Button>
+          <Button
+            data-testid="opname-generate-confirm"
+            :loading="generateMutation.isPending.value"
+            @click="confirmGenerateItems"
+          >
+            Generate
+          </Button>
+        </template>
+      </Modal>
+
+      <!-- Approve Modal -->
+      <Modal
+        :open="showApproveModal"
+        title="Approve Stock Opname"
+        size="sm"
+        @update:open="showApproveModal = $event"
+      >
+        <p class="text-muted-foreground">
+          Approve this stock opname? This will adjust your inventory levels permanently.
+        </p>
+        <template #footer>
+          <Button variant="ghost" @click="showApproveModal = false">Cancel</Button>
+          <Button
+            data-testid="opname-approve-confirm"
+            :loading="approveMutation.isPending.value"
+            @click="confirmApprove"
+          >
+            Approve & Complete
+          </Button>
+        </template>
+      </Modal>
+
+      <!-- Reject Modal -->
+      <Modal
+        :open="showRejectModal"
+        title="Reject Stock Opname"
+        size="sm"
+        @update:open="showRejectModal = $event"
+      >
+        <div class="space-y-3">
+          <p class="text-muted-foreground">
+            Reject this stock opname and return it to counting?
+          </p>
+          <div>
+            <label class="block text-sm font-medium text-foreground mb-1">
+              Reason (optional)
+            </label>
+            <Input
+              v-model="rejectReason"
+              data-testid="opname-reject-reason"
+              placeholder="Reason for rejection"
+            />
+          </div>
+        </div>
+        <template #footer>
+          <Button variant="ghost" @click="showRejectModal = false">Cancel</Button>
+          <Button
+            variant="secondary"
+            data-testid="opname-reject-confirm"
+            :loading="rejectMutation.isPending.value"
+            @click="confirmReject"
+          >
+            Reject
+          </Button>
+        </template>
+      </Modal>
+
+      <!-- Cancel Opname Modal -->
+      <Modal
+        :open="showCancelModal"
+        title="Cancel Stock Opname"
+        size="sm"
+        @update:open="showCancelModal = $event"
+      >
+        <p class="text-muted-foreground">
+          Cancel this stock opname? This action cannot be undone.
+        </p>
+        <template #footer>
+          <Button variant="ghost" @click="showCancelModal = false">Cancel</Button>
+          <Button
+            variant="destructive"
+            data-testid="opname-cancel-confirm"
+            :loading="cancelMutation.isPending.value"
+            @click="confirmCancel"
+          >
+            Cancel Opname
+          </Button>
+        </template>
+      </Modal>
+
+      <!-- Delete Item Modal -->
+      <Modal
+        :open="showDeleteItemModal"
+        title="Remove Item"
+        size="sm"
+        @update:open="showDeleteItemModal = $event"
+      >
+        <p class="text-muted-foreground">
+          Remove this item from the count?
+        </p>
+        <template #footer>
+          <Button variant="ghost" @click="showDeleteItemModal = false">Cancel</Button>
+          <Button
+            variant="destructive"
+            data-testid="opname-delete-item-confirm"
+            :loading="deleteItemMutation.isPending.value"
+            @click="confirmDeleteItem"
+          >
+            Remove
           </Button>
         </template>
       </Modal>
