@@ -9,7 +9,6 @@ import {
   useDeleteMaterialRequisition,
   getMaterialRequisitionStatus,
   formatMRNumber,
-  type IssueItemsData,
 } from '@/api/useMaterialRequisitions'
 import { getErrorMessage } from '@/api/client'
 import { formatDate } from '@/utils/format'
@@ -81,11 +80,12 @@ async function handleApprove() {
 }
 
 async function handleIssue() {
+  // API expects `quantity` (not quantity_issued) per MaterialRequisitionController
   const itemsToIssue = issueItems.value
     .filter(item => item.quantity_issued > 0)
     .map(item => ({
       item_id: item.item_id,
-      quantity_issued: item.quantity_issued,
+      quantity: item.quantity_issued,
     }))
 
   if (itemsToIssue.length === 0) {
@@ -94,7 +94,7 @@ async function handleIssue() {
   }
 
   try {
-    const data: IssueItemsData = {
+    const data = {
       items: itemsToIssue,
       issue_notes: issueNotes.value || undefined,
     }
@@ -147,11 +147,11 @@ function setMaxQuantity(index: number) {
   }
 }
 
-// Permission checks based on status
+// Permission checks based on status (API uses draft → approved; pending is legacy UI alias)
 const canEdit = computed(() => mr.value?.status.value === 'draft')
-const canApprove = computed(() => mr.value?.status.value === 'pending')
+const canApprove = computed(() => mr.value?.status.value === 'draft' || mr.value?.status.value === 'pending')
 const canIssue = computed(() => mr.value?.status.value === 'approved' || mr.value?.status.value === 'partial')
-const canCancel = computed(() => ['draft', 'pending', 'approved'].includes(mr.value?.status.value || ''))
+const canCancel = computed(() => ['draft', 'pending', 'approved', 'partial'].includes(mr.value?.status.value || ''))
 const canDelete = computed(() => mr.value?.status.value === 'draft')
 
 // Line items table columns

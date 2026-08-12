@@ -40,11 +40,11 @@ export type CreateMaterialRequisitionData = components['schemas']['StoreMaterial
 // Update types
 export type UpdateMaterialRequisitionData = components['schemas']['UpdateMaterialRequisitionRequest']
 
-// Issue items data
+// Issue items data (API field is `quantity`)
 export interface IssueItemsData {
   items: {
     item_id: number
-    quantity_issued: number
+    quantity: number
     warehouse_location?: string
   }[]
   issue_notes?: string
