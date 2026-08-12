@@ -14,13 +14,13 @@ import { useProducts } from '@/api/useProducts'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { useFeaturesStore } from '@/stores/features'
 import { Button, Input, Select, FormField, Card, Badge, Modal, useToast } from '@/components/ui'
+import CreateBomTargetBrandCard from '@/pages/addons/electrical-panel/components/CreateBomTargetBrandCard.vue'
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   FileStack,
   Package,
-  Palette,
   Eye,
   Sparkles,
   CheckCircle2,
@@ -894,62 +894,16 @@ function getPercentage(value: number, total: number): number {
         </div>
       </Card>
 
-      <Card v-if="selectedTemplateId && electricalPanelEnabled">
-        <template #header>
-          <div class="flex items-center gap-2">
-            <Palette class="w-5 h-5 text-purple-500" />
-            <h2 class="font-medium text-slate-900 dark:text-slate-100">Target Brand (Optional)</h2>
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <FormField
-            label="Preferred Brand"
-            hint="Components will be resolved to this brand where possible"
-          >
-            <Select
-              v-model="selectedBrand"
-              :options="brandOptions"
-              :loading="isLoadingBrands"
-            />
-          </FormField>
-
-          <!-- Low Coverage Warning (P1) -->
-          <div
-            v-if="isLowCoverageBrand"
-            class="flex items-start gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg"
-          >
-            <AlertTriangle class="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
-            <div class="text-sm">
-              <p class="font-medium text-amber-800 dark:text-amber-200">Low Coverage Warning</p>
-              <p class="text-amber-700 dark:text-amber-300">
-                {{ selectedBrandCoverage?.name }} only covers {{ selectedBrandCoverage?.coverage_percent }}% of components.
-                Many items may not have mappings for this brand.
-              </p>
-            </div>
-          </div>
-
-          <!-- Brand Coverage Info -->
-          <div v-if="availableBrands && availableBrands.length > 0" class="text-sm text-slate-500 dark:text-slate-400">
-            <p class="mb-2">Available brands for this template:</p>
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="brand in availableBrands"
-                :key="brand.code"
-                class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs"
-                :class="brand.coverage_percent < LOW_COVERAGE_THRESHOLD
-                  ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400'
-                  : 'bg-slate-100 dark:bg-slate-700'"
-              >
-                {{ brand.name }}
-                <span :class="brand.coverage_percent < LOW_COVERAGE_THRESHOLD ? '' : 'text-slate-400 dark:text-slate-500'">
-                  ({{ brand.coverage_percent }}%)
-                </span>
-              </span>
-            </div>
-          </div>
-        </div>
-      </Card>
+      <CreateBomTargetBrandCard
+        v-if="selectedTemplateId && electricalPanelEnabled"
+        v-model="selectedBrand"
+        :brand-options="brandOptions"
+        :loading="isLoadingBrands"
+        :available-brands="availableBrands"
+        :is-low-coverage-brand="isLowCoverageBrand"
+        :selected-brand-coverage="selectedBrandCoverage"
+        :low-coverage-threshold="LOW_COVERAGE_THRESHOLD"
+      />
 
       <div class="flex justify-end">
         <Button :disabled="!canProceedStep1 || !hasTemplates" @click="nextStep">

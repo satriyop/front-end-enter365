@@ -14,6 +14,7 @@ import { useFeaturesStore } from '@/stores/features'
 import { bomTemplateSchema, type BomTemplateFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, Select, FormField, Card, useToast } from '@/components/ui'
+import BomTemplateRuleSetField from '@/pages/addons/electrical-panel/components/BomTemplateRuleSetField.vue'
 import { ArrowLeft } from 'lucide-vue-next'
 
 const route = useRoute()
@@ -242,20 +243,11 @@ function generateCode() {
         </div>
       </Card>
 
-      <Card v-if="electricalPanelEnabled">
-        <template #header>
-          <h2 class="font-medium text-foreground">Defaults</h2>
-        </template>
-
-        <div class="space-y-4">
-          <FormField label="Validation Rule Set" hint="Applied when creating BOMs from this template (panel add-on)">
-            <Select
-              v-model="defaultRuleSetId"
-              :options="ruleSetOptions"
-            />
-          </FormField>
-        </div>
-      </Card>
+      <BomTemplateRuleSetField
+        v-if="electricalPanelEnabled"
+        v-model="defaultRuleSetId"
+        :options="ruleSetOptions"
+      />
 
       <Card>
         <template #header>

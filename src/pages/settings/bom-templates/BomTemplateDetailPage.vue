@@ -14,7 +14,9 @@ import { useComponentStandards, type ComponentStandardFilters } from '@/api/addo
 import { useProducts } from '@/api/useProducts'
 import { useFeaturesStore } from '@/stores/features'
 import { Button, Input, Select, Modal, Badge, FormField, Card, useToast } from '@/components/ui'
-import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, PlayCircle, Package, Settings } from 'lucide-vue-next'
+import BomTemplatePanelMetaCards from '@/pages/addons/electrical-panel/components/BomTemplatePanelMetaCards.vue'
+import BomTemplateItemStandardField from '@/pages/addons/electrical-panel/components/BomTemplateItemStandardField.vue'
+import { ArrowLeft, Plus, Pencil, Trash2, GripVertical, PlayCircle, Package } from 'lucide-vue-next'
 
 const route = useRoute()
 const router = useRouter()
@@ -353,39 +355,12 @@ function getTypeLabel(type: string): string {
           </div>
         </Card>
 
-        <Card v-if="electricalPanelEnabled">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <Settings class="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div>
-              <div class="text-sm text-slate-500 dark:text-slate-400">Rule Set</div>
-              <div class="text-xl font-semibold text-slate-900 dark:text-slate-100">
-                {{ template.default_rule_set?.code ?? 'Default' }}
-              </div>
-            </div>
-          </div>
-        </Card>
+        <BomTemplatePanelMetaCards
+          v-if="electricalPanelEnabled"
+          :rule-set-code="template.default_rule_set?.code"
+          :available-brands="availableBrands"
+        />
       </div>
-
-      <!-- Available Brands (electrical_panel only) -->
-      <Card v-if="electricalPanelEnabled && availableBrands && availableBrands.length > 0" class="mb-6">
-        <template #header>
-          <h2 class="font-medium text-slate-900 dark:text-slate-100">Available Brands for This Template</h2>
-        </template>
-        <div class="flex flex-wrap gap-3">
-          <div
-            v-for="brand in availableBrands"
-            :key="brand.code"
-            class="flex items-center gap-2 px-3 py-2 bg-slate-50 dark:bg-slate-800 rounded-lg"
-          >
-            <span class="font-medium text-slate-900 dark:text-slate-100">{{ brand.name }}</span>
-            <span class="text-sm text-slate-500 dark:text-slate-400">
-              {{ brand.coverage_percent }}% coverage
-            </span>
-          </div>
-        </div>
-      </Card>
 
       <!-- Description -->
       <Card v-if="template.description" class="mb-6">
@@ -516,17 +491,12 @@ function getTypeLabel(type: string): string {
           </FormField>
         </div>
 
-        <FormField
+        <BomTemplateItemStandardField
           v-if="electricalPanelEnabled"
-          label="Component Standard"
-          hint="Link to IEC standard for brand swapping"
-        >
-          <Select
-            :model-value="itemForm.component_standard_id ? String(itemForm.component_standard_id) : ''"
-            :options="standardOptions"
-            @update:model-value="handleStandardChange"
-          />
-        </FormField>
+          :model-value="itemForm.component_standard_id ? String(itemForm.component_standard_id) : ''"
+          :options="standardOptions"
+          @update:model-value="handleStandardChange"
+        />
 
         <FormField label="Specific Product" hint="Optional product link for this template line">
           <Select
