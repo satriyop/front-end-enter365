@@ -35,8 +35,8 @@ async function handleSubmit() {
     <div class="w-full max-w-md">
       <!-- Logo -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-primary">☀️ Solar ERP</h1>
-        <p class="mt-2 text-muted-foreground">Sign in to your account</p>
+        <h1 class="text-3xl font-bold text-primary">Enter365</h1>
+        <p class="mt-2 text-muted-foreground">SME ERP for Indonesian business</p>
       </div>
 
       <!-- Form -->

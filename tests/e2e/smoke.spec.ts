@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 
 test('dashboard loads after auth', async ({ page }) => {
   await page.goto('/')
-  await expect(page).toHaveTitle(/Enter365|Solar ERP/)
+  await expect(page).toHaveTitle(/Enter365/)
   await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 })
 
