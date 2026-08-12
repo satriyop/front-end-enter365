@@ -4,11 +4,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
-import { api, type PaginatedResponse, type ApiRequest, type ApiResponse } from './client'
+import { api, type PaginatedResponse, type ApiRequest } from './client'
 import type { components, paths } from './types'
 
 // ============================================
-// Types
+// Types (core BOM templates — no industry fields)
 // ============================================
 
 export type BomTemplate = components['schemas']['BomTemplateResource']
@@ -33,9 +33,6 @@ export interface BomTemplateMetadata {
   item_types: Record<string, string>
 }
 
-// Using ApiResponse utility for consistent unwrapping
-export type AvailableBrand = ApiResponse<paths['/bom-templates/{bomTemplate}/available-brands']['get']>[number]
-
 export interface CreateBomPreview {
   data: Array<{
     template_item_id: number
@@ -45,11 +42,12 @@ export interface CreateBomPreview {
     unit: string
     unit_cost: number
     product: components['schemas']['ProductResource'] | null
-    component_standard: components['schemas']['ComponentStandardResource'] | null
     status: string
     notes: string | null
     is_required: boolean
     is_quantity_variable: boolean
+    /** Present only when electrical_panel add-on enriches the preview payload */
+    component_standard?: components['schemas']['ComponentStandardResource'] | null
   }>
   report: {
     total_items: number
@@ -137,29 +135,6 @@ export function useActiveTemplates() {
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,
-  })
-}
-
-/**
- * Fetch available brands for a template
- */
-export function useTemplateAvailableBrands(
-  id: Ref<number | string | null | undefined> | ComputedRef<number | string | null | undefined>,
-  enabled: Ref<boolean> | ComputedRef<boolean> | boolean = true,
-) {
-  return useQuery({
-    queryKey: computed(() => ['bom-template', id.value, 'brands']),
-    queryFn: async () => {
-      const response = await api.get<{ data: AvailableBrand[]; meta: any }>(
-        `/bom-templates/${id.value}/available-brands`
-      )
-      return response.data.data
-    },
-    enabled: computed(() => {
-      const flag = typeof enabled === 'boolean' ? enabled : enabled.value
-      return flag && !!id.value
-    }),
-    staleTime: 30 * 1000,
   })
 }
 
@@ -364,7 +339,7 @@ export function usePreviewCreateBom() {
       data
     }: {
       templateId: number | string
-      data: { target_brand?: string; quantity_overrides?: Record<number, number> }
+      data: { quantity_overrides?: Record<number, number>; [key: string]: unknown }
     }) => {
       const response = await api.post<CreateBomPreview>(
         `/bom-templates/${templateId}/preview-bom`,

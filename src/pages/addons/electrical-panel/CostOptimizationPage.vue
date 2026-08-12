@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBoms, type Bom, type BomFilters } from '@/api/useBoms'
 import { api } from '@/api/client'
-import type { CostOptimizationPreview } from '@/api/useComponentStandards'
+import type { CostOptimizationPreview } from '@/api/addons/electrical-panel/useComponentStandards'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatPercent, toNumber } from '@/utils/format'
 import {

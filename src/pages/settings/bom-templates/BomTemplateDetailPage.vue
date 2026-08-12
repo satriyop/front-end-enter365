@@ -4,13 +4,13 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import {
   useBomTemplate,
   useBomTemplateMetadata,
-  useTemplateAvailableBrands,
   useAddTemplateItem,
   useUpdateTemplateItem,
   useDeleteTemplateItem,
   type BomTemplateItem,
 } from '@/api/useBomTemplates'
-import { useComponentStandards, type ComponentStandardFilters } from '@/api/useComponentStandards'
+import { useTemplateAvailableBrands } from '@/api/addons/electrical-panel/useBomTemplatePanel'
+import { useComponentStandards, type ComponentStandardFilters } from '@/api/addons/electrical-panel/useComponentStandards'
 import { useProducts } from '@/api/useProducts'
 import { useFeaturesStore } from '@/stores/features'
 import { Button, Input, Select, Modal, Badge, FormField, Card, useToast } from '@/components/ui'

@@ -9,7 +9,7 @@ import {
   useCreateBomTemplate,
   useUpdateBomTemplate,
 } from '@/api/useBomTemplates'
-import { useActiveRuleSets } from '@/api/useSpecRuleSets'
+import { useActiveRuleSets } from '@/api/addons/electrical-panel/useSpecRuleSets'
 import { useFeaturesStore } from '@/stores/features'
 import { bomTemplateSchema, type BomTemplateFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'

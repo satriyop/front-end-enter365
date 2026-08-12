@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, nextTick } from 'vue'
-import { usePublicSolarCalculator } from '@/api/usePublicSolarCalculator'
+import { usePublicSolarCalculator } from '@/api/addons/solar/usePublicSolarCalculator'
 import { formatCurrency, formatNumber } from '@/utils/format'
 import {
   Sun,

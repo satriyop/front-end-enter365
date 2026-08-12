@@ -47,7 +47,7 @@ import {
   Settings2,
 } from 'lucide-vue-next'
 import { useContacts, type Contact } from '@/api/useContacts'
-import { useBomVariantGroups, type BomVariantGroup } from '@/api/useComponentStandards'
+import { useBomVariantGroups, type BomVariantGroup } from '@/api/addons/electrical-panel/useComponentStandards'
 import {
   useSolarProposal,
   usePlnTariffs,
@@ -58,7 +58,7 @@ import {
   useSelectSolarBom,
   type SolarProposal,
   type PlnTariff,
-} from '@/api/useSolarProposals'
+} from '@/api/addons/solar/useSolarProposals'
 
 // ============================================
 // Route & Props

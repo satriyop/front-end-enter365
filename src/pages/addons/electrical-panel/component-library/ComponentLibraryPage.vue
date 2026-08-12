@@ -16,7 +16,7 @@ import {
   type ImportValidationResult,
   type ProductMappingSuggestion,
   type BulkMappingInput,
-} from '@/api/useComponentStandards'
+} from '@/api/addons/electrical-panel/useComponentStandards'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { Download, Upload, FileSpreadsheet, AlertCircle, CheckCircle2, AlertTriangle, Wand2, Loader2, Check } from 'lucide-vue-next'
 

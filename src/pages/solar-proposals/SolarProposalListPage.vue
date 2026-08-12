@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSolarProposals, useSolarProposalStatistics, type SolarProposal, type SolarProposalFilters } from '@/api/useSolarProposals'
+import { useSolarProposals, useSolarProposalStatistics, type SolarProposal, type SolarProposalFilters } from '@/api/addons/solar/useSolarProposals'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate, formatNumber, formatPercent, toNumber } from '@/utils/format'
 import { Button, Input, Select } from '@/components/ui'

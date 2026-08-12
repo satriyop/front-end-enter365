@@ -5,7 +5,7 @@ import {
   useBomVariantGroups,
   useDeleteBomVariantGroup,
   type VariantGroupFilters
-} from '@/api/useComponentStandards'
+} from '@/api/addons/electrical-panel/useComponentStandards'
 import { Button, Input, Pagination, EmptyState, Modal, Badge, Card, useToast } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 

@@ -5,11 +5,11 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import {
   useActiveTemplates,
   useBomTemplate,
-  useTemplateAvailableBrands,
   usePreviewCreateBom,
   useCreateBomFromTemplate,
   type CreateBomPreviewItem,
 } from '@/api/useBomTemplates'
+import { useTemplateAvailableBrands } from '@/api/addons/electrical-panel/useBomTemplatePanel'
 import { useProducts } from '@/api/useProducts'
 import { useUnsavedChanges } from '@/composables/useUnsavedChanges'
 import { useFeaturesStore } from '@/stores/features'

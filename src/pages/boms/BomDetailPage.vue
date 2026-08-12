@@ -21,7 +21,7 @@ import {
   type SwapReport,
   type SwapPreview,
   type CostOptimizationReport,
-} from '@/api/useComponentStandards'
+} from '@/api/addons/electrical-panel/useComponentStandards'
 import { Check, TrendingDown, ArrowLeftRight, Loader2 } from 'lucide-vue-next'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Badge, Modal, Card, Input, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'

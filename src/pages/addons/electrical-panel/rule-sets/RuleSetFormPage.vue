@@ -7,7 +7,7 @@ import {
   useSpecRuleSet,
   useCreateRuleSet,
   useUpdateRuleSet,
-} from '@/api/useSpecRuleSets'
+} from '@/api/addons/electrical-panel/useSpecRuleSets'
 import { ruleSetSchema, type RuleSetFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Card, useToast } from '@/components/ui'

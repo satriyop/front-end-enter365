@@ -5,7 +5,7 @@ import { formatCurrency, formatNumber, formatPercent, formatDate, formatSolarOff
 import Button from '@/components/ui/Button.vue'
 import PaybackChart from '@/components/charts/PaybackChart.vue'
 import MonthlyBillChart from '@/components/charts/MonthlyBillChart.vue'
-import { type SolarProposal } from '@/api/useSolarProposals'
+import { type SolarProposal } from '@/api/addons/solar/useSolarProposals'
 import { Check, X, Sun, Leaf, TrendingUp, Calendar, AlertCircle } from 'lucide-vue-next'
 
 const route = useRoute()

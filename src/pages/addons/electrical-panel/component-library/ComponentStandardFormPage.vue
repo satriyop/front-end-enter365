@@ -7,7 +7,7 @@ import {
   useComponentStandard,
   useCreateComponentStandard,
   useUpdateComponentStandard
-} from '@/api/useComponentStandards'
+} from '@/api/addons/electrical-panel/useComponentStandards'
 import { componentStandardSchema, type ComponentStandardFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Select, Card, useToast } from '@/components/ui'

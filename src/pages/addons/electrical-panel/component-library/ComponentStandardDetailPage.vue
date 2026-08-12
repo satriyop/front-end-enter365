@@ -10,7 +10,7 @@ import {
   useAddBrandMapping,
   useAvailableBrands,
   type BrandMappingInput
-} from '@/api/useComponentStandards'
+} from '@/api/addons/electrical-panel/useComponentStandards'
 import { useProducts } from '@/api/useProducts'
 import { Button, Badge, Modal, Card, Input, Select, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'

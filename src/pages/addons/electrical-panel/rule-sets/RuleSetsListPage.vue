@@ -7,7 +7,7 @@ import {
   useSetDefaultRuleSet,
   type SpecValidationRuleSet,
   type RuleSetFilters,
-} from '@/api/useSpecRuleSets'
+} from '@/api/addons/electrical-panel/useSpecRuleSets'
 import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { Star, StarOff, Trash2, Eye, Pencil } from 'lucide-vue-next'

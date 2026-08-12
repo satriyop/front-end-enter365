@@ -10,7 +10,7 @@ import {
   useSetDefaultRuleSet,
   type RuleInput,
   type SpecValidationRule,
-} from '@/api/useSpecRuleSets'
+} from '@/api/addons/electrical-panel/useSpecRuleSets'
 import { Button, Input, Select, Modal, Badge, FormField, Card, useToast } from '@/components/ui'
 import { ArrowLeft, Plus, Pencil, Trash2, Star, GripVertical } from 'lucide-vue-next'
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import { Chart, registerables } from 'chart.js'
-import { useSolarProposals, type SolarProposalFilters } from '@/api/useSolarProposals'
+import { useSolarProposals, type SolarProposalFilters } from '@/api/addons/solar/useSolarProposals'
 import { formatCurrency, formatCurrencyCompact, formatNumber, formatPercent, toNumber } from '@/utils/format'
 import { Button, Card, Select, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import {

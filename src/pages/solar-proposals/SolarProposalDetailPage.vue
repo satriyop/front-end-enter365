@@ -19,7 +19,7 @@ import {
   useCalculateSolarProposal,
   downloadSolarProposalPdf,
   downloadSolarProposalExcel,
-} from '@/api/useSolarProposals'
+} from '@/api/addons/solar/useSolarProposals'
 
 // Type interfaces for financial analysis (OpenAPI types these as unknown[])
 interface YearlyProjection {
