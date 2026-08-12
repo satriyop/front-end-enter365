@@ -88,6 +88,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/receivable-aging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Umur Piutang (Accounts Receivable Aging) */
+        get: operations["reports.receivable-aging"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/payable-aging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Umur Hutang (Accounts Payable Aging) */
+        get: operations["reports.payable-aging"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/contacts/{contact}/aging": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Umur Piutang/Hutang per Kontak */
+        get: operations["reports.contact-aging"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/attachments": {
         parameters: {
             query?: never;
@@ -373,6 +424,40 @@ export interface paths {
             cookie?: never;
         };
         get: operations["bank-transactions.suggest-matches"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/accounts/{account}/bank-reconciliation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Rekonsiliasi Bank */
+        get: operations["reports.bank-reconciliation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/accounts/{account}/bank-reconciliation/outstanding": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Item Outstanding untuk Rekonsiliasi Bank */
+        get: operations["reports.bank-reconciliation-outstanding"];
         put?: never;
         post?: never;
         delete?: never;
@@ -847,23 +932,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/bom-templates/{bomTemplate}/available-brands": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get available brands for a template */
-        get: operations["bomTemplate.availableBrands"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/bom-templates/{bomTemplate}/preview-bom": {
         parameters: {
             query?: never;
@@ -892,6 +960,23 @@ export interface paths {
         put?: never;
         /** Create a BOM from a template */
         post: operations["bomTemplate.createBom"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/bom-templates/{bomTemplate}/available-brands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Brands available for resolving template lines via component standards */
+        get: operations["bomTemplateBrand.availableBrands"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1254,6 +1339,125 @@ export interface paths {
         };
         /** Get over-budget accounts */
         get: operations["budgets.over-budget"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cash-flow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Arus Kas (Cash Flow Statement) */
+        get: operations["reports.cash-flow"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/daily-cash-movement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Pergerakan Kas Harian */
+        get: operations["reports.daily-cash-movement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Ringkasan HPP (COGS Summary) */
+        get: operations["reports.cogs-summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-by-product": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan HPP per Produk */
+        get: operations["reports.cogs-by-product"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-by-category": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan HPP per Kategori */
+        get: operations["reports.cogs-by-category"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cogs-monthly-trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Trend HPP Bulanan */
+        get: operations["reports.cogs-monthly-trend"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/products/{product}/cogs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Detail HPP Produk */
+        get: operations["reports.product-cogs-detail"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2547,11 +2751,96 @@ export interface paths {
         /**
          * Get feature flags status
          * @description Available to any authenticated user so the SPA can hide nav/routes
-         *     for disabled packs (odoo apps + industry add-ons: solar, electrical_panel).
+         *     for disabled packs (odoo apps + optional product add-ons).
          *
          *     GET /api/v1/features
          */
         get: operations["features.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/trial-balance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Neraca Saldo (Trial Balance) */
+        get: operations["reports.trial-balance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/balance-sheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Posisi Keuangan (Balance Sheet) */
+        get: operations["reports.balance-sheet"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/income-statement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Laba Rugi (Income Statement) */
+        get: operations["reports.income-statement"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/general-ledger": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Buku Besar (General Ledger) */
+        get: operations["reports.general-ledger"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/changes-in-equity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Perubahan Ekuitas (Statement of Changes in Equity) */
+        get: operations["reports.changes-in-equity"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3144,6 +3433,108 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["journal-entries.reverse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/work-order-costs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Biaya Work Order */
+        get: operations["reports.work-order-costs"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/work-orders/{workOrder}/costs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Detail Biaya Work Order */
+        get: operations["reports.work-order-cost-detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cost-variance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Variansi Biaya */
+        get: operations["reports.cost-variance"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/subcontractor-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Subkontraktor */
+        get: operations["reports.subcontractor-summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/subcontractors/{contact}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Detail Subkontraktor */
+        get: operations["reports.subcontractor-detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/subcontractor-retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Retensi Subkontraktor */
+        get: operations["reports.subcontractor-retention"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -4245,6 +4636,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/project-profitability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Profitabilitas Proyek (Project Profitability Report) */
+        get: operations["reports.project-profitability"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/projects/{project}/profitability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Detail Profitabilitas Proyek */
+        get: operations["reports.project-profitability-detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/project-cost-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan Analisis Biaya Proyek */
+        get: operations["reports.project-cost-analysis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/public/company-profiles": {
         parameters: {
             query?: never;
@@ -5231,516 +5673,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["recurringTemplate.resume"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/trial-balance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Neraca Saldo (Trial Balance) */
-        get: operations["reports.trial-balance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/balance-sheet": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Posisi Keuangan (Balance Sheet) */
-        get: operations["reports.balance-sheet"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/income-statement": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Laba Rugi (Income Statement) */
-        get: operations["reports.income-statement"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/general-ledger": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Buku Besar (General Ledger) */
-        get: operations["reports.general-ledger"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/receivable-aging": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Umur Piutang (Accounts Receivable Aging) */
-        get: operations["reports.receivable-aging"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/payable-aging": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Umur Hutang (Accounts Payable Aging) */
-        get: operations["reports.payable-aging"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/contacts/{contact}/aging": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Umur Piutang/Hutang per Kontak */
-        get: operations["reports.contact-aging"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/ppn-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan PPN (VAT Report) */
-        get: operations["reports.ppn-summary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/ppn-monthly": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan PPN Bulanan per Tahun */
-        get: operations["reports.ppn-monthly"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/tax-invoice-list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Daftar Faktur Pajak Keluaran */
-        get: operations["reports.tax-invoice-list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/input-tax-list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Daftar Faktur Pajak Masukan */
-        get: operations["reports.input-tax-list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cash-flow": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Arus Kas (Cash Flow Statement) */
-        get: operations["reports.cash-flow"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/daily-cash-movement": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Pergerakan Kas Harian */
-        get: operations["reports.daily-cash-movement"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/changes-in-equity": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Perubahan Ekuitas (Statement of Changes in Equity) */
-        get: operations["reports.changes-in-equity"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/accounts/{account}/bank-reconciliation": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Rekonsiliasi Bank */
-        get: operations["reports.bank-reconciliation"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/accounts/{account}/bank-reconciliation/outstanding": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Item Outstanding untuk Rekonsiliasi Bank */
-        get: operations["reports.bank-reconciliation-outstanding"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Ringkasan HPP (COGS Summary) */
-        get: operations["reports.cogs-summary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-by-product": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan HPP per Produk */
-        get: operations["reports.cogs-by-product"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-by-category": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan HPP per Kategori */
-        get: operations["reports.cogs-by-category"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cogs-monthly-trend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Trend HPP Bulanan */
-        get: operations["reports.cogs-monthly-trend"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/products/{product}/cogs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Detail HPP Produk */
-        get: operations["reports.product-cogs-detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/project-profitability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Profitabilitas Proyek (Project Profitability Report) */
-        get: operations["reports.project-profitability"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/projects/{project}/profitability": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Detail Profitabilitas Proyek */
-        get: operations["reports.project-profitability-detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/project-cost-analysis": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Analisis Biaya Proyek */
-        get: operations["reports.project-cost-analysis"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/work-order-costs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Biaya Work Order */
-        get: operations["reports.work-order-costs"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/work-orders/{workOrder}/costs": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Detail Biaya Work Order */
-        get: operations["reports.work-order-cost-detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/cost-variance": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Variansi Biaya */
-        get: operations["reports.cost-variance"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/subcontractor-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Subkontraktor */
-        get: operations["reports.subcontractor-summary"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/subcontractors/{contact}/summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Detail Subkontraktor */
-        get: operations["reports.subcontractor-detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/reports/subcontractor-retention": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Laporan Retensi Subkontraktor */
-        get: operations["reports.subcontractor-retention"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -7069,6 +7001,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/ppn-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan PPN (VAT Report) */
+        get: operations["reports.ppn-summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/ppn-monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Laporan PPN Bulanan per Tahun */
+        get: operations["reports.ppn-monthly"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/tax-invoice-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Daftar Faktur Pajak Keluaran */
+        get: operations["reports.tax-invoice-list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/input-tax-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Daftar Faktur Pajak Masukan */
+        get: operations["reports.input-tax-list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users": {
         parameters: {
             query?: never;
@@ -7684,29 +7684,7 @@ export interface components {
             updated_at: string | null;
         };
         /** BomItemResource */
-        BomItemResource: {
-            id: number;
-            bom_id: number;
-            type: string;
-            product_id: number | null;
-            product?: {
-                id: number;
-                name: string;
-                sku: string;
-            };
-            description: string;
-            quantity: number;
-            unit: string | null;
-            unit_cost: number;
-            total_cost: number;
-            waste_percentage: number;
-            effective_quantity: number;
-            sort_order: number;
-            notes: string | null;
-            component_standard_id?: string | null;
-            created_at: string;
-            updated_at: string;
-        };
+        BomItemResource: unknown[];
         /** BomResource */
         BomResource: {
             id: number;
@@ -7753,68 +7731,9 @@ export interface components {
             updated_at: string;
         };
         /** BomTemplateItemResource */
-        BomTemplateItemResource: {
-            id: number;
-            template_id: number;
-            type: string;
-            type_label: string;
-            component_standard_id?: string | null;
-            component_standard?: {
-                id: string;
-                code: string;
-                name: string;
-                category: string;
-            } | null;
-            product_id: number | null;
-            product?: {
-                id: number;
-                name: string;
-                sku: string;
-                purchase_price: number;
-            };
-            description: string;
-            default_quantity: string;
-            unit: string;
-            is_required: boolean;
-            is_quantity_variable: boolean;
-            sort_order: number;
-            notes: string | null;
-            has_component_standard: string;
-            has_product: boolean;
-            created_at: string | null;
-            updated_at: string | null;
-        };
+        BomTemplateItemResource: unknown[];
         /** BomTemplateResource */
-        BomTemplateResource: {
-            id: number;
-            code: string;
-            name: string;
-            description: string | null;
-            category: string | null;
-            category_label: string | null;
-            thumbnail_path: string | null;
-            thumbnail_url: string | null;
-            is_active: boolean;
-            usage_count: number;
-            default_rule_set?: {
-                id: string;
-                name: string;
-                code: string;
-            };
-            items?: components["schemas"]["BomTemplateItemResource"][];
-            items_count?: number;
-            summary?: {
-                material_count: number;
-                labor_count: number;
-                overhead_count: number;
-            };
-            creator?: {
-                id: number;
-                name: string;
-            };
-            created_at: string | null;
-            updated_at: string | null;
-        };
+        BomTemplateResource: unknown[];
         /** BomVariantGroupResource */
         BomVariantGroupResource: {
             id: number;
@@ -9524,16 +9443,7 @@ export interface components {
             converted_invoice?: components["schemas"]["InvoiceResource"] | null;
             activities?: components["schemas"]["QuotationActivityResource"][];
             variant_options?: components["schemas"]["QuotationVariantOptionResource"][];
-            variant_comparison?: {
-                options: {
-                    [key: string]: unknown;
-                }[];
-                price_range: {
-                    min: number;
-                    max: number;
-                    difference: number;
-                };
-            } | null;
+            variant_comparison?: string;
             created_by: number | null;
             created_at: string;
             updated_at: string;
@@ -9722,6 +9632,10 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** SelectQuotationVariantRequest */
+        SelectQuotationVariantRequest: {
+            variant_option_id: number;
+        };
         /** SolarProposalListResource */
         SolarProposalListResource: {
             id: number;
@@ -9903,10 +9817,11 @@ export interface components {
                 unit: string;
             };
             system_quantity: number;
-            actual_quantity: number;
-            difference_quantity: number;
+            /** @description Preserve null so SPA can show "Not counted" (PHP (float) null === 0.0) */
+            actual_quantity: number | null;
+            difference_quantity: number | null;
             unit_cost: number;
-            difference_value: number;
+            difference_value: number | null;
             notes: string | null;
             created_at: string | null;
         };
@@ -10509,6 +10424,19 @@ export interface components {
             brand?: string | null;
             custom_fields?: string[] | null;
         };
+        /** StoreProjectCostRequest */
+        StoreProjectCostRequest: {
+            /** @enum {string} */
+            type: "material" | "labor" | "subcontractor" | "equipment" | "overhead" | "other";
+            description: string;
+            quantity?: number | null;
+            unit?: string | null;
+            unit_cost: number;
+            /** Format: date-time */
+            date?: string | null;
+            reference?: string | null;
+            notes?: string | null;
+        };
         /** StoreProjectRequest */
         StoreProjectRequest: {
             name: string;
@@ -10526,6 +10454,17 @@ export interface components {
             location?: string | null;
             notes?: string | null;
             manager_id?: number | null;
+        };
+        /** StoreProjectRevenueRequest */
+        StoreProjectRevenueRequest: {
+            /** @enum {string} */
+            type: "invoice" | "down_payment" | "milestone" | "other";
+            description: string;
+            amount: number;
+            /** Format: date-time */
+            date?: string | null;
+            reference?: string | null;
+            notes?: string | null;
         };
         /** StorePurchaseOrderRequest */
         StorePurchaseOrderRequest: {
@@ -10986,6 +10925,19 @@ export interface components {
             target_brand: string;
             create_variant?: boolean | null;
             variant_group_id?: number | null;
+        };
+        /** SyncQuotationVariantOptionsRequest */
+        SyncQuotationVariantOptionsRequest: {
+            options: {
+                bom_id: number;
+                display_name: string;
+                tagline?: string | null;
+                is_recommended?: boolean;
+                selling_price: number;
+                features?: string[] | null;
+                specifications?: string[] | null;
+                warranty_terms?: string | null;
+            }[];
         };
         /** TaskResource */
         TaskResource: {
@@ -11449,6 +11401,23 @@ export interface components {
             brand?: string | null;
             custom_fields?: string[] | null;
         };
+        /** UpdateProjectCostRequest */
+        UpdateProjectCostRequest: {
+            /** @enum {string|null} */
+            type?: "material" | "labor" | "subcontractor" | "equipment" | "overhead" | "other" | null;
+            description?: string | null;
+            quantity?: number | null;
+            unit?: string | null;
+            unit_cost?: number | null;
+            /** Format: date-time */
+            date?: string | null;
+            reference?: string | null;
+            notes?: string | null;
+        };
+        /** UpdateProjectProgressRequest */
+        UpdateProjectProgressRequest: {
+            progress: number;
+        };
         /** UpdateProjectRequest */
         UpdateProjectRequest: {
             name?: string;
@@ -11466,6 +11435,17 @@ export interface components {
             location?: string | null;
             notes?: string | null;
             manager_id?: number | null;
+        };
+        /** UpdateProjectRevenueRequest */
+        UpdateProjectRevenueRequest: {
+            /** @enum {string|null} */
+            type?: "invoice" | "down_payment" | "milestone" | "other" | null;
+            description?: string | null;
+            amount?: number | null;
+            /** Format: date-time */
+            date?: string | null;
+            reference?: string | null;
+            notes?: string | null;
         };
         /** UpdatePurchaseOrderRequest */
         UpdatePurchaseOrderRequest: {
@@ -12389,6 +12369,153 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "reports.receivable-aging": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            as_of_date: string;
+                            buckets: {
+                                label: string;
+                                min: number;
+                                max: number | null;
+                            }[];
+                            contacts: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
+                                invoice_count: number;
+                            }[];
+                            totals: {
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.payable-aging": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            as_of_date: string;
+                            buckets: {
+                                label: string;
+                                min: number;
+                                max: number | null;
+                            }[];
+                            contacts: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
+                                bill_count: number;
+                            }[];
+                            totals: {
+                                current: number;
+                                days_1_30: number;
+                                days_31_60: number;
+                                days_61_90: number;
+                                over_90: number;
+                                total: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.contact-aging": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The contact ID */
+                contact: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            contact: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: string;
+                            ""?: string;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "attachment.index": {
         parameters: {
             query?: {
@@ -13156,6 +13283,146 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "reports.bank-reconciliation": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The account ID */
+                account: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            account: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: string;
+                            book_balance: number;
+                            bank_balance: number;
+                            adjustments_to_book: {
+                                items: {
+                                    id: number;
+                                    date: string;
+                                    description: string;
+                                    reference: string | null;
+                                    amount: number;
+                                    type: string;
+                                }[];
+                                total: number;
+                            };
+                            adjustments_to_bank: {
+                                items: {
+                                    id: number;
+                                    type: string;
+                                    date: string;
+                                    number: string;
+                                    description: string | null;
+                                    amount: number;
+                                }[];
+                                total: number;
+                            };
+                            adjusted_book_balance: number;
+                            adjusted_bank_balance: number;
+                            difference: number;
+                            is_reconciled: boolean;
+                            reconciliation_summary: {
+                                total: number;
+                                reconciled: number;
+                                matched: number;
+                                unmatched: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.bank-reconciliation-outstanding": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The account ID */
+                account: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            account: {
+                                id: number;
+                                code: string;
+                                name: string;
+                            };
+                            as_of_date: string;
+                            outstanding_deposits: {
+                                id: number;
+                                date: string;
+                                number: string;
+                                description: string | null;
+                                amount: number;
+                            }[];
+                            outstanding_checks: {
+                                id: number;
+                                date: string;
+                                number: string;
+                                description: string | null;
+                                amount: number;
+                            }[];
+                            unmatched_bank_transactions: {
+                                id: number;
+                                date: string;
+                                description: string;
+                                reference: string | null;
+                                debit: number;
+                                credit: number;
+                                net_amount: number;
+                            }[];
+                            unmatched_book_entries: {
+                                id: number;
+                                journal_entry_id: number;
+                                date: string;
+                                journal_number: string;
+                                description: string;
+                                debit: number;
+                                credit: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "bank-statements.detect-format": {
         parameters: {
             query?: never;
@@ -13785,7 +14052,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomResource"] & Record<string, never>;
+                        data: components["schemas"]["BomResource"];
                     };
                 };
             };
@@ -14089,7 +14356,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: (components["schemas"]["BomTemplateResource"] & Record<string, never>)[];
+                        data: components["schemas"]["BomTemplateResource"][];
                         links: {
                             first: string | null;
                             last: string | null;
@@ -14141,7 +14408,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
+                        data: components["schemas"]["BomTemplateResource"];
                     };
                 };
             };
@@ -14197,7 +14464,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
+                        data: components["schemas"]["BomTemplateResource"];
                     };
                 };
             };
@@ -14290,7 +14557,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateResource"] & Record<string, never>;
+                        data: components["schemas"]["BomTemplateResource"];
                     };
                 };
             };
@@ -14350,7 +14617,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BomTemplateItemResource"] & Record<string, never>;
+                        data: components["schemas"]["BomTemplateItemResource"];
                     };
                 };
             };
@@ -14456,42 +14723,6 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
-    "bomTemplate.availableBrands": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The bom template ID */
-                bomTemplate: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            code: string;
-                            name: string;
-                            coverage: number;
-                            coverage_percent: number;
-                        }[];
-                        meta: {
-                            template_id: number;
-                            template_code: string;
-                            items_with_standard: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
     "bomTemplate.previewCreateBom": {
         parameters: {
             query?: never;
@@ -14505,8 +14736,8 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    target_brand?: string | null;
                     quantity_overrides?: string[] | null;
+                    target_brand?: string;
                 };
             };
         };
@@ -14518,20 +14749,11 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: {
-                            template_item_id: number;
-                            type: string;
-                            description: string;
-                            quantity: number;
-                            unit: string;
-                            unit_cost: number;
-                            product: unknown[] | null;
-                            component_standard: unknown[] | null;
-                            status: string;
-                            notes: string | null;
-                            is_required: boolean;
-                            is_quantity_variable: boolean;
+                            [key: string]: unknown;
                         }[];
-                        report: unknown[];
+                        report: {
+                            [key: string]: unknown;
+                        };
                     };
                 };
             };
@@ -14571,6 +14793,42 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "bomTemplateBrand.availableBrands": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The bom template ID */
+                bomTemplate: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            code: string;
+                            name: string;
+                            coverage: number;
+                            coverage_percent: number;
+                        }[];
+                        meta: {
+                            template_id: number;
+                            template_code: string;
+                            items_with_standard: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "bom-variant-groups.index": {
@@ -15684,6 +15942,309 @@ export interface operations {
                         month: number | null;
                         over_budget_count: number;
                         accounts: string[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.cash-flow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            operating_activities: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                total: number;
+                            };
+                            investing_activities: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                total: number;
+                            };
+                            financing_activities: {
+                                items: {
+                                    description: string;
+                                    amount: number;
+                                }[];
+                                total: number;
+                            };
+                            net_cash_change: number;
+                            opening_balance: number;
+                            closing_balance: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.daily-cash-movement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            movements: {
+                                date: string;
+                                receipts: number;
+                                payments: number;
+                                net: number;
+                                balance: number;
+                            }[];
+                            total_receipts: number;
+                            total_payments: number;
+                            net_movement: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.cogs-summary": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            beginning_inventory: number;
+                            purchases: number;
+                            goods_available: number;
+                            ending_inventory: number;
+                            cogs: number;
+                            cogs_from_movements: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.cogs-by-product": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            products: {
+                                product_id: number;
+                                sku: string;
+                                name: string;
+                                category: string | null;
+                                quantity_sold: number;
+                                average_unit_cost: number;
+                                total_cogs: number;
+                                percentage: number;
+                            }[];
+                            total_cogs: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.cogs-by-category": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            categories: {
+                                category_id: number | null;
+                                category_name: string;
+                                product_count: number;
+                                quantity_sold: number;
+                                total_cogs: number;
+                                percentage: number;
+                            }[];
+                            total_cogs: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.cogs-monthly-trend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            year: number;
+                            months: {
+                                month: string;
+                                month_name: string;
+                                beginning_inventory: number;
+                                purchases: number;
+                                ending_inventory: number;
+                                cogs: number;
+                            }[];
+                            total_cogs: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.product-cogs-detail": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The product ID */
+                product: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            product: {
+                                id: number;
+                                sku: string;
+                                name: string;
+                            };
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            movements: {
+                                id: number;
+                                date: string;
+                                movement_number: string;
+                                reference_type: string | null;
+                                reference_id: number | null;
+                                quantity: number;
+                                unit_cost: number;
+                                total_cost: number;
+                                notes: string | null;
+                            }[];
+                            total_quantity: number;
+                            total_cogs: number;
+                        };
                     };
                 };
             };
@@ -18771,21 +19332,6 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
-            /** @description An error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /**
-                         * @description Error overview.
-                         * @example account_id wajib diisi.
-                         */
-                        message: string;
-                    };
-                };
-            };
         };
     };
     "export.receivableAging": {
@@ -19089,6 +19635,228 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "reports.trial-balance": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Neraca Saldo";
+                            as_of_date: unknown;
+                            accounts: string;
+                            total_debit: string;
+                            total_credit: string;
+                            is_balanced: boolean;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.balance-sheet": {
+        parameters: {
+            query?: {
+                as_of_date?: string;
+                compare_to?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Laporan Posisi Keuangan";
+                            ""?: string;
+                        };
+                    } | {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.income-statement": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+                compare_previous_period?: boolean;
+                previous_start_date?: string;
+                previous_end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Laporan Laba Rugi";
+                            ""?: string;
+                        };
+                    } | {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.general-ledger": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            start_date: string | null;
+                            end_date: string | null;
+                            accounts: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                type: string;
+                                opening_balance: number;
+                                entries: {
+                                    id: number;
+                                    journal_entry_id: number;
+                                    date: string;
+                                    entry_number: string;
+                                    description: string;
+                                    reference: string | null;
+                                    debit: number;
+                                    credit: number;
+                                    balance: number;
+                                }[];
+                                closing_balance: number;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.changes-in-equity": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period_start: string;
+                            period_end: string;
+                            opening_equity: {
+                                items: {
+                                    account_id: number;
+                                    code: string;
+                                    name: string;
+                                    subtype: string;
+                                    balance: number;
+                                }[];
+                                total: number;
+                            };
+                            changes: {
+                                capital_additions: number;
+                                capital_withdrawals: number;
+                                net_income: number;
+                                dividends: number;
+                                other_adjustments: number;
+                                total_changes: number;
+                            };
+                            closing_equity: {
+                                items: {
+                                    account_id: number;
+                                    code: string;
+                                    name: string;
+                                    subtype: string;
+                                    balance: number;
+                                }[];
+                                total: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "fiscal-periods.index": {
@@ -20579,6 +21347,336 @@ export interface operations {
             };
         };
     };
+    "reports.work-order-costs": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+                status?: string;
+                project_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.work-order-cost-detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The work order ID */
+                workOrder: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: string;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.cost-variance": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            over_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            under_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            on_budget: {
+                                id: number;
+                                wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                status: string;
+                                estimated: number;
+                                actual: number;
+                                variance: number;
+                                variance_percent: number;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                over_budget_count: number;
+                                under_budget_count: number;
+                                on_budget_count: number;
+                                total_estimated: number;
+                                total_actual: number;
+                                total_variance: number;
+                                overall_variance_percent: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.subcontractor-summary": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            subcontractors: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                work_orders: {
+                                    total: number;
+                                    completed: number;
+                                    in_progress: number;
+                                    draft: number;
+                                };
+                                financials: {
+                                    total_agreed: number;
+                                    total_actual: number;
+                                    total_invoiced: number;
+                                    total_paid: number;
+                                    outstanding: number;
+                                    retention_held: number;
+                                };
+                                performance: {
+                                    on_time_completion: number;
+                                    average_completion_days: number;
+                                };
+                            }[];
+                            totals: {
+                                total_subcontractors: number;
+                                total_agreed: number;
+                                total_paid: number;
+                                total_outstanding: number;
+                                total_retention: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.subcontractor-detail": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path: {
+                /** @description The contact ID */
+                contact: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            subcontractor: {
+                                id: number;
+                                code: string;
+                                name: string;
+                                phone: string | null;
+                                email: string | null;
+                                hourly_rate: number | null;
+                                daily_rate: number | null;
+                            };
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            work_orders: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                project_number: string | null;
+                                project_name: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                actual_amount: number;
+                                retention_amount: number;
+                                amount_invoiced: number;
+                                amount_paid: number;
+                                scheduled_start: string | null;
+                                scheduled_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                completion_percentage: number;
+                            }[];
+                            invoices: {
+                                id: number;
+                                invoice_number: string;
+                                invoice_date: string | null;
+                                amount: number;
+                                status: string;
+                                sc_wo_number: string | null;
+                            }[];
+                            summary: {
+                                total_work_orders: number;
+                                completed_work_orders: number;
+                                total_agreed: number;
+                                total_actual: number;
+                                total_invoiced: number;
+                                total_paid: number;
+                                outstanding: number;
+                                retention_held: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.subcontractor-retention": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            retentions: {
+                                id: number;
+                                sc_wo_number: string;
+                                name: string;
+                                subcontractor_name: string | null;
+                                project_number: string | null;
+                                status: string;
+                                agreed_amount: number;
+                                retention_percent: number;
+                                retention_amount: number;
+                                scheduled_end: string | null;
+                                actual_end: string | null;
+                                is_releasable: boolean;
+                            }[];
+                            by_subcontractor: {
+                                subcontractor: string;
+                                total_retention: number;
+                                work_orders_count: number;
+                                releasable_amount: number;
+                            }[];
+                            totals: {
+                                total_retention_held: number;
+                                releasable_amount: number;
+                                pending_amount: number;
+                                work_orders_count: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
     "materialRequisition.index": {
         parameters: {
             query?: never;
@@ -21478,7 +22576,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["NsfpRangeResource"] & Record<string, never>;
+                        data: components["schemas"]["NsfpRangeResource"];
                     };
                 };
             };
@@ -21928,8 +23026,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @constant */
-                        message: "Hanya pengingat dengan status pending yang dapat dibatalkan.";
+                        message: string;
                     };
                 };
             };
@@ -23081,9 +24178,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    progress: number;
-                };
+                "application/json": components["schemas"]["UpdateProjectProgressRequest"];
             };
         };
         responses: {
@@ -23116,18 +24211,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    /** @enum {string} */
-                    type: "material" | "labor" | "subcontractor" | "equipment" | "overhead" | "other";
-                    description: string;
-                    quantity?: number | null;
-                    unit?: string | null;
-                    unit_cost: number;
-                    /** Format: date-time */
-                    date?: string | null;
-                    reference?: string | null;
-                    notes?: string | null;
-                };
+                "application/json": components["schemas"]["StoreProjectCostRequest"];
             };
         };
         responses: {
@@ -23163,18 +24247,7 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": {
-                    /** @enum {string|null} */
-                    type?: "material" | "labor" | "subcontractor" | "equipment" | "overhead" | "other" | null;
-                    description?: string | null;
-                    quantity?: number | null;
-                    unit?: string | null;
-                    unit_cost?: number | null;
-                    /** Format: date-time */
-                    date?: string | null;
-                    reference?: string | null;
-                    notes?: string | null;
-                };
+                "application/json": components["schemas"]["UpdateProjectCostRequest"];
             };
         };
         responses: {
@@ -23238,16 +24311,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    /** @enum {string} */
-                    type: "invoice" | "down_payment" | "milestone" | "other";
-                    description: string;
-                    amount: number;
-                    /** Format: date-time */
-                    date?: string | null;
-                    reference?: string | null;
-                    notes?: string | null;
-                };
+                "application/json": components["schemas"]["StoreProjectRevenueRequest"];
             };
         };
         responses: {
@@ -23283,16 +24347,7 @@ export interface operations {
         };
         requestBody?: {
             content: {
-                "application/json": {
-                    /** @enum {string|null} */
-                    type?: "invoice" | "down_payment" | "milestone" | "other" | null;
-                    description?: string | null;
-                    amount?: number | null;
-                    /** Format: date-time */
-                    date?: string | null;
-                    reference?: string | null;
-                    notes?: string | null;
-                };
+                "application/json": components["schemas"]["UpdateProjectRevenueRequest"];
             };
         };
         responses: {
@@ -23445,6 +24500,222 @@ export interface operations {
                                 count: number;
                                 overdue: number;
                                 over_budget: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.project-profitability": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            projects: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                customer: string | null;
+                                status: string;
+                                start_date: string | null;
+                                end_date: string | null;
+                                contract_amount: number;
+                                total_revenue: number;
+                                costs: {
+                                    material: number;
+                                    labor: number;
+                                    subcontractor: number;
+                                    equipment: number;
+                                    overhead: number;
+                                    other: number;
+                                    total: number;
+                                };
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_amount: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                                progress_percentage: number;
+                            }[];
+                            totals: {
+                                total_contract: number;
+                                total_revenue: number;
+                                total_costs: number;
+                                total_profit: number;
+                                average_margin: number;
+                                projects_count: number;
+                                profitable_count: number;
+                                loss_count: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.project-profitability-detail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The project ID */
+                project: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            project: {
+                                id: number;
+                                project_number: string;
+                                name: string;
+                                description: string | null;
+                                customer: {
+                                    id: number;
+                                    name: string;
+                                    code: string;
+                                } | null;
+                                status: string;
+                                priority: string | null;
+                                location: string | null;
+                                manager_id: number | null;
+                            };
+                            financials: {
+                                contract_amount: number;
+                                budget_amount: number;
+                                total_revenue: number;
+                                total_cost: number;
+                                gross_profit: number;
+                                profit_margin: number;
+                                budget_variance: number;
+                                budget_utilization: number;
+                                is_over_budget: boolean;
+                            };
+                            cost_breakdown: {
+                                material: number;
+                                labor: number;
+                                subcontractor: number;
+                                equipment: number;
+                                overhead: number;
+                                other: number;
+                                total: number;
+                            };
+                            revenue_breakdown: {
+                                items: {
+                                    type: string;
+                                    total: number;
+                                    count: number;
+                                }[];
+                                total: number;
+                            };
+                            timeline: {
+                                planned_start: string | null;
+                                planned_end: string | null;
+                                actual_start: string | null;
+                                actual_end: string | null;
+                                duration_days: number;
+                                days_until_deadline: number | null;
+                                is_overdue: boolean;
+                            };
+                            progress: {
+                                percentage: number;
+                                work_orders_count: number;
+                                work_orders_completed: number;
+                                invoices_count: number;
+                                invoices_paid: number;
+                            };
+                            monthly_costs: {
+                                [key: string]: number;
+                            };
+                            kpis: {
+                                cost_per_progress: number;
+                                revenue_per_progress: number;
+                                burn_rate: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.project-cost-analysis": {
+        parameters: {
+            query?: {
+                start_date?: string;
+                end_date?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string | null;
+                                end: string | null;
+                            };
+                            by_type: {
+                                [key: string]: {
+                                    total: number;
+                                    count: number;
+                                    label: string;
+                                };
+                            };
+                            by_project: {
+                                project_id: number;
+                                project_number: string | null;
+                                project_name: string | null;
+                                total_cost: number;
+                            }[];
+                            totals: {
+                                grand_total: number;
+                                cost_types_count: number;
+                                projects_count: number;
                             };
                         };
                     };
@@ -23963,19 +25234,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Hanya PO draft yang dapat dihapus.";
-                        errors: string;
-                    };
-                };
-            };
         };
     };
     "purchaseOrder.submit": {
@@ -25204,18 +26462,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    options: {
-                        bom_id: number;
-                        display_name: string;
-                        tagline?: string | null;
-                        is_recommended?: boolean;
-                        selling_price: number;
-                        features?: string[] | null;
-                        specifications?: string[] | null;
-                        warranty_terms?: string | null;
-                    }[];
-                };
+                "application/json": components["schemas"]["SyncQuotationVariantOptionsRequest"];
             };
         };
         responses: {
@@ -25250,9 +26497,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": {
-                    variant_option_id: number;
-                };
+                "application/json": components["schemas"]["SelectQuotationVariantRequest"];
             };
         };
         responses: {
@@ -25530,7 +26775,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationActivityResource"] & Record<string, never>;
+                        data: components["schemas"]["QuotationActivityResource"];
                     };
                 };
             };
@@ -25600,7 +26845,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"];
+                        data: components["schemas"]["QuotationResource"] & Record<string, never>;
                     };
                 };
             };
@@ -25635,7 +26880,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["QuotationResource"];
+                        data: components["schemas"]["QuotationResource"] & Record<string, never>;
                     };
                 };
             };
@@ -26014,1544 +27259,6 @@ export interface operations {
                     };
                 };
             };
-        };
-    };
-    "reports.trial-balance": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: {
-                            /** @constant */
-                            report_name: "Neraca Saldo";
-                            as_of_date: unknown;
-                            accounts: string;
-                            total_debit: string;
-                            total_credit: string;
-                            is_balanced: boolean;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.balance-sheet": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-                compare_to?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: {
-                            /** @constant */
-                            report_name: "Laporan Posisi Keuangan";
-                            ""?: string;
-                        };
-                    } | {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.income-statement": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-                compare_previous_period?: boolean;
-                previous_start_date?: string;
-                previous_end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: {
-                            /** @constant */
-                            report_name: "Laporan Laba Rugi";
-                            ""?: string;
-                        };
-                    } | {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.general-ledger": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            start_date: string | null;
-                            end_date: string | null;
-                            accounts: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                type: string;
-                                opening_balance: number;
-                                entries: {
-                                    id: number;
-                                    journal_entry_id: number;
-                                    date: string;
-                                    entry_number: string;
-                                    description: string;
-                                    reference: string | null;
-                                    debit: number;
-                                    credit: number;
-                                    balance: number;
-                                }[];
-                                closing_balance: number;
-                            }[];
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.receivable-aging": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            as_of_date: string;
-                            buckets: {
-                                label: string;
-                                min: number;
-                                max: number | null;
-                            }[];
-                            contacts: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                current: number;
-                                days_1_30: number;
-                                days_31_60: number;
-                                days_61_90: number;
-                                over_90: number;
-                                total: number;
-                                invoice_count: number;
-                            }[];
-                            totals: {
-                                current: number;
-                                days_1_30: number;
-                                days_31_60: number;
-                                days_61_90: number;
-                                over_90: number;
-                                total: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.payable-aging": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            as_of_date: string;
-                            buckets: {
-                                label: string;
-                                min: number;
-                                max: number | null;
-                            }[];
-                            contacts: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                current: number;
-                                days_1_30: number;
-                                days_31_60: number;
-                                days_61_90: number;
-                                over_90: number;
-                                total: number;
-                                bill_count: number;
-                            }[];
-                            totals: {
-                                current: number;
-                                days_1_30: number;
-                                days_31_60: number;
-                                days_61_90: number;
-                                over_90: number;
-                                total: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.contact-aging": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The contact ID */
-                contact: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: {
-                            report_name: string;
-                            contact: {
-                                id: number;
-                                code: string;
-                                name: string;
-                            };
-                            as_of_date: string;
-                            ""?: string;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.ppn-summary": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            output_tax: {
-                                count: number;
-                                base: number;
-                                tax: number;
-                            };
-                            input_tax: {
-                                count: number;
-                                base: number;
-                                tax: number;
-                            };
-                            net_tax: number;
-                            net_tax_status: string;
-                            details: {
-                                invoices: {
-                                    date: string;
-                                    number: string;
-                                    contact: string;
-                                    npwp: string | null;
-                                    base: number;
-                                    tax_rate: number;
-                                    tax: number;
-                                }[];
-                                bills: {
-                                    date: string;
-                                    number: string;
-                                    vendor_invoice: string | null;
-                                    contact: string;
-                                    npwp: string | null;
-                                    base: number;
-                                    tax_rate: number;
-                                    tax: number;
-                                }[];
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.ppn-monthly": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            year: number;
-                            months: {
-                                month: string;
-                                month_name: string;
-                                output: number;
-                                input: number;
-                                net: number;
-                            }[];
-                            total_output: number;
-                            total_input: number;
-                            total_net: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.tax-invoice-list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            invoices: {
-                                tanggal: string;
-                                nomor_faktur: string;
-                                nama_pembeli: string;
-                                npwp_pembeli: string;
-                                alamat: string;
-                                dpp: number;
-                                ppn: number;
-                                total: number;
-                            }[];
-                            total_dpp: number;
-                            total_ppn: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.input-tax-list": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            bills: {
-                                tanggal: string;
-                                nomor_faktur_vendor: string;
-                                nomor_internal: string;
-                                nama_penjual: string;
-                                npwp_penjual: string;
-                                dpp: number;
-                                ppn: number;
-                                total: number;
-                            }[];
-                            total_dpp: number;
-                            total_ppn: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.cash-flow": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            operating_activities: {
-                                items: {
-                                    description: string;
-                                    amount: number;
-                                }[];
-                                total: number;
-                            };
-                            investing_activities: {
-                                items: {
-                                    description: string;
-                                    amount: number;
-                                }[];
-                                total: number;
-                            };
-                            financing_activities: {
-                                items: {
-                                    description: string;
-                                    amount: number;
-                                }[];
-                                total: number;
-                            };
-                            net_cash_change: number;
-                            opening_balance: number;
-                            closing_balance: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.daily-cash-movement": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            movements: {
-                                date: string;
-                                receipts: number;
-                                payments: number;
-                                net: number;
-                                balance: number;
-                            }[];
-                            total_receipts: number;
-                            total_payments: number;
-                            net_movement: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.changes-in-equity": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period_start: string;
-                            period_end: string;
-                            opening_equity: {
-                                items: {
-                                    account_id: number;
-                                    code: string;
-                                    name: string;
-                                    subtype: string;
-                                    balance: number;
-                                }[];
-                                total: number;
-                            };
-                            changes: {
-                                capital_additions: number;
-                                capital_withdrawals: number;
-                                net_income: number;
-                                dividends: number;
-                                other_adjustments: number;
-                                total_changes: number;
-                            };
-                            closing_equity: {
-                                items: {
-                                    account_id: number;
-                                    code: string;
-                                    name: string;
-                                    subtype: string;
-                                    balance: number;
-                                }[];
-                                total: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.bank-reconciliation": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The account ID */
-                account: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            account: {
-                                id: number;
-                                code: string;
-                                name: string;
-                            };
-                            as_of_date: string;
-                            book_balance: number;
-                            bank_balance: number;
-                            adjustments_to_book: {
-                                items: {
-                                    id: number;
-                                    date: string;
-                                    description: string;
-                                    reference: string | null;
-                                    amount: number;
-                                    type: string;
-                                }[];
-                                total: number;
-                            };
-                            adjustments_to_bank: {
-                                items: {
-                                    id: number;
-                                    type: string;
-                                    date: string;
-                                    number: string;
-                                    description: string | null;
-                                    amount: number;
-                                }[];
-                                total: number;
-                            };
-                            adjusted_book_balance: number;
-                            adjusted_bank_balance: number;
-                            difference: number;
-                            is_reconciled: boolean;
-                            reconciliation_summary: {
-                                total: number;
-                                reconciled: number;
-                                matched: number;
-                                unmatched: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.bank-reconciliation-outstanding": {
-        parameters: {
-            query?: {
-                as_of_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The account ID */
-                account: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            account: {
-                                id: number;
-                                code: string;
-                                name: string;
-                            };
-                            as_of_date: string;
-                            outstanding_deposits: {
-                                id: number;
-                                date: string;
-                                number: string;
-                                description: string | null;
-                                amount: number;
-                            }[];
-                            outstanding_checks: {
-                                id: number;
-                                date: string;
-                                number: string;
-                                description: string | null;
-                                amount: number;
-                            }[];
-                            unmatched_bank_transactions: {
-                                id: number;
-                                date: string;
-                                description: string;
-                                reference: string | null;
-                                debit: number;
-                                credit: number;
-                                net_amount: number;
-                            }[];
-                            unmatched_book_entries: {
-                                id: number;
-                                journal_entry_id: number;
-                                date: string;
-                                journal_number: string;
-                                description: string;
-                                debit: number;
-                                credit: number;
-                            }[];
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.cogs-summary": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            beginning_inventory: number;
-                            purchases: number;
-                            goods_available: number;
-                            ending_inventory: number;
-                            cogs: number;
-                            cogs_from_movements: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.cogs-by-product": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            products: {
-                                product_id: number;
-                                sku: string;
-                                name: string;
-                                category: string | null;
-                                quantity_sold: number;
-                                average_unit_cost: number;
-                                total_cogs: number;
-                                percentage: number;
-                            }[];
-                            total_cogs: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.cogs-by-category": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            categories: {
-                                category_id: number | null;
-                                category_name: string;
-                                product_count: number;
-                                quantity_sold: number;
-                                total_cogs: number;
-                                percentage: number;
-                            }[];
-                            total_cogs: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.cogs-monthly-trend": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            year: number;
-                            months: {
-                                month: string;
-                                month_name: string;
-                                beginning_inventory: number;
-                                purchases: number;
-                                ending_inventory: number;
-                                cogs: number;
-                            }[];
-                            total_cogs: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.product-cogs-detail": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The product ID */
-                product: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            product: {
-                                id: number;
-                                sku: string;
-                                name: string;
-                            };
-                            period: {
-                                start: string;
-                                end: string;
-                            };
-                            movements: {
-                                id: number;
-                                date: string;
-                                movement_number: string;
-                                reference_type: string | null;
-                                reference_id: number | null;
-                                quantity: number;
-                                unit_cost: number;
-                                total_cost: number;
-                                notes: string | null;
-                            }[];
-                            total_quantity: number;
-                            total_cogs: number;
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.project-profitability": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-                status?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            projects: {
-                                id: number;
-                                project_number: string;
-                                name: string;
-                                customer: string | null;
-                                status: string;
-                                start_date: string | null;
-                                end_date: string | null;
-                                contract_amount: number;
-                                total_revenue: number;
-                                costs: {
-                                    material: number;
-                                    labor: number;
-                                    subcontractor: number;
-                                    equipment: number;
-                                    overhead: number;
-                                    other: number;
-                                    total: number;
-                                };
-                                gross_profit: number;
-                                profit_margin: number;
-                                budget_amount: number;
-                                budget_variance: number;
-                                budget_utilization: number;
-                                is_over_budget: boolean;
-                                progress_percentage: number;
-                            }[];
-                            totals: {
-                                total_contract: number;
-                                total_revenue: number;
-                                total_costs: number;
-                                total_profit: number;
-                                average_margin: number;
-                                projects_count: number;
-                                profitable_count: number;
-                                loss_count: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.project-profitability-detail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The project ID */
-                project: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            project: {
-                                id: number;
-                                project_number: string;
-                                name: string;
-                                description: string | null;
-                                customer: {
-                                    id: number;
-                                    name: string;
-                                    code: string;
-                                } | null;
-                                status: string;
-                                priority: string | null;
-                                location: string | null;
-                                manager_id: number | null;
-                            };
-                            financials: {
-                                contract_amount: number;
-                                budget_amount: number;
-                                total_revenue: number;
-                                total_cost: number;
-                                gross_profit: number;
-                                profit_margin: number;
-                                budget_variance: number;
-                                budget_utilization: number;
-                                is_over_budget: boolean;
-                            };
-                            cost_breakdown: {
-                                material: number;
-                                labor: number;
-                                subcontractor: number;
-                                equipment: number;
-                                overhead: number;
-                                other: number;
-                                total: number;
-                            };
-                            revenue_breakdown: {
-                                items: {
-                                    type: string;
-                                    total: number;
-                                    count: number;
-                                }[];
-                                total: number;
-                            };
-                            timeline: {
-                                planned_start: string | null;
-                                planned_end: string | null;
-                                actual_start: string | null;
-                                actual_end: string | null;
-                                duration_days: number;
-                                days_until_deadline: number | null;
-                                is_overdue: boolean;
-                            };
-                            progress: {
-                                percentage: number;
-                                work_orders_count: number;
-                                work_orders_completed: number;
-                                invoices_count: number;
-                                invoices_paid: number;
-                            };
-                            monthly_costs: {
-                                [key: string]: number;
-                            };
-                            kpis: {
-                                cost_per_progress: number;
-                                revenue_per_progress: number;
-                                burn_rate: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.project-cost-analysis": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            by_type: {
-                                [key: string]: {
-                                    total: number;
-                                    count: number;
-                                    label: string;
-                                };
-                            };
-                            by_project: {
-                                project_id: number;
-                                project_number: string | null;
-                                project_name: string | null;
-                                total_cost: number;
-                            }[];
-                            totals: {
-                                grand_total: number;
-                                cost_types_count: number;
-                                projects_count: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.work-order-costs": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-                status?: string;
-                project_id?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.work-order-cost-detail": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                /** @description The work order ID */
-                workOrder: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        success: boolean;
-                        /** @constant */
-                        message: "Operasi berhasil.";
-                        data: string;
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.cost-variance": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            over_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            under_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            on_budget: {
-                                id: number;
-                                wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                status: string;
-                                estimated: number;
-                                actual: number;
-                                variance: number;
-                                variance_percent: number;
-                            }[];
-                            summary: {
-                                total_work_orders: number;
-                                over_budget_count: number;
-                                under_budget_count: number;
-                                on_budget_count: number;
-                                total_estimated: number;
-                                total_actual: number;
-                                total_variance: number;
-                                overall_variance_percent: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.subcontractor-summary": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            subcontractors: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                work_orders: {
-                                    total: number;
-                                    completed: number;
-                                    in_progress: number;
-                                    draft: number;
-                                };
-                                financials: {
-                                    total_agreed: number;
-                                    total_actual: number;
-                                    total_invoiced: number;
-                                    total_paid: number;
-                                    outstanding: number;
-                                    retention_held: number;
-                                };
-                                performance: {
-                                    on_time_completion: number;
-                                    average_completion_days: number;
-                                };
-                            }[];
-                            totals: {
-                                total_subcontractors: number;
-                                total_agreed: number;
-                                total_paid: number;
-                                total_outstanding: number;
-                                total_retention: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-        };
-    };
-    "reports.subcontractor-detail": {
-        parameters: {
-            query?: {
-                start_date?: string;
-                end_date?: string;
-            };
-            header?: never;
-            path: {
-                /** @description The contact ID */
-                contact: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            subcontractor: {
-                                id: number;
-                                code: string;
-                                name: string;
-                                phone: string | null;
-                                email: string | null;
-                                hourly_rate: number | null;
-                                daily_rate: number | null;
-                            };
-                            period: {
-                                start: string | null;
-                                end: string | null;
-                            };
-                            work_orders: {
-                                id: number;
-                                sc_wo_number: string;
-                                name: string;
-                                project_number: string | null;
-                                project_name: string | null;
-                                status: string;
-                                agreed_amount: number;
-                                actual_amount: number;
-                                retention_amount: number;
-                                amount_invoiced: number;
-                                amount_paid: number;
-                                scheduled_start: string | null;
-                                scheduled_end: string | null;
-                                actual_start: string | null;
-                                actual_end: string | null;
-                                completion_percentage: number;
-                            }[];
-                            invoices: {
-                                id: number;
-                                invoice_number: string;
-                                invoice_date: string | null;
-                                amount: number;
-                                status: string;
-                                sc_wo_number: string | null;
-                            }[];
-                            summary: {
-                                total_work_orders: number;
-                                completed_work_orders: number;
-                                total_agreed: number;
-                                total_actual: number;
-                                total_invoiced: number;
-                                total_paid: number;
-                                outstanding: number;
-                                retention_held: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
-            404: components["responses"]["ModelNotFoundException"];
-        };
-    };
-    "reports.subcontractor-retention": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        data: {
-                            report_name: string;
-                            retentions: {
-                                id: number;
-                                sc_wo_number: string;
-                                name: string;
-                                subcontractor_name: string | null;
-                                project_number: string | null;
-                                status: string;
-                                agreed_amount: number;
-                                retention_percent: number;
-                                retention_amount: number;
-                                scheduled_end: string | null;
-                                actual_end: string | null;
-                                is_releasable: boolean;
-                            }[];
-                            by_subcontractor: {
-                                subcontractor: string;
-                                total_retention: number;
-                                work_orders_count: number;
-                                releasable_amount: number;
-                            }[];
-                            totals: {
-                                total_retention_held: number;
-                                releasable_amount: number;
-                                pending_amount: number;
-                                work_orders_count: number;
-                            };
-                        };
-                    };
-                };
-            };
-            401: components["responses"]["AuthenticationException"];
-            403: components["responses"]["AuthorizationException"];
         };
     };
     "roles.index": {
@@ -29964,7 +29671,7 @@ export interface operations {
                         /** @constant */
                         message: "Invoice berhasil dikonversi ke bill.";
                         bill: {
-                            id: string;
+                            id: number;
                             bill_number: string;
                         };
                     };
@@ -30840,6 +30547,186 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.ppn-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            output_tax: {
+                                count: number;
+                                base: number;
+                                tax: number;
+                            };
+                            input_tax: {
+                                count: number;
+                                base: number;
+                                tax: number;
+                            };
+                            net_tax: number;
+                            net_tax_status: string;
+                            details: {
+                                invoices: {
+                                    date: string;
+                                    number: string;
+                                    contact: string;
+                                    npwp: string | null;
+                                    base: number;
+                                    tax_rate: number;
+                                    tax: number;
+                                }[];
+                                bills: {
+                                    date: string;
+                                    number: string;
+                                    vendor_invoice: string | null;
+                                    contact: string;
+                                    npwp: string | null;
+                                    base: number;
+                                    tax_rate: number;
+                                    tax: number;
+                                }[];
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.ppn-monthly": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            year: number;
+                            months: {
+                                month: string;
+                                month_name: string;
+                                output: number;
+                                input: number;
+                                net: number;
+                            }[];
+                            total_output: number;
+                            total_input: number;
+                            total_net: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.tax-invoice-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            invoices: {
+                                tanggal: string;
+                                nomor_faktur: string;
+                                nama_pembeli: string;
+                                npwp_pembeli: string;
+                                alamat: string;
+                                dpp: number;
+                                ppn: number;
+                                total: number;
+                            }[];
+                            total_dpp: number;
+                            total_ppn: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.input-tax-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            report_name: string;
+                            period: {
+                                start: string;
+                                end: string;
+                            };
+                            bills: {
+                                tanggal: string;
+                                nomor_faktur_vendor: string;
+                                nomor_internal: string;
+                                nama_penjual: string;
+                                npwp_penjual: string;
+                                dpp: number;
+                                ppn: number;
+                                total: number;
+                            }[];
+                            total_dpp: number;
+                            total_ppn: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "users.index": {
