@@ -35,13 +35,17 @@ export interface BankTransactionSummary {
   unmatched_credit: number
 }
 
+/**
+ * Payment match suggestion from GET /bank-transactions/{id}/suggest-matches.
+ * API returns { transaction, suggestions } (not a Resource `data` wrapper).
+ */
 export interface MatchSuggestion {
-  payment_id: number
-  payment_number: string
-  payment_date: string
+  type: string
+  id: number
+  number: string
   amount: number
-  contact_name: string
-  confidence: number
+  date: string
+  description: string | null
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -98,10 +102,12 @@ export function useMatchSuggestions(transactionId: Ref<number | string | undefin
   return useQuery({
     queryKey: ['bank-transactions', transactionId, 'suggest-matches'],
     queryFn: async () => {
-      const response = await api.get<{ data: MatchSuggestion[] }>(
-        `/bank-transactions/${transactionId.value}/suggest-matches`
-      )
-      return response.data.data
+      const response = await api.get<{
+        transaction: BankTransaction
+        suggestions: MatchSuggestion[]
+      }>(`/bank-transactions/${transactionId.value}/suggest-matches`)
+
+      return response.data.suggestions ?? []
     },
     enabled: computed(() => !!transactionId.value),
     staleTime: 30 * 1000,

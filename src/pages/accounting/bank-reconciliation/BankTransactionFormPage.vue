@@ -116,6 +116,7 @@ async function handleSubmit() {
               v-model="accountId"
               :options="bankAccountOptions"
               placeholder="Select bank account"
+              test-id="bank-txn-account"
             />
           </div>
 
@@ -124,7 +125,7 @@ async function handleSubmit() {
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Transaction Date <span class="text-red-500">*</span>
             </label>
-            <Input v-model="transactionDate" type="date" required />
+            <Input v-model="transactionDate" type="date" required data-testid="bank-txn-date" />
           </div>
 
           <!-- Description -->
@@ -137,6 +138,7 @@ async function handleSubmit() {
               placeholder="Transaction description"
               :rows="2"
               required
+              data-testid="bank-txn-description"
             />
           </div>
 
@@ -145,7 +147,7 @@ async function handleSubmit() {
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Reference
             </label>
-            <Input v-model="reference" placeholder="e.g., Check number, transfer ID" />
+            <Input v-model="reference" placeholder="e.g., Check number, transfer ID" data-testid="bank-txn-reference" />
           </div>
 
           <!-- Transaction Type and Amount -->
@@ -160,13 +162,14 @@ async function handleSubmit() {
                   { value: 'debit', label: 'Debit (Money In)' },
                   { value: 'credit', label: 'Credit (Money Out)' },
                 ]"
+                test-id="bank-txn-type"
               />
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                 Amount <span class="text-red-500">*</span>
               </label>
-              <CurrencyInput v-model="amount" />
+              <CurrencyInput v-model="amount" data-testid="bank-txn-amount" />
             </div>
           </div>
 
@@ -221,7 +224,7 @@ async function handleSubmit() {
         <Button type="button" variant="ghost" @click="router.back()">
           Cancel
         </Button>
-        <Button type="submit" :loading="isSubmitting">
+        <Button type="submit" :loading="isSubmitting" data-testid="bank-txn-submit">
           <Save class="w-4 h-4 mr-2" />
           Create Transaction
         </Button>

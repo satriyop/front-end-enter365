@@ -101,13 +101,6 @@ function getAmountDisplay(debit: number, credit: number): { text: string; isPosi
   return { text: `-${formatCurrency(credit)}`, isPositive: false }
 }
 
-// Confidence badge color
-function getConfidenceColor(confidence: number): string {
-  if (confidence >= 90) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-  if (confidence >= 70) return 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
-  if (confidence >= 50) return 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
-  return 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-400'
-}
 </script>
 
 <template>
@@ -157,6 +150,7 @@ function getConfidenceColor(confidence: number): string {
           <Button
             v-if="transaction.status.value === 'matched'"
             variant="secondary"
+            data-testid="bank-txn-unmatch"
             @click="handleUnmatch"
             :loading="unmatchMutation.isPending.value"
           >
@@ -167,6 +161,7 @@ function getConfidenceColor(confidence: number): string {
           <!-- Reconcile Button (matched only) -->
           <Button
             v-if="transaction.status.value === 'matched'"
+            data-testid="bank-txn-reconcile"
             @click="showReconcileModal = true"
           >
             <CheckCircle class="w-4 h-4 mr-2" />
@@ -292,17 +287,18 @@ function getConfidenceColor(confidence: number): string {
         <div v-else-if="suggestions && suggestions.length > 0" class="space-y-3">
           <div
             v-for="suggestion in suggestions"
-            :key="suggestion.payment_id"
+            :key="suggestion.id"
             class="flex items-center justify-between p-4 border border-slate-200 dark:border-slate-700 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800"
+            :data-testid="`match-suggestion-${suggestion.id}`"
           >
             <div class="flex items-center gap-4">
               <CreditCard class="w-8 h-8 text-slate-400" />
               <div>
                 <div class="font-medium text-slate-900 dark:text-slate-100">
-                  Payment #{{ suggestion.payment_number }}
+                  Payment #{{ suggestion.number }}
                 </div>
                 <div class="text-sm text-slate-500 dark:text-slate-400">
-                  {{ suggestion.contact_name }} • {{ formatDate(suggestion.payment_date) }}
+                  {{ suggestion.description || 'Payment' }} • {{ formatDate(suggestion.date) }}
                 </div>
               </div>
             </div>
@@ -312,16 +308,16 @@ function getConfidenceColor(confidence: number): string {
                   {{ formatCurrency(suggestion.amount) }}
                 </div>
                 <span
-                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                  :class="getConfidenceColor(suggestion.confidence)"
+                  class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                 >
-                  {{ suggestion.confidence }}% match
+                  Amount match
                 </span>
               </div>
               <Button
                 size="sm"
                 :loading="matchMutation.isPending.value"
-                @click="handleMatch(suggestion.payment_id)"
+                data-testid="match-payment-button"
+                @click="handleMatch(suggestion.id)"
               >
                 <Link2 class="w-4 h-4 mr-1" />
                 Match
@@ -367,6 +363,7 @@ function getConfidenceColor(confidence: number): string {
         <Button variant="ghost" @click="showReconcileModal = false">Cancel</Button>
         <Button
           :loading="reconcileMutation.isPending.value"
+          data-testid="bank-txn-reconcile-confirm"
           @click="handleReconcile"
         >
           <CheckCircle class="w-4 h-4 mr-2" />
