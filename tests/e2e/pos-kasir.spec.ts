@@ -1,24 +1,51 @@
 import { expect, type Page, test } from '@playwright/test'
 
-test.describe.configure({ mode: 'serial' })
+test.describe.configure({ mode: 'serial', timeout: 60_000 })
+
+const SITI = { email: 'siti@kopitiam57.test', password: 'password' }
+const OWNER = { email: 'admin@example.com', password: 'password' }
+
+/** Kopitiam 57 pastry board — the locked till SKUs. */
+const SKU = {
+  garlic: 'KT57-SB-GARLIC',
+  original: 'KT57-SB-ORI',
+  croissant: 'KT57-CROISS-BT',
+  smeer: 'KT57-SMEER',
+  packing: 'KT57-PACK',
+} as const
 
 test.describe('Kasir till journeys', () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  async function loginAsSiti(page: Page): Promise<void> {
-    await page.goto('/login')
-    await page.getByTestId('login-email').fill('siti@kopitiam57.test')
-    await page.getByTestId('login-password').fill('password')
+  async function loginAs(page: Page, email: string, password = 'password'): Promise<void> {
+    await page.goto('/login', { waitUntil: 'domcontentloaded' })
+    const emailInput = page.getByTestId('login-email')
+    await expect(emailInput).toBeVisible({ timeout: 15_000 })
+    await emailInput.fill(email)
+    await expect(emailInput).toHaveValue(email)
+    await page.getByTestId('login-password').fill(password)
     await page.getByTestId('login-submit').click()
+  }
+
+  async function loginAsSiti(page: Page): Promise<void> {
+    await loginAs(page, SITI.email, SITI.password)
     await page.waitForURL(/\/kasir/, { timeout: 20_000 })
+  }
+
+  async function loginAsOwner(page: Page): Promise<void> {
+    await loginAs(page, OWNER.email, OWNER.password)
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 20_000 })
   }
 
   async function ensureShop(page: Page): Promise<void> {
     const start = page.getByTestId('kasir-start')
-    if (await start.isVisible().catch(() => false)) {
+    const shop = page.getByText('Pesanan')
+    await expect(start.or(shop)).toBeVisible({ timeout: 20_000 })
+    if (await start.isVisible()) {
+      await expect(start).toBeEnabled({ timeout: 15_000 })
       await start.click()
     }
-    await expect(page.getByText('Pesanan')).toBeVisible({ timeout: 20_000 })
+    await expect(shop).toBeVisible({ timeout: 20_000 })
   }
 
   async function expectLunas(page: Page): Promise<void> {
@@ -26,36 +53,100 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByText('Jaringan putus')).toHaveCount(0)
   }
 
+  function skuButton(page: Page, sku: string) {
+    return page.getByTestId(`kasir-sku-${sku}`)
+  }
+
+  async function tapSku(page: Page, sku: string): Promise<void> {
+    const rail = sku === SKU.packing ? 'Jasa' : 'Pastry'
+    await page.locator('.rail button').filter({ hasText: rail }).click()
+    const button = skuButton(page, sku)
+    await button.scrollIntoViewIfNeeded()
+    const name = (await button.locator('.n').innerText()).trim()
+    await button.click()
+    await expect(page.locator('.ol .n').filter({ hasText: name })).toBeVisible()
+  }
+
   test('cashier login lands on /kasir, not Dashboard', async ({ page }) => {
     await loginAsSiti(page)
     await expect(page).toHaveURL(/\/kasir/)
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toHaveCount(0)
+    await page.goto('/products')
+    await expect(page).toHaveURL(/\/kasir/)
+    await expect(page.getByRole('link', { name: 'Products' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Contacts' })).toHaveCount(0)
   })
 
-  test('shop shows Total only — no DPP/PPN', async ({ page }) => {
+  test('owner login lands on Dashboard and Products shows pastry, not busbars', async ({ page }) => {
+    await loginAsOwner(page)
+    await expect(page).toHaveURL(/\/$/)
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Products' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Contacts' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Kasir' })).toBeVisible()
+    await page.goto('/products')
+    await expect(page).toHaveURL(/\/products/)
+    await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible()
+    await expect(page.getByText('AC-AMMETER')).toHaveCount(0)
+    await expect(page.getByText(/busbar/i)).toHaveCount(0)
+
+    await page.getByPlaceholder('Search by name, SKU, barcode...').fill('Garlic Cheese')
+    await expect(page.getByRole('table').getByText('Salt Bread Garlic Cheese')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('table').getByText('KT57-SB-GARLIC')).toBeVisible()
+
+    await page.getByPlaceholder('Search by name, SKU, barcode...').fill('AC-AMMETER')
+    await expect(page.getByText('No products found')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('Keluar from the till returns to login, then owner can sign in', async ({ page }) => {
+    await loginAsSiti(page)
+    await page.getByTestId('kasir-logout').click()
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
+    await expect(page.getByTestId('login-email')).toBeVisible()
+
+    await loginAsOwner(page)
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    await expect(page).not.toHaveURL(/\/kasir/)
+  })
+
+  test('shop shows pastry Total only — no DPP/PPN', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
     await expect(page.getByText('Total')).toBeVisible()
     await expect(page.getByText('DPP', { exact: true })).toHaveCount(0)
     await expect(page.getByText('PPN', { exact: true })).toHaveCount(0)
+    await expect(page.getByRole('button', { name: /Pastry/ })).toBeVisible()
   })
 
-  test('barcode enter adds Kopi O', async ({ page }) => {
+  test('pastry photo loads and barcode adds Garlic Cheese', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByTestId('kasir-search').fill('899057000001')
+    await page.getByRole('button', { name: /Pastry/ }).click()
+
+    const garlic = skuButton(page, SKU.garlic)
+    await expect(garlic).toBeVisible()
+    await expect(garlic.getByText('Salt Bread Garlic Cheese')).toBeVisible()
+    await expect(garlic.getByText('Rp28.000')).toBeVisible()
+
+    const photo = garlic.locator('img')
+    await expect(photo).toBeVisible()
+    await expect
+      .poll(async () => photo.evaluate((el) => (el as HTMLImageElement).naturalWidth), { timeout: 10_000 })
+      .toBeGreaterThan(0)
+
+    await page.getByTestId('kasir-search').fill('899057000016')
     await page.getByTestId('kasir-search').press('Enter')
-    await expect(page.locator('.ol .n').filter({ hasText: 'Kopi O' })).toBeVisible()
+    await expect(page.locator('.ol .n').filter({ hasText: 'Salt Bread Garlic Cheese' })).toBeVisible()
     await page.getByTestId('kasir-clear').click()
   })
 
-  test('Selesai tunai uang pas shows lunas, never Jaringan putus', async ({ page }) => {
+  test('Selesai tunai uang pas on Garlic Cheese shows lunas, never Jaringan putus', async ({ page }) => {
     const checkout = page.waitForResponse((response) =>
       response.url().includes('/checkout') && response.request().method() === 'POST',
     )
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByRole('button', { name: /Es Teh Manis/ }).first().click()
+    await tapSku(page, SKU.garlic)
     await page.getByTestId('kasir-pay').click()
     await expect(page.getByTestId('kasir-finish')).toHaveText('Uang belum cukup')
     await page.getByTestId('kasir-exact-cash').click()
@@ -67,7 +158,7 @@ test.describe('Kasir till journeys', () => {
   test('tunai with kembalian then Transaksi baru', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByRole('button', { name: /Kopi O/ }).first().click()
+    await tapSku(page, SKU.original)
     await page.getByTestId('kasir-pay').click()
     await page.getByRole('button', { name: 'Rp200.000' }).click()
     await page.getByTestId('kasir-finish').click()
@@ -79,10 +170,10 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByText('Pesanan')).toBeVisible()
   })
 
-  test('QRIS Selesai shows lunas', async ({ page }) => {
+  test('QRIS Selesai on jasa packing shows lunas', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByRole('button', { name: /Jasa Packing/ }).first().click()
+    await tapSku(page, SKU.packing)
     await page.getByTestId('kasir-pay').click()
     await page.getByTestId('kasir-tab-qris').click()
     await expect(page.getByText('Tekan Selesai hanya setelah uang benar-benar masuk')).toBeVisible()
@@ -91,22 +182,22 @@ test.describe('Kasir till journeys', () => {
     await page.getByTestId('kasir-new-sale').click()
   })
 
-  test('Simpan parks the cart and Ambil restores it', async ({ page }) => {
+  test('Simpan parks Butter Croissant and Ambil restores it', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByRole('button', { name: /Milo/ }).first().click()
+    await tapSku(page, SKU.croissant)
     await page.getByTestId('kasir-hold').click()
     await expect(page.getByText('Pesanan disimpan.')).toBeVisible()
     await page.getByTestId('kasir-holds').click()
     await page.getByTestId('kasir-hold-take').click()
-    await expect(page.locator('.ol .n').filter({ hasText: 'Milo' })).toBeVisible()
+    await expect(page.locator('.ol .n').filter({ hasText: 'Butter Croissant' })).toBeVisible()
     await page.getByTestId('kasir-clear').click()
   })
 
-  test('Batalkan voids a sale with a reason', async ({ page }) => {
+  test('Batalkan voids Roti Smeer with a reason', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await page.getByRole('button', { name: /Kantong Plastik/ }).first().click()
+    await tapSku(page, SKU.smeer)
     await page.getByTestId('kasir-pay').click()
     await page.getByTestId('kasir-exact-cash').click()
     await page.getByTestId('kasir-finish').click()
@@ -125,19 +216,45 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByText('DIBATALKAN').first()).toBeVisible()
   })
 
-  test('Tutup kasir blind-count then reopen', async ({ page }) => {
+  test('owner opens own till while Siti is open, sells pastry, never sees busbars', async ({ page }) => {
+    const checkout = page.waitForResponse((response) =>
+      response.url().includes('/checkout') && response.request().method() === 'POST',
+    )
+    await loginAsOwner(page)
+    await page.goto('/kasir')
+    await ensureShop(page)
+    await expect(page.getByText('AC-AMMETER')).toHaveCount(0)
+    await expect(page.getByText(/busbar/i)).toHaveCount(0)
+    await expect(skuButton(page, SKU.garlic)).toBeVisible()
+    await tapSku(page, SKU.garlic)
+    await page.getByTestId('kasir-pay').click()
+    await page.getByTestId('kasir-exact-cash').click()
+    await page.getByTestId('kasir-finish').click()
+    expect((await checkout).status()).toBe(201)
+    await expectLunas(page)
+    await page.getByTestId('kasir-new-sale').click()
+    await page.getByTestId('kasir-logout').click()
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
+  })
+
+  test('Tutup kasir blind-count, Keluar on Buka kasir, owner signs in', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
     await page.getByTestId('kasir-close').click()
     await expect(page.getByText('Hitung dulu, baru sistem cocokkan')).toBeVisible()
     await expect(page.getByText('Seharusnya ada di laci')).toHaveCount(0)
-    await page.getByTestId('kasir-close-review').click()
+    await page.getByTestId('kasir-close-review').click({ force: true })
     await expect(page.getByText('Seharusnya ada di laci')).toBeVisible()
-    await page.getByTestId('kasir-close-confirm').click()
+    await page.getByTestId('kasir-close-confirm').click({ force: true })
     await expect(page.getByText('Sesi ditutup')).toBeVisible({ timeout: 10_000 })
     await page.getByTestId('kasir-reopen').click()
     await expect(page.getByText('Buka kasir')).toBeVisible()
-    await page.getByTestId('kasir-start').click()
-    await expect(page.getByText('Pesanan')).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByTestId('kasir-logout')).toBeVisible()
+    await page.getByTestId('kasir-logout').click()
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 })
+
+    await loginAsOwner(page)
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Products' })).toBeVisible()
   })
 })

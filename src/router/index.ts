@@ -1379,14 +1379,27 @@ router.beforeEach(async (to, from, next) => {
 
   // If user is authenticated and trying to access guest route (like login)
   if (to.meta.guest && isAuthenticated && to.name === 'login') {
+    if (!auth.user) {
+      await auth.fetchUser()
+    }
     const redirect = to.query.redirect as string
-    next(redirect || { name: 'dashboard' })
+    next(redirect || (auth.isCashierOnly ? { name: 'kasir' } : { name: 'dashboard' }))
     return
   }
 
   // Ensure product packs loaded for authenticated users (deep links / refresh)
   if (isAuthenticated && !features.loaded) {
     await features.fetchFeatures()
+  }
+
+  if (isAuthenticated && !auth.user) {
+    await auth.fetchUser()
+  }
+
+  // Day-one kasir: till only — no ERP products/contacts chrome
+  if (auth.isCashierOnly && to.name !== 'kasir' && to.name !== 'login') {
+    next({ name: 'kasir' })
+    return
   }
 
   // Gate authenticated deep links to disabled packs (menu already hidden).
@@ -1397,7 +1410,7 @@ router.beforeEach(async (to, from, next) => {
       requiredFeatureForPath(to.path)
 
     if (feature && !features.enabled(feature)) {
-      next({ name: 'dashboard', query: { pack_disabled: feature } })
+      next({ name: auth.isCashierOnly ? 'kasir' : 'dashboard', query: { pack_disabled: feature } })
       return
     }
   }

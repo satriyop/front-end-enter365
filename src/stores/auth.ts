@@ -58,6 +58,11 @@ export const useAuthStore = defineStore('auth', () => {
     return user.value?.roles?.some(r => r.name === role) ?? false
   }
 
+  const isCashierOnly = computed(() => {
+    const roles = user.value?.roles ?? []
+    return roles.some(r => r.name === 'cashier') && !roles.some(r => r.name === 'admin')
+  })
+
   // Actions
   async function login(credentials: LoginCredentials) {
     const response = await api.post<{ token: string; user: User }>('/auth/login', credentials)
@@ -73,9 +78,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     // Get redirect target before navigation
     const redirect = router.currentRoute.value.query.redirect as string
-    const isCashierOnly = user.value?.roles?.some(r => r.name === 'cashier')
-      && !user.value?.roles?.some(r => r.name === 'admin')
-    const kasirHome = isCashierOnly && useFeaturesStore().enabled('pos') ? '/kasir' : '/'
+    const kasirHome = isCashierOnly.value && useFeaturesStore().enabled('pos') ? '/kasir' : '/'
     const targetPath = redirect || kasirHome
 
     // Wait for Vue reactivity to fully propagate
@@ -132,6 +135,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     hasPermission,
     hasRole,
+    isCashierOnly,
     login,
     logout,
     fetchUser,

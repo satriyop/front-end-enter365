@@ -91,7 +91,12 @@ export default defineConfig({
         target: 'https://enter365.test',
         changeOrigin: true,
         secure: false, // Accept self-signed SSL from Valet
-      }
+      },
+      '/pos': {
+        target: 'https://enter365.test',
+        changeOrigin: true,
+        secure: false,
+      },
     }
   },
 

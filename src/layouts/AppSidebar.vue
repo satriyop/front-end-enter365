@@ -148,6 +148,15 @@ const navigation: NavGroup[] = [
 
 // Filter by product module flags (backend) then permissions
 const filteredNavigation = computed(() => {
+  if (auth.isCashierOnly) {
+    return [{
+      label: 'Menu',
+      items: [
+        { name: 'Kasir', path: '/kasir', icon: '🖥️', permission: 'pos.sale.checkout', feature: 'pos' },
+      ],
+    }]
+  }
+
   return navigation.map(group => ({
     ...group,
     items: group.items.filter(item => {

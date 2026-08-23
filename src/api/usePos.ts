@@ -10,6 +10,7 @@ export interface PosCatalogProduct {
   is_taxable: boolean
   track_inventory: boolean
   quantity: number | null
+  image_url: string | null
 }
 
 export interface PosSession {

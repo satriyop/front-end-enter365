@@ -136,6 +136,7 @@ function product(id: number): PosCatalogProduct {
     is_taxable: false,
     track_inventory: false,
     quantity: null,
+    image_url: null,
   }
 }
 
@@ -454,6 +455,10 @@ function onSearchEnter(): void {
   showToast('Barcode tidak dikenal.', true)
 }
 
+async function leaveTill(): Promise<void> {
+  await auth.logout()
+}
+
 function resetTill(): void {
   session.value = null
   catalog.value = []
@@ -507,6 +512,9 @@ onMounted(async () => {
   <div class="kasir">
     <div v-if="screen === 'open'" class="app one">
       <div class="wrap">
+        <div class="leave-row">
+          <button class="leave" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
+        </div>
         <div class="card">
           <h2>Buka kasir</h2>
           <p>Hitung uang modal di laci, lalu masukkan jumlahnya.</p>
@@ -532,7 +540,7 @@ onMounted(async () => {
             <input v-model.number="openingCash" inputmode="numeric">
             <div class="hint">{{ rp(Number(openingCash) || 0) }} · akun kas dan QRIS dari setelan perusahaan — kasir tidak memilih akun.</div>
           </div>
-          <button class="bayar" data-testid="kasir-start" :disabled="periodLocked || loading" @click="startSession">Mulai jualan</button>
+          <button class="bayar" data-testid="kasir-start" :disabled="periodLocked || loading || !warehouseId" @click="startSession">Mulai jualan</button>
         </div>
       </div>
     </div>
@@ -551,7 +559,8 @@ onMounted(async () => {
           <span class="mg">⌕</span>
         </div>
         <div class="kas"><b>{{ cashierName }}</b>Kasir</div>
-        <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false">Tutup kasir</button>
+        <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
+        <button class="tut" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
       </div>
       <div class="main">
         <div class="rail">
@@ -570,10 +579,16 @@ onMounted(async () => {
             :key="p.id"
             class="sku"
             :class="{ out: p.track_inventory && (p.quantity ?? 0) <= 0 }"
+            :data-testid="p.sku ? `kasir-sku-${p.sku}` : undefined"
             @click="addToCart(p.id)"
           >
-            <div class="thumb" :style="{ background: hue(p.category) }">
-              {{ p.name.slice(0, 2).toUpperCase() }}
+            <div
+              class="thumb"
+              :class="{ photo: !!p.image_url }"
+              :style="p.image_url ? undefined : { background: hue(p.category) }"
+            >
+              <img v-if="p.image_url" :src="p.image_url" :alt="p.name">
+              <template v-else>{{ p.name.slice(0, 2).toUpperCase() }}</template>
               <span v-if="inCart(p.id)" class="qbadge">{{ inCart(p.id) }}</span>
             </div>
             <div class="meta">
@@ -771,7 +786,7 @@ onMounted(async () => {
                 <div class="dt">{{ count[d] ? rp(d * count[d]) : '—' }}</div>
               </div>
               <div class="ctot"><span>Uang yang kamu hitung</span><b>{{ rp(countedCash) }}</b></div>
-              <button class="bayar" data-testid="kasir-close-review" :disabled="loading" @click="reviewCloseCount">Lanjut</button>
+              <button class="bayar" data-testid="kasir-close-review" @click="reviewCloseCount">Lanjut</button>
             </div>
           </template>
           <template v-else>
@@ -882,7 +897,9 @@ onMounted(async () => {
 .rail button.on { background: var(--brand-bg); border-left-color: var(--brand); color: var(--brand); }
 .grid { min-width: 0; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(146px, 1fr)); gap: 12px; overflow: auto; align-content: start; }
 .sku { background: var(--panel); border-radius: 10px; overflow: hidden; text-align: left; box-shadow: 0 1px 3px rgba(23,34,43,.12); display: flex; flex-direction: column; min-height: 158px; }
-.sku .thumb { height: 78px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #fff; letter-spacing: -.02em; position: relative; }
+.sku .thumb { height: 110px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 26px; color: #fff; letter-spacing: -.02em; position: relative; overflow: hidden; }
+.sku .thumb.photo { background: #1c1410; }
+.sku .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .sku .qbadge { position: absolute; top: 6px; right: 6px; background: #fff; color: var(--brand); min-width: 26px; height: 26px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font: 800 13px var(--sans); box-shadow: 0 1px 4px rgba(0,0,0,.25); }
 .sku .meta { padding: 9px 10px 10px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
 .sku .n { font-weight: 700; font-size: 13px; line-height: 1.3; }
@@ -942,6 +959,8 @@ onMounted(async () => {
 .qrbox { flex: 1; display: flex; align-items: center; justify-content: center; border: 3px dashed var(--line); border-radius: 12px; text-align: center; padding: 22px; }
 .ok { height: 78px; border-radius: 10px; background: var(--go); color: #fff; font-weight: 800; font-size: 21px; }
 .ok:disabled { background: #c4cdd2; color: #8b979e; }
+.leave-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+.leave { height: 40px; padding: 0 14px; border-radius: 8px; background: var(--panel); color: var(--ink2); font-weight: 700; font-size: 14px; box-shadow: 0 1px 3px rgba(23,34,43,.1); }
 .wrap { max-width: 660px; margin: 0 auto; padding: 22px; }
 .card { background: var(--panel); border-radius: 12px; padding: 22px; box-shadow: 0 1px 3px rgba(23,34,43,.1); }
 .card h2 { margin: 0 0 6px; font-size: 22px; }
