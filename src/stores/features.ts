@@ -21,6 +21,7 @@ const OPTIONAL_PACKS = new Set([
   // Industry add-ons
   'solar_proposals',
   'electrical_panel',
+  'pos',
 ])
 
 interface FeaturesPayload {
@@ -63,32 +64,43 @@ export const useFeaturesStore = defineStore('features', () => {
     return !enabled(module)
   }
 
+  let inFlight: Promise<void> | null = null
+
   async function fetchFeatures(): Promise<void> {
-    if (loading.value) {
+    if (loaded.value) {
       return
+    }
+    if (inFlight) {
+      return inFlight
     }
 
     loading.value = true
-    try {
-      // Controller: $this->success([...]) → { success, data: FeaturesPayload }
-      const response = await api.get<{ data: FeaturesPayload }>('/features')
-      const payload = response.data.data
-      modules.value = payload.modules ?? {}
-      preset.value = payload.preset ?? 'general'
-      loaded.value = true
-    } catch (error) {
-      console.warn('[Features] Failed to load module flags', error)
-      // Keep fail-closed verticals if load fails
-      loaded.value = false
-    } finally {
-      loading.value = false
-    }
+    inFlight = (async () => {
+      try {
+        // Controller: $this->success([...]) → { success, data: FeaturesPayload }
+        const response = await api.get<{ data: FeaturesPayload }>('/features')
+        const payload = response.data.data
+        modules.value = payload.modules ?? {}
+        preset.value = payload.preset ?? 'general'
+        loaded.value = true
+      } catch (error) {
+        console.warn('[Features] Failed to load module flags', error)
+        loaded.value = false
+      } finally {
+        loading.value = false
+        inFlight = null
+      }
+    })()
+
+    return inFlight
   }
 
   function reset(): void {
     modules.value = {}
     preset.value = 'general'
     loaded.value = false
+    loading.value = false
+    inFlight = null
   }
 
   return {

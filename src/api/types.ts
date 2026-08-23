@@ -4205,6 +4205,166 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/pos/outlets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["posSession.outlets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["posSession.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["posSession.current"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["posSession.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["posSession.close"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["posSession.catalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["posSession.checkout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/sales/{sale}/void": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["posSession.voidSale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["posSession.holds"];
+        put?: never;
+        post: operations["posSession.storeHold"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/pos/sessions/{pos_session}/holds/{hold}/take": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["posSession.takeHold"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products": {
         parameters: {
             query?: never;
@@ -7868,11 +8028,6 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
-        /**
-         * BudgetStatus
-         * @enum {string}
-         */
-        BudgetStatus: "draft" | "approved" | "closed";
         /** BulkAcceptSuggestionsRequest */
         BulkAcceptSuggestionsRequest: {
             mappings: {
@@ -7885,6 +8040,20 @@ export interface components {
         /** CancelQuotationRequest */
         CancelQuotationRequest: {
             reason?: string | null;
+        };
+        /** CheckoutPosSaleRequest */
+        CheckoutPosSaleRequest: {
+            /** @enum {string} */
+            way: "cash" | "qris";
+            cash_received_amount?: number;
+            lines: {
+                product_id: number;
+                quantity: number;
+            }[];
+        };
+        /** ClosePosSessionRequest */
+        ClosePosSessionRequest: {
+            counted_cash_amount: number;
         };
         /** CompanyProfileResource */
         CompanyProfileResource: {
@@ -8298,6 +8467,13 @@ export interface components {
             created_by: number | null;
             created_at: string;
             updated_at: string;
+        };
+        /** HoldPosCartRequest */
+        HoldPosCartRequest: {
+            lines: {
+                product_id: number;
+                quantity: number;
+            }[];
         };
         /** IndonesiaSolarDataResource */
         IndonesiaSolarDataResource: {
@@ -8785,6 +8961,11 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** OpenPosSessionRequest */
+        OpenPosSessionRequest: {
+            warehouse_id: number;
+            opening_cash_amount: number;
+        };
         /** PaymentReminderResource */
         PaymentReminderResource: {
             id: number;
@@ -8906,6 +9087,69 @@ export interface components {
             effective_until: string | null;
             notes: string | null;
         };
+        /** PosSaleResource */
+        PosSaleResource: {
+            id: number;
+            sale_number: string;
+            pos_session_id: number;
+            status: string | components["schemas"]["PosSaleStatus"];
+            payable_amount: number;
+            cash_received_amount: number;
+            change_amount: number;
+            sold_at: string;
+            void_reason: string | null;
+            items?: {
+                id: number;
+                product_id: number;
+                quantity: number;
+                payable_amount: number;
+            }[];
+            tenders?: {
+                type: string | components["schemas"]["PosTenderType"];
+                amount: number;
+            }[];
+        };
+        /**
+         * PosSaleStatus
+         * @enum {string}
+         */
+        PosSaleStatus: "completed" | "voided";
+        /** PosSessionHoldResource */
+        PosSessionHoldResource: {
+            id: number;
+            pos_session_id: number;
+            lines: unknown[];
+            created_at: string | null;
+        };
+        /** PosSessionResource */
+        PosSessionResource: {
+            id: number;
+            session_number: string;
+            status: string | components["schemas"]["PosSessionStatus"];
+            warehouse_id: number;
+            warehouse_name?: string;
+            cash_account_id: number;
+            qris_account_id: number;
+            opening_cash_amount: number;
+            expected_cash_amount: number | null;
+            counted_cash_amount: number | null;
+            cash_difference_amount: number | null;
+            opened_by: number;
+            opened_at: string;
+            closed_at: string | null;
+            holds?: components["schemas"]["PosSessionHoldResource"][];
+            sales?: components["schemas"]["PosSaleResource"][];
+        };
+        /**
+         * PosSessionStatus
+         * @enum {string}
+         */
+        PosSessionStatus: "open" | "closed";
+        /**
+         * PosTenderType
+         * @enum {string}
+         */
+        PosTenderType: "cash" | "qris";
         /**
          * PphCategory
          * @enum {string}
@@ -11755,7 +11999,11 @@ export interface components {
                 name: string;
                 display_name: string;
             }[];
-            permissions?: unknown[];
+            permissions: {
+                id: number;
+                name: string;
+                display_name: string;
+            }[];
             created_at: string | null;
             updated_at: string | null;
         };
@@ -11781,6 +12029,28 @@ export interface components {
          */
         VoidInvoiceRequest: {
             reason: string;
+        };
+        /** VoidPosSaleRequest */
+        VoidPosSaleRequest: {
+            reason: string;
+        };
+        /** Warehouse */
+        Warehouse: {
+            id: number;
+            code: string;
+            name: string;
+            address: string | null;
+            phone: string | null;
+            contact_person: string | null;
+            is_default: boolean;
+            is_active: boolean;
+            notes: string | null;
+            /** Format: date-time */
+            created_at: string | null;
+            /** Format: date-time */
+            updated_at: string | null;
+            /** Format: date-time */
+            deleted_at: string | null;
         };
         /** WarehouseResource */
         WarehouseResource: {
@@ -13162,8 +13432,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @constant */
-                        message: "Transaksi sudah di-match atau direkonsiliasi.";
+                        message: string;
                     };
                 };
             };
@@ -13202,8 +13471,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        /** @constant */
-                        message: "Tidak dapat unmatch transaksi yang sudah direkonsiliasi.";
+                        message: string;
                     };
                 };
             };
@@ -15400,7 +15668,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        data: components["schemas"]["BudgetResource"];
+                        data: components["schemas"]["BudgetResource"] & Record<string, never>;
                     };
                 };
             };
@@ -15497,17 +15765,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Anggaran yang sudah disetujui atau ditutup tidak bisa dihapus.";
-                    };
-                };
-            };
         };
     };
     "budgets.lines.store": {
@@ -15608,17 +15865,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Anggaran yang sudah disetujui tidak bisa diubah.";
-                    };
-                };
-            };
         };
     };
     "budgets.approve": {
@@ -15648,20 +15894,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Anggaran harus memiliki minimal satu baris.";
-                    } | {
-                        /** @constant */
-                        message: "Anggaran ini sudah disetujui atau ditutup.";
-                    };
-                };
-            };
         };
     };
     "budgets.reopen": {
@@ -15691,17 +15923,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Anggaran yang sudah ditutup tidak bisa dibuka kembali.";
-                    };
-                };
-            };
         };
     };
     "budgets.close": {
@@ -15731,17 +15952,6 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        /** @constant */
-                        message: "Hanya anggaran yang sudah disetujui yang bisa ditutup.";
-                    };
-                };
-            };
         };
     };
     "budgets.copy": {
@@ -15805,7 +16015,7 @@ export interface operations {
                             fiscal_period: string;
                         };
                         month: number | null;
-                        comparison: string[];
+                        comparison: unknown[];
                     };
                 };
             };
@@ -15837,28 +16047,9 @@ export interface operations {
                             name: string;
                             fiscal_period: string;
                         };
-                        monthly_breakdown: [
-                            {
-                                /** @constant */
-                                month: 1;
-                                month_name: string;
-                                budget: {
-                                    revenue: number;
-                                    expense: number;
-                                    net: string;
-                                };
-                                actual: {
-                                    revenue: number;
-                                    expense: number;
-                                    net: string;
-                                };
-                                variance: {
-                                    revenue: string;
-                                    expense: string;
-                                    net: string;
-                                };
-                            }
-                        ];
+                        monthly_breakdown: {
+                            [key: string]: unknown;
+                        }[];
                     };
                 };
             };
@@ -15885,30 +16076,7 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        budget: {
-                            name: string;
-                            type: string;
-                            status: components["schemas"]["BudgetStatus"];
-                            fiscal_period: string;
-                        };
-                        annual: {
-                            budget_revenue: number;
-                            budget_expense: number;
-                            budget_net: number;
-                        };
-                        ytd: {
-                            through_month: string;
-                            through_month_name: string;
-                            budget_revenue: number;
-                            budget_expense: number;
-                            budget_net: string;
-                            actual_revenue: number;
-                            actual_expense: number;
-                            actual_net: string;
-                            variance_revenue: string;
-                            variance_expense: string;
-                            variance_net: string;
-                        };
+                        [key: string]: unknown;
                     };
                 };
             };
@@ -15941,7 +16109,7 @@ export interface operations {
                         };
                         month: number | null;
                         over_budget_count: number;
-                        accounts: string[];
+                        accounts: unknown[];
                     };
                 };
             };
@@ -23254,6 +23422,354 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "posSession.outlets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: components["schemas"]["Warehouse"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "posSession.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenPosSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description `PosSessionResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "posSession.current": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PosSessionResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Tidak ada sesi kasir yang terbuka.";
+                        errors: string;
+                    };
+                };
+            };
+        };
+    };
+    "posSession.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PosSessionResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "posSession.close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ClosePosSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description `PosSessionResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "posSession.catalog": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            id: number;
+                            name: string;
+                            sku: string;
+                            barcode: string | null;
+                            category: string | null;
+                            button_price: number;
+                            is_taxable: boolean;
+                            track_inventory: boolean;
+                            quantity: number | null;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "posSession.checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CheckoutPosSaleRequest"];
+            };
+        };
+        responses: {
+            /** @description `PosSaleResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSaleResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "posSession.voidSale": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+                /** @description The sale ID */
+                sale: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VoidPosSaleRequest"];
+            };
+        };
+        responses: {
+            /** @description `PosSaleResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSaleResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "posSession.holds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "posSession.storeHold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HoldPosCartRequest"];
+            };
+        };
+        responses: {
+            /** @description `PosSessionHoldResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionHoldResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "posSession.takeHold": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The pos session ID */
+                pos_session: number;
+                /** @description The hold ID */
+                hold: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PosSessionHoldResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PosSessionHoldResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
             404: components["responses"]["ModelNotFoundException"];
         };
     };

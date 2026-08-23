@@ -47,7 +47,10 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/sales/delivery-orders', feature: 'delivery_orders' },
   { prefix: '/sales/sales-returns', feature: 'sales_returns' },
   { prefix: '/sales/follow-up', feature: 'quotations' },
+  { prefix: '/kasir', feature: 'pos' },
   { prefix: '/quotations', feature: 'quotations' },
+  { prefix: '/invoices', feature: 'invoices' },
+  { prefix: '/payments', feature: 'payments' },
   { prefix: '/inventory/opnames', feature: 'stock_opname' },
   { prefix: '/inventory', feature: 'inventory' },
   { prefix: '/products', feature: 'products' },
@@ -76,6 +79,12 @@ const router = createRouter({
       name: 'login',
       component: () => import('@/pages/LoginPage.vue'),
       meta: { guest: true }
+    },
+    {
+      path: '/kasir',
+      name: 'kasir',
+      component: () => import('@/pages/pos/KasirPage.vue'),
+      meta: { requiresAuth: true, feature: 'pos' }
     },
     // Public routes (no authentication required)
     {

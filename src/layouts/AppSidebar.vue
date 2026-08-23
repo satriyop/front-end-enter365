@@ -46,6 +46,7 @@ const navigation: NavGroup[] = [
     label: 'Menu',
     items: [
       { name: 'Dashboard', path: '/', icon: '🏠' },
+      { name: 'Kasir', path: '/kasir', icon: '🖥️', permission: 'pos.sale.checkout', feature: 'pos' },
     ]
   },
   {
@@ -54,7 +55,7 @@ const navigation: NavGroup[] = [
       { name: 'Quotations', path: '/quotations', icon: '📋', permission: 'quotations.view', feature: 'quotations' },
       { name: 'Follow-Up', path: '/sales/follow-up', icon: '📞', permission: 'quotations.view', feature: 'quotations' },
       { name: 'Solar Proposals', path: '/solar-proposals', icon: '☀️', permission: 'solar_proposals.view', feature: 'solar_proposals' },
-      { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view' },
+      { name: 'Invoices', path: '/invoices', icon: '📄', permission: 'invoices.view', feature: 'invoices' },
       { name: 'Delivery Orders', path: '/sales/delivery-orders', icon: '🚚', permission: 'delivery_orders.view', feature: 'delivery_orders' },
       { name: 'Sales Returns', path: '/sales/sales-returns', icon: '↩️', permission: 'sales_returns.view', feature: 'sales_returns' },
       { name: 'Contacts', path: '/contacts', icon: '👥', permission: 'contacts.view' },
@@ -109,7 +110,7 @@ const navigation: NavGroup[] = [
   {
     label: 'Finance',
     items: [
-      { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view' },
+      { name: 'Payments', path: '/payments', icon: '💳', permission: 'payments.view', feature: 'payments' },
       { name: 'Down Payments', path: '/finance/down-payments', icon: '💰', permission: 'down_payments.view', feature: 'down_payments' },
       { name: 'Reminders', path: '/finance/reminders', icon: '🔔', permission: 'invoices.view' },
       { name: 'Overdue Management', path: '/sales/overdue-dashboard', icon: '⚠️', permission: 'invoices.view' },

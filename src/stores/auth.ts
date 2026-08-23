@@ -46,7 +46,12 @@ export const useAuthStore = defineStore('auth', () => {
     if (!user.value) return false
     // Admin has all permissions
     if (user.value.roles?.some(r => r.name === 'admin')) return true
-    return user.value.permissions?.some(p => p.name === permission) ?? false
+    const names = (user.value.permissions ?? []).map(p => typeof p === 'string' ? p : p.name)
+    if (names.includes(permission)) return true
+    if (user.value.roles?.some(r => r.name === 'cashier') && permission.startsWith('pos.')) {
+      return true
+    }
+    return false
   }
 
   const hasRole = (role: string) => {
@@ -63,11 +68,15 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem('token', response.data.token)
 
     // Product packs (odoo apps + industry add-ons) for nav gating
+    useFeaturesStore().reset()
     await useFeaturesStore().fetchFeatures()
 
     // Get redirect target before navigation
     const redirect = router.currentRoute.value.query.redirect as string
-    const targetPath = redirect || '/'
+    const isCashierOnly = user.value?.roles?.some(r => r.name === 'cashier')
+      && !user.value?.roles?.some(r => r.name === 'admin')
+    const kasirHome = isCashierOnly && useFeaturesStore().enabled('pos') ? '/kasir' : '/'
+    const targetPath = redirect || kasirHome
 
     // Wait for Vue reactivity to fully propagate
     // This ensures the navigation guard sees the updated auth state

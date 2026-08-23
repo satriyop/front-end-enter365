@@ -74,23 +74,26 @@ api.interceptors.response.use(
       }
     }
 
-    // Handle validation errors (422)
-    if (error.response?.status === 422) {
-      const data = error.response.data as { errors?: Record<string, string[]>; message?: string }
-      console.error('API Validation Error:', data)
-      const validationError = {
-        ...error,
-        validationErrors: data.errors,
-        message: data.message || 'Validation failed',
-      }
-      return Promise.reject(validationError)
-    }
-
     return Promise.reject(error)
   }
 )
 
 // Helper to extract error message from any error
+export function isNetworkError(error: unknown): boolean {
+  if (!axios.isAxiosError(error)) {
+    return false
+  }
+  // Any HTTP response means the server answered — never "jaringan putus".
+  if (error.response) {
+    return false
+  }
+  const code = error.code ?? ''
+  return code === 'ERR_NETWORK'
+    || code === 'ECONNABORTED'
+    || code === 'ETIMEDOUT'
+    || error.message === 'Network Error'
+}
+
 export function getErrorMessage(error: unknown, fallback = 'An error occurred'): string {
   if (!error) return fallback
 
@@ -106,16 +109,22 @@ export function getErrorMessage(error: unknown, fallback = 'An error occurred'):
     // Check for validation errors (422)
     if (error.response?.status === 422 && data?.errors) {
       const firstError = Object.values(data.errors)[0]?.[0]
-      return firstError || data.message || 'Validation failed'
+      return firstError || data.message || 'Data tidak valid.'
     }
 
-    // Check for specific server error (500)
+    if (error.response?.status === 409) {
+      return data?.message || 'Operasi tidak diizinkan.'
+    }
+
     if (error.response?.status === 500) {
-      return data?.message || 'Server Error: Something went wrong on the server.'
+      return data?.message && !data.message.includes('SQLSTATE')
+        ? data.message
+        : 'Terjadi kesalahan di server. Coba lagi.'
     }
 
     if (data?.message) return data.message
-    if (error.message) return error.message
+    if (error.message && error.message !== 'Network Error') return error.message
+    if (!error.response) return fallback
   }
 
   // Error with message property
