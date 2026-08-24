@@ -4,6 +4,8 @@ test.describe.configure({ mode: 'serial', timeout: 60_000 })
 
 const SITI = { email: 'siti@kopitiam57.test', password: 'password' }
 const OWNER = { email: 'admin@example.com', password: 'password' }
+const AKUNTAN = { email: 'rina@kopitiam57.test', password: 'password' }
+const GUDANG = { email: 'dewi@kopitiam57.test', password: 'password' }
 
 /** Kopitiam 57 pastry board — the locked till SKUs. */
 const SKU = {
@@ -11,7 +13,7 @@ const SKU = {
   original: 'KT57-SB-ORI',
   croissant: 'KT57-CROISS-BT',
   smeer: 'KT57-SMEER',
-  packing: 'KT57-PACK',
+  air: 'KT57-AIR',
 } as const
 
 test.describe('Kasir till journeys', () => {
@@ -58,7 +60,7 @@ test.describe('Kasir till journeys', () => {
   }
 
   async function tapSku(page: Page, sku: string): Promise<void> {
-    const rail = sku === SKU.packing ? 'Jasa' : 'Pastry'
+    const rail = sku === SKU.air ? 'Extra' : 'Pastry'
     await page.locator('.rail button').filter({ hasText: rail }).click()
     const button = skuButton(page, sku)
     await button.scrollIntoViewIfNeeded()
@@ -98,6 +100,37 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByText('No products found')).toBeVisible({ timeout: 10_000 })
   })
 
+  test('owner till charges Hakau cafe as 25410 after service and PBJT', async ({ page }) => {
+    await loginAsOwner(page)
+    await page.goto('/kasir')
+    await ensureShop(page)
+    await page.locator('.rail button').filter({ hasText: 'Dimsum' }).click()
+    const hakau = skuButton(page, 'KT57-HAKAU')
+    await hakau.scrollIntoViewIfNeeded()
+    await hakau.click()
+    await expect(page.getByTestId('kasir-total')).toHaveText('Rp25.410')
+    await expect(page.getByTestId('kasir-tax')).toContainText('PBJT')
+    await expect(page.getByRole('link', { name: 'Quotations' })).toHaveCount(0)
+  })
+
+  test('akuntan sees reports and not the till', async ({ page }) => {
+    await loginAs(page, AKUNTAN.email, AKUNTAN.password)
+    await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('link', { name: 'Kasir' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Quotations' })).toHaveCount(0)
+    await page.goto('/reports/trial-balance')
+    await expect(page.getByText('Neraca Saldo')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('gudang sees products and inventory, not the till', async ({ page }) => {
+    await loginAs(page, GUDANG.email, GUDANG.password)
+    await page.goto('/products')
+    await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('link', { name: 'Kasir' })).toHaveCount(0)
+    await page.goto('/inventory')
+    await expect(page.getByText('Inventory')).toBeVisible({ timeout: 10_000 })
+  })
+
   test('Keluar from the till returns to login, then owner can sign in', async ({ page }) => {
     await loginAsSiti(page)
     await page.getByTestId('kasir-logout').click()
@@ -109,10 +142,15 @@ test.describe('Kasir till journeys', () => {
     await expect(page).not.toHaveURL(/\/kasir/)
   })
 
-  test('shop shows pastry Total only — no DPP/PPN', async ({ page }) => {
+  test('shop shows cafe tile and bill adds Service + PBJT, never DPP/PPN', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await expect(page.getByText('Total')).toBeVisible()
+    await tapSku(page, SKU.garlic)
+    await expect(skuButton(page, SKU.garlic).getByText('Rp28.000')).toBeVisible()
+    await expect(page.getByTestId('kasir-subtotal')).toContainText('Rp28.000')
+    await expect(page.getByTestId('kasir-service')).toBeVisible()
+    await expect(page.getByTestId('kasir-tax')).toContainText('PBJT')
+    await expect(page.getByTestId('kasir-total')).toHaveText('Rp32.340')
     await expect(page.getByText('DPP', { exact: true })).toHaveCount(0)
     await expect(page.getByText('PPN', { exact: true })).toHaveCount(0)
     await expect(page.getByRole('button', { name: /Pastry/ })).toBeVisible()
@@ -170,10 +208,10 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByText('Pesanan')).toBeVisible()
   })
 
-  test('QRIS Selesai on jasa packing shows lunas', async ({ page }) => {
+  test('QRIS Selesai on Air Mineral shows lunas', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)
-    await tapSku(page, SKU.packing)
+    await tapSku(page, SKU.air)
     await page.getByTestId('kasir-pay').click()
     await page.getByTestId('kasir-tab-qris').click()
     await expect(page.getByText('Tekan Selesai hanya setelah uang benar-benar masuk')).toBeVisible()

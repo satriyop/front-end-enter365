@@ -18,6 +18,7 @@ import {
   type PosSession,
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
+import { tillBill } from './tillBill'
 import { shouldShowTillOfflineDialog } from './tillErrors'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
@@ -46,6 +47,21 @@ const QUICK = [20_000, 50_000, 100_000, 200_000]
 const VOID_REASONS = ['Salah barang', 'Salah jumlah', 'Salah cara bayar', 'Pelanggan batal']
 const HUE: Record<string, string> = {
   Minuman: '#2b7fb8',
+  Kopi: '#6b4a2b',
+  Teh: '#3f8f4e',
+  'Milk Based': '#8a5a3a',
+  Jus: '#c45c2b',
+  Smoothies: '#b84a7a',
+  Float: '#2b7fb8',
+  Dimsum: '#b1200f',
+  Appetizer: '#b8672b',
+  Toast: '#c49a2b',
+  'Bubur & Sup': '#8a5600',
+  Nasi: '#b8672b',
+  Mie: '#c45c2b',
+  Tofu: '#8a7a4a',
+  Pastry: '#c49a2b',
+  Extra: '#5d6f7c',
   Makanan: '#b8672b',
   Sembako: '#3f8f4e',
   Jasa: '#6b5aa8',
@@ -102,9 +118,16 @@ const filteredCatalog = computed(() => {
   })
 })
 
-const payable = computed(() =>
+const subtotal = computed(() =>
   cart.value.reduce((sum, line) => sum + product(line.productId).button_price * line.quantity, 0),
 )
+const bill = computed(() => tillBill(
+  subtotal.value,
+  session.value?.pricing_mode,
+  session.value?.service_rate,
+  session.value?.tax_add_rate,
+))
+const payable = computed(() => bill.value.payable)
 const itemCount = computed(() => cart.value.reduce((sum, line) => sum + line.quantity, 0))
 const change = computed(() => received.value - payable.value)
 const canCommit = computed(() => way.value === 'qris' || received.value >= payable.value)
@@ -602,7 +625,7 @@ onMounted(async () => {
                     thin: p.track_inventory && (p.quantity ?? 0) > 0 && (p.quantity ?? 0) <= 3,
                   }"
                 >
-                  {{ !p.track_inventory ? 'jasa · tanpa stok' : (p.quantity ?? 0) <= 0 ? 'HABIS' : 'stok ' + p.quantity }}
+                  {{ !p.track_inventory ? 'tanpa stok' : (p.quantity ?? 0) <= 0 ? 'HABIS' : 'stok ' + p.quantity }}
                 </div>
               </div>
             </div>
@@ -639,7 +662,16 @@ onMounted(async () => {
             </div>
           </div>
           <div class="ofoot">
-            <div class="t"><span>Total</span><b>{{ rp(payable) }}</b></div>
+            <div v-if="bill.service > 0 || bill.tax > 0" class="r" data-testid="kasir-subtotal">
+              <span>Subtotal</span><span>{{ rp(bill.subtotal) }}</span>
+            </div>
+            <div v-if="bill.service > 0" class="r" data-testid="kasir-service">
+              <span>Service {{ session?.service_rate }}%</span><span>{{ rp(bill.service) }}</span>
+            </div>
+            <div v-if="bill.tax > 0" class="r" data-testid="kasir-tax">
+              <span>{{ session?.tax_add_name || 'PBJT' }} {{ session?.tax_add_rate }}%</span><span>{{ rp(bill.tax) }}</span>
+            </div>
+            <div class="t"><span>Total</span><b data-testid="kasir-total">{{ rp(payable) }}</b></div>
             <button class="bayar" data-testid="kasir-pay" :disabled="!cart.length" @click="screen = 'pay'; received = 0; way = 'cash'">Bayar</button>
           </div>
         </div>

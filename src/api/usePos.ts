@@ -19,6 +19,10 @@ export interface PosSession {
   status: 'open' | 'closed'
   warehouse_id: number
   warehouse_name?: string | null
+  pricing_mode?: 'inclusive' | 'add'
+  service_rate?: number
+  tax_add_rate?: number
+  tax_add_name?: string | null
   opening_cash_amount: number
   expected_cash_amount: number | null
   counted_cash_amount: number | null
@@ -35,6 +39,9 @@ export interface PosSale {
   sale_number: string
   pos_session_id: number
   status: 'completed' | 'voided'
+  subtotal_amount?: number
+  service_amount?: number
+  tax_amount?: number
   payable_amount: number
   cash_received_amount: number
   change_amount: number
