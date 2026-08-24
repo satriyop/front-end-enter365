@@ -27,6 +27,7 @@ test.describe('Kasir till journeys', () => {
     await expect(emailInput).toHaveValue(email)
     await page.getByTestId('login-password').fill(password)
     await page.getByTestId('login-submit').click()
+    await expect(page.getByTestId('login-email')).toHaveCount(0, { timeout: 20_000 })
   }
 
   async function loginAsSiti(page: Page): Promise<void> {
@@ -101,6 +102,9 @@ test.describe('Kasir till journeys', () => {
   })
 
   test('owner till charges Hakau cafe as 25410 after service and PBJT', async ({ page }) => {
+    const checkout = page.waitForResponse((response) =>
+      response.url().includes('/checkout') && response.request().method() === 'POST',
+    )
     await loginAsOwner(page)
     await page.goto('/kasir')
     await ensureShop(page)
@@ -111,6 +115,11 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByTestId('kasir-total')).toHaveText('Rp25.410')
     await expect(page.getByTestId('kasir-tax')).toContainText('PBJT')
     await expect(page.getByRole('link', { name: 'Quotations' })).toHaveCount(0)
+    await page.getByTestId('kasir-pay').click()
+    await page.getByTestId('kasir-exact-cash').click()
+    await page.getByTestId('kasir-finish').click()
+    expect((await checkout).status()).toBe(201)
+    await expectLunas(page)
   })
 
   test('akuntan sees reports and not the till', async ({ page }) => {
@@ -119,7 +128,11 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByRole('link', { name: 'Kasir' })).toHaveCount(0)
     await expect(page.getByRole('link', { name: 'Quotations' })).toHaveCount(0)
     await page.goto('/reports/trial-balance')
-    await expect(page.getByText('Neraca Saldo')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Neraca Saldo' })).toBeVisible({ timeout: 10_000 })
+    await page.goto('/kasir')
+    await expect(page.getByTestId('kasir-lunas')).toHaveCount(0)
+    await expect(page.getByTestId('kasir-finish')).toHaveCount(0)
+    await expect(page.getByText('Pesanan')).toHaveCount(0)
   })
 
   test('gudang sees products and inventory, not the till', async ({ page }) => {
@@ -128,7 +141,18 @@ test.describe('Kasir till journeys', () => {
     await expect(page.getByRole('heading', { name: 'Products' })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('link', { name: 'Kasir' })).toHaveCount(0)
     await page.goto('/inventory')
-    await expect(page.getByText('Inventory')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('heading', { name: 'Stock' })).toBeVisible({ timeout: 10_000 })
+    await page.goto('/kasir')
+    await expect(page.getByTestId('kasir-lunas')).toHaveCount(0)
+    await expect(page.getByTestId('kasir-finish')).toHaveCount(0)
+    await expect(page.getByText('Pesanan')).toHaveCount(0)
+  })
+
+  test('cashier cannot open Faktur from the till', async ({ page }) => {
+    await loginAsSiti(page)
+    await page.goto('/invoices')
+    await expect(page).toHaveURL(/\/kasir/)
+    await expect(page.getByRole('heading', { name: 'Invoices' })).toHaveCount(0)
   })
 
   test('Keluar from the till returns to login, then owner can sign in', async ({ page }) => {
