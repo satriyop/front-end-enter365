@@ -166,6 +166,23 @@ test.describe('Kasir till journeys', () => {
     await expect(page).not.toHaveURL(/\/kasir/)
   })
 
+  test('cash pad types 50000 into uang diterima, not into kurang', async ({ page }) => {
+    await loginAsSiti(page)
+    await ensureShop(page)
+    await page.getByTestId('kasir-search').fill('Hakau')
+    await page.getByTestId('kasir-sku-KT57-HAKAU').click()
+    await page.getByTestId('kasir-pay').click()
+    await expect(page.getByTestId('kasir-received')).toHaveText('Rp0')
+    await page.getByTestId('kasir-key-5').click()
+    await expect(page.getByTestId('kasir-received')).toHaveText('Rp5')
+    await expect(page.getByTestId('kasir-change')).toHaveText('Rp25.405')
+    for (let i = 0; i < 4; i++) {
+      await page.getByTestId('kasir-key-0').click()
+    }
+    await expect(page.getByTestId('kasir-received')).toHaveText('Rp50.000')
+    await expect(page.getByTestId('kasir-change')).toHaveText('Rp24.590')
+  })
+
   test('shop shows cafe tile and bill adds Service + PBJT, never DPP/PPN', async ({ page }) => {
     await loginAsSiti(page)
     await ensureShop(page)

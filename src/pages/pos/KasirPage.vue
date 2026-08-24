@@ -19,6 +19,7 @@ import {
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
 import { tillBill } from './tillBill'
+import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
@@ -237,13 +238,7 @@ function bump(id: number, delta: number): void {
 }
 
 function typeAmount(key: string): void {
-  let digits = String(Math.round(received.value))
-  if (key === 'del') {
-    digits = digits.slice(0, -1)
-  } else {
-    digits = (digits === '0' ? '' : digits) + key
-  }
-  received.value = Number(digits) || 0
+  received.value = typeCashReceived(received.value, key)
 }
 
 async function loadCatalog(sessionId: number): Promise<void> {
@@ -701,10 +696,16 @@ onMounted(async () => {
                 Cek notifikasi di HP atau mesin QRIS. Sistem belum bisa mengeceknya sendiri.
               </div>
             </div>
-            <div v-else class="slab chg" :class="{ neg: change < 0 }">
-              <div class="l">{{ change < 0 ? 'Masih kurang' : 'Kembalian' }}</div>
-              <div class="v">{{ rp(Math.abs(change)) }}</div>
-            </div>
+            <template v-else>
+              <div class="slab" data-testid="kasir-received-slab">
+                <div class="l">Uang diterima</div>
+                <div class="v" data-testid="kasir-received">{{ rp(received) }}</div>
+              </div>
+              <div class="slab chg" :class="{ neg: change < 0 }">
+                <div class="l">{{ change < 0 ? 'Masih kurang' : 'Kembalian' }}</div>
+                <div class="v" data-testid="kasir-change">{{ rp(Math.abs(change)) }}</div>
+              </div>
+            </template>
           </div>
           <div class="pr">
             <template v-if="way === 'cash'">
@@ -713,10 +714,15 @@ onMounted(async () => {
                 <button v-for="q in QUICK" :key="q" @click="received = q">{{ rp(q) }}</button>
               </div>
               <div class="keys">
-                <button v-for="n in [1,2,3,4,5,6,7,8,9]" :key="n" @click="typeAmount(String(n))">{{ n }}</button>
-                <button @click="typeAmount('000')">000</button>
-                <button @click="typeAmount('0')">0</button>
-                <button style="font-size:20px" @click="typeAmount('del')">⌫</button>
+                <button
+                  v-for="n in [1,2,3,4,5,6,7,8,9]"
+                  :key="n"
+                  :data-testid="`kasir-key-${n}`"
+                  @click="typeAmount(String(n))"
+                >{{ n }}</button>
+                <button data-testid="kasir-key-000" @click="typeAmount('000')">000</button>
+                <button data-testid="kasir-key-0" @click="typeAmount('0')">0</button>
+                <button data-testid="kasir-key-del" style="font-size:20px" @click="typeAmount('del')">⌫</button>
               </div>
             </template>
             <div v-else class="qrbox">
