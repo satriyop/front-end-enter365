@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, unref, type MaybeRef, type Ref } from 'vue'
-import { api, type PaginatedResponse } from './client'
+import { api, type PaginatedResponse } from '@/api/client'
 
 // ============================================
 // Types

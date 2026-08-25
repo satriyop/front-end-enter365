@@ -35,11 +35,11 @@ const costTypeOptions = [
 ]
 
 const {
-  values,
   errors,
   handleSubmit,
   resetForm,
   validateField,
+  defineField,
 } = useForm<ProjectCostFormData>({
   validationSchema: toTypedSchema(projectCostSchema),
   initialValues: {
@@ -53,6 +53,14 @@ const {
     notes: '',
   },
 })
+
+const [type] = defineField('type')
+const [description] = defineField('description')
+const [quantity] = defineField('quantity')
+const [unit] = defineField('unit')
+const [unitCost] = defineField('unit_cost')
+const [date] = defineField('date')
+const [notes] = defineField('notes')
 
 // Reset form when modal opens or cost changes
 watch(() => [props.open, props.cost], () => {
@@ -88,8 +96,8 @@ watch(() => [props.open, props.cost], () => {
 }, { immediate: true })
 
 const totalCost = computed(() => {
-  const qty = values.quantity ?? 1
-  const cost = values.unit_cost ?? 0
+  const qty = quantity.value ?? 1
+  const cost = unitCost.value ?? 0
   return qty * cost
 })
 
@@ -112,7 +120,7 @@ function handleClose() {
       <div class="space-y-4">
         <FormField label="Type" required :error="errors.type">
           <Select
-            v-model="values.type"
+            v-model="type"
             :options="costTypeOptions"
             placeholder="Select cost type..."
             @blur="validateField('type')"
@@ -121,7 +129,7 @@ function handleClose() {
 
         <FormField label="Description" required :error="errors.description">
           <Input
-            v-model="values.description"
+            v-model="description"
             placeholder="Enter description"
             @blur="validateField('description')"
           />
@@ -130,7 +138,7 @@ function handleClose() {
         <div class="grid grid-cols-3 gap-4">
           <FormField label="Quantity" :error="errors.quantity">
             <Input
-              v-model.number="values.quantity"
+              v-model.number="quantity"
               type="number"
               step="0.01"
               min="0"
@@ -140,14 +148,14 @@ function handleClose() {
 
           <FormField label="Unit">
             <Input
-              v-model="values.unit"
+              v-model="unit"
               placeholder="e.g., pcs, kg"
             />
           </FormField>
 
           <FormField label="Unit Cost" required :error="errors.unit_cost">
             <Input
-              v-model.number="values.unit_cost"
+              v-model.number="unitCost"
               type="number"
               step="1"
               min="0"
@@ -168,14 +176,14 @@ function handleClose() {
 
         <FormField label="Date">
           <Input
-            v-model="values.date"
+            v-model="date"
             type="date"
           />
         </FormField>
 
         <FormField label="Notes">
           <Textarea
-            v-model="values.notes"
+            v-model="notes"
             :rows="2"
             placeholder="Additional notes..."
           />

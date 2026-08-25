@@ -4,9 +4,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
-import { api } from './client'
-import { createCrudHooks } from './factory'
-import type { components } from './types'
+import { api } from '@/api/client'
+import { createCrudHooks } from '@/api/factory'
+import type { components } from '@/api/types'
 
 // ============================================
 // Types
