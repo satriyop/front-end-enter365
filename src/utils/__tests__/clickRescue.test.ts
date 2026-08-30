@@ -50,6 +50,11 @@ describe('dispatchRescue', () => {
 })
 
 describe('installClickRescue', () => {
+  afterEach(() => {
+    sessionStorage.removeItem('e365-quiet')
+    delete (window as Window & { __e365Rescue?: unknown }).__e365Rescue
+  })
+
   it('fires on capture click even after a later listener stops the event', () => {
     const handler = vi.fn()
     onRescue('kasir-start', handler)
@@ -58,10 +63,12 @@ describe('installClickRescue', () => {
     button.setAttribute('data-testid', 'kasir-start')
     document.body.appendChild(button)
 
-    window.addEventListener('click', (event) => event.stopImmediatePropagation(), true)
+    const swallow = (event: Event): void => event.stopImmediatePropagation()
+    window.addEventListener('click', swallow, true)
     button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
 
     expect(handler).toHaveBeenCalledTimes(1)
+    window.removeEventListener('click', swallow, true)
     button.remove()
     stop()
   })
@@ -92,7 +99,7 @@ describe('installClickRescue', () => {
     stop()
   })
 
-  it('does not dispatch during the post-login quiet period', () => {
+  it('does not dispatch an orphan click during the post-login quiet period', () => {
     const handler = vi.fn()
     onRescue('kasir-start-quiet', handler)
     const stop = installClickRescue(window)
@@ -105,6 +112,37 @@ describe('installClickRescue', () => {
 
     expect(handler).not.toHaveBeenCalled()
     sessionStorage.removeItem('e365-quiet')
+    button.remove()
+    stop()
+  })
+
+  it('still rescues the first pointerdown during the post-login quiet period', () => {
+    const handler = vi.fn()
+    onRescue('nav-first-after-login', handler)
+    const stop = installClickRescue(window)
+    const button = document.createElement('button')
+    button.setAttribute('data-rescue', 'nav-first-after-login')
+    document.body.appendChild(button)
+    beginNavigationQuietPeriod()
+
+    button.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, cancelable: true }))
+
+    expect(handler).toHaveBeenCalledTimes(1)
+    button.remove()
+    stop()
+  })
+
+  it('rescues a click with no prior pointerdown once the quiet period ends', () => {
+    const handler = vi.fn()
+    onRescue('nav-keyboard', handler)
+    const stop = installClickRescue(window)
+    const button = document.createElement('button')
+    button.setAttribute('data-rescue', 'nav-keyboard')
+    document.body.appendChild(button)
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+
+    expect(handler).toHaveBeenCalledTimes(1)
     button.remove()
     stop()
   })

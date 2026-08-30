@@ -5,11 +5,12 @@ type RescueHandler = (el: HTMLElement) => void
 type RescueBag = {
   handlers: Map<string, RescueHandler>
   recent: Map<string, number>
+  gestureFromThisDocument: boolean
 }
 
 function bag(): RescueBag {
   const w = window as Window & { __e365Rescue?: RescueBag }
-  w.__e365Rescue ??= { handlers: new Map(), recent: new Map() }
+  w.__e365Rescue ??= { handlers: new Map(), recent: new Map(), gestureFromThisDocument: false }
   return w.__e365Rescue
 }
 
@@ -118,9 +119,18 @@ function candidatesFrom(event: Event): Element[] {
   return nodes
 }
 
+function isPointerStart(event: Event): boolean {
+  return event.type === 'pointerdown' || event.type === 'mousedown' || event.type === 'touchstart'
+}
+
 function onPointerOrClick(event: Event): void {
   unlockInteractiveDocument()
-  if (inNavigationQuietPeriod()) {
+  if (isPointerStart(event)) {
+    bag().gestureFromThisDocument = true
+  } else if (!bag().gestureFromThisDocument && inNavigationQuietPeriod()) {
+    // Leftover Sign-in click after location.assign — not a real in-app gesture.
+    event.preventDefault()
+    event.stopPropagation()
     return
   }
   const seen = new Set<string>()

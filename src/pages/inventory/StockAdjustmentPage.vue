@@ -6,6 +6,7 @@ import { api } from '@/api/client'
 import { useStockAdjust, useStockIn, useStockOut } from '@/api/useInventory'
 import { Button, Input, FormField, Textarea, Card, useToast } from '@/components/ui'
 import { pickedOptionValue } from '@/pages/inventory/nativeSelect'
+import { resolveStockInUnitCost } from '@/pages/inventory/stockInCost'
 import { onRescue } from '@/utils/clickRescue'
 
 const router = useRouter()
@@ -43,7 +44,7 @@ const form = ref({
 const { data: productsData } = useQuery({
   queryKey: ['products', 'inventory-lookup'],
   queryFn: async () => {
-    const response = await api.get<{ data: Array<{ id: number; sku: string; name: string; track_inventory: boolean; current_stock: number }> }>(
+    const response = await api.get<{ data: Array<{ id: number; sku: string; name: string; track_inventory: boolean; current_stock: number; purchase_price: number }> }>(
       '/products?per_page=200&track_inventory=true'
     )
     return response.data.data.filter(p => p.track_inventory)
@@ -89,12 +90,14 @@ const selectedProduct = computed(() =>
 )
 
 // Watch product selection to set initial quantity
-watch(() => form.value.product_id, (productId) => {
-  if (productId) {
-    const product = productsData.value?.find(p => p.id === productId)
-    if (product) {
-      form.value.new_quantity = product.current_stock
-    }
+watch([() => form.value.product_id, adjustmentType], () => {
+  const product = productsData.value?.find(p => p.id === form.value.product_id)
+  if (!product) {
+    return
+  }
+  form.value.new_quantity = product.current_stock
+  if (adjustmentType.value === 'in' && form.value.unit_cost <= 0 && product.purchase_price > 0) {
+    form.value.unit_cost = product.purchase_price
   }
 })
 
@@ -126,8 +129,13 @@ async function handleSubmit() {
     if (form.value.quantity <= 0) {
       errors.value.quantity = 'Quantity must be greater than 0'
     }
-    if (adjustmentType.value === 'in' && form.value.unit_cost <= 0) {
-      errors.value.unit_cost = 'Unit cost is required for stock in'
+    if (adjustmentType.value === 'in') {
+      const resolved = resolveStockInUnitCost(form.value.unit_cost, {
+        purchasePrice: selectedProduct.value?.purchase_price,
+      })
+      if ('unitCost' in resolved) {
+        form.value.unit_cost = resolved.unitCost
+      }
     }
   }
 
@@ -279,7 +287,12 @@ async function handleSubmit() {
             <FormField label="Quantity" required :error="errors.quantity">
               <Input v-model.number="form.quantity" type="number" min="1" data-testid="adjust-quantity" />
             </FormField>
-            <FormField v-if="adjustmentType === 'in'" label="Unit Cost" required :error="errors.unit_cost">
+            <FormField
+              v-if="adjustmentType === 'in'"
+              label="Unit Cost (optional)"
+              hint="Leave 0 to keep current average cost"
+              :error="errors.unit_cost"
+            >
               <Input v-model.number="form.unit_cost" type="number" min="0" step="1000" data-testid="adjust-unit-cost" />
             </FormField>
           </template>
