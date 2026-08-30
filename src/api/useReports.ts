@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/vue-query'
 import { api } from './client'
-import type { Ref } from 'vue'
-import { computed } from 'vue'
+import { computed, type ComputedRef, type Ref } from 'vue'
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -946,7 +945,10 @@ export function useContactAging(
   })
 }
 
-export function useInventorySummary(warehouseId?: Ref<number | undefined>) {
+export function useInventorySummary(
+  warehouseId?: Ref<number | undefined>,
+  enabled: Ref<boolean> | ComputedRef<boolean> = computed(() => true),
+) {
   return useQuery({
     queryKey: ['reports', 'inventory-summary', warehouseId],
     queryFn: async () => {
@@ -955,6 +957,7 @@ export function useInventorySummary(warehouseId?: Ref<number | undefined>) {
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,
+    enabled,
   })
 }
 

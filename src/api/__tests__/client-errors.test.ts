@@ -1,6 +1,15 @@
 import { AxiosError } from 'axios'
 import { describe, expect, it } from 'vitest'
-import { getErrorMessage, isNetworkError } from '../client'
+import { getErrorMessage, isNetworkError, shouldSkipTokenRefresh } from '../client'
+
+describe('shouldSkipTokenRefresh', () => {
+  it('does not refresh after a failed logout', () => {
+    expect(shouldSkipTokenRefresh('/auth/logout')).toBe(true)
+    expect(shouldSkipTokenRefresh('/api/v1/auth/logout')).toBe(true)
+    expect(shouldSkipTokenRefresh('/auth/login')).toBe(true)
+    expect(shouldSkipTokenRefresh('/auth/me')).toBe(false)
+  })
+})
 
 describe('isNetworkError', () => {
   it('is true for Axios ERR_NETWORK with no response', () => {

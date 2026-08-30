@@ -79,6 +79,20 @@ const { data: projectsData, isLoading: loadingProjects } = useQuery({
   enabled: projectsEnabled,
 })
 
+const activeProjects = computed(() => {
+  const rows = projectsData.value?.data ?? []
+  return rows.map((row) => {
+    const contact = row.contact as { name?: string } | undefined
+    return {
+      id: Number(row.id),
+      name: String(row.name ?? ''),
+      projectNumber: typeof row.project_number === 'string' ? row.project_number : '',
+      contactName: contact?.name ?? '',
+      progress: Number(row.progress_percentage ?? 0),
+    }
+  })
+})
+
 // Computed stats from API data
 const stats = computed(() => {
   const cashPosition = Number(summary.value?.cash_position?.total) || 0
@@ -229,31 +243,31 @@ const cashBreakdownData = computed(() => {
         <div v-if="loadingProjects" class="space-y-3">
           <div v-for="i in 3" :key="i" class="h-16 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
         </div>
-        <div v-else-if="!projectsData?.data?.length" class="text-slate-500 dark:text-slate-400 text-sm text-center py-8">
+        <div v-else-if="!activeProjects.length" class="text-slate-500 dark:text-slate-400 text-sm text-center py-8">
           No active projects
         </div>
         <div v-else class="divide-y divide-slate-100 dark:divide-slate-800">
           <RouterLink
-            v-for="project in projectsData.data"
-            :key="(project as { id: number }).id"
-            :to="`/projects/${(project as { id: number }).id}`"
+            v-for="project in activeProjects"
+            :key="project.id"
+            :to="`/projects/${project.id}`"
             class="block py-3 hover:bg-slate-50 dark:hover:bg-slate-800 -mx-6 px-6 transition-colors"
           >
             <div class="flex items-center justify-between">
               <div>
-                <div class="font-medium text-slate-900 dark:text-slate-100">{{ (project as { name: string }).name }}</div>
+                <div class="font-medium text-slate-900 dark:text-slate-100">{{ project.name }}</div>
                 <div class="text-sm text-slate-500 dark:text-slate-400">
-                  {{ (project as { project_number?: string }).project_number }}
+                  {{ project.projectNumber }}
                   •
-                  {{ (project as { contact?: { name?: string } }).contact?.name }}
+                  {{ project.contactName }}
                 </div>
               </div>
               <div class="text-right">
-                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ (project as { progress_percentage?: number }).progress_percentage ?? 0 }}%</div>
+                <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ project.progress }}%</div>
                 <div class="w-24 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                   <div
                     class="h-full bg-primary-500 rounded-full"
-                    :style="{ width: `${(project as { progress_percentage?: number }).progress_percentage ?? 0}%` }"
+                    :style="{ width: project.progress + '%' }"
                   />
                 </div>
               </div>

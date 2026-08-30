@@ -3,7 +3,8 @@
  * Core BOM template CRUD lives in @/api/useBomTemplates.
  */
 
-import { useQuery, type ComputedRef, type Ref, computed } from 'vue'
+import { computed, type ComputedRef, type Ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import { api, type ApiResponse } from '@/api/client'
 import type { paths } from '@/api/types'
 

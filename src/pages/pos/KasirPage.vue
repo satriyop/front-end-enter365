@@ -6,6 +6,7 @@ import {
   closePosSession,
   currentPosSession,
   getPosCatalog,
+  getPosSession,
   holdPosCart,
   listPosHolds,
   listPosOutlets,
@@ -18,6 +19,7 @@ import {
   type PosSession,
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
+import { bindOutletId, formatHoldClock, tillStartBlocked } from '@/pages/pos/tillSession'
 import { tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
@@ -255,10 +257,7 @@ async function refreshSession(sessionId: number): Promise<void> {
 async function loadWarehouses(): Promise<void> {
   const rows = await listPosOutlets()
   warehouses.value = rows
-  const preferred = rows.find((row) => row.name.includes('Kopitiam 57')) ?? rows[0]
-  if (preferred && warehouseId.value === null) {
-    warehouseId.value = preferred.id
-  }
+  warehouseId.value = bindOutletId(rows, warehouseId.value)
 }
 
 async function startSession(): Promise<void> {
@@ -558,7 +557,7 @@ onMounted(async () => {
             <input v-model.number="openingCash" inputmode="numeric">
             <div class="hint">{{ rp(Number(openingCash) || 0) }} · akun kas dan QRIS dari setelan perusahaan — kasir tidak memilih akun.</div>
           </div>
-          <button class="bayar" data-testid="kasir-start" :disabled="periodLocked || loading || !warehouseId" @click="startSession">Mulai jualan</button>
+          <button class="bayar" data-testid="kasir-start" :disabled="tillStartBlocked(warehouseId, periodLocked, loading)" @click="startSession">Mulai jualan</button>
         </div>
       </div>
     </div>
@@ -794,7 +793,7 @@ onMounted(async () => {
           <div v-for="hold in holds" :key="hold.id" class="srow">
             <div>
               <div class="no">{{ hold.lines.length }} barang</div>
-              <div class="tm">{{ new Date(hold.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) }}</div>
+              <div class="tm">{{ formatHoldClock(hold.created_at) }}</div>
             </div>
             <button class="held-take" data-testid="kasir-hold-take" @click="takeHold(hold)">Ambil</button>
           </div>

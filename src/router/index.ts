@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
+import { requiredPermissionForPath } from '@/router/access'
 
 // Type for breadcrumb meta
 type BreadcrumbMeta = string | ((route: RouteLocationNormalized) => string)
@@ -47,6 +48,8 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/sales/delivery-orders', feature: 'delivery_orders' },
   { prefix: '/sales/sales-returns', feature: 'sales_returns' },
   { prefix: '/sales/follow-up', feature: 'quotations' },
+  { prefix: '/finance/reminders', feature: 'invoices' },
+  { prefix: '/sales/overdue-dashboard', feature: 'invoices' },
   { prefix: '/kasir', feature: 'pos' },
   { prefix: '/quotations', feature: 'quotations' },
   { prefix: '/invoices', feature: 'invoices' },
@@ -1411,6 +1414,14 @@ router.beforeEach(async (to, from, next) => {
 
     if (feature && !features.enabled(feature)) {
       next({ name: auth.isCashierOnly ? 'kasir' : 'dashboard', query: { pack_disabled: feature } })
+      return
+    }
+
+    const permission =
+      (typeof to.meta.permission === 'string' ? to.meta.permission : null)
+      || requiredPermissionForPath(to.path)
+    if (permission && !auth.hasPermission(permission)) {
+      next({ name: auth.isCashierOnly ? 'kasir' : 'dashboard' })
       return
     }
   }

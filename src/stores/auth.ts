@@ -98,16 +98,21 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  function clearClientSession(): void {
+    token.value = null
+    user.value = null
+    localStorage.removeItem('token')
+    useFeaturesStore().reset()
+  }
+
   async function logout() {
+    clearClientSession()
     try {
       await api.post('/auth/logout')
-    } finally {
-      token.value = null
-      user.value = null
-      localStorage.removeItem('token')
-      useFeaturesStore().reset()
-      router.push('/login')
+    } catch {
+      // Local session is already gone; a 404/401 must not leave the SPA signed in.
     }
+    await router.replace('/login')
   }
 
   async function fetchUser() {
@@ -138,6 +143,7 @@ export const useAuthStore = defineStore('auth', () => {
     isCashierOnly,
     login,
     logout,
+    clearClientSession,
     fetchUser,
   }
 })

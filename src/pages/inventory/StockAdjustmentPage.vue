@@ -4,7 +4,8 @@ import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
 import { useStockAdjust, useStockIn, useStockOut } from '@/api/useInventory'
-import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
+import { Button, Input, FormField, Textarea, Card, useToast } from '@/components/ui'
+import { pickedOptionValue } from '@/pages/inventory/nativeSelect'
 
 const router = useRouter()
 const toast = useToast()
@@ -49,13 +50,22 @@ const { data: warehousesData } = useQuery({
   },
 })
 
-const warehouseOptions = computed(() => [
-  { value: 0, label: 'Default Warehouse' },
-  ...(warehousesData.value ?? []).map(w => ({
+const warehouseOptions = computed(() =>
+  (warehousesData.value ?? []).map(w => ({
     value: w.id,
     label: `${w.code} - ${w.name}`,
   })),
-])
+)
+
+function onProductPicked(event: Event): void {
+  const raw = (event.target as HTMLSelectElement).value
+  form.value.product_id = pickedOptionValue(productOptions.value, raw)
+}
+
+function onWarehousePicked(event: Event): void {
+  const raw = (event.target as HTMLSelectElement).value
+  form.value.warehouse_id = pickedOptionValue(warehouseOptions.value, raw) ?? 0
+}
 
 // Selected product info
 const selectedProduct = computed(() =>
@@ -195,21 +205,31 @@ async function handleSubmit() {
         </template>
         <div class="space-y-4">
           <FormField label="Product" required :error="errors.product_id">
-            <Select
-              v-model="form.product_id"
-              :options="productOptions"
-              placeholder="Select product..."
-              testId="adjust-product"
-            />
+            <select
+              class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm dark:border-slate-700"
+              data-testid="adjust-product"
+              :value="form.product_id ?? ''"
+              @change="onProductPicked"
+            >
+              <option value="">Select product...</option>
+              <option v-for="option in productOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </FormField>
 
           <FormField label="Warehouse">
-            <Select
-              v-model="form.warehouse_id"
-              :options="warehouseOptions"
-              placeholder="Select warehouse..."
-              testId="adjust-warehouse"
-            />
+            <select
+              class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm dark:border-slate-700"
+              data-testid="adjust-warehouse"
+              :value="form.warehouse_id || ''"
+              @change="onWarehousePicked"
+            >
+              <option value="">Select warehouse...</option>
+              <option v-for="option in warehouseOptions" :key="option.value" :value="option.value">
+                {{ option.label }}
+              </option>
+            </select>
           </FormField>
 
           <div v-if="selectedProduct" class="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">

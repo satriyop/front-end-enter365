@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useProducts, useDeleteProduct, useExportProductPriceList, type ProductFilters, type Product } from '@/api/useProducts'
+import { routeQueryAfterSearch, searchFromRouteQuery } from '@/pages/products/productSearchQuery'
 import { useProductCategoriesLookup } from '@/api/useProductCategories'
 import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
@@ -8,6 +10,8 @@ import { formatCurrency } from '@/utils/format'
 import { Download, Plus } from 'lucide-vue-next'
 
 const toast = useToast()
+const route = useRoute()
+const router = useRouter()
 
 // Resource list with filters, pagination, and delete confirmation
 const {
@@ -27,9 +31,17 @@ const {
     per_page: 10,
     type: undefined,
     category_id: undefined,
-    search: '',
+    search: searchFromRouteQuery(route.query.search),
   },
 })
+
+watch(
+  () => filters.value.search,
+  (search) => {
+    const next = routeQueryAfterSearch(route.query as Record<string, unknown>, search ?? '')
+    router.replace({ query: next as Record<string, string | string[]> })
+  },
+)
 
 // Lookups
 const { data: categories } = useProductCategoriesLookup()

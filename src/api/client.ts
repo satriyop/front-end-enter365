@@ -21,6 +21,13 @@ function onTokenRefreshed(token: string) {
   refreshSubscribers = []
 }
 
+export function shouldSkipTokenRefresh(url: string | undefined): boolean {
+  if (!url) {
+    return false
+  }
+  return url.includes('/auth/login') || url.includes('/auth/refresh') || url.includes('/auth/logout')
+}
+
 // Request interceptor: add auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -38,8 +45,7 @@ api.interceptors.response.use(
 
     // Handle 401 Unauthorized - attempt token refresh
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      // Don't retry login or refresh endpoints
-      if (originalRequest.url?.includes('/auth/login') || originalRequest.url?.includes('/auth/refresh')) {
+      if (shouldSkipTokenRefresh(originalRequest.url)) {
         localStorage.removeItem('token')
         window.location.href = '/login'
         return Promise.reject(error)

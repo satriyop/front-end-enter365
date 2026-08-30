@@ -3,16 +3,19 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useInventorySummary } from '@/api/useReports'
 import { useWarehousesLookup } from '@/api/useInventory'
+import { useAuthStore } from '@/stores/auth'
 import { Button, Card, Select } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 
 const router = useRouter()
+const auth = useAuthStore()
+const canViewStock = computed(() => auth.hasPermission('inventory.view'))
 
 const warehouseId = ref<number | undefined>(undefined)
 const warehouseIdRef = computed(() => warehouseId.value)
 
 const { data: warehouses } = useWarehousesLookup()
-const { data: report, isLoading, error } = useInventorySummary(warehouseIdRef)
+const { data: report, isLoading, error } = useInventorySummary(warehouseIdRef, canViewStock)
 
 const warehouseOptions = computed(() => [
   { value: '', label: 'All Warehouses' },
@@ -51,8 +54,12 @@ function handleWarehouseChange(value: string | number | null) {
       </div>
     </Card>
 
+    <div v-if="!canViewStock" class="text-center py-12">
+      <div class="text-slate-500 dark:text-slate-400">Stock summary is available to inventory staff.</div>
+    </div>
+
     <!-- Loading -->
-    <div v-if="isLoading" class="text-center py-12">
+    <div v-else-if="isLoading" class="text-center py-12">
       <div class="text-slate-500 dark:text-slate-400">Loading report...</div>
     </div>
 

@@ -18,8 +18,8 @@ export default defineConfig({
         // Cache strategies for different types of requests
         runtimeCaching: [
           {
-            // Cache API responses with network-first strategy
-            urlPattern: /^https:\/\/enter365\.test\/api\/.*/i,
+            // Same-origin /api (local enter365.test and production domain)
+            urlPattern: /\/api\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',

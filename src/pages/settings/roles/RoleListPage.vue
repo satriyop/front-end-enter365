@@ -162,7 +162,7 @@ const columns: ResponsiveColumn[] = [
 
         <!-- Custom cell: Permissions count -->
         <template #cell-permissions_count="{ item }">
-          <span class="text-sm text-foreground">{{ item.permissions_count ?? 0 }}</span>
+          <span class="text-sm text-foreground">{{ item.grants_all_permissions ? 'all (bypass)' : (item.permissions_count ?? 0) }}</span>
         </template>
 
         <!-- Custom cell: Users count -->
@@ -186,7 +186,7 @@ const columns: ResponsiveColumn[] = [
         <!-- Mobile status slot -->
         <template #mobile-status="{ item }">
           <Badge v-if="item.is_system" variant="warning">System</Badge>
-          <span v-else class="text-xs text-muted-foreground">{{ item.permissions_count ?? 0 }} permissions</span>
+          <span v-else class="text-xs text-muted-foreground">{{ item.grants_all_permissions ? 'all (bypass)' : `${item.permissions_count ?? 0} permissions` }}</span>
         </template>
 
         <!-- Actions -->
