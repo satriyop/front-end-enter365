@@ -90,10 +90,11 @@ function handleBackdropClick(event: Event) {
 
 <template>
   <DialogRoot
-    :open="open"
+    v-if="open"
+    :open="true"
     @update:open="handleOpenChange"
   >
-    <DialogPortal v-if="open">
+    <DialogPortal>
       <!-- Backdrop -->
       <DialogOverlay
         class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"

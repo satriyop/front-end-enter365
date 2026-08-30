@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { navigation, navItemVisible } from '@/config/nav'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
+import { onRescue } from '@/utils/clickRescue'
 
 defineProps<{
   open: boolean
@@ -49,6 +50,18 @@ function isActive(path: string): boolean {
   if (path === '/') return route.path === '/'
   return route.path.startsWith(path)
 }
+
+const stopNavRescue = onRescue('nav', (el) => {
+  const href = el.closest('a')?.getAttribute('href')
+  if (!href) {
+    return
+  }
+  const path = href.startsWith('http') ? new URL(href).pathname : href
+  if (path !== route.path) {
+    void router.push(path)
+  }
+})
+onBeforeUnmount(stopNavRescue)
 </script>
 
 <template>
@@ -99,6 +112,7 @@ function isActive(path: string): boolean {
           v-for="item in group.items"
           :key="item.path"
           :to="item.path"
+          data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[
             isActive(item.path)

@@ -3,12 +3,15 @@ import { createPinia } from 'pinia'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import App from './App.vue'
 import router from './router'
-import { queryClient } from './api/queryClient'
-import { bootstrapInfrastructure, eventBus, logger } from './infrastructure'
+import { queryClient } from '@/api/queryClient'
+import { bootstrapInfrastructure, eventBus, logger } from '@/infrastructure'
+import { installClickRescue } from '@/utils/clickRescue'
 import './style.css'
 import './styles/print.css'
 
-// Bootstrap infrastructure FIRST (before app creation)
+// Capture-phase rescue MUST register before Vue/Radix so a DismissableLayer
+// stopImmediatePropagation cannot swallow Kasir/sidebar/avatar clicks.
+installClickRescue()
 bootstrapInfrastructure()
 
 const app = createApp(App)

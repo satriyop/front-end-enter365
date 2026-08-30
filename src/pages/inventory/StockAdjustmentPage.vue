@@ -1,17 +1,33 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
 import { useStockAdjust, useStockIn, useStockOut } from '@/api/useInventory'
 import { Button, Input, FormField, Textarea, Card, useToast } from '@/components/ui'
 import { pickedOptionValue } from '@/pages/inventory/nativeSelect'
+import { onRescue } from '@/utils/clickRescue'
 
 const router = useRouter()
 const toast = useToast()
 
 // Adjustment type
 const adjustmentType = ref<'adjust' | 'in' | 'out'>('adjust')
+
+const stopAdjustRescue = onRescue('adjust-type-set', () => {
+  adjustmentType.value = 'adjust'
+})
+const stopInRescue = onRescue('adjust-type-in', () => {
+  adjustmentType.value = 'in'
+})
+const stopOutRescue = onRescue('adjust-type-out', () => {
+  adjustmentType.value = 'out'
+})
+onBeforeUnmount(() => {
+  stopAdjustRescue()
+  stopInRescue()
+  stopOutRescue()
+})
 
 // Form state
 const form = ref({

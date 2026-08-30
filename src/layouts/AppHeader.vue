@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import GlobalSearch from '@/components/GlobalSearch.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
+import { onRescue } from '@/utils/clickRescue'
 
 defineEmits<{
   toggleSidebar: []
@@ -15,6 +16,17 @@ const showUserMenu = ref(false)
 async function handleLogout() {
   await auth.logout()
 }
+
+const stopMenuRescue = onRescue('user-menu-btn', () => {
+  showUserMenu.value = !showUserMenu.value
+})
+const stopLogoutRescue = onRescue('logout-btn', () => {
+  void handleLogout()
+})
+onBeforeUnmount(() => {
+  stopMenuRescue()
+  stopLogoutRescue()
+})
 </script>
 
 <template>
@@ -72,14 +84,14 @@ async function handleLogout() {
         <RouterLink to="/settings" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
           Settings
         </RouterLink>
-        <button
-          type="button"
+        <a
+          href="/login"
           data-testid="logout-btn"
-          class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
-          @click.stop="handleLogout"
+          class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
+          onclick="localStorage.removeItem('token')"
         >
           Logout
-        </button>
+        </a>
       </div>
     </div>
   </header>

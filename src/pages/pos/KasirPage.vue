@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   checkoutPosSale,
@@ -19,7 +19,8 @@ import {
   type PosSession,
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
-import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillStartBlocked } from '@/pages/pos/tillSession'
+import { bindOutletId, formatHoldClock, resolveStartWarehouse } from '@/pages/pos/tillSession'
+import { onRescue } from '@/utils/clickRescue'
 import { tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
@@ -261,6 +262,9 @@ async function loadWarehouses(): Promise<void> {
 }
 
 async function startSession(): Promise<void> {
+  if (loading.value) {
+    return
+  }
   if (periodLocked.value) {
     showToast(periodMessage.value || 'Kasir belum bisa jualan hari ini. Minta bagian akuntansi membuka periode dulu.', true)
     return
@@ -498,6 +502,17 @@ function resetTill(): void {
   screen.value = 'open'
 }
 
+const stopStartRescue = onRescue('kasir-start', () => {
+  void startSession()
+})
+const stopLeaveRescue = onRescue('kasir-logout', () => {
+  void leaveTill()
+})
+onBeforeUnmount(() => {
+  stopStartRescue()
+  stopLeaveRescue()
+})
+
 onMounted(async () => {
   if (auth.token && !auth.user) {
     await auth.fetchUser()
@@ -536,7 +551,7 @@ onMounted(async () => {
     <div v-if="screen === 'open'" class="app one">
       <div class="wrap">
         <div class="leave-row">
-          <button type="button" class="leave" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
+          <a href="/login" class="leave" data-testid="kasir-logout" onclick="localStorage.removeItem('token')">Keluar</a>
         </div>
         <div class="card">
           <h2>Buka kasir</h2>
@@ -563,7 +578,7 @@ onMounted(async () => {
             <input v-model.number="openingCash" inputmode="numeric">
             <div class="hint">{{ rp(Number(openingCash) || 0) }} · akun kas dan QRIS dari setelan perusahaan — kasir tidak memilih akun.</div>
           </div>
-          <button type="button" class="bayar" data-testid="kasir-start" :disabled="tillStartBlocked(periodLocked, loading)" @click="startSession">Mulai jualan</button>
+          <button type="button" class="bayar" data-testid="kasir-start">Mulai jualan</button>
         </div>
       </div>
     </div>
@@ -583,7 +598,7 @@ onMounted(async () => {
         </div>
         <div class="kas"><b>{{ cashierName }}</b>Kasir</div>
         <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
-        <button type="button" class="tut" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
+        <a href="/login" class="tut" data-testid="kasir-logout" onclick="localStorage.removeItem('token')">Keluar</a>
       </div>
       <div class="main">
         <div class="rail">
@@ -920,6 +935,10 @@ onMounted(async () => {
   overflow: hidden; -webkit-tap-highlight-color: transparent;
 }
 .kasir button { font: inherit; cursor: pointer; border: 0; }
+.kasir a.leave, .kasir a.tut {
+  font: inherit; cursor: pointer; border: 0; text-decoration: none; color: inherit;
+  display: inline-flex; align-items: center; box-sizing: border-box;
+}
 .kasir input, .kasir select { font: inherit; }
 .app { height: 100dvh; display: grid; grid-template-rows: 58px 1fr; }
 .app.one { grid-template-rows: 1fr; }

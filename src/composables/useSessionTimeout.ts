@@ -9,11 +9,16 @@ const WARNING_BEFORE_MS = 5 * 60 * 1000 // Show warning 5 minutes before
  * Parse JWT token to get expiration time
  */
 function parseJwtExp(token: string): number | null {
+  // Sanctum tokens are `id|plaintext`. Do not treat a random dot as a JWT —
+  // a false exp in the past opens SessionTimeout and eats pointer + keystrokes.
+  if (!/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(token)) {
+    return null
+  }
   try {
     const payload = token.split('.')[1]
     if (!payload) return null
-    const decoded = JSON.parse(atob(payload))
-    return decoded.exp ? decoded.exp * 1000 : null // Convert to milliseconds
+    const decoded = JSON.parse(atob(payload)) as { exp?: number }
+    return decoded.exp ? decoded.exp * 1000 : null
   } catch {
     return null
   }
