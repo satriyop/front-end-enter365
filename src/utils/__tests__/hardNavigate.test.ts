@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hardNavigate, inNavigationQuietPeriod, restoreDocumentPointerEvents } from '../hardNavigate'
+import { hardNavigate, inNavigationQuietPeriod, restoreDocumentPointerEvents, shouldHoldDocumentUnlocked } from '../hardNavigate'
 
 describe('restoreDocumentPointerEvents', () => {
   afterEach(() => {
@@ -21,6 +21,7 @@ describe('restoreDocumentPointerEvents', () => {
 describe('hardNavigate', () => {
   afterEach(() => {
     sessionStorage.removeItem('e365-quiet')
+    sessionStorage.removeItem('e365-unlock')
     vi.unstubAllGlobals()
   })
 
@@ -34,5 +35,6 @@ describe('hardNavigate', () => {
     expect(document.body.style.pointerEvents).toBe('')
     expect(assign).toHaveBeenCalledWith('/login')
     expect(inNavigationQuietPeriod()).toBe(true)
+    expect(shouldHoldDocumentUnlocked()).toBe(true)
   })
 })

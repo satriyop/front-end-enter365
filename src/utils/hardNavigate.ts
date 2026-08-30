@@ -9,36 +9,77 @@ export function restoreDocumentPointerEvents(): void {
 
 const QUIET_KEY = 'e365-quiet'
 const QUIET_MS = 800
+const UNLOCK_KEY = 'e365-unlock'
+const UNLOCK_MS = 15_000
 
-/** Next document ignores the leftover Sign-in mouseup/click. */
-export function beginNavigationQuietPeriod(): void {
+function writeSession(key: string, value: string): void {
   try {
-    sessionStorage.setItem(QUIET_KEY, String(Date.now()))
+    sessionStorage.setItem(key, value)
   } catch {
     // private mode
   }
 }
 
-export function inNavigationQuietPeriod(now = Date.now()): boolean {
+function readSession(key: string): string | null {
   try {
-    const raw = sessionStorage.getItem(QUIET_KEY)
-    if (!raw) {
-      return false
-    }
-    const started = Number(raw)
-    if (!Number.isFinite(started) || now - started > QUIET_MS) {
-      sessionStorage.removeItem(QUIET_KEY)
-      return false
-    }
-    return true
+    return sessionStorage.getItem(key)
   } catch {
+    return null
+  }
+}
+
+function clearSession(key: string): void {
+  try {
+    sessionStorage.removeItem(key)
+  } catch {
+    // private mode
+  }
+}
+
+/** Next document ignores the leftover Sign-in mouseup/click. */
+export function beginNavigationQuietPeriod(): void {
+  writeSession(QUIET_KEY, String(Date.now()))
+}
+
+export function inNavigationQuietPeriod(now = Date.now()): boolean {
+  const raw = readSession(QUIET_KEY)
+  if (!raw) {
     return false
   }
+  const started = Number(raw)
+  if (!Number.isFinite(started) || now - started > QUIET_MS) {
+    clearSession(QUIET_KEY)
+    return false
+  }
+  return true
+}
+
+/** Next document keeps stripping leftover pointer locks; events never fire while locked. */
+export function beginPostNavigationUnlock(): void {
+  writeSession(UNLOCK_KEY, String(Date.now()))
+}
+
+export function endPostNavigationUnlock(): void {
+  clearSession(UNLOCK_KEY)
+}
+
+export function shouldHoldDocumentUnlocked(now = Date.now()): boolean {
+  const raw = readSession(UNLOCK_KEY)
+  if (!raw) {
+    return false
+  }
+  const started = Number(raw)
+  if (!Number.isFinite(started) || now - started > UNLOCK_MS) {
+    clearSession(UNLOCK_KEY)
+    return false
+  }
+  return true
 }
 
 /** Full load so leftover dialog locks, Pinia, and a waiting SW cannot survive. */
 export function hardNavigate(path: string): void {
   restoreDocumentPointerEvents()
   beginNavigationQuietPeriod()
+  beginPostNavigationUnlock()
   window.location.assign(path)
 }

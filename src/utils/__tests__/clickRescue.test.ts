@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { beginNavigationQuietPeriod } from '../hardNavigate'
+import { beginNavigationQuietPeriod, beginPostNavigationUnlock } from '../hardNavigate'
 import {
   dispatchRescue,
   installClickRescue,
@@ -51,7 +51,10 @@ describe('dispatchRescue', () => {
 
 describe('installClickRescue', () => {
   afterEach(() => {
+    vi.useRealTimers()
     sessionStorage.removeItem('e365-quiet')
+    sessionStorage.removeItem('e365-unlock')
+    document.documentElement.removeAttribute('data-e365-unlock')
     delete (window as Window & { __e365Rescue?: unknown }).__e365Rescue
   })
 
@@ -130,6 +133,20 @@ describe('installClickRescue', () => {
     expect(handler).toHaveBeenCalledTimes(1)
     button.remove()
     stop()
+  })
+
+  it('strips a post-login body lock without waiting for a pointer event', () => {
+    vi.useFakeTimers()
+    beginPostNavigationUnlock()
+    const stop = installClickRescue(window)
+    document.body.style.pointerEvents = 'none'
+
+    vi.advanceTimersByTime(50)
+
+    expect(document.body.style.pointerEvents).toBe('auto')
+    expect(document.documentElement.getAttribute('data-e365-unlock')).toBe('')
+    stop()
+    vi.useRealTimers()
   })
 
   it('rescues a click with no prior pointerdown once the quiet period ends', () => {

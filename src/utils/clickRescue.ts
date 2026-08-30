@@ -1,4 +1,9 @@
-import { inNavigationQuietPeriod, restoreDocumentPointerEvents } from '@/utils/hardNavigate'
+import {
+  endPostNavigationUnlock,
+  inNavigationQuietPeriod,
+  restoreDocumentPointerEvents,
+  shouldHoldDocumentUnlocked,
+} from '@/utils/hardNavigate'
 
 type RescueHandler = (el: HTMLElement) => void
 
@@ -25,8 +30,35 @@ export function onRescue(id: string, handler: RescueHandler): () => void {
   }
 }
 
+export function isIntentionalDialogLock(): boolean {
+  return Boolean(document.querySelector(
+    '[data-radix-dialog-content][data-state="open"], [role="dialog"][data-state="open"]',
+  ))
+}
+
+function neutralizeStaleOverlays(): void {
+  document.querySelectorAll('[data-radix-dialog-overlay]').forEach((node) => {
+    if (!(node instanceof HTMLElement)) {
+      return
+    }
+    node.style.pointerEvents = 'none'
+    node.style.display = 'none'
+  })
+}
+
 export function unlockInteractiveDocument(): void {
+  if (isIntentionalDialogLock()) {
+    document.documentElement.removeAttribute('data-e365-unlock')
+    return
+  }
   restoreDocumentPointerEvents()
+  if (shouldHoldDocumentUnlocked()) {
+    document.body.style.pointerEvents = 'auto'
+    document.documentElement.style.pointerEvents = 'auto'
+    document.documentElement.setAttribute('data-e365-unlock', '')
+  } else {
+    document.documentElement.removeAttribute('data-e365-unlock')
+  }
   document.body.removeAttribute('inert')
   document.body.removeAttribute('aria-hidden')
   document.body.removeAttribute('data-scroll-locked')
@@ -35,6 +67,10 @@ export function unlockInteractiveDocument(): void {
   const app = document.getElementById('app')
   app?.removeAttribute('inert')
   app?.removeAttribute('aria-hidden')
+  if (app) {
+    app.style.pointerEvents = 'auto'
+  }
+  neutralizeStaleOverlays()
 }
 
 export function rescueIdFrom(target: EventTarget | null): { id: string; el: HTMLElement } | null {
@@ -151,32 +187,58 @@ function onPointerOrClick(event: Event): void {
 
 const LISTEN = ['pointerdown', 'mousedown', 'touchstart', 'click'] as const
 
-export function armLoadUnlock(root: Window = window): void {
+export function armLoadUnlock(root: Window = window): () => void {
   unlockInteractiveDocument()
-  const until = Date.now() + 1500
+  const until = Date.now() + (shouldHoldDocumentUnlocked() ? 15_000 : 1500)
   const tick = (): void => {
     unlockInteractiveDocument()
-    if (Date.now() < until) {
-      root.requestAnimationFrame(tick)
+    if (Date.now() >= until) {
+      endPostNavigationUnlock()
+      document.documentElement.removeAttribute('data-e365-unlock')
     }
   }
-  root.requestAnimationFrame(tick)
+  const interval = root.setInterval(() => {
+    tick()
+    if (Date.now() >= until) {
+      root.clearInterval(interval)
+    }
+  }, 50)
+  const observer = new MutationObserver(() => {
+    if (document.body.style.pointerEvents === 'none' || document.body.hasAttribute('inert')) {
+      unlockInteractiveDocument()
+    }
+  })
+  observer.observe(document.body, { attributes: true, attributeFilter: ['style', 'inert', 'aria-hidden', 'data-scroll-locked'] })
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'inert', 'aria-hidden'] })
+  const stopRafUntil = Date.now() + 1500
+  const rafTick = (): void => {
+    unlockInteractiveDocument()
+    if (Date.now() < stopRafUntil) {
+      root.requestAnimationFrame(rafTick)
+    }
+  }
+  root.requestAnimationFrame(rafTick)
+  return () => {
+    root.clearInterval(interval)
+    observer.disconnect()
+  }
 }
 
 export function installClickRescue(root: Window = window): () => void {
   for (const type of LISTEN) {
     root.addEventListener(type, onPointerOrClick, true)
   }
+  let stopUnlock = armLoadUnlock(root)
   const onPageShow = (): void => {
-    unlockInteractiveDocument()
-    armLoadUnlock(root)
+    stopUnlock()
+    stopUnlock = armLoadUnlock(root)
   }
   root.addEventListener('pageshow', onPageShow)
-  armLoadUnlock(root)
   return () => {
     for (const type of LISTEN) {
       root.removeEventListener(type, onPointerOrClick, true)
     }
     root.removeEventListener('pageshow', onPageShow)
+    stopUnlock()
   }
 }

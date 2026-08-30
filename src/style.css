@@ -138,6 +138,11 @@ html.dark {
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
+  /* Break Radix leftover `body { pointer-events: none }` inheritance (FE#9). */
+  #app {
+    pointer-events: auto;
+  }
+
   /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
@@ -238,4 +243,12 @@ html.dark {
 .slide-up-leave-to {
   transform: translateY(100%);
   opacity: 0;
+}
+
+/* After Sign in, Radix can leave body pointer-events:none with no open dialog.
+   Events never fire, so click-rescue cannot clear it. !important beats inline. */
+html[data-e365-unlock],
+html[data-e365-unlock] body,
+html[data-e365-unlock] #app {
+  pointer-events: auto !important;
 }
