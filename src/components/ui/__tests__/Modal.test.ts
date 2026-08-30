@@ -34,6 +34,12 @@ describe('Modal', () => {
       expect(wrapper.text()).toContain('Modal content')
     })
 
+    it('does not portal overlay content when closed', () => {
+      const wrapper = mountModal({ open: false })
+
+      expect(wrapper.text()).not.toContain('Modal content')
+    })
+
     it('renders title when provided', () => {
       const wrapper = mountModal({ title: 'Edit Item' })
 

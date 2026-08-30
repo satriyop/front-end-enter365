@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteLocationNormalized } from 'vu
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
 import { requiredPermissionForPath } from '@/router/access'
+import { restoreDocumentPointerEvents } from '@/utils/hardNavigate'
 
 // Type for breadcrumb meta
 type BreadcrumbMeta = string | ((route: RouteLocationNormalized) => string)
@@ -1427,6 +1428,10 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next()
+})
+
+router.afterEach(() => {
+  restoreDocumentPointerEvents()
 })
 
 export default router

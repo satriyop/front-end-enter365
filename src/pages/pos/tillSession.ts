@@ -11,12 +11,32 @@ export function bindOutletId(
   return preferred?.id ?? null
 }
 
+/**
+ * Disable only while a start request is in flight or the period is locked.
+ * An unbound outlet must not swallow the click — bind or toast instead.
+ */
 export function tillStartBlocked(
-  warehouseId: number | null,
   periodLocked: boolean,
   loading: boolean,
 ): boolean {
-  return periodLocked || loading || warehouseId == null
+  return periodLocked || loading
+}
+
+export function resolveStartWarehouse(
+  warehouses: Array<{ id: number; name: string }>,
+  current: number | null,
+): { warehouseId: number | null; error: string | null } {
+  const warehouseId = bindOutletId(warehouses, current)
+  if (warehouseId == null) {
+    return {
+      warehouseId: null,
+      error: warehouses.length === 0
+        ? 'Outlet masih dimuat, coba lagi.'
+        : 'Gudang wajib dipilih.',
+    }
+  }
+
+  return { warehouseId, error: null }
 }
 
 export function formatHoldClock(iso: string): string {

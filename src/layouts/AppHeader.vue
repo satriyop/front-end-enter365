@@ -21,6 +21,7 @@ async function handleLogout() {
   <header class="sticky top-0 z-10 flex items-center h-16 px-6 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
     <!-- Toggle Sidebar -->
     <button
+      type="button"
       class="p-2 -ml-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 lg:hidden"
       @click="$emit('toggleSidebar')"
     >
@@ -44,6 +45,7 @@ async function handleLogout() {
     <!-- User Menu -->
     <div class="relative ml-2">
       <button
+        type="button"
         data-testid="user-menu-btn"
         class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
         @click="showUserMenu = !showUserMenu"
@@ -71,6 +73,7 @@ async function handleLogout() {
           Settings
         </RouterLink>
         <button
+          type="button"
           data-testid="logout-btn"
           class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
           @click.stop="handleLogout"

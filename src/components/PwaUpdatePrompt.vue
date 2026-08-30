@@ -12,8 +12,8 @@ onMounted(async () => {
 
       const { needRefresh: swNeedRefresh, updateServiceWorker: swUpdate } =
         useRegisterSW({
+          immediate: true,
           onRegistered(registration) {
-            // Check for updates every hour
             if (registration) {
               setInterval(() => {
                 registration.update()
@@ -25,13 +25,17 @@ onMounted(async () => {
           },
         })
 
-      // Sync refs
       needRefresh.value = swNeedRefresh.value
       updateServiceWorker.value = swUpdate
+      if (swNeedRefresh.value) {
+        void swUpdate(true)
+      }
 
-      // Watch for changes
       const unwatch = setInterval(() => {
         needRefresh.value = swNeedRefresh.value
+        if (swNeedRefresh.value) {
+          void swUpdate(true)
+        }
       }, 1000)
 
       // Cleanup

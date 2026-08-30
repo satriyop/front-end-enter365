@@ -19,7 +19,7 @@ import {
   type PosSession,
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
-import { bindOutletId, formatHoldClock, tillStartBlocked } from '@/pages/pos/tillSession'
+import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillStartBlocked } from '@/pages/pos/tillSession'
 import { tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
@@ -261,13 +261,19 @@ async function loadWarehouses(): Promise<void> {
 }
 
 async function startSession(): Promise<void> {
-  if (!warehouseId.value) {
-    showToast('Gudang wajib dipilih.', true)
+  if (periodLocked.value) {
+    showToast(periodMessage.value || 'Kasir belum bisa jualan hari ini. Minta bagian akuntansi membuka periode dulu.', true)
     return
   }
+  const resolved = resolveStartWarehouse(warehouses.value, warehouseId.value)
+  if (resolved.error || resolved.warehouseId == null) {
+    showToast(resolved.error || 'Gudang wajib dipilih.', true)
+    return
+  }
+  warehouseId.value = resolved.warehouseId
   loading.value = true
   try {
-    session.value = await openPosSession(warehouseId.value, Number(openingCash.value) || 0)
+    session.value = await openPosSession(resolved.warehouseId, Number(openingCash.value) || 0)
     await loadCatalog(session.value.id)
     try {
       await refreshSession(session.value.id)
@@ -530,7 +536,7 @@ onMounted(async () => {
     <div v-if="screen === 'open'" class="app one">
       <div class="wrap">
         <div class="leave-row">
-          <button class="leave" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
+          <button type="button" class="leave" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
         </div>
         <div class="card">
           <h2>Buka kasir</h2>
@@ -557,7 +563,7 @@ onMounted(async () => {
             <input v-model.number="openingCash" inputmode="numeric">
             <div class="hint">{{ rp(Number(openingCash) || 0) }} · akun kas dan QRIS dari setelan perusahaan — kasir tidak memilih akun.</div>
           </div>
-          <button class="bayar" data-testid="kasir-start" :disabled="tillStartBlocked(warehouseId, periodLocked, loading)" @click="startSession">Mulai jualan</button>
+          <button type="button" class="bayar" data-testid="kasir-start" :disabled="tillStartBlocked(periodLocked, loading)" @click="startSession">Mulai jualan</button>
         </div>
       </div>
     </div>
@@ -577,7 +583,7 @@ onMounted(async () => {
         </div>
         <div class="kas"><b>{{ cashierName }}</b>Kasir</div>
         <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
-        <button class="tut" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
+        <button type="button" class="tut" data-testid="kasir-logout" @click="leaveTill">Keluar</button>
       </div>
       <div class="main">
         <div class="rail">

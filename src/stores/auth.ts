@@ -3,6 +3,7 @@ import { ref, computed, nextTick } from 'vue'
 import { api } from '@/api/client'
 import router from '@/router'
 import { useFeaturesStore } from '@/stores/features'
+import { hardNavigate } from '@/utils/hardNavigate'
 
 // Role and Permission types matching UserResource from API
 export interface Role {
@@ -81,21 +82,8 @@ export const useAuthStore = defineStore('auth', () => {
     const kasirHome = isCashierOnly.value && useFeaturesStore().enabled('pos') ? '/kasir' : '/'
     const targetPath = redirect || kasirHome
 
-    // Wait for Vue reactivity to fully propagate
-    // This ensures the navigation guard sees the updated auth state
     await nextTick()
-
-    // Additional delay to ensure Pinia store reactivity is fully propagated
-    await new Promise(resolve => setTimeout(resolve, 100))
-
-    // Use hard redirect to ensure it works regardless of router guard timing
-    // The router guard now checks localStorage directly, so this should work
-    try {
-      await router.replace(targetPath)
-    } catch {
-      // Fallback to hard redirect
-      window.location.href = targetPath
-    }
+    hardNavigate(targetPath)
   }
 
   function clearClientSession(): void {
@@ -112,7 +100,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       // Local session is already gone; a 404/401 must not leave the SPA signed in.
     }
-    await router.replace('/login')
+    hardNavigate('/login')
   }
 
   async function fetchUser() {

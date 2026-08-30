@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bindOutletId, formatHoldClock, tillStartBlocked } from '../tillSession'
+import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillStartBlocked } from '../tillSession'
 
 const outlets = [
   { id: 3, name: 'Gudang Belakang' },
@@ -17,9 +17,26 @@ describe('bindOutletId', () => {
 })
 
 describe('tillStartBlocked', () => {
-  it('blocks a silent click while the outlet is unbound', () => {
-    expect(tillStartBlocked(null, false, false)).toBe(true)
-    expect(tillStartBlocked(7, false, false)).toBe(false)
+  it('does not disable Mulai jualan just because the outlet is still unbound', () => {
+    expect(tillStartBlocked(false, false)).toBe(false)
+  })
+
+  it('disables only while locked or a start request is in flight', () => {
+    expect(tillStartBlocked(true, false)).toBe(true)
+    expect(tillStartBlocked(false, true)).toBe(true)
+  })
+})
+
+describe('resolveStartWarehouse', () => {
+  it('binds Kopitiam on the first click before outlets paint into v-model', () => {
+    expect(resolveStartWarehouse(outlets, null)).toEqual({ warehouseId: 7, error: null })
+  })
+
+  it('asks the kasir to wait when outlets have not loaded', () => {
+    expect(resolveStartWarehouse([], null)).toEqual({
+      warehouseId: null,
+      error: 'Outlet masih dimuat, coba lagi.',
+    })
   })
 })
 

@@ -24,8 +24,9 @@ const {
 
       <RouterView />
 
-      <!-- Session Timeout Warning -->
+      <!-- Unmount when closed so Radix cannot leave a pointer-events lock. -->
       <SessionTimeoutModal
+        v-if="showWarning"
         :open="showWarning"
         :remaining-time="remainingTime"
         :is-refreshing="isRefreshing"

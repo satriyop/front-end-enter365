@@ -17,8 +17,13 @@ vi.mock('@/router', () => ({
   },
 }))
 
+vi.mock('@/utils/hardNavigate', () => ({
+  hardNavigate: vi.fn(),
+  restoreDocumentPointerEvents: vi.fn(),
+}))
+
 import { api } from '@/api/client'
-import router from '@/router'
+import { hardNavigate } from '@/utils/hardNavigate'
 import { useAuthStore } from '../auth'
 
 describe('auth logout', () => {
@@ -26,7 +31,7 @@ describe('auth logout', () => {
     setActivePinia(createPinia())
     localStorage.clear()
     vi.mocked(api.post).mockReset()
-    vi.mocked(router.replace).mockReset()
+    vi.mocked(hardNavigate).mockReset()
   })
 
   it('clears the token even when /auth/logout returns 404', async () => {
@@ -51,6 +56,29 @@ describe('auth logout', () => {
     expect(store.token).toBeNull()
     expect(store.user).toBeNull()
     expect(store.isAuthenticated).toBe(false)
-    expect(router.replace).toHaveBeenCalledWith('/login')
+    expect(hardNavigate).toHaveBeenCalledWith('/login')
+  })
+
+  it('hard-navigates cashiers to /kasir after login so leftover dialog locks cannot survive', async () => {
+    const store = useAuthStore()
+    vi.mocked(api.post).mockResolvedValue({
+      data: {
+        token: 'new-token',
+        user: {
+          id: 2,
+          name: 'Siti',
+          email: 'siti@kopitiam57.test',
+          roles: [{ id: 1, name: 'cashier', display_name: 'Kasir' }],
+        },
+      },
+    } as never)
+    vi.mocked(api.get).mockResolvedValue({
+      data: { data: { modules: { pos: true }, enabled: ['pos'], disabled: [] } },
+    } as never)
+
+    await store.login({ email: 'siti@kopitiam57.test', password: 'password' })
+
+    expect(localStorage.getItem('token')).toBe('new-token')
+    expect(hardNavigate).toHaveBeenCalledWith('/kasir')
   })
 })
