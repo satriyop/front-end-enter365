@@ -2,15 +2,24 @@ import { restoreDocumentPointerEvents } from '@/utils/hardNavigate'
 
 type RescueHandler = (el: HTMLElement) => void
 
-const handlers = new Map<string, RescueHandler>()
-const recent = new Map<string, number>()
+type RescueBag = {
+  handlers: Map<string, RescueHandler>
+  recent: Map<string, number>
+}
+
+function bag(): RescueBag {
+  const w = window as Window & { __e365Rescue?: RescueBag }
+  w.__e365Rescue ??= { handlers: new Map(), recent: new Map() }
+  return w.__e365Rescue
+}
+
 const DEBOUNCE_MS = 400
 
 export function onRescue(id: string, handler: RescueHandler): () => void {
-  handlers.set(id, handler)
+  bag().handlers.set(id, handler)
   return () => {
-    if (handlers.get(id) === handler) {
-      handlers.delete(id)
+    if (bag().handlers.get(id) === handler) {
+      bag().handlers.delete(id)
     }
   }
 }
@@ -43,17 +52,26 @@ export function rescueIdFrom(target: EventTarget | null): { id: string; el: HTML
 }
 
 export function dispatchRescue(id: string, el: HTMLElement, now = Date.now()): boolean {
-  const last = recent.get(id) ?? 0
+  const store = bag()
+  const last = store.recent.get(id) ?? 0
   if (now - last < DEBOUNCE_MS) {
     return false
   }
-  const handler = handlers.get(id)
+  const handler = store.handlers.get(id)
   if (!handler) {
     return false
   }
-  recent.set(id, now)
+  store.recent.set(id, now)
   handler(el)
   return true
+}
+
+export function hitStack(x: number, y: number): Element[] {
+  if (typeof document.elementsFromPoint === 'function') {
+    return document.elementsFromPoint(x, y)
+  }
+  const top = document.elementFromPoint(x, y)
+  return top ? [top] : []
 }
 
 let navRescueSeq = 0
@@ -75,26 +93,58 @@ function scheduleInAppLinkFallback(anchor: HTMLAnchorElement): void {
   }, 300)
 }
 
+function eventPoint(event: Event): { x: number; y: number } | null {
+  if (event instanceof MouseEvent) {
+    return { x: event.clientX, y: event.clientY }
+  }
+  if ('changedTouches' in event) {
+    const touch = (event as TouchEvent).changedTouches.item(0)
+    if (touch) {
+      return { x: touch.clientX, y: touch.clientY }
+    }
+  }
+  return null
+}
+
+function candidatesFrom(event: Event): Element[] {
+  const nodes: Element[] = []
+  const point = eventPoint(event)
+  if (point && (point.x !== 0 || point.y !== 0)) {
+    nodes.push(...hitStack(point.x, point.y))
+  }
+  if (event.target instanceof Element) {
+    nodes.push(event.target)
+  }
+  return nodes
+}
+
 function onPointerOrClick(event: Event): void {
   unlockInteractiveDocument()
-  const found = rescueIdFrom(event.target)
-  if (found) {
-    dispatchRescue(found.id, found.el)
-  }
-  if (event.type !== 'click' || !(event.target instanceof Element)) {
-    return
-  }
-  const anchor = event.target.closest('a[href]')
-  if (anchor instanceof HTMLAnchorElement) {
-    scheduleInAppLinkFallback(anchor)
+  const seen = new Set<string>()
+  for (const node of candidatesFrom(event)) {
+    const found = rescueIdFrom(node)
+    if (found && !seen.has(found.id)) {
+      seen.add(found.id)
+      dispatchRescue(found.id, found.el)
+    }
+    if (event.type === 'click' && node instanceof Element) {
+      const anchor = node.closest('a[href]')
+      if (anchor instanceof HTMLAnchorElement) {
+        scheduleInAppLinkFallback(anchor)
+      }
+    }
   }
 }
 
+const LISTEN = ['pointerdown', 'mousedown', 'touchstart', 'click'] as const
+
 export function installClickRescue(root: Window = window): () => void {
-  root.addEventListener('pointerdown', onPointerOrClick, true)
-  root.addEventListener('click', onPointerOrClick, true)
+  for (const type of LISTEN) {
+    root.addEventListener(type, onPointerOrClick, true)
+  }
   return () => {
-    root.removeEventListener('pointerdown', onPointerOrClick, true)
-    root.removeEventListener('click', onPointerOrClick, true)
+    for (const type of LISTEN) {
+      root.removeEventListener(type, onPointerOrClick, true)
+    }
   }
 }

@@ -88,7 +88,7 @@ onBeforeUnmount(() => {
           href="/login"
           data-testid="logout-btn"
           class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
-          onclick="localStorage.removeItem('token')"
+          onclick="localStorage.removeItem('token');location.href='/login';return false"
         >
           Logout
         </a>

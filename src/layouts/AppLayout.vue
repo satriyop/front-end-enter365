@@ -9,9 +9,10 @@ import KeyboardShortcutsModal from '@/components/KeyboardShortcutsModal.vue'
 
 const showShortcuts = ref(false)
 
-// Desktop: sidebar starts open. Mobile: starts closed.
+// Closed until we know the viewport. An open mobile backdrop (fixed inset-0
+// lg:hidden) eats every click while native <select> can still open.
 const isMobile = ref(false)
-const sidebarOpen = ref(true)
+const sidebarOpen = ref(false)
 
 function checkMobile() {
   isMobile.value = window.innerWidth < 1024
@@ -19,10 +20,7 @@ function checkMobile() {
 
 onMounted(() => {
   checkMobile()
-  // Start closed on mobile
-  if (isMobile.value) {
-    sidebarOpen.value = false
-  }
+  sidebarOpen.value = !isMobile.value
   window.addEventListener('resize', checkMobile)
 })
 

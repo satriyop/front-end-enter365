@@ -551,7 +551,7 @@ onMounted(async () => {
     <div v-if="screen === 'open'" class="app one">
       <div class="wrap">
         <div class="leave-row">
-          <a href="/login" class="leave" data-testid="kasir-logout" onclick="localStorage.removeItem('token')">Keluar</a>
+          <a href="/login" class="leave" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
         </div>
         <div class="card">
           <h2>Buka kasir</h2>
@@ -598,7 +598,7 @@ onMounted(async () => {
         </div>
         <div class="kas"><b>{{ cashierName }}</b>Kasir</div>
         <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
-        <a href="/login" class="tut" data-testid="kasir-logout" onclick="localStorage.removeItem('token')">Keluar</a>
+        <a href="/login" class="tut" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
       </div>
       <div class="main">
         <div class="rail">
