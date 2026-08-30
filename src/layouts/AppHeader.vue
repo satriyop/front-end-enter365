@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import GlobalSearch from '@/components/GlobalSearch.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
@@ -12,6 +12,7 @@ defineEmits<{
 
 const auth = useAuthStore()
 const showUserMenu = ref(false)
+const menuRoot = ref<HTMLElement | null>(null)
 
 async function handleLogout() {
   await auth.logout()
@@ -23,7 +24,23 @@ const stopMenuRescue = onRescue('user-menu-btn', () => {
 const stopLogoutRescue = onRescue('logout-btn', () => {
   void handleLogout()
 })
+
+function closeMenuIfOutside(event: MouseEvent): void {
+  if (!showUserMenu.value) {
+    return
+  }
+  const target = event.target
+  if (target instanceof Node && menuRoot.value?.contains(target)) {
+    return
+  }
+  showUserMenu.value = false
+}
+
+onMounted(() => {
+  document.addEventListener('click', closeMenuIfOutside)
+})
 onBeforeUnmount(() => {
+  document.removeEventListener('click', closeMenuIfOutside)
   stopMenuRescue()
   stopLogoutRescue()
 })
@@ -55,12 +72,11 @@ onBeforeUnmount(() => {
     <NotificationsDropdown />
 
     <!-- User Menu -->
-    <div class="relative ml-2">
+    <div ref="menuRoot" class="relative ml-2">
       <button
         type="button"
         data-testid="user-menu-btn"
         class="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
-        @click="showUserMenu = !showUserMenu"
       >
         <div class="w-8 h-8 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center text-sm font-medium text-primary-700 dark:text-primary-400">
           {{ auth.user?.name?.charAt(0) ?? 'U' }}
@@ -75,7 +91,6 @@ onBeforeUnmount(() => {
       <div
         v-if="showUserMenu"
         class="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 py-1"
-        @click="showUserMenu = false"
       >
         <div class="px-4 py-2 border-b border-slate-100 dark:border-slate-700">
           <div class="text-sm font-medium text-slate-900 dark:text-slate-100">{{ auth.user?.name }}</div>

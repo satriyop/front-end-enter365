@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hardNavigate, restoreDocumentPointerEvents } from '../hardNavigate'
+import { hardNavigate, inNavigationQuietPeriod, restoreDocumentPointerEvents } from '../hardNavigate'
 
 describe('restoreDocumentPointerEvents', () => {
   afterEach(() => {
@@ -19,6 +19,11 @@ describe('restoreDocumentPointerEvents', () => {
 })
 
 describe('hardNavigate', () => {
+  afterEach(() => {
+    sessionStorage.removeItem('e365-quiet')
+    vi.unstubAllGlobals()
+  })
+
   it('restores pointer events then assigns location', () => {
     const assign = vi.fn()
     vi.stubGlobal('location', { assign })
@@ -28,6 +33,6 @@ describe('hardNavigate', () => {
 
     expect(document.body.style.pointerEvents).toBe('')
     expect(assign).toHaveBeenCalledWith('/login')
-    vi.unstubAllGlobals()
+    expect(inNavigationQuietPeriod()).toBe(true)
   })
 })

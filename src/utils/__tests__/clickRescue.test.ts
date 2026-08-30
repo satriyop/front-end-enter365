@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { beginNavigationQuietPeriod } from '../hardNavigate'
 import {
   dispatchRescue,
   installClickRescue,
@@ -87,6 +88,23 @@ describe('installClickRescue', () => {
 
     expect(handler).toHaveBeenCalledTimes(1)
     overlay.remove()
+    button.remove()
+    stop()
+  })
+
+  it('does not dispatch during the post-login quiet period', () => {
+    const handler = vi.fn()
+    onRescue('kasir-start-quiet', handler)
+    const stop = installClickRescue(window)
+    const button = document.createElement('button')
+    button.setAttribute('data-testid', 'kasir-start-quiet')
+    document.body.appendChild(button)
+    beginNavigationQuietPeriod()
+
+    button.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+
+    expect(handler).not.toHaveBeenCalled()
+    sessionStorage.removeItem('e365-quiet')
     button.remove()
     stop()
   })

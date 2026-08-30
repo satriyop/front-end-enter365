@@ -1,4 +1,4 @@
-import { restoreDocumentPointerEvents } from '@/utils/hardNavigate'
+import { inNavigationQuietPeriod, restoreDocumentPointerEvents } from '@/utils/hardNavigate'
 
 type RescueHandler = (el: HTMLElement) => void
 
@@ -120,6 +120,9 @@ function candidatesFrom(event: Event): Element[] {
 
 function onPointerOrClick(event: Event): void {
   unlockInteractiveDocument()
+  if (inNavigationQuietPeriod()) {
+    return
+  }
   const seen = new Set<string>()
   for (const node of candidatesFrom(event)) {
     const found = rescueIdFrom(node)
@@ -138,13 +141,32 @@ function onPointerOrClick(event: Event): void {
 
 const LISTEN = ['pointerdown', 'mousedown', 'touchstart', 'click'] as const
 
+export function armLoadUnlock(root: Window = window): void {
+  unlockInteractiveDocument()
+  const until = Date.now() + 1500
+  const tick = (): void => {
+    unlockInteractiveDocument()
+    if (Date.now() < until) {
+      root.requestAnimationFrame(tick)
+    }
+  }
+  root.requestAnimationFrame(tick)
+}
+
 export function installClickRescue(root: Window = window): () => void {
   for (const type of LISTEN) {
     root.addEventListener(type, onPointerOrClick, true)
   }
+  const onPageShow = (): void => {
+    unlockInteractiveDocument()
+    armLoadUnlock(root)
+  }
+  root.addEventListener('pageshow', onPageShow)
+  armLoadUnlock(root)
   return () => {
     for (const type of LISTEN) {
       root.removeEventListener(type, onPointerOrClick, true)
     }
+    root.removeEventListener('pageshow', onPageShow)
   }
 }
