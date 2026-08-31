@@ -10,6 +10,7 @@ import {
 } from '@/api/useJournalEntries'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
+import { journalUraian } from '@/pages/dashboard/shopHome'
 import { Button, Input, DateField, Select, Card, Modal, Pagination, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { POS_NAV_ID, posChrome } from '@/config/nav'
 import { useFeaturesStore } from '@/stores/features'
@@ -140,7 +141,7 @@ function viewEntry(entry: JournalEntry) {
         </div>
 
         <!-- Status Filter -->
-        <div class="w-32">
+        <div class="min-w-[11rem]">
           <Select
             :model-value="filters.is_posted === true ? 'true' : filters.is_posted === false ? 'false' : ''"
             :options="statusOptions"
@@ -208,11 +209,8 @@ function viewEntry(entry: JournalEntry) {
 
         <!-- Description -->
         <template #cell-description="{ item }">
-          <div class="max-w-xl whitespace-normal break-words text-slate-600 dark:text-slate-400" :title="item.description">
-            {{ item.description }}
-            <span v-if="item.reference" class="text-slate-400 dark:text-slate-500 ml-1">
-              ({{ item.reference }})
-            </span>
+          <div class="max-w-xl whitespace-normal break-words text-slate-600 dark:text-slate-400" :title="journalUraian(item.description, item.reference)">
+            {{ journalUraian(item.description, item.reference) }}
           </div>
         </template>
 

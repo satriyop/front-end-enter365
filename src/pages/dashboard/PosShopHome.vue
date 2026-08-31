@@ -4,7 +4,14 @@ import { useQuery } from '@tanstack/vue-query'
 import { fetchPosShopHome } from '@/api/usePos'
 import { formatCurrency } from '@/utils/format'
 import { Card, Badge } from '@/components/ui'
-import { isShopCaughtUp, shopAttentionItems } from './shopHome'
+import {
+  isShopCaughtUp,
+  sessionAgeLabel,
+  shopAttentionItems,
+  shopContinueLink,
+  shopLastSaleCard,
+  shopOmzetCard,
+} from './shopHome'
 
 const { data: home, isLoading } = useQuery({
   queryKey: ['pos', 'shop-home'],
@@ -14,30 +21,34 @@ const { data: home, isLoading } = useQuery({
 const attention = computed(() => (home.value ? shopAttentionItems(home.value) : []))
 const caughtUp = computed(() => (home.value ? isShopCaughtUp(home.value) : false))
 
+const continueLink = computed(() => (home.value ? shopContinueLink(home.value) : null))
+
 const stats = computed(() => {
   const shop = home.value
   const open = shop?.open_sessions[0]
   const tillLabel = shop && shop.open_sessions.length > 1
     ? `${shop.open_sessions.length} sesi`
     : (open?.session_number ?? 'Tidak ada')
+  const omzet = shop ? shopOmzetCard(shop) : { label: 'Omzet hari ini', value: formatCurrency(0), hint: '0 struk' }
+  const last = shop ? shopLastSaleCard(shop) : { value: '—', hint: 'Belum ada penjualan' }
 
   return [
     {
       label: 'Sesi kasir',
       value: tillLabel,
-      hint: open ? open.cashier_name : 'Belum ada yang buka',
+      hint: open ? `${open.cashier_name} · ${sessionAgeLabel(open.opened_at)}`.replace(/ · $/, '') : 'Belum ada yang buka',
       icon: '🖥️',
     },
     {
-      label: 'Omzet hari ini',
-      value: formatCurrency(shop?.today.omzet_amount ?? 0),
-      hint: `${shop?.today.sale_count ?? 0} struk`,
+      label: omzet.label,
+      value: omzet.value,
+      hint: omzet.hint,
       icon: '💰',
     },
     {
       label: 'Struk terakhir',
-      value: shop?.today.last_sale_number ?? '—',
-      hint: shop?.today.last_sold_at ? new Date(shop.today.last_sold_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : 'Belum ada penjualan',
+      value: last.value,
+      hint: last.hint,
       icon: '🧾',
     },
     {
@@ -77,7 +88,7 @@ const stats = computed(() => {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <Card class="lg:col-span-2">
         <template #header>
-          <h2 class="font-semibold text-slate-900 dark:text-slate-100">Toko hari ini</h2>
+          <h2 class="font-semibold text-slate-900 dark:text-slate-100">Toko</h2>
         </template>
         <div v-if="isLoading" class="space-y-3">
           <div v-for="i in 2" :key="i" class="h-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
@@ -91,6 +102,7 @@ const stats = computed(() => {
               class="font-medium text-slate-900 dark:text-slate-100 mr-2"
             >
               {{ session.cashier_name }} ({{ session.session_number }})
+              <span class="font-normal text-slate-500">{{ sessionAgeLabel(session.opened_at) }}</span>
             </span>
           </p>
           <p v-else>Tidak ada sesi kasir yang terbuka.</p>
@@ -104,8 +116,12 @@ const stats = computed(() => {
               {{ row.name }} ({{ row.quantity }})
             </span>
           </p>
-          <RouterLink to="/kasir" class="inline-block text-primary-600 hover:text-primary-700 dark:text-primary-400">
-            Buka kasir →
+          <RouterLink
+            v-if="continueLink"
+            :to="continueLink.to"
+            class="inline-block text-primary-600 hover:text-primary-700 dark:text-primary-400"
+          >
+            {{ continueLink.label }} →
           </RouterLink>
         </div>
       </Card>

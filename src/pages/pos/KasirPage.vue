@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import {
   checkoutPosSale,
   closePosSession,
@@ -20,6 +20,8 @@ import {
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
 import { bindOutletId, formatHoldClock, resolveStartWarehouse } from '@/pages/pos/tillSession'
+import { tillTileMarks } from '@/pages/pos/tillMarks'
+import { printTillReceipt } from '@/pages/pos/tillPrint'
 import { onRescue } from '@/utils/clickRescue'
 import { tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
@@ -74,6 +76,7 @@ const HUE: Record<string, string> = {
 
 const auth = useAuthStore()
 const features = useFeaturesStore()
+const route = useRoute()
 const router = useRouter()
 
 const screen = ref<Screen>('open')
@@ -107,6 +110,8 @@ const categories = computed(() => {
   const names = Array.from(new Set(catalog.value.map((p) => p.category || 'Lainnya')))
   return ['Semua', ...names]
 })
+
+const tileMarks = computed(() => tillTileMarks(catalog.value))
 
 const filteredCatalog = computed(() => {
   const q = search.value.trim().toLowerCase()
@@ -475,6 +480,13 @@ function fixShort(): void {
   screen.value = cart.value.length ? 'pay' : 'shop'
 }
 
+function printStruk(): void {
+  if (!lastSale.value) {
+    return
+  }
+  printTillReceipt(lastSale.value, catalog.value)
+}
+
 function onSearchEnter(): void {
   const hit = catalog.value.find((p) => p.barcode && p.barcode === search.value.trim())
   if (hit) {
@@ -529,13 +541,24 @@ onMounted(async () => {
   }
   try {
     await loadWarehouses()
-    const open = await currentPosSession()
+    const wanted = Number(route.query.session)
+    const openHolds = route.query.holds === '1' || route.query.holds === 'true'
+    let open = null
+    if (Number.isFinite(wanted) && wanted > 0) {
+      try {
+        open = await getPosSession(wanted)
+      } catch {
+        open = await currentPosSession()
+      }
+    } else {
+      open = await currentPosSession()
+    }
     if (open) {
       session.value = open
       await loadCatalog(open.id)
       sales.value = open.sales ?? []
-      holds.value = open.holds ?? []
-      screen.value = 'shop'
+      holds.value = open.holds ?? await listPosHolds(open.id)
+      screen.value = openHolds && holds.value.length > 0 ? 'holds' : 'shop'
     }
   } catch (error) {
     const message = apiMessage(error)
@@ -643,7 +666,7 @@ onMounted(async () => {
               :style="p.image_url ? undefined : { background: hue(p.category) }"
             >
               <img v-if="p.image_url" :src="p.image_url" :alt="p.name">
-              <template v-else>{{ p.name.slice(0, 2).toUpperCase() }}</template>
+              <template v-else>{{ tileMarks[p.id] }}</template>
               <span v-if="inCart(p.id)" class="qbadge">{{ inCart(p.id) }}</span>
             </div>
             <div class="meta">
@@ -788,7 +811,7 @@ onMounted(async () => {
         </template>
         <div v-else class="kl" style="margin-top:24px">Uang pas — tidak ada kembalian</div>
         <div class="row">
-          <button class="sec" data-testid="kasir-print" @click="showToast('Printer belum terhubung.')">Cetak struk</button>
+          <button class="sec" data-testid="kasir-print" @click="printStruk">Cetak struk</button>
           <button class="bayar" data-testid="kasir-new-sale" style="width:auto;padding:0 34px" @click="screen = 'shop'; received = 0; way = 'cash'">Transaksi baru</button>
         </div>
       </div>

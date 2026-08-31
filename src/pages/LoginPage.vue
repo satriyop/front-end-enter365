@@ -67,7 +67,7 @@ async function handleSubmit() {
             data-1p-ignore
             data-testid="login-email"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
-            placeholder="you@company.com"
+            placeholder="nama@toko.id"
           />
         </div>
 

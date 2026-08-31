@@ -91,11 +91,20 @@ export interface PosShopHome {
     cashier_name: string
     warehouse_name: string
     hold_count: number
+    opened_at: string | null
   }>
   open_hold_count: number
   today: {
     sale_count: number
     omzet_amount: number
+    last_sale_number: string | null
+    last_sold_at: string | null
+  }
+  recent: {
+    yesterday_sale_count: number
+    yesterday_omzet_amount: number
+    week_sale_count: number
+    week_omzet_amount: number
     last_sale_number: string | null
     last_sold_at: string | null
   }
