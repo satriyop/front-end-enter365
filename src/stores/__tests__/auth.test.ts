@@ -76,7 +76,7 @@ describe('auth logout', () => {
       data: { data: { modules: { pos: true }, enabled: ['pos'], disabled: [] } },
     } as never)
 
-    await store.login({ email: 'siti@kopitiam57.test', password: 'password' })
+    await store.login({ email: 'siti@kopitiam57.test', password: 'Kopitiam57-kasir' })
 
     expect(localStorage.getItem('token')).toBe('new-token')
     expect(hardNavigate).toHaveBeenCalledWith('/kasir')
@@ -96,7 +96,7 @@ describe('auth logout', () => {
       },
     } as never)
 
-    await store.login({ email: 'rina@kopitiam57.test', password: 'password' })
+    await store.login({ email: 'rina@kopitiam57.test', password: 'Kopitiam57-kasir' })
 
     expect(localStorage.getItem('token')).toBe('rina-token')
     expect(hardNavigate).toHaveBeenCalledWith('/accounting/journal-entries')
@@ -117,7 +117,7 @@ describe('auth logout', () => {
       },
     } as never)
 
-    await store.login({ email: 'dewi@kopitiam57.test', password: 'password' })
+    await store.login({ email: 'dewi@kopitiam57.test', password: 'Kopitiam57-kasir' })
 
     expect(hardNavigate).toHaveBeenCalledWith('/inventory')
   })
@@ -136,7 +136,7 @@ describe('auth logout', () => {
       },
     } as never)
 
-    await store.login({ email: 'admin@example.com', password: 'password' })
+    await store.login({ email: 'admin@example.com', password: 'Kopitiam57-kasir' })
 
     expect(hardNavigate).toHaveBeenCalledWith('/')
   })
