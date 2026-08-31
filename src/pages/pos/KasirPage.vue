@@ -183,14 +183,17 @@ function available(id: number): number {
   return p.quantity ?? 0
 }
 
-function showToast(message: string, bad = false): void {
+function showToast(message: string, bad = false, ms = 2700): void {
   toast.value = { message, bad }
   if (toastTimer) {
     clearTimeout(toastTimer)
+    toastTimer = null
   }
-  toastTimer = setTimeout(() => {
-    toast.value = null
-  }, 2700)
+  if (ms > 0) {
+    toastTimer = setTimeout(() => {
+      toast.value = null
+    }, ms)
+  }
 }
 
 function apiMessage(error: unknown): string {
@@ -375,7 +378,7 @@ async function saveHold(): Promise<void> {
     )
     holds.value = await listPosHolds(session.value.id)
     cart.value = []
-    showToast('Pesanan disimpan.')
+    showToast('Pesanan disimpan.', false, 12000)
   } catch (error) {
     showToast(apiMessage(error), true)
   } finally {
@@ -551,6 +554,13 @@ onMounted(async () => {
     <div v-if="screen === 'open'" class="app one">
       <div class="wrap">
         <div class="leave-row">
+          <button
+            v-if="!auth.isCashierOnly"
+            type="button"
+            class="leave"
+            data-testid="kasir-back-office"
+            @click="router.push('/')"
+          >Ke back office</button>
           <a href="/login" class="leave" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
         </div>
         <div class="card">
@@ -597,6 +607,13 @@ onMounted(async () => {
           <span class="mg">⌕</span>
         </div>
         <div class="kas"><b>{{ cashierName }}</b>Kasir</div>
+        <button
+          v-if="!auth.isCashierOnly"
+          type="button"
+          class="tut"
+          data-testid="kasir-back-office"
+          @click="router.push('/')"
+        >Ke back office</button>
         <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
         <a href="/login" class="tut" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
       </div>
@@ -771,7 +788,7 @@ onMounted(async () => {
         </template>
         <div v-else class="kl" style="margin-top:24px">Uang pas — tidak ada kembalian</div>
         <div class="row">
-          <button class="sec" data-testid="kasir-print" @click="showToast('Printer belum di V1.')">Cetak struk</button>
+          <button class="sec" data-testid="kasir-print" @click="showToast('Printer belum terhubung.')">Cetak struk</button>
           <button class="bayar" data-testid="kasir-new-sale" style="width:auto;padding:0 34px" @click="screen = 'shop'; received = 0; way = 'cash'">Transaksi baru</button>
         </div>
       </div>
@@ -919,7 +936,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div v-if="toast" class="toast" :class="{ bad: toast.bad }">{{ toast.message }}</div>
+    <div v-if="toast" class="toast" :class="{ bad: toast.bad }" @click="toast = null">{{ toast.message }}</div>
   </div>
 </template>
 
@@ -935,6 +952,7 @@ onMounted(async () => {
   overflow: hidden; -webkit-tap-highlight-color: transparent;
 }
 .kasir button { font: inherit; cursor: pointer; border: 0; }
+.kasir button.tut { color: inherit; }
 .kasir a.leave, .kasir a.tut {
   font: inherit; cursor: pointer; border: 0; text-decoration: none; color: inherit;
   display: inline-flex; align-items: center; box-sizing: border-box;
@@ -1021,7 +1039,11 @@ onMounted(async () => {
 .qrbox { flex: 1; display: flex; align-items: center; justify-content: center; border: 3px dashed var(--line); border-radius: 12px; text-align: center; padding: 22px; }
 .ok { height: 78px; border-radius: 10px; background: var(--go); color: #fff; font-weight: 800; font-size: 21px; }
 .ok:disabled { background: #c4cdd2; color: #8b979e; }
-.leave-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+.leave-row { display: flex; justify-content: flex-end; gap: 10px; margin-bottom: 10px; }
+.kasir button.leave {
+  font: inherit; cursor: pointer; border: 0; background: transparent; color: inherit;
+  display: inline-flex; align-items: center;
+}
 .leave { height: 40px; padding: 0 14px; border-radius: 8px; background: var(--panel); color: var(--ink2); font-weight: 700; font-size: 14px; box-shadow: 0 1px 3px rgba(23,34,43,.1); }
 .wrap { max-width: 660px; margin: 0 auto; padding: 22px; }
 .card { background: var(--panel); border-radius: 12px; padding: 22px; box-shadow: 0 1px 3px rgba(23,34,43,.1); }

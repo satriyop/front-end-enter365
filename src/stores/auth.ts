@@ -4,6 +4,7 @@ import { api } from '@/api/client'
 import router from '@/router'
 import { useFeaturesStore } from '@/stores/features'
 import { hardNavigate } from '@/utils/hardNavigate'
+import { homePathForRoles } from '@/utils/roleHome'
 
 // Role and Permission types matching UserResource from API
 export interface Role {
@@ -78,7 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
       && !redirect.startsWith('//')
       ? redirect
       : null
-    const targetPath = safeRedirect || (isCashierOnly.value ? '/kasir' : '/')
+    const targetPath = safeRedirect || homePathForRoles(user.value?.roles)
 
     hardNavigate(targetPath)
   }

@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import GlobalSearch from '@/components/GlobalSearch.vue'
 import NotificationsDropdown from '@/components/NotificationsDropdown.vue'
 import ThemeToggle from '@/components/ui/ThemeToggle.vue'
 import { onRescue } from '@/utils/clickRescue'
+import { POS_NAV_ID, posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 
 defineEmits<{
   toggleSidebar: []
 }>()
 
 const auth = useAuthStore()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 const showUserMenu = ref(false)
 const menuRoot = ref<HTMLElement | null>(null)
 
@@ -97,7 +101,7 @@ onBeforeUnmount(() => {
           <div class="text-xs text-slate-500 dark:text-slate-400">{{ auth.user?.email }}</div>
         </div>
         <RouterLink to="/settings" class="block px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700">
-          Settings
+          {{ posChrome('Settings', posPack, POS_NAV_ID) }}
         </RouterLink>
         <a
           href="/login"
@@ -105,7 +109,7 @@ onBeforeUnmount(() => {
           class="block w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700"
           onclick="localStorage.removeItem('token');location.href='/login';return false"
         >
-          Logout
+          {{ posPack ? 'Keluar' : 'Logout' }}
         </a>
       </div>
     </div>

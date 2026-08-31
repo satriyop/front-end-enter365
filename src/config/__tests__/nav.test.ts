@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { flattenNav, navItemVisible, navigation } from '../nav'
+import { flattenNav, navItemVisible, navigation, posChrome, POS_NAV_ID } from '../nav'
 
 function item(name: string) {
   const found = flattenNav().find((row) => row.name === name)
@@ -50,5 +50,11 @@ describe('navigation permission keys', () => {
     expect(names).not.toContain('company_profiles.view')
     expect(names).not.toContain('roles.view')
     expect(navigation.length).toBeGreaterThan(0)
+  })
+
+  it('translates POS pack chrome only', () => {
+    expect(posChrome('Journal Entries', true, POS_NAV_ID)).toBe('Jurnal')
+    expect(posChrome('Journal Entries', false, POS_NAV_ID)).toBe('Journal Entries')
+    expect(posChrome('Solar Proposals', true, POS_NAV_ID)).toBe('Solar Proposals')
   })
 })

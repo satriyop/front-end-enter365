@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { navigation, navItemVisible } from '@/config/nav'
+import { navigation, navItemVisible, POS_GROUP_ID, POS_NAV_ID, posChrome } from '@/config/nav'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
 import { onRescue } from '@/utils/clickRescue'
@@ -45,6 +45,16 @@ const filteredNavigation = computed(() => {
     })),
   })).filter(group => group.items.length > 0)
 })
+
+const posPack = computed(() => features.preset === 'pos')
+
+function groupLabel(label: string): string {
+  return posChrome(label, posPack.value, POS_GROUP_ID)
+}
+
+function itemName(name: string): string {
+  return posChrome(name, posPack.value, POS_NAV_ID)
+}
 
 function isActive(path: string): boolean {
   if (path === '/') return route.path === '/'
@@ -104,7 +114,7 @@ onBeforeUnmount(stopNavRescue)
           v-if="open"
           class="px-4 mb-2 text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider"
         >
-          {{ group.label }}
+          {{ groupLabel(group.label) }}
         </div>
 
         <!-- Items -->
@@ -121,7 +131,7 @@ onBeforeUnmount(stopNavRescue)
           ]"
         >
           <span class="text-lg">{{ item.icon }}</span>
-          <span v-if="open">{{ item.name }}</span>
+          <span v-if="open">{{ itemName(item.name) }}</span>
         </RouterLink>
       </div>
     </nav>

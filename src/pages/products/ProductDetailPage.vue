@@ -5,7 +5,12 @@ import { useProduct, useDeleteProduct, useDuplicateProduct, useAdjustProductStoc
 import { useWarehousesLookup } from '@/api/useWarehouses'
 import { Button, Card, Badge, Modal, FormField, Input, Select, Textarea, useToast } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
+import { productTypeLabel } from '@/utils/productKind'
+import { useFeaturesStore } from '@/stores/features'
 import { Pencil, Trash2, Copy, ArrowLeft, Scale } from 'lucide-vue-next'
+
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 
 const route = useRoute()
 const router = useRouter()
@@ -117,7 +122,7 @@ async function handleStockAdjust() {
           <div class="flex items-center gap-3 mb-2">
             <h1 class="text-2xl font-semibold text-foreground">{{ product.name }}</h1>
             <Badge :variant="product.type === 'product' ? 'info' : 'warning'">
-              {{ product.type_label }}
+              {{ productTypeLabel(product, posPack) }}
             </Badge>
           </div>
           <p class="text-muted-foreground font-mono">{{ product.sku }}</p>
@@ -166,7 +171,7 @@ async function handleStockAdjust() {
               </div>
               <div>
                 <dt class="text-sm text-muted-foreground">Type</dt>
-                <dd class="text-foreground">{{ product.type_label }}</dd>
+                <dd class="text-foreground">{{ productTypeLabel(product, posPack) }}</dd>
               </div>
               <div>
                 <dt class="text-sm text-muted-foreground">Category</dt>

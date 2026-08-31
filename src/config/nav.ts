@@ -135,3 +135,58 @@ export function navItemVisible(
 export function flattenNav(groups: NavGroup[] = navigation): NavItem[] {
   return groups.flatMap((group) => group.items)
 }
+
+/** POS pack chrome only — solar / electrical packs keep English names. */
+export const POS_NAV_ID: Record<string, string> = {
+  Dashboard: 'Dasbor',
+  Kasir: 'Kasir',
+  Contacts: 'Kontak',
+  Stock: 'Stok',
+  'Stock Opname': 'Stok Opname',
+  'Stock Transfer': 'Pindah Stok',
+  Products: 'Produk',
+  'Chart of Accounts': 'Bagan Akun',
+  'Journal Entries': 'Jurnal',
+  'Fiscal Periods': 'Periode Fiskal',
+  Payments: 'Pembayaran',
+  Bills: 'Tagihan',
+  Reports: 'Laporan',
+  'Company Profiles': 'Profil Perusahaan',
+  Warehouses: 'Gudang',
+  Roles: 'Peran',
+  'Product Categories': 'Kategori Produk',
+  'Accounting Policies': 'Kebijakan Akuntansi',
+  Users: 'Pengguna',
+  Settings: 'Pengaturan',
+}
+
+export const POS_GROUP_ID: Record<string, string> = {
+  Menu: 'Menu',
+  Sales: 'Penjualan',
+  Inventory: 'Inventori',
+  Accounting: 'Akuntansi',
+  Finance: 'Keuangan',
+  Settings: 'Pengaturan',
+  Admin: 'Admin',
+}
+
+export const POS_BREADCRUMB_ID: Record<string, string> = {
+  Home: 'Beranda',
+  Dashboard: 'Dasbor',
+  'Journal Entries': 'Jurnal',
+  'New Entry': 'Jurnal baru',
+  Stock: 'Stok',
+  Products: 'Produk',
+  'Chart of Accounts': 'Bagan Akun',
+  'Fiscal Periods': 'Periode Fiskal',
+  Reports: 'Laporan',
+  Warehouses: 'Gudang',
+  Users: 'Pengguna',
+}
+
+export function posChrome(english: string, posPack: boolean, table: Record<string, string> = POS_NAV_ID): string {
+  if (!posPack) {
+    return english
+  }
+  return table[english] ?? english
+}

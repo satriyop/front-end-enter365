@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter, type RouteLocationMatched } from 'vue-router'
+import { POS_BREADCRUMB_ID, posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 
 interface BreadcrumbItem {
   label: string
@@ -10,6 +12,12 @@ interface BreadcrumbItem {
 
 const route = useRoute()
 const router = useRouter()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
+
+function crumb(label: string): string {
+  return posChrome(label, posPack.value, POS_BREADCRUMB_ID)
+}
 
 /**
  * Build breadcrumb trail from matched routes
@@ -19,7 +27,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
 
   // Always start with Home
   items.push({
-    label: 'Home',
+    label: crumb('Home'),
     path: '/',
     isLast: false,
   })
@@ -53,7 +61,7 @@ const breadcrumbs = computed<BreadcrumbItem[]>(() => {
     }
 
     items.push({
-      label,
+      label: crumb(label),
       path,
       isLast,
     })

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   useJournalEntries,
@@ -9,11 +10,16 @@ import {
 } from '@/api/useJournalEntries'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { Button, Input, Select, Card, Modal, Pagination, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { Button, Input, DateField, Select, Card, Modal, Pagination, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { POS_NAV_ID, posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 import { Plus, Search, FileText, Calendar } from 'lucide-vue-next'
 
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
+const title = computed(() => posChrome('Journal Entries', posPack.value, POS_NAV_ID))
 
 // Resource list with filters and pagination
 const {
@@ -91,13 +97,13 @@ function viewEntry(entry: JournalEntry) {
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Journal Entries</h1>
-        <p class="text-slate-500 dark:text-slate-400">Manual journal entries and adjustments</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ title }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">{{ posPack ? 'Jurnal manual dan penyesuaian' : 'Manual journal entries and adjustments' }}</p>
       </div>
       <RouterLink to="/accounting/journal-entries/new">
         <Button>
           <Plus class="w-4 h-4 mr-2" />
-          New Entry
+          {{ posPack ? 'Buat jurnal' : 'New Entry' }}
         </Button>
       </RouterLink>
     </div>
@@ -119,20 +125,18 @@ function viewEntry(entry: JournalEntry) {
         <!-- Date Range -->
         <div class="flex items-center gap-2">
           <Calendar class="w-4 h-4 text-slate-400" />
-          <Input
+          <DateField
             :model-value="filters.start_date"
-            type="date"
-            placeholder="Start Date"
+            placeholder="dd/mm/yyyy"
             class="w-36"
-            @update:model-value="(v) => updateFilter('start_date', v as string)"
+            @update:model-value="(v) => updateFilter('start_date', v || undefined)"
           />
-          <span class="text-slate-400">to</span>
-          <Input
+          <span class="text-slate-400">{{ posPack ? 's.d.' : 'to' }}</span>
+          <DateField
             :model-value="filters.end_date"
-            type="date"
-            placeholder="End Date"
+            placeholder="dd/mm/yyyy"
             class="w-36"
-            @update:model-value="(v) => updateFilter('end_date', v as string)"
+            @update:model-value="(v) => updateFilter('end_date', v || undefined)"
           />
         </div>
 

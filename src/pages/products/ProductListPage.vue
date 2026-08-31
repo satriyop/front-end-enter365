@@ -7,7 +7,14 @@ import { useProductCategoriesLookup } from '@/api/useProductCategories'
 import { useResourceList } from '@/composables/useResourceList'
 import { Button, Input, Select, Pagination, EmptyState, Modal, Badge, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
+import { POS_NAV_ID, posChrome } from '@/config/nav'
+import { productTypeLabel } from '@/utils/productKind'
+import { useFeaturesStore } from '@/stores/features'
+
 import { Download, Plus } from 'lucide-vue-next'
+
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 
 const toast = useToast()
 const route = useRoute()
@@ -103,8 +110,8 @@ function handleCategoryChange(value: string | number | null) {
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-foreground">Products</h1>
-        <p class="text-muted-foreground">Manage products and services</p>
+        <h1 class="text-2xl font-semibold text-foreground">{{ posChrome('Products', posPack, POS_NAV_ID) }}</h1>
+        <p class="text-muted-foreground">{{ posPack ? 'Produk kafe dan barang tanpa stok' : 'Manage products and services' }}</p>
       </div>
       <div class="flex gap-2">
         <Button variant="secondary" :loading="exportMutation.isPending.value" @click="handleExportPriceList">
@@ -192,7 +199,7 @@ function handleCategoryChange(value: string | number | null) {
         <!-- Custom cell: Type badge -->
         <template #cell-type="{ item }">
           <Badge :variant="item.type === 'product' ? 'info' : 'warning'">
-            {{ item.type_label }}
+            {{ productTypeLabel(item, posPack) }}
           </Badge>
         </template>
 

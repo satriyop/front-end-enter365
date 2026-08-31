@@ -39,6 +39,7 @@ async function handleSubmit() {
       <!-- Form -->
       <form
         novalidate
+        autocomplete="off"
         class="bg-card rounded-xl shadow-sm border border-border p-8"
         @submit.prevent="handleSubmit"
       >
@@ -60,6 +61,7 @@ async function handleSubmit() {
             v-model="form.email"
             type="email"
             required
+            autocomplete="off"
             data-testid="login-email"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="you@company.com"
@@ -75,6 +77,7 @@ async function handleSubmit() {
             v-model="form.password"
             type="password"
             required
+            autocomplete="off"
             data-testid="login-password"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="••••••••"

@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { useStockLevels, type ProductStock, type InventoryFilters } from '@/api/useInventory'
 import { useResourceList } from '@/composables/useResourceList'
+import { computed } from 'vue'
 import { Button, Input, Pagination, EmptyState, Badge, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
+import { POS_NAV_ID, posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
+
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 
 // Resource list with filters and pagination
 const {
@@ -45,8 +51,8 @@ const columns: ResponsiveColumn[] = [
   <div>
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Stock</h1>
-        <p class="text-slate-500 dark:text-slate-400">View inventory levels across warehouses</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ posChrome('Stock', posPack, POS_NAV_ID) }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">{{ posPack ? 'Lihat stok per gudang' : 'View inventory levels across warehouses' }}</p>
       </div>
       <div class="flex gap-2">
         <RouterLink to="/inventory/movements">

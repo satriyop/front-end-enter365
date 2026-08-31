@@ -82,7 +82,7 @@ describe('auth logout', () => {
     expect(hardNavigate).toHaveBeenCalledWith('/kasir')
   })
 
-  it('hard-navigates accountants to / immediately after the token is stored', async () => {
+  it('hard-navigates accountants to journal entries after the token is stored', async () => {
     const store = useAuthStore()
     vi.mocked(api.post).mockResolvedValue({
       data: {
@@ -99,7 +99,45 @@ describe('auth logout', () => {
     await store.login({ email: 'rina@kopitiam57.test', password: 'password' })
 
     expect(localStorage.getItem('token')).toBe('rina-token')
-    expect(hardNavigate).toHaveBeenCalledWith('/')
+    expect(hardNavigate).toHaveBeenCalledWith('/accounting/journal-entries')
     expect(api.get).not.toHaveBeenCalled()
+  })
+
+  it('hard-navigates gudang to /inventory after the token is stored', async () => {
+    const store = useAuthStore()
+    vi.mocked(api.post).mockResolvedValue({
+      data: {
+        token: 'dewi-token',
+        user: {
+          id: 4,
+          name: 'Dewi',
+          email: 'dewi@kopitiam57.test',
+          roles: [{ id: 3, name: 'inventory', display_name: 'Gudang' }],
+        },
+      },
+    } as never)
+
+    await store.login({ email: 'dewi@kopitiam57.test', password: 'password' })
+
+    expect(hardNavigate).toHaveBeenCalledWith('/inventory')
+  })
+
+  it('hard-navigates owner/admin to the dashboard', async () => {
+    const store = useAuthStore()
+    vi.mocked(api.post).mockResolvedValue({
+      data: {
+        token: 'owner-token',
+        user: {
+          id: 1,
+          name: 'Owner',
+          email: 'admin@example.com',
+          roles: [{ id: 1, name: 'admin', display_name: 'Owner' }],
+        },
+      },
+    } as never)
+
+    await store.login({ email: 'admin@example.com', password: 'password' })
+
+    expect(hardNavigate).toHaveBeenCalledWith('/')
   })
 })

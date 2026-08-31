@@ -199,8 +199,8 @@ const cashBreakdownData = computed(() => {
   <div>
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Dashboard</h1>
-      <p class="text-slate-500 dark:text-slate-400">Welcome back, {{ auth.user?.name ?? 'User' }}</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ features.preset === 'pos' ? 'Dasbor' : 'Dashboard' }}</h1>
+      <p class="text-slate-500 dark:text-slate-400">{{ features.preset === 'pos' ? `Halo, ${auth.user?.name ?? 'Pengguna'}` : `Welcome back, ${auth.user?.name ?? 'User'}` }}</p>
     </div>
 
     <!-- Stats Grid -->
