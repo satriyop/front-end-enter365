@@ -33,7 +33,6 @@ async function handleSubmit() {
       <!-- Logo -->
       <div class="text-center mb-8">
         <h1 class="text-3xl font-bold text-primary">Enter365</h1>
-        <p class="mt-2 text-muted-foreground">SME ERP for Indonesian business</p>
       </div>
 
       <!-- Form -->

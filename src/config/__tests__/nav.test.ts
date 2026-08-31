@@ -58,5 +58,8 @@ describe('navigation permission keys', () => {
     expect(posChrome('Solar Proposals', true, POS_NAV_ID)).toBe('Solar Proposals')
     expect(posChrome('Adjust Stock', true)).toBe('Penyesuaian stok')
     expect(posChrome('Adjust Stock', false)).toBe('Adjust Stock')
+    expect(posChrome('Inventory', true)).toBe('Inventori')
+    expect(posChrome('Posted', true)).toBe('Diposting')
+    expect(posChrome('Search...', true)).toBe('Cari...')
   })
 })

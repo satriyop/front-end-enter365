@@ -9,9 +9,11 @@ import { api } from '@/api/client'
 import { formatCurrency } from '@/utils/format'
 import { Card, Badge, useToast } from '@/components/ui'
 import { BarChart, DoughnutChart } from '@/components/charts'
+import PosShopHome from '@/pages/dashboard/PosShopHome.vue'
 
 const auth = useAuthStore()
 const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -52,7 +54,9 @@ onMounted(() => {
   const label = PACK_LABELS[pack] ?? pack
   toast.warning({
     title: 'Modul tidak aktif',
-    message: `${label} dimatikan di konfigurasi produk (FEATURE_PRESET / pack). Nyalakan di .env bila diperlukan.`,
+    message: features.preset === 'pos'
+      ? `${label} tidak dipakai toko ini.`
+      : `${label} dimatikan di konfigurasi produk (FEATURE_PRESET / pack). Nyalakan di .env bila diperlukan.`,
     duration: 8000,
   })
 
@@ -199,10 +203,13 @@ const cashBreakdownData = computed(() => {
   <div>
     <!-- Page Header -->
     <div class="mb-6">
-      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ features.preset === 'pos' ? 'Dasbor' : 'Dashboard' }}</h1>
-      <p class="text-slate-500 dark:text-slate-400">{{ features.preset === 'pos' ? `Halo, ${auth.user?.name ?? 'Pengguna'}` : `Welcome back, ${auth.user?.name ?? 'User'}` }}</p>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ posPack ? 'Dasbor' : 'Dashboard' }}</h1>
+      <p class="text-slate-500 dark:text-slate-400">{{ posPack ? `Halo, ${auth.user?.name ?? 'Pengguna'}` : `Welcome back, ${auth.user?.name ?? 'User'}` }}</p>
     </div>
 
+    <PosShopHome v-if="posPack" />
+
+    <template v-if="!posPack">
     <!-- Stats Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <div
@@ -385,5 +392,6 @@ const cashBreakdownData = computed(() => {
         />
       </Card>
     </div>
+    </template>
   </div>
 </template>

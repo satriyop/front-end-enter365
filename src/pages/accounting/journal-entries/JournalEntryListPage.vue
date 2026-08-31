@@ -65,8 +65,8 @@ const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'entry_number', label: posChrome('Entry #', posPack.value), mobilePriority: 1 },
   { key: 'entry_date', label: posChrome('Date', posPack.value), mobilePriority: 2 },
   { key: 'description', label: posChrome('Description', posPack.value), mobilePriority: 3 },
-  { key: 'total_debit', label: posChrome('Debit', posPack.value), showInMobile: false },
-  { key: 'total_credit', label: posChrome('Credit', posPack.value), showInMobile: false },
+  { key: 'total_debit', label: posChrome('Debit', posPack.value), align: 'right', showInMobile: false },
+  { key: 'total_credit', label: posChrome('Credit', posPack.value), align: 'right', showInMobile: false },
   { key: 'status', label: posChrome('Status', posPack.value), mobilePriority: 4 },
 ])
 
@@ -208,7 +208,7 @@ function viewEntry(entry: JournalEntry) {
 
         <!-- Description -->
         <template #cell-description="{ item }">
-          <div class="max-w-xs truncate text-slate-600 dark:text-slate-400">
+          <div class="max-w-xl whitespace-normal break-words text-slate-600 dark:text-slate-400" :title="item.description">
             {{ item.description }}
             <span v-if="item.reference" class="text-slate-400 dark:text-slate-500 ml-1">
               ({{ item.reference }})
@@ -218,14 +218,14 @@ function viewEntry(entry: JournalEntry) {
 
         <!-- Debit -->
         <template #cell-total_debit="{ item }">
-          <span class="font-mono text-slate-900 dark:text-slate-100">
+          <span class="font-mono tabular-nums text-slate-900 dark:text-slate-100">
             {{ formatCurrency(item.total_debit) }}
           </span>
         </template>
 
         <!-- Credit -->
         <template #cell-total_credit="{ item }">
-          <span class="font-mono text-slate-900 dark:text-slate-100">
+          <span class="font-mono tabular-nums text-slate-900 dark:text-slate-100">
             {{ formatCurrency(item.total_credit) }}
           </span>
         </template>
@@ -236,7 +236,7 @@ function viewEntry(entry: JournalEntry) {
             class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
             :class="getJournalEntryStatus(item).color"
           >
-            {{ getJournalEntryStatus(item).label }}
+            {{ posChrome(getJournalEntryStatus(item).label, posPack) }}
           </span>
         </template>
 
@@ -281,7 +281,7 @@ function viewEntry(entry: JournalEntry) {
     <!-- Delete Confirmation Modal -->
     <Modal
       :open="deleteConfirmation.showModal.value"
-      title="Delete Journal Entry"
+      :title="posPack ? 'Hapus jurnal' : 'Delete Journal Entry'"
       size="sm"
       @update:open="deleteConfirmation.showModal.value = $event"
     >

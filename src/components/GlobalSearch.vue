@@ -3,8 +3,12 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
+import { posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 
 const router = useRouter()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 const isOpen = ref(false)
 const searchQuery = ref('')
 const selectedIndex = ref(0)
@@ -255,7 +259,7 @@ defineExpose({
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
     </svg>
-    <span>Search...</span>
+    <span>{{ posChrome('Search...', posPack) }}</span>
     <kbd class="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs font-mono bg-white dark:bg-slate-700 rounded border border-slate-300 dark:border-slate-600 text-slate-500 dark:text-slate-400">
       Ctrl+K
     </kbd>
@@ -288,7 +292,7 @@ defineExpose({
               ref="inputRef"
               v-model="searchQuery"
               type="text"
-              placeholder="Search or type a command..."
+              :placeholder="posChrome('Search or type a command...', posPack)"
               class="flex-1 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 bg-transparent border-none outline-none text-base"
             />
             <div v-if="isFetching" class="w-4 h-4 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />

@@ -84,9 +84,38 @@ export interface PosOutlet {
   name: string
 }
 
+export interface PosShopHome {
+  open_sessions: Array<{
+    id: number
+    session_number: string
+    cashier_name: string
+    warehouse_name: string
+    hold_count: number
+  }>
+  open_hold_count: number
+  today: {
+    sale_count: number
+    omzet_amount: number
+    last_sale_number: string | null
+    last_sold_at: string | null
+  }
+  low_stock: Array<{
+    product_id: number
+    sku: string
+    name: string
+    quantity: number
+  }>
+  draft_journal_count: number
+}
+
 export async function listPosOutlets(): Promise<PosOutlet[]> {
   const { data } = await api.get('/pos/outlets')
   return unwrap<PosOutlet[]>(data)
+}
+
+export async function fetchPosShopHome(): Promise<PosShopHome> {
+  const { data } = await api.get('/pos/shop-home')
+  return unwrap<PosShopHome>(data)
 }
 
 export async function openPosSession(warehouseId: number, openingCashAmount: number): Promise<PosSession> {

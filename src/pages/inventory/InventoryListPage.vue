@@ -40,8 +40,8 @@ const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'product.name', label: posChrome('Product', posPack.value), mobilePriority: 1 },
   { key: 'warehouse.name', label: posChrome('Warehouse', posPack.value), showInMobile: false },
   { key: 'quantity', label: posChrome('Quantity', posPack.value), align: 'right', mobilePriority: 2 },
-  { key: 'average_cost', label: posChrome('Avg Cost', posPack.value), align: 'right', showInMobile: false, format: (v) => formatCurrency(v as number) },
-  { key: 'total_value', label: posChrome('Value', posPack.value), align: 'right', mobilePriority: 4, format: (v) => formatCurrency(v as number) },
+  { key: 'average_cost', label: posChrome('Avg Cost', posPack.value), align: 'right', showInMobile: false },
+  { key: 'total_value', label: posChrome('Value', posPack.value), align: 'right', mobilePriority: 4 },
   { key: 'level', label: posChrome('Level', posPack.value), showInMobile: false },
 ])
 </script>
@@ -124,7 +124,15 @@ const columns = computed<ResponsiveColumn[]>(() => [
 
         <!-- Custom cell: Quantity -->
         <template #cell-quantity="{ item }">
-          {{ item.quantity }} {{ item.product?.unit }}
+          <span class="block text-right tabular-nums">{{ item.quantity }} {{ item.product?.unit }}</span>
+        </template>
+
+        <template #cell-average_cost="{ item }">
+          <span class="block text-right tabular-nums">{{ formatCurrency(item.average_cost) }}</span>
+        </template>
+
+        <template #cell-total_value="{ item }">
+          <span class="block text-right tabular-nums">{{ formatCurrency(item.total_value) }}</span>
         </template>
 
         <!-- Custom cell: Level badge -->
