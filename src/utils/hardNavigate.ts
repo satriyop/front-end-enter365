@@ -76,10 +76,21 @@ export function shouldHoldDocumentUnlocked(now = Date.now()): boolean {
   return true
 }
 
-/** Full load so leftover dialog locks, Pinia, and a waiting SW cannot survive. */
+export function withBootQuery(path: string, now = Date.now()): string {
+  const hashIndex = path.indexOf('#')
+  const hash = hashIndex >= 0 ? path.slice(hashIndex) : ''
+  const withoutHash = hashIndex >= 0 ? path.slice(0, hashIndex) : path
+  const sep = withoutHash.includes('?') ? '&' : '?'
+  return `${withoutHash}${sep}boot=${now}${hash}`
+}
+
+/**
+ * Full document load. `assign('/')` is a no-op when the SPA already sits on `/`
+ * (Sign in then client-route to dashboard). A unique `boot` query forces reload.
+ */
 export function hardNavigate(path: string): void {
   restoreDocumentPointerEvents()
   beginNavigationQuietPeriod()
   beginPostNavigationUnlock()
-  window.location.assign(path)
+  window.location.replace(withBootQuery(path))
 }

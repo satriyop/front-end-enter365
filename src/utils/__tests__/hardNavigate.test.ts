@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { hardNavigate, inNavigationQuietPeriod, restoreDocumentPointerEvents, shouldHoldDocumentUnlocked } from '../hardNavigate'
+import { hardNavigate, inNavigationQuietPeriod, restoreDocumentPointerEvents, shouldHoldDocumentUnlocked, withBootQuery } from '../hardNavigate'
 
 describe('restoreDocumentPointerEvents', () => {
   afterEach(() => {
@@ -25,16 +25,23 @@ describe('hardNavigate', () => {
     vi.unstubAllGlobals()
   })
 
-  it('restores pointer events then assigns location', () => {
-    const assign = vi.fn()
-    vi.stubGlobal('location', { assign })
+  it('replaces location with a unique boot query so the document actually reloads', () => {
+    const replace = vi.fn()
+    vi.stubGlobal('location', { replace })
     document.body.style.pointerEvents = 'none'
 
     hardNavigate('/login')
 
     expect(document.body.style.pointerEvents).toBe('')
-    expect(assign).toHaveBeenCalledWith('/login')
+    expect(replace).toHaveBeenCalledWith(expect.stringMatching(/^\/login\?boot=\d+$/))
     expect(inNavigationQuietPeriod()).toBe(true)
     expect(shouldHoldDocumentUnlocked()).toBe(true)
+  })
+})
+
+describe('withBootQuery', () => {
+  it('forces a new URL even when the path is already /', () => {
+    expect(withBootQuery('/', 123)).toBe('/?boot=123')
+    expect(withBootQuery('/kasir?x=1', 123)).toBe('/kasir?x=1&boot=123')
   })
 })

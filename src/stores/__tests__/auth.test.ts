@@ -81,4 +81,25 @@ describe('auth logout', () => {
     expect(localStorage.getItem('token')).toBe('new-token')
     expect(hardNavigate).toHaveBeenCalledWith('/kasir')
   })
+
+  it('hard-navigates accountants to / immediately after the token is stored', async () => {
+    const store = useAuthStore()
+    vi.mocked(api.post).mockResolvedValue({
+      data: {
+        token: 'rina-token',
+        user: {
+          id: 3,
+          name: 'Rina',
+          email: 'rina@kopitiam57.test',
+          roles: [{ id: 2, name: 'accountant', display_name: 'Akuntan' }],
+        },
+      },
+    } as never)
+
+    await store.login({ email: 'rina@kopitiam57.test', password: 'password' })
+
+    expect(localStorage.getItem('token')).toBe('rina-token')
+    expect(hardNavigate).toHaveBeenCalledWith('/')
+    expect(api.get).not.toHaveBeenCalled()
+  })
 })

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 import { api } from '@/api/client'
 import router from '@/router'
 import { useFeaturesStore } from '@/stores/features'
@@ -68,21 +68,18 @@ export const useAuthStore = defineStore('auth', () => {
   async function login(credentials: LoginCredentials) {
     const response = await api.post<{ token: string; user: User }>('/auth/login', credentials)
 
-    // Set token and user immediately
     token.value = response.data.token
     user.value = response.data.user
     localStorage.setItem('token', response.data.token)
 
-    // Product packs (odoo apps + industry add-ons) for nav gating
-    useFeaturesStore().reset()
-    await useFeaturesStore().fetchFeatures()
+    const redirect = router.currentRoute.value.query.redirect
+    const safeRedirect = typeof redirect === 'string'
+      && redirect.startsWith('/')
+      && !redirect.startsWith('//')
+      ? redirect
+      : null
+    const targetPath = safeRedirect || (isCashierOnly.value ? '/kasir' : '/')
 
-    // Get redirect target before navigation
-    const redirect = router.currentRoute.value.query.redirect as string
-    const kasirHome = isCashierOnly.value && useFeaturesStore().enabled('pos') ? '/kasir' : '/'
-    const targetPath = redirect || kasirHome
-
-    await nextTick()
     hardNavigate(targetPath)
   }
 

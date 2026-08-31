@@ -1430,8 +1430,13 @@ router.beforeEach(async (to, from, next) => {
   next()
 })
 
-router.afterEach(() => {
+router.afterEach((to) => {
   restoreDocumentPointerEvents()
+  if (typeof to.query.boot === 'string') {
+    const query = { ...to.query }
+    delete query.boot
+    void router.replace({ path: to.path, query, hash: to.hash })
+  }
 })
 
 export default router
