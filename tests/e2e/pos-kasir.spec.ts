@@ -2,10 +2,10 @@ import { expect, type Page, test } from '@playwright/test'
 
 test.describe.configure({ mode: 'serial', timeout: 60_000 })
 
-const SITI = { email: 'siti@kopitiam57.test', password: 'Kopitiam57-kasir' }
-const OWNER = { email: 'admin@example.com', password: 'Kopitiam57-kasir' }
-const AKUNTAN = { email: 'rina@kopitiam57.test', password: 'Kopitiam57-kasir' }
-const GUDANG = { email: 'dewi@kopitiam57.test', password: 'Kopitiam57-kasir' }
+const SITI = { email: 'siti@kopitiam57.test', password: 'WRGKvh-WU#pL5ii#mufZXxpW' }
+const OWNER = { email: 'admin@example.com', password: 'WRGKvh-WU#pL5ii#mufZXxpW' }
+const AKUNTAN = { email: 'rina@kopitiam57.test', password: 'WRGKvh-WU#pL5ii#mufZXxpW' }
+const GUDANG = { email: 'dewi@kopitiam57.test', password: 'WRGKvh-WU#pL5ii#mufZXxpW' }
 
 /** Kopitiam 57 pastry board — the locked till SKUs. */
 const SKU = {
@@ -19,7 +19,7 @@ const SKU = {
 test.describe('Kasir till journeys', () => {
   test.use({ storageState: { cookies: [], origins: [] } })
 
-  async function loginAs(page: Page, email: string, password = 'Kopitiam57-kasir'): Promise<void> {
+  async function loginAs(page: Page, email: string, password = 'WRGKvh-WU#pL5ii#mufZXxpW'): Promise<void> {
     await page.goto('/login', { waitUntil: 'domcontentloaded' })
     const emailInput = page.getByTestId('login-email')
     await expect(emailInput).toBeVisible({ timeout: 15_000 })
