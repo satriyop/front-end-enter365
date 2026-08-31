@@ -8,9 +8,13 @@ import { Button, Input, FormField, Textarea, Card, useToast } from '@/components
 import { pickedOptionValue } from '@/pages/inventory/nativeSelect'
 import { resolveStockInUnitCost } from '@/pages/inventory/stockInCost'
 import { onRescue } from '@/utils/clickRescue'
+import { posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 
 // Adjustment type
 const adjustmentType = ref<'adjust' | 'in' | 'out'>('adjust')
@@ -182,17 +186,17 @@ async function handleSubmit() {
   <div class="max-w-2xl mx-auto">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Stock Adjustment</h1>
-        <p class="text-slate-500 dark:text-slate-400">Adjust inventory levels manually</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ posChrome('Stock Adjustment', posPack) }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">{{ posPack ? 'Ubah stok secara manual' : 'Adjust inventory levels manually' }}</p>
       </div>
-      <Button variant="ghost" @click="router.push('/inventory')">Cancel</Button>
+      <Button variant="ghost" @click="router.push('/inventory')">{{ posChrome('Cancel', posPack) }}</Button>
     </div>
 
     <form novalidate @submit.prevent="handleSubmit" class="space-y-6">
       <!-- Adjustment Type -->
       <Card>
         <template #header>
-          <h2 class="font-medium text-slate-900 dark:text-slate-100">Adjustment Type</h2>
+          <h2 class="font-medium text-slate-900 dark:text-slate-100">{{ posPack ? 'Jenis penyesuaian' : 'Adjustment Type' }}</h2>
         </template>
         <div class="flex gap-2">
           <Button
@@ -201,7 +205,7 @@ async function handleSubmit() {
             :variant="adjustmentType === 'adjust' ? 'default' : 'secondary'"
             @click="adjustmentType = 'adjust'"
           >
-            Set Quantity
+            {{ posChrome('Set Quantity', posPack) }}
           </Button>
           <Button
             type="button"
@@ -209,7 +213,7 @@ async function handleSubmit() {
             :variant="adjustmentType === 'in' ? 'default' : 'secondary'"
             @click="adjustmentType = 'in'"
           >
-            Stock In (+)
+            {{ posChrome('Stock In (+)', posPack) }}
           </Button>
           <Button
             type="button"
@@ -217,7 +221,7 @@ async function handleSubmit() {
             :variant="adjustmentType === 'out' ? 'default' : 'secondary'"
             @click="adjustmentType = 'out'"
           >
-            Stock Out (-)
+            {{ posChrome('Stock Out (-)', posPack) }}
           </Button>
         </div>
       </Card>
@@ -228,28 +232,28 @@ async function handleSubmit() {
           <h2 class="font-medium text-slate-900 dark:text-slate-100">Product Information</h2>
         </template>
         <div class="space-y-4">
-          <FormField label="Product" required :error="errors.product_id">
+          <FormField :label="posChrome('Product', posPack)" required :error="errors.product_id">
             <select
               class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm dark:border-slate-700"
               data-testid="adjust-product"
               :value="form.product_id ?? ''"
               @change="onProductPicked"
             >
-              <option value="">Select product...</option>
+              <option value="">{{ posPack ? 'Pilih produk...' : 'Select product...' }}</option>
               <option v-for="option in productOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
             </select>
           </FormField>
 
-          <FormField label="Warehouse">
+          <FormField :label="posChrome('Warehouse', posPack)">
             <select
               class="flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 py-2 text-sm dark:border-slate-700"
               data-testid="adjust-warehouse"
               :value="form.warehouse_id || ''"
               @change="onWarehousePicked"
             >
-              <option value="">Select warehouse...</option>
+              <option value="">{{ posPack ? 'Pilih gudang...' : 'Select warehouse...' }}</option>
               <option v-for="option in warehouseOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </option>
@@ -327,9 +331,9 @@ async function handleSubmit() {
 
       <!-- Actions -->
       <div class="flex items-center justify-end gap-3">
-        <Button type="button" variant="ghost" @click="router.push('/inventory')">Cancel</Button>
+        <Button type="button" variant="ghost" @click="router.push('/inventory')">{{ posChrome('Cancel', posPack) }}</Button>
         <Button type="submit" :loading="isSubmitting" data-testid="adjust-submit">
-          {{ adjustmentType === 'adjust' ? 'Adjust Stock' : adjustmentType === 'in' ? 'Record Stock In' : 'Record Stock Out' }}
+          {{ posChrome(adjustmentType === 'adjust' ? 'Adjust Stock' : adjustmentType === 'in' ? 'Record Stock In' : 'Record Stock Out', posPack) }}
         </Button>
       </div>
     </form>

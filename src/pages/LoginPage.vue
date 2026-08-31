@@ -43,7 +43,10 @@ async function handleSubmit() {
         class="bg-card rounded-xl shadow-sm border border-border p-8"
         @submit.prevent="handleSubmit"
       >
-        <!-- Error Alert -->
+        <!-- Decoy pair so Chrome is less eager to Save / breach-warn the demo password. -->
+        <input type="text" tabindex="-1" aria-hidden="true" autocomplete="username" class="sr-only" value="">
+        <input type="password" tabindex="-1" aria-hidden="true" autocomplete="current-password" class="sr-only" value="">
+
         <div
           v-if="error"
           data-testid="login-error"
@@ -52,7 +55,6 @@ async function handleSubmit() {
           {{ error }}
         </div>
 
-        <!-- Email -->
         <div class="mb-4">
           <label class="block text-sm font-medium text-foreground mb-1.5">
             Email
@@ -61,38 +63,40 @@ async function handleSubmit() {
             v-model="form.email"
             type="email"
             required
-            autocomplete="off"
+            autocomplete="username"
+            data-lpignore="true"
+            data-1p-ignore
             data-testid="login-email"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="you@company.com"
           />
         </div>
 
-        <!-- Password -->
         <div class="mb-6">
           <label class="block text-sm font-medium text-foreground mb-1.5">
-            Password
+            Kata sandi
           </label>
           <input
             v-model="form.password"
             type="password"
             required
-            autocomplete="off"
+            autocomplete="new-password"
+            data-lpignore="true"
+            data-1p-ignore
             data-testid="login-password"
             class="w-full px-3 py-2.5 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
             placeholder="••••••••"
           />
         </div>
 
-        <!-- Submit -->
         <button
           type="submit"
           :disabled="loading"
           data-testid="login-submit"
           class="w-full py-2.5 px-4 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          <span v-if="loading">Signing in...</span>
-          <span v-else>Sign in</span>
+          <span v-if="loading">Masuk...</span>
+          <span v-else>Masuk</span>
         </button>
       </form>
     </div>

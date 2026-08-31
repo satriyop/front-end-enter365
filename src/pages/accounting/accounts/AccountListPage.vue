@@ -8,11 +8,15 @@ import {
   type Account,
 } from '@/api/useAccounts'
 import { Button, Input, Select, Card, Modal, useToast } from '@/components/ui'
+import { posChrome } from '@/config/nav'
+import { useFeaturesStore } from '@/stores/features'
 import { Plus, Search } from 'lucide-vue-next'
 import AccountTreeNode from './AccountTreeNode.vue'
 
 const router = useRouter()
 const toast = useToast()
+const features = useFeaturesStore()
+const posPack = computed(() => features.preset === 'pos')
 
 // Fetch all accounts for tree
 const { data: accountsData, isLoading, error, refetch } = useAccountsTree()
@@ -139,13 +143,13 @@ function goToAccount(account: Account) {
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Chart of Accounts</h1>
-        <p class="text-slate-500 dark:text-slate-400">Manage your account structure</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ posChrome('Chart of Accounts', posPack) }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">{{ posPack ? 'Struktur akun perusahaan' : 'Manage your account structure' }}</p>
       </div>
       <RouterLink to="/accounting/accounts/new">
         <Button>
           <Plus class="w-4 h-4 mr-2" />
-          New Account
+          {{ posChrome('New Account', posPack) }}
         </Button>
       </RouterLink>
     </div>
@@ -175,10 +179,10 @@ function goToAccount(account: Account) {
         <!-- Expand/Collapse buttons -->
         <div class="flex gap-2">
           <Button variant="ghost" size="sm" @click="expandAll">
-            Expand All
+            {{ posChrome('Expand All', posPack) }}
           </Button>
           <Button variant="ghost" size="sm" @click="collapseAll">
-            Collapse All
+            {{ posChrome('Collapse All', posPack) }}
           </Button>
         </div>
       </div>

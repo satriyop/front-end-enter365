@@ -45,11 +45,11 @@ const {
 })
 
 // Status options
-const statusOptions = [
-  { value: '', label: 'All Status' },
-  { value: 'true', label: 'Posted' },
-  { value: 'false', label: 'Draft' },
-]
+const statusOptions = computed(() => [
+  { value: '', label: posChrome('All Status', posPack.value) },
+  { value: 'true', label: posChrome('Posted', posPack.value) },
+  { value: 'false', label: posChrome('Draft', posPack.value) },
+])
 
 function handleStatusChange(value: string | number | null) {
   if (value === 'true') {
@@ -61,15 +61,14 @@ function handleStatusChange(value: string | number | null) {
   }
 }
 
-// Table columns
-const columns: ResponsiveColumn[] = [
-  { key: 'entry_number', label: 'Entry #', mobilePriority: 1 },
-  { key: 'entry_date', label: 'Date', mobilePriority: 2 },
-  { key: 'description', label: 'Description', mobilePriority: 3 },
-  { key: 'total_debit', label: 'Debit', showInMobile: false },
-  { key: 'total_credit', label: 'Credit', showInMobile: false },
-  { key: 'status', label: 'Status', mobilePriority: 4 },
-]
+const columns = computed<ResponsiveColumn[]>(() => [
+  { key: 'entry_number', label: posChrome('Entry #', posPack.value), mobilePriority: 1 },
+  { key: 'entry_date', label: posChrome('Date', posPack.value), mobilePriority: 2 },
+  { key: 'description', label: posChrome('Description', posPack.value), mobilePriority: 3 },
+  { key: 'total_debit', label: posChrome('Debit', posPack.value), showInMobile: false },
+  { key: 'total_credit', label: posChrome('Credit', posPack.value), showInMobile: false },
+  { key: 'status', label: posChrome('Status', posPack.value), mobilePriority: 4 },
+])
 
 // Delete handling
 const deleteMutation = useDeleteJournalEntry()
@@ -116,7 +115,7 @@ function viewEntry(entry: JournalEntry) {
           <Search class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
             :model-value="filters.search"
-            placeholder="Search by entry number or description..."
+            :placeholder="posPack ? 'Cari nomor atau uraian...' : 'Search by entry number or description...'"
             class="pl-9"
             @update:model-value="(v) => updateFilter('search', String(v))"
           />
@@ -145,7 +144,7 @@ function viewEntry(entry: JournalEntry) {
           <Select
             :model-value="filters.is_posted === true ? 'true' : filters.is_posted === false ? 'false' : ''"
             :options="statusOptions"
-            placeholder="All Status"
+            :placeholder="posChrome('All Status', posPack)"
             @update:model-value="handleStatusChange"
           />
         </div>
@@ -154,7 +153,7 @@ function viewEntry(entry: JournalEntry) {
 
     <!-- Error State -->
     <Card v-if="error" class="text-center py-8">
-      <p class="text-red-500">Failed to load journal entries</p>
+      <p class="text-red-500">{{ posChrome('Failed to load journal entries', posPack) }}</p>
     </Card>
 
     <!-- Loading State -->
@@ -164,21 +163,21 @@ function viewEntry(entry: JournalEntry) {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        <span>Loading...</span>
+        <span>{{ posChrome('Loading', posPack) }}</span>
       </div>
     </Card>
 
     <!-- Empty State -->
     <Card v-else-if="isEmpty" class="text-center py-12">
       <FileText class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No journal entries found</h3>
+      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">{{ posChrome('No journal entries found', posPack) }}</h3>
       <p class="text-slate-500 dark:text-slate-400 mb-4">
-        Create manual journal entries for adjustments and corrections
+        {{ posPack ? 'Buat jurnal manual untuk penyesuaian' : 'Create manual journal entries for adjustments and corrections' }}
       </p>
       <RouterLink to="/accounting/journal-entries/new">
         <Button>
           <Plus class="w-4 h-4 mr-2" />
-          Create Entry
+          {{ posChrome('Create Entry', posPack) }}
         </Button>
       </RouterLink>
     </Card>
@@ -252,7 +251,7 @@ function viewEntry(entry: JournalEntry) {
         <template #actions="{ item }">
           <div class="flex items-center justify-end gap-2">
             <Button variant="ghost" size="xs" @click.stop="viewEntry(item)">
-              View
+              {{ posChrome('View', posPack) }}
             </Button>
             <Button
               v-if="!item.is_posted"
@@ -261,7 +260,7 @@ function viewEntry(entry: JournalEntry) {
               class="text-red-500 hover:text-red-600"
               @click.stop="deleteConfirmation.confirmDelete(item.id)"
             >
-              Delete
+              {{ posChrome('Delete', posPack) }}
             </Button>
           </div>
         </template>

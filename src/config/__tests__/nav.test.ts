@@ -56,5 +56,7 @@ describe('navigation permission keys', () => {
     expect(posChrome('Journal Entries', true, POS_NAV_ID)).toBe('Jurnal')
     expect(posChrome('Journal Entries', false, POS_NAV_ID)).toBe('Journal Entries')
     expect(posChrome('Solar Proposals', true, POS_NAV_ID)).toBe('Solar Proposals')
+    expect(posChrome('Adjust Stock', true)).toBe('Penyesuaian stok')
+    expect(posChrome('Adjust Stock', false)).toBe('Adjust Stock')
   })
 })

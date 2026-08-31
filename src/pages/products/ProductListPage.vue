@@ -54,24 +54,23 @@ watch(
 const { data: categories } = useProductCategoriesLookup()
 
 const categoryOptions = computed(() => [
-  { value: '', label: 'All Categories' },
+  { value: '', label: posChrome('All Categories', posPack.value) },
   ...(categories.value?.map(c => ({ value: String(c.id), label: c.name })) ?? []),
 ])
 
-const typeOptions = [
-  { value: '', label: 'All Types' },
-  { value: 'product', label: 'Products' },
-  { value: 'service', label: 'Services' },
-]
+const typeOptions = computed(() => [
+  { value: '', label: posChrome('All Types', posPack.value) },
+  { value: 'product', label: posChrome('Products', posPack.value) },
+  { value: 'service', label: posChrome('Services', posPack.value) },
+])
 
-// Table columns with mobile priorities
-const columns: ResponsiveColumn[] = [
+const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'sku', label: 'SKU', mobilePriority: 2 },
-  { key: 'name', label: 'Name', mobilePriority: 1 },
-  { key: 'type', label: 'Type', mobilePriority: 4 },
-  { key: 'selling_price', label: 'Price', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
-  { key: 'current_stock', label: 'Stock', align: 'right', showInMobile: false },
-]
+  { key: 'name', label: posChrome('Name', posPack.value), mobilePriority: 1 },
+  { key: 'type', label: posChrome('Type', posPack.value), mobilePriority: 4 },
+  { key: 'selling_price', label: posChrome('Price', posPack.value), align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'current_stock', label: posChrome('Stock', posPack.value), align: 'right', showInMobile: false },
+])
 
 // Delete handling
 const deleteMutation = useDeleteProduct()
@@ -116,12 +115,12 @@ function handleCategoryChange(value: string | number | null) {
       <div class="flex gap-2">
         <Button variant="secondary" :loading="exportMutation.isPending.value" @click="handleExportPriceList">
           <Download class="w-4 h-4 mr-2" />
-          Export Price List
+          {{ posChrome('Export Price List', posPack) }}
         </Button>
         <RouterLink to="/products/new">
           <Button>
             <Plus class="w-4 h-4 mr-2" />
-            New Product
+            {{ posChrome('New Product', posPack) }}
           </Button>
         </RouterLink>
       </div>
@@ -132,12 +131,12 @@ function handleCategoryChange(value: string | number | null) {
         <div class="flex-1 min-w-[200px]">
           <Input
             :model-value="filters.search"
-            placeholder="Search by name, SKU, barcode..."
+            :placeholder="posPack ? 'Cari nama, SKU, barcode...' : 'Search by name, SKU, barcode...'"
             @update:model-value="(v) => updateFilter('search', String(v))"
           />
         </div>
         <div class="w-40">
-          <Select v-model="filters.type" :options="typeOptions" placeholder="All Types" />
+          <Select v-model="filters.type" :options="typeOptions" :placeholder="posChrome('All Types', posPack)" />
         </div>
         <div class="w-48">
           <Select
@@ -150,7 +149,7 @@ function handleCategoryChange(value: string | number | null) {
     </div>
 
     <div v-if="error" class="bg-card rounded-xl border border-border p-8 text-center">
-      <p class="text-destructive">Failed to load products</p>
+      <p class="text-destructive">{{ posPack ? 'Gagal memuat produk' : 'Failed to load products' }}</p>
     </div>
 
     <div v-else-if="isLoading" class="bg-card rounded-xl border border-border p-8 text-center">
@@ -159,15 +158,15 @@ function handleCategoryChange(value: string | number | null) {
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
         </svg>
-        <span>Loading...</span>
+        <span>{{ posChrome('Loading', posPack) }}</span>
       </div>
     </div>
 
     <div v-else-if="isEmpty" class="bg-card rounded-xl border border-border">
       <EmptyState
-        title="No products found"
-        description="Add products to manage your inventory"
-        action-label="New Product"
+        :title="posPack ? 'Belum ada produk' : 'No products found'"
+        :description="posPack ? 'Tambah produk untuk stok kafe' : 'Add products to manage your inventory'"
+        :action-label="posChrome('New Product', posPack)"
         @action="$router.push('/products/new')"
       />
     </div>

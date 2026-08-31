@@ -182,9 +182,66 @@ export const POS_BREADCRUMB_ID: Record<string, string> = {
   Reports: 'Laporan',
   Warehouses: 'Gudang',
   Users: 'Pengguna',
+  'Stock Adjustment': 'Penyesuaian stok',
 }
 
-export function posChrome(english: string, posPack: boolean, table: Record<string, string> = POS_NAV_ID): string {
+export const POS_UI_ID: Record<string, string> = {
+  'Entry #': 'No.',
+  Date: 'Tanggal',
+  Description: 'Uraian',
+  Debit: 'Debit',
+  Credit: 'Kredit',
+  Status: 'Status',
+  Posted: 'Diposting',
+  Draft: 'Draft',
+  'All Status': 'Semua status',
+  View: 'Lihat',
+  Delete: 'Hapus',
+  Cancel: 'Batal',
+  Loading: 'Memuat...',
+  'Failed to load journal entries': 'Gagal memuat jurnal',
+  'No journal entries found': 'Belum ada jurnal',
+  'Create Entry': 'Buat jurnal',
+  Product: 'Produk',
+  Warehouse: 'Gudang',
+  Quantity: 'Jumlah',
+  'Avg Cost': 'Hpp rata-rata',
+  Value: 'Nilai',
+  Level: 'Status',
+  Out: 'Habis',
+  Low: 'Menipis',
+  OK: 'Aman',
+  Name: 'Nama',
+  Type: 'Jenis',
+  Price: 'Harga',
+  'All Types': 'Semua jenis',
+  'All Categories': 'Semua kategori',
+  Products: 'Produk',
+  Services: 'Tidak distok',
+  'New Product': 'Produk baru',
+  'Export Price List': 'Unduh daftar harga',
+  'Stock Movements': 'Mutasi stok',
+  'Adjust Stock': 'Penyesuaian stok',
+  'Stock Adjustment': 'Penyesuaian stok',
+  'Stock In (+)': 'Stok masuk (+)',
+  'Stock Out (-)': 'Stok keluar (-)',
+  'Set Quantity': 'Set jumlah',
+  'Record Stock In': 'Catat stok masuk',
+  'Record Stock Out': 'Catat stok keluar',
+  'New Account': 'Akun baru',
+  'Expand All': 'Bentangkan',
+  'Collapse All': 'Tutup semua',
+  'Chart of Accounts': 'Bagan Akun',
+}
+
+export const POS_CHROME: Record<string, string> = {
+  ...POS_NAV_ID,
+  ...POS_GROUP_ID,
+  ...POS_BREADCRUMB_ID,
+  ...POS_UI_ID,
+}
+
+export function posChrome(english: string, posPack: boolean, table: Record<string, string> = POS_CHROME): string {
   if (!posPack) {
     return english
   }
