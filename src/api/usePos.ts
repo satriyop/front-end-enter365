@@ -154,6 +154,14 @@ export async function getPosSession(sessionId: number): Promise<PosSession> {
   return unwrap<PosSession>(data)
 }
 
+export async function listPosSales(sessionId: number): Promise<PosSale[]> {
+  const { data } = await api.get(`/pos/sessions/${sessionId}/sales`, {
+    params: { per_page: 100 },
+  })
+  const payload = unwrap<{ data?: PosSale[] } | PosSale[]>(data)
+  return Array.isArray(payload) ? payload : (payload.data ?? [])
+}
+
 export async function closePosSession(sessionId: number, countedCashAmount: number): Promise<PosSession> {
   const { data } = await api.post(`/pos/sessions/${sessionId}/close`, {
     counted_cash_amount: countedCashAmount,

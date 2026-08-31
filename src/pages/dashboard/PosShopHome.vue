@@ -21,6 +21,8 @@ const queryClient = useQueryClient()
 const { data: home, isLoading } = useQuery({
   queryKey: ['pos', 'shop-home'],
   queryFn: fetchPosShopHome,
+  staleTime: 0,
+  refetchOnMount: 'always',
 })
 
 const pendingClose = ref<OpenSession | null>(null)

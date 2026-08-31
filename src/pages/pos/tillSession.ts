@@ -1,5 +1,28 @@
 export const SHOP_TIME_ZONE = 'Asia/Jakarta'
 
+export function tillExpectedCash(
+  openingCashAmount: number,
+  sales: Array<{
+    status: string
+    payable_amount?: number
+    tenders?: Array<{ type: string; amount: number }>
+  }>,
+): number {
+  const cashSales = sales
+    .filter((sale) => sale.status === 'completed')
+    .reduce((sum, sale) => {
+      const tenders = sale.tenders ?? []
+      if (tenders.length === 0) {
+        return sum
+      }
+      return sum + tenders
+        .filter((tender) => tender.type === 'cash')
+        .reduce((inner, tender) => inner + tender.amount, 0)
+    }, 0)
+
+  return openingCashAmount + cashSales
+}
+
 export function bindOutletId(
   warehouses: Array<{ id: number; name: string }>,
   current: number | null,

@@ -10,6 +10,7 @@ import {
   holdPosCart,
   listPosHolds,
   listPosOutlets,
+  listPosSales,
   openPosSession,
   takePosHold,
   voidPosSale,
@@ -19,13 +20,14 @@ import {
   type PosSession,
 } from '@/api/usePos'
 import { getErrorMessage } from '@/api/client'
-import { bindOutletId, formatHoldClock, resolveStartWarehouse } from '@/pages/pos/tillSession'
+import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillExpectedCash } from '@/pages/pos/tillSession'
 import { tillTileMarks } from '@/pages/pos/tillMarks'
 import { printTillReceipt } from '@/pages/pos/tillPrint'
 import { onRescue } from '@/utils/clickRescue'
 import { tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
+import { useQueryClient } from '@tanstack/vue-query'
 import { useAuthStore } from '@/stores/auth'
 import { useFeaturesStore } from '@/stores/features'
 
@@ -78,6 +80,7 @@ const auth = useAuthStore()
 const features = useFeaturesStore()
 const route = useRoute()
 const router = useRouter()
+const queryClient = useQueryClient()
 
 const screen = ref<Screen>('open')
 const session = ref<PosSession | null>(null)
@@ -141,17 +144,7 @@ const itemCount = computed(() => cart.value.reduce((sum, line) => sum + line.qua
 const change = computed(() => received.value - payable.value)
 const canCommit = computed(() => way.value === 'qris' || received.value >= payable.value)
 const countedCash = computed(() => DENOMS.reduce((sum, d) => sum + d * (count[d] || 0), 0))
-const expectedCash = computed(() => {
-  const opening = session.value?.opening_cash_amount ?? 0
-  const cashSales = sales.value
-    .filter((sale) => sale.status === 'completed')
-    .reduce((sum, sale) => {
-      return sum + (sale.tenders ?? [])
-        .filter((tender) => tender.type === 'cash')
-        .reduce((inner, tender) => inner + tender.amount, 0)
-    }, 0)
-  return opening + cashSales
-})
+const expectedCash = computed(() => tillExpectedCash(session.value?.opening_cash_amount ?? 0, sales.value))
 
 function rp(amount: number): string {
   return 'Rp' + Math.round(amount).toLocaleString('id-ID')
@@ -259,8 +252,16 @@ async function loadCatalog(sessionId: number): Promise<void> {
 async function refreshSession(sessionId: number): Promise<void> {
   const fresh = await getPosSession(sessionId)
   session.value = fresh
-  sales.value = fresh.sales ?? []
-  holds.value = fresh.holds ?? []
+  holds.value = fresh.holds ?? await listPosHolds(sessionId)
+  try {
+    sales.value = await listPosSales(sessionId)
+  } catch {
+    // Keep locally recorded sales so close recap is not opening cash only.
+  }
+}
+
+function bumpShopHome(): void {
+  void queryClient.invalidateQueries({ queryKey: ['pos', 'shop-home'] })
 }
 
 async function loadWarehouses(): Promise<void> {
@@ -295,6 +296,7 @@ async function startSession(): Promise<void> {
     }
     cart.value = []
     screen.value = 'shop'
+    bumpShopHome()
   } catch (error) {
     const message = apiMessage(error)
     if (isPeriodLock(message)) {
@@ -350,6 +352,7 @@ async function commitSale(): Promise<void> {
     recordLocalSale(recorded, sold)
     cart.value = []
     idempotencyKey.value = null
+    bumpShopHome()
   } catch (error) {
     if (shouldShowTillOfflineDialog(error, recorded !== null)) {
       dialog.value = { type: 'netfail' }
@@ -455,6 +458,7 @@ async function finishClose(): Promise<void> {
   try {
     session.value = await closePosSession(session.value.id, countedCash.value)
     screen.value = 'closed'
+    bumpShopHome()
   } catch (error) {
     showToast(apiMessage(error), true)
   } finally {
@@ -561,8 +565,12 @@ onMounted(async () => {
     if (open) {
       session.value = open
       await loadCatalog(open.id)
-      sales.value = open.sales ?? []
       holds.value = open.holds ?? await listPosHolds(open.id)
+      try {
+        sales.value = await listPosSales(open.id)
+      } catch {
+        sales.value = open.sales ?? []
+      }
       screen.value = openHolds && holds.value.length > 0 ? 'holds' : 'shop'
     }
   } catch (error) {

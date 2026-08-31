@@ -1,10 +1,43 @@
 import { describe, expect, it } from 'vitest'
-import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillStartBlocked } from '../tillSession'
+import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillExpectedCash, tillStartBlocked } from '../tillSession'
 
 const outlets = [
   { id: 3, name: 'Gudang Belakang' },
   { id: 7, name: 'Kopitiam 57 — Toko Depan' },
 ]
+
+describe('tillExpectedCash', () => {
+  it('adds cash tenders to opening so recap matches booked drawer', () => {
+    expect(tillExpectedCash(200_000, [
+      {
+        status: 'completed',
+        payable_amount: 25_410,
+        tenders: [{ type: 'cash', amount: 25_410 }],
+      },
+      {
+        status: 'completed',
+        payable_amount: 9_240,
+        tenders: [{ type: 'cash', amount: 9_240 }],
+      },
+      {
+        status: 'completed',
+        payable_amount: 9_240,
+        tenders: [{ type: 'cash', amount: 9_240 }],
+      },
+      {
+        status: 'voided',
+        payable_amount: 25_410,
+        tenders: [{ type: 'cash', amount: 25_410 }],
+      },
+    ])).toBe(243_890)
+  })
+
+  it('does not treat missing tenders as cash (wait for sales refresh)', () => {
+    expect(tillExpectedCash(200_000, [
+      { status: 'completed', payable_amount: 25_410 },
+    ])).toBe(200_000)
+  })
+})
 
 describe('bindOutletId', () => {
   it('selects the Kopitiam outlet when none is bound yet', () => {
