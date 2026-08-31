@@ -71,6 +71,18 @@ export function isShopCaughtUp(home: PosShopHome): boolean {
   return shopAttentionItems(home).length === 0
 }
 
+export function isStaleOpenSession(openedAt: string | null, now = new Date()): boolean {
+  if (!openedAt) {
+    return false
+  }
+  const opened = new Date(openedAt)
+  if (Number.isNaN(opened.getTime())) {
+    return false
+  }
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return opened < startToday
+}
+
 export function sessionAgeLabel(openedAt: string | null, now = new Date()): string {
   if (!openedAt) {
     return ''

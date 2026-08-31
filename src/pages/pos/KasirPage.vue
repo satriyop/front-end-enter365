@@ -484,7 +484,12 @@ function printStruk(): void {
   if (!lastSale.value) {
     return
   }
-  printTillReceipt(lastSale.value, catalog.value)
+  printTillReceipt(lastSale.value, catalog.value, {
+    cashier: cashierName.value,
+    taxName: session.value?.tax_add_name || 'PBJT',
+    serviceRate: session.value?.service_rate,
+    taxRate: session.value?.tax_add_rate,
+  })
 }
 
 function onSearchEnter(): void {
@@ -633,12 +638,12 @@ onMounted(async () => {
         <button
           v-if="!auth.isCashierOnly"
           type="button"
-          class="tut"
+          class="ghost"
           data-testid="kasir-back-office"
           @click="router.push('/')"
         >Ke back office</button>
-        <button class="tut" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
-        <a href="/login" class="tut" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
+        <button class="shift" data-testid="kasir-close" @click="screen = 'close'; countDone = false; loading = false">Tutup kasir</button>
+        <a href="/login" class="ghost" data-testid="kasir-logout" onclick="localStorage.removeItem('token');location.href='/login';return false">Keluar</a>
       </div>
       <div class="main">
         <div class="rail">
@@ -975,8 +980,8 @@ onMounted(async () => {
   overflow: hidden; -webkit-tap-highlight-color: transparent;
 }
 .kasir button { font: inherit; cursor: pointer; border: 0; }
-.kasir button.tut { color: inherit; }
-.kasir a.leave, .kasir a.tut {
+.kasir button.tut, .kasir button.ghost { color: inherit; }
+.kasir a.leave, .kasir a.tut, .kasir a.ghost {
   font: inherit; cursor: pointer; border: 0; text-decoration: none; color: inherit;
   display: inline-flex; align-items: center; box-sizing: border-box;
 }
@@ -993,6 +998,8 @@ onMounted(async () => {
 .top .kas { text-align: right; font-size: 12px; opacity: .85; white-space: nowrap; }
 .top .kas b { display: block; font-size: 14px; opacity: 1; }
 .top .tut { height: 40px; padding: 0 14px; border-radius: 8px; background: rgba(255,255,255,.16); font-weight: 700; font-size: 14px; }
+.top .shift { height: 40px; padding: 0 16px; border-radius: 8px; background: #fff; color: var(--brand); font-weight: 800; font-size: 14px; }
+.top .ghost { height: 40px; padding: 0 10px; border-radius: 8px; background: transparent; color: rgba(255,255,255,.88); font-weight: 600; font-size: 14px; }
 .main { display: grid; grid-template-columns: 98px 1fr 384px; min-height: 0; }
 .rail { background: var(--panel); border-right: 1px solid var(--line); overflow: auto; }
 .rail button { width: 100%; min-height: 82px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-left: 4px solid transparent; font-weight: 700; font-size: 11px; color: var(--ink2); padding: 8px 4px; line-height: 1.2; text-align: center; }

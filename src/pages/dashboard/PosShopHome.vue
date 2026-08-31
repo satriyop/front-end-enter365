@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { fetchPosShopHome } from '@/api/usePos'
+import { computed, ref } from 'vue'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { closePosSession, fetchPosShopHome, type PosShopHome } from '@/api/usePos'
+import { getErrorMessage } from '@/api/client'
 import { formatCurrency } from '@/utils/format'
-import { Card, Badge } from '@/components/ui'
+import { Card, Badge, Button } from '@/components/ui'
 import {
   isShopCaughtUp,
+  isStaleOpenSession,
   sessionAgeLabel,
   shopAttentionItems,
   shopContinueLink,
@@ -13,10 +15,40 @@ import {
   shopOmzetCard,
 } from './shopHome'
 
+type OpenSession = PosShopHome['open_sessions'][number]
+
+const queryClient = useQueryClient()
 const { data: home, isLoading } = useQuery({
   queryKey: ['pos', 'shop-home'],
   queryFn: fetchPosShopHome,
 })
+
+const pendingClose = ref<OpenSession | null>(null)
+const closing = ref(false)
+const closeError = ref('')
+
+function askClose(session: OpenSession): void {
+  pendingClose.value = session
+  closeError.value = ''
+}
+
+async function confirmClose(): Promise<void> {
+  const session = pendingClose.value
+  if (!session || closing.value) {
+    return
+  }
+  closing.value = true
+  closeError.value = ''
+  try {
+    await closePosSession(session.id, session.booked_cash_amount)
+    pendingClose.value = null
+    await queryClient.invalidateQueries({ queryKey: ['pos', 'shop-home'] })
+  } catch (error) {
+    closeError.value = getErrorMessage(error, 'Gagal menutup sesi.')
+  } finally {
+    closing.value = false
+  }
+}
 
 const attention = computed(() => (home.value ? shopAttentionItems(home.value) : []))
 const caughtUp = computed(() => (home.value ? isShopCaughtUp(home.value) : false))
@@ -94,17 +126,27 @@ const stats = computed(() => {
           <div v-for="i in 2" :key="i" class="h-12 bg-slate-100 dark:bg-slate-800 rounded animate-pulse" />
         </div>
         <div v-else class="space-y-3 text-sm text-slate-600 dark:text-slate-400">
-          <p v-if="home?.open_sessions.length">
-            Kasir buka:
-            <span
+          <div v-if="home?.open_sessions.length" class="space-y-2">
+            <div
               v-for="session in home.open_sessions"
               :key="session.id"
-              class="font-medium text-slate-900 dark:text-slate-100 mr-2"
+              class="flex flex-wrap items-center gap-2 font-medium text-slate-900 dark:text-slate-100"
             >
-              {{ session.cashier_name }} ({{ session.session_number }})
-              <span class="font-normal text-slate-500">{{ sessionAgeLabel(session.opened_at) }}</span>
-            </span>
-          </p>
+              <span>
+                {{ session.cashier_name }} ({{ session.session_number }})
+                <span class="font-normal text-slate-500">{{ sessionAgeLabel(session.opened_at) }}</span>
+              </span>
+              <button
+                v-if="isStaleOpenSession(session.opened_at)"
+                type="button"
+                class="text-sm font-semibold text-red-700 dark:text-red-400 hover:underline"
+                data-testid="dasbor-tutup-sesi"
+                @click="askClose(session)"
+              >
+                Tutup sesi kemarin
+              </button>
+            </div>
+          </div>
           <p v-else>Tidak ada sesi kasir yang terbuka.</p>
           <p v-if="home?.low_stock.length">
             Perlu restok:
@@ -123,6 +165,24 @@ const stats = computed(() => {
           >
             {{ continueLink.label }} →
           </RouterLink>
+          <div
+            v-if="pendingClose"
+            class="mt-3 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-3 space-y-2"
+            data-testid="dasbor-tutup-confirm"
+          >
+            <p class="text-slate-800 dark:text-slate-100">
+              Tutup {{ pendingClose.session_number }} atas nama {{ pendingClose.cashier_name }}?
+              Kas dihitung sesuai pembukuan {{ formatCurrency(pendingClose.booked_cash_amount) }}.
+              <span v-if="pendingClose.hold_count > 0">{{ pendingClose.hold_count }} pesanan tertahan akan dihapus.</span>
+            </p>
+            <p v-if="closeError" class="text-red-700 dark:text-red-400">{{ closeError }}</p>
+            <div class="flex gap-2">
+              <Button type="button" variant="ghost" :disabled="closing" @click="pendingClose = null">Batal</Button>
+              <Button type="button" variant="destructive" :disabled="closing" data-testid="dasbor-tutup-confirm-yes" @click="confirmClose">
+                Tutup sesi
+              </Button>
+            </div>
+          </div>
         </div>
       </Card>
 

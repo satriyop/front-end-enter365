@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import type { PosShopHome } from '@/api/usePos'
 import {
   isShopCaughtUp,
+  isStaleOpenSession,
   journalUraian,
   sessionAgeLabel,
   shopAttentionItems,
@@ -44,6 +45,7 @@ describe('shopAttentionItems', () => {
         warehouse_name: 'Toko Depan',
         hold_count: 1,
         opened_at: '2026-08-30T10:00:00Z',
+        booked_cash_amount: 200_000,
       }],
       open_hold_count: 1,
       low_stock: [{ product_id: 9, sku: 'KT57-SB-GARLIC', name: 'Garlic', quantity: 3 }],
@@ -72,6 +74,8 @@ describe('sessionAgeLabel', () => {
   it('says terbuka sejak kemarin for yesterday tills', () => {
     const now = new Date('2026-08-31T09:00:00')
     expect(sessionAgeLabel('2026-08-30T08:00:00', now)).toBe('terbuka sejak kemarin')
+    expect(isStaleOpenSession('2026-08-30T08:00:00', now)).toBe(true)
+    expect(isStaleOpenSession('2026-08-31T08:00:00', now)).toBe(false)
   })
 })
 

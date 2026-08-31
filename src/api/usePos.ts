@@ -92,6 +92,7 @@ export interface PosShopHome {
     warehouse_name: string
     hold_count: number
     opened_at: string | null
+    booked_cash_amount: number
   }>
   open_hold_count: number
   today: {
