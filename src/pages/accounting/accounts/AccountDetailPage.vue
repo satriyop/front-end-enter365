@@ -116,6 +116,18 @@ function viewJournalEntry(journalEntryId: number) {
               <span v-if="account.is_system" class="px-2.5 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                 System Account
               </span>
+              <span
+                v-if="account.allow_reconciliation"
+                class="px-2.5 py-0.5 rounded text-xs font-medium bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400"
+              >
+                Reconcilable
+              </span>
+              <span
+                v-if="account.currency"
+                class="px-2.5 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300 font-mono"
+              >
+                {{ account.currency }}
+              </span>
             </div>
             <p v-if="account.description" class="mt-2 text-slate-600 dark:text-slate-400">
               {{ account.description }}
@@ -186,6 +198,18 @@ function viewJournalEntry(journalEntryId: number) {
               <dt class="text-slate-500 dark:text-slate-400">Opening Balance</dt>
               <dd class="font-medium text-slate-900 dark:text-slate-100">
                 {{ formatCurrency(account.opening_balance) }}
+              </dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-slate-500 dark:text-slate-400">Allow Reconciliation</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100">
+                {{ account.allow_reconciliation ? 'Yes' : 'No' }}
+              </dd>
+            </div>
+            <div class="flex justify-between">
+              <dt class="text-slate-500 dark:text-slate-400">Account Currency</dt>
+              <dd class="font-medium text-slate-900 dark:text-slate-100 font-mono">
+                {{ account.currency || 'Company Default' }}
               </dd>
             </div>
             <div v-if="account.parent" class="flex justify-between">

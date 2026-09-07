@@ -64,6 +64,16 @@ const typeOptions = [
   { value: 'expense', label: 'Beban (Expense)' },
 ]
 
+const currencyOptions = [
+  { value: '', label: 'Company Default' },
+  { value: 'IDR', label: 'IDR' },
+  { value: 'USD', label: 'USD' },
+  { value: 'EUR', label: 'EUR' },
+  { value: 'SGD', label: 'SGD' },
+  { value: 'JPY', label: 'JPY' },
+  { value: 'CNY', label: 'CNY' },
+]
+
 // Subtype options by type
 const subtypeOptions: Record<string, { value: string; label: string }[]> = {
   asset: [
@@ -110,6 +120,8 @@ const accountSchema = z.object({
     return val
   }),
   is_active: z.boolean().default(true),
+  allow_reconciliation: z.boolean().default(false),
+  currency: z.string().optional().nullable(),
   opening_balance: z.union([z.number(), z.string()]).default(0).transform(val => {
     if (typeof val === 'string') return parseFloat(val) || 0
     return val
@@ -129,6 +141,8 @@ const { values: form, errors, handleSubmit, setValues, setFieldValue, defineFiel
     description: '',
     parent_id: null,
     is_active: true,
+    allow_reconciliation: false,
+    currency: '',
     opening_balance: 0,
   },
 })
@@ -140,6 +154,8 @@ const [subtype] = defineField('subtype')
 const [description] = defineField('description')
 const [parentId] = defineField('parent_id')
 const [isActive] = defineField('is_active')
+const [allowReconciliation] = defineField('allow_reconciliation')
+const [currency] = defineField('currency')
 const [openingBalance] = defineField('opening_balance')
 
 // Watch for existing account data
@@ -153,6 +169,8 @@ watch(existingAccount, (account) => {
       description: account.description || '',
       parent_id: account.parent_id ? String(account.parent_id) : '',
       is_active: !!account.is_active,
+      allow_reconciliation: !!account.allow_reconciliation,
+      currency: account.currency || '',
       opening_balance: toNumber(account.opening_balance),
     })
   }
@@ -187,6 +205,8 @@ const onSubmit = handleSubmit(async (formValues) => {
       description: formValues.description || null,
       parent_id: formValues.parent_id ? parseInt(formValues.parent_id, 10) : null,
       is_active: formValues.is_active,
+      allow_reconciliation: formValues.allow_reconciliation,
+      currency: formValues.currency || null,
       opening_balance: formValues.opening_balance,
     }
 
@@ -336,6 +356,23 @@ const onSubmit = handleSubmit(async (formValues) => {
                   placeholder="Optional description for this account"
                 />
               </div>
+
+              <!-- Account Currency -->
+              <div>
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Mata Uang Akun / Account Currency
+                </label>
+                <Select
+                  :model-value="currency || ''"
+                  test-id="account-currency"
+                  :options="currencyOptions"
+                  placeholder="Company Default"
+                  @update:model-value="(v) => setFieldValue('currency', v ? String(v) : '')"
+                />
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  Leave empty to use the company default currency
+                </p>
+              </div>
             </div>
           </Card>
 
@@ -369,19 +406,36 @@ const onSubmit = handleSubmit(async (formValues) => {
               <h2 class="font-semibold text-slate-900 dark:text-slate-100">Status</h2>
             </template>
 
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                v-model="isActive"
-                type="checkbox"
-                class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
-              />
-              <div>
-                <span class="font-medium text-slate-900 dark:text-slate-100">Active</span>
-                <p class="text-sm text-slate-500 dark:text-slate-400">
-                  Inactive accounts cannot be used in transactions
-                </p>
-              </div>
-            </label>
+            <div class="space-y-4">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  v-model="isActive"
+                  type="checkbox"
+                  class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
+                />
+                <div>
+                  <span class="font-medium text-slate-900 dark:text-slate-100">Active</span>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Inactive accounts cannot be used in transactions
+                  </p>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  v-model="allowReconciliation"
+                  type="checkbox"
+                  data-testid="account-allow-reconciliation"
+                  class="w-5 h-5 rounded border-slate-300 dark:border-slate-600 text-orange-500 focus:ring-orange-500"
+                />
+                <div>
+                  <span class="font-medium text-slate-900 dark:text-slate-100">Allow Reconciliation</span>
+                  <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Izinkan rekonsiliasi — akun dapat dipilih di rekonsiliasi bank/partner
+                  </p>
+                </div>
+              </label>
+            </div>
           </Card>
 
           <!-- Account Code Guide -->

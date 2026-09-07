@@ -234,8 +234,10 @@ function goToAccount(account: Account) {
       <!-- Header -->
       <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
         <div class="grid grid-cols-12 gap-4 text-sm font-medium text-slate-500 dark:text-slate-400">
-          <div class="col-span-5">Account</div>
-          <div class="col-span-2">Type</div>
+          <div class="col-span-4">Account</div>
+          <div class="col-span-1">Type</div>
+          <div class="col-span-1 text-center">Currency</div>
+          <div class="col-span-1 text-center">Reconcile</div>
           <div class="col-span-2 text-right">Balance</div>
           <div class="col-span-1 text-center">Status</div>
           <div class="col-span-2 text-right">Actions</div>
