@@ -515,6 +515,25 @@ const router = createRouter({
           component: () => import('@/pages/accounting/accounts/AccountFormPage.vue'),
           meta: { breadcrumb: 'Edit Account' }
         },
+        // Accounting - Journals master routes
+        {
+          path: 'accounting/journals',
+          name: 'journals',
+          component: () => import('@/pages/accounting/journals/JournalListPage.vue'),
+          meta: { breadcrumb: 'Journals' }
+        },
+        {
+          path: 'accounting/journals/new',
+          name: 'journal-new',
+          component: () => import('@/pages/accounting/journals/JournalFormPage.vue'),
+          meta: { breadcrumb: 'New Journal' }
+        },
+        {
+          path: 'accounting/journals/:id/edit',
+          name: 'journal-edit',
+          component: () => import('@/pages/accounting/journals/JournalFormPage.vue'),
+          meta: { breadcrumb: 'Edit Journal' }
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',

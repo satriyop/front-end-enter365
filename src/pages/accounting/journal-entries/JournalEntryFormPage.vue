@@ -10,6 +10,7 @@ import {
   type CreateJournalEntryLineData,
 } from '@/api/useJournalEntries'
 import { useAccountsLookup } from '@/api/useAccounts'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
 import { formatCurrency } from '@/utils/format'
 import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
 import { ArrowLeft, Save, Loader2, Plus, Trash2, AlertTriangle, CheckCircle } from 'lucide-vue-next'
@@ -19,6 +20,17 @@ const toast = useToast()
 
 // Fetch accounts for dropdown
 const { data: accounts, isLoading: accountsLoading } = useAccountsLookup()
+const { data: journals, isLoading: journalsLoading } = useJournalsLookup()
+const journalId = ref<string>('')
+
+
+const journalOptions = computed(() => {
+  if (!journals.value) return []
+  return journals.value.map((j) => ({
+    value: String(j.id),
+    label: `${j.name} (${journalTypeLabel(j.type)})`,
+  }))
+})
 
 // Account options for select
 const accountOptions = computed(() => {
@@ -115,6 +127,11 @@ const isSubmitting = computed(() => createMutation.isPending.value)
 // Submit form
 async function handleSubmit() {
   // Validate
+  if (!journalId.value) {
+    toast.error('Journal is required')
+    return
+  }
+
   if (!entryDate.value) {
     toast.error('Entry date is required')
     return
@@ -141,6 +158,7 @@ async function handleSubmit() {
   }
 
   const data: CreateJournalEntryData = {
+    journal_id: parseInt(journalId.value, 10),
     entry_date: entryDate.value,
     description: description.value,
     reference: reference.value || undefined,
@@ -184,6 +202,20 @@ async function handleSubmit() {
         </template>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Journal <span class="text-red-500">*</span>
+            </label>
+            <Select
+              :model-value="journalId"
+              :options="journalOptions"
+              :loading="journalsLoading"
+              placeholder="Select journal"
+              :test-id="'je-journal'"
+              @update:model-value="(v) => journalId = v ? String(v) : ''"
+            />
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Entry Date <span class="text-red-500">*</span>

@@ -3,6 +3,8 @@ export const PERMISSION_ROUTE_PREFIXES: Array<{ prefix: string; permission: stri
   { prefix: '/inventory/opnames/new', permission: 'stock_opnames.create' },
   { prefix: '/inventory/adjust', permission: 'inventory.adjust' },
   { prefix: '/inventory/transfer', permission: 'inventory.transfer' },
+  { prefix: '/accounting/journals/new', permission: 'journals.create' },
+  { prefix: '/accounting/journals', permission: 'journals.view' },
   { prefix: '/accounting/journal-entries/new', permission: 'journals.create' },
   { prefix: '/accounting/journal-entries', permission: 'journals.view' },
   { prefix: '/reports/stock-summary', permission: 'inventory.view' },

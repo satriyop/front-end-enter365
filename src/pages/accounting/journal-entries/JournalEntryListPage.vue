@@ -8,6 +8,7 @@ import {
   type JournalEntry,
   type JournalEntryFilters,
 } from '@/api/useJournalEntries'
+import { JOURNAL_TYPE_OPTIONS, journalTypeLabel } from '@/api/useJournals'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { journalUraian } from '@/pages/dashboard/shopHome'
@@ -42,10 +43,20 @@ const {
     is_posted: undefined,
     start_date: undefined,
     end_date: undefined,
+    journal_type: undefined,
   },
 })
 
 // Status options
+const journalTypeOptions = computed(() => [
+  { value: '', label: posChrome('All Journals', posPack.value) },
+  ...JOURNAL_TYPE_OPTIONS.map((o) => ({ value: o.value, label: posChrome(o.label, posPack.value) })),
+])
+
+function handleJournalTypeChange(value: string | number | null) {
+  updateFilter('journal_type', value ? (String(value) as JournalEntryFilters['journal_type']) : undefined)
+}
+
 const statusOptions = computed(() => [
   { value: '', label: posChrome('All Status', posPack.value) },
   { value: 'true', label: posChrome('Posted', posPack.value) },
@@ -64,6 +75,7 @@ function handleStatusChange(value: string | number | null) {
 
 const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'entry_number', label: posChrome('Entry #', posPack.value), mobilePriority: 1 },
+  { key: 'journal', label: posChrome('Journal', posPack.value), showInMobile: false },
   { key: 'entry_date', label: posChrome('Date', posPack.value), mobilePriority: 2 },
   { key: 'description', label: posChrome('Description', posPack.value), mobilePriority: 3 },
   { key: 'total_debit', label: posChrome('Debit', posPack.value), align: 'right', showInMobile: false },
@@ -140,6 +152,17 @@ function viewEntry(entry: JournalEntry) {
           />
         </div>
 
+        <!-- Journal Type Filter -->
+        <div class="min-w-[11rem]">
+          <Select
+            :model-value="filters.journal_type ?? ''"
+            :options="journalTypeOptions"
+            :placeholder="posChrome('All Journals', posPack)"
+            :test-id="'je-journal-type-filter'"
+            @update:model-value="handleJournalTypeChange"
+          />
+        </div>
+
         <!-- Status Filter -->
         <div class="min-w-[11rem]">
           <Select
@@ -197,6 +220,14 @@ function viewEntry(entry: JournalEntry) {
         <template #cell-entry_number="{ item }">
           <span class="font-mono text-orange-600 dark:text-orange-400 font-medium">
             {{ item.entry_number }}
+          </span>
+        </template>
+
+
+        <!-- Journal -->
+        <template #cell-journal="{ item }">
+          <span class="text-slate-700 dark:text-slate-300">
+            {{ item.journal?.name ?? '—' }}
           </span>
         </template>
 
