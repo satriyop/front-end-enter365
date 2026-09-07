@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
 import { api, type PaginatedResponse } from './client'
@@ -135,6 +135,47 @@ export function useAccountLedger(
       return response.data || null
     },
     enabled: computed(() => !!accountId.value),
+  })
+}
+
+// ============================================
+// Import
+// ============================================
+
+export interface AccountImportError {
+  row: number
+  messages: string[]
+}
+
+export interface AccountImportResult {
+  created_count: number
+  error_count: number
+  errors: AccountImportError[]
+  accounts: Account[]
+}
+
+/**
+ * Import Chart of Accounts from CSV/XLSX
+ */
+export function useImportAccounts() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      const formData = new FormData()
+      formData.append('file', file)
+      const response = await api.post<{ message: string; data: AccountImportResult }>(
+        '/accounts/import',
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }
+      )
+      return response.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts'] })
+    },
   })
 }
 

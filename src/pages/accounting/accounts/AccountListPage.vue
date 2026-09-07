@@ -4,13 +4,15 @@ import { useRouter } from 'vue-router'
 import {
   useAccountsTree,
   useDeleteAccount,
+  useImportAccounts,
   buildAccountTree,
   type Account,
+  type AccountImportResult,
 } from '@/api/useAccounts'
 import { Button, Input, Select, Card, Modal, useToast } from '@/components/ui'
 import { posChrome } from '@/config/nav'
 import { useFeaturesStore } from '@/stores/features'
-import { Plus, Search } from 'lucide-vue-next'
+import { Plus, Search, Upload } from 'lucide-vue-next'
 import AccountTreeNode from './AccountTreeNode.vue'
 
 const router = useRouter()
@@ -136,6 +138,52 @@ async function handleDelete() {
 function goToAccount(account: Account) {
   router.push(`/accounting/accounts/${account.id}`)
 }
+
+// Import CoA
+const importMutation = useImportAccounts()
+const showImportModal = ref(false)
+const importFile = ref<File | null>(null)
+const importResult = ref<AccountImportResult | null>(null)
+const importError = ref<string | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
+
+function openImportModal() {
+  importFile.value = null
+  importResult.value = null
+  importError.value = null
+  showImportModal.value = true
+}
+
+function onImportFileChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  importFile.value = input.files?.[0] ?? null
+  importResult.value = null
+  importError.value = null
+}
+
+async function handleImport() {
+  if (!importFile.value) return
+  importError.value = null
+  try {
+    const response = await importMutation.mutateAsync(importFile.value)
+    importResult.value = response.data
+    toast.success(
+      response.message ||
+        `Imported ${response.data.created_count} account(s)`
+    )
+    refetch()
+  } catch (err: unknown) {
+    const axiosErr = err as {
+      response?: { data?: { message?: string; data?: AccountImportResult } }
+    }
+    const data = axiosErr.response?.data
+    if (data?.data) {
+      importResult.value = data.data
+    }
+    importError.value = data?.message || 'Import failed'
+    toast.error(importError.value)
+  }
+}
 </script>
 
 <template>
@@ -146,12 +194,18 @@ function goToAccount(account: Account) {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ posChrome('Chart of Accounts', posPack) }}</h1>
         <p class="text-slate-500 dark:text-slate-400">{{ posPack ? 'Struktur akun perusahaan' : 'Manage your account structure' }}</p>
       </div>
-      <RouterLink to="/accounting/accounts/new">
-        <Button>
-          <Plus class="w-4 h-4 mr-2" />
-          {{ posChrome('New Account', posPack) }}
+      <div class="flex items-center gap-2">
+        <Button variant="secondary" @click="openImportModal">
+          <Upload class="w-4 h-4 mr-2" />
+          {{ posChrome('Import', posPack) }}
         </Button>
-      </RouterLink>
+        <RouterLink to="/accounting/accounts/new">
+          <Button>
+            <Plus class="w-4 h-4 mr-2" />
+            {{ posChrome('New Account', posPack) }}
+          </Button>
+        </RouterLink>
+      </div>
     </div>
 
     <!-- Filters -->
@@ -277,6 +331,73 @@ function goToAccount(account: Account) {
           @click="handleDelete"
         >
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <!-- Import CoA Modal -->
+    <Modal
+      :open="showImportModal"
+      title="Import Chart of Accounts"
+      description="Upload a CSV or XLSX file to create accounts in bulk."
+      size="lg"
+      @update:open="showImportModal = $event"
+    >
+      <div class="space-y-4">
+        <div class="rounded-lg border border-dashed border-slate-300 dark:border-slate-600 p-4">
+          <p class="text-sm text-slate-600 dark:text-slate-400 mb-3">
+            Columns: <code class="text-xs">code, name, type, subtype, parent, active, allow_reconciliation, currency</code>
+          </p>
+          <p class="text-xs text-slate-500 dark:text-slate-500 mb-3">
+            <code>parent</code> accepts an existing account code or id. Type must match the parent type.
+          </p>
+          <input
+            ref="fileInputRef"
+            type="file"
+            accept=".csv,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            class="block w-full text-sm text-slate-600 dark:text-slate-300 file:mr-3 file:py-2 file:px-3 file:rounded-md file:border-0 file:bg-slate-100 file:text-slate-700 dark:file:bg-slate-800 dark:file:text-slate-200"
+            @change="onImportFileChange"
+          />
+          <p v-if="importFile" class="mt-2 text-sm text-slate-700 dark:text-slate-300">
+            Selected: {{ importFile.name }}
+          </p>
+        </div>
+
+        <p v-if="importError" class="text-sm text-red-600 dark:text-red-400">
+          {{ importError }}
+        </p>
+
+        <div
+          v-if="importResult"
+          class="rounded-lg border border-slate-200 dark:border-slate-700 p-3 space-y-2"
+        >
+          <p class="text-sm text-slate-700 dark:text-slate-300">
+            Created: <strong>{{ importResult.created_count }}</strong>
+            · Errors: <strong>{{ importResult.error_count }}</strong>
+          </p>
+          <ul
+            v-if="importResult.errors?.length"
+            class="max-h-48 overflow-y-auto text-sm space-y-1"
+          >
+            <li
+              v-for="(err, idx) in importResult.errors"
+              :key="idx"
+              class="text-amber-700 dark:text-amber-400"
+            >
+              Row {{ err.row }}: {{ err.messages.join('; ') }}
+            </li>
+          </ul>
+        </div>
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showImportModal = false">Close</Button>
+        <Button
+          :disabled="!importFile"
+          :loading="importMutation.isPending.value"
+          @click="handleImport"
+        >
+          <Upload class="w-4 h-4 mr-2" />
+          Import
         </Button>
       </template>
     </Modal>
