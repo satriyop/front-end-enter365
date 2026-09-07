@@ -250,6 +250,7 @@ function viewAccount(accountId: string) {
             <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Account</th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Partner</th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Description</th>
                 <th class="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Debit</th>
                 <th class="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Credit</th>
@@ -271,6 +272,13 @@ function viewAccount(accountId: string) {
                     <span class="ml-2 text-slate-900 dark:text-slate-100">{{ line.account.name }}</span>
                   </button>
                 </td>
+                <td class="px-4 py-3 text-slate-600 dark:text-slate-400" data-testid="je-line-partner">
+                  <template v-if="line.partner">
+                    <span class="font-mono text-slate-500 dark:text-slate-400">{{ line.partner.code }}</span>
+                    <span class="ml-2 text-slate-900 dark:text-slate-100">{{ line.partner.name }}</span>
+                  </template>
+                  <template v-else>-</template>
+                </td>
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
                   {{ line.description || '-' }}
                 </td>
@@ -284,7 +292,7 @@ function viewAccount(accountId: string) {
             </tbody>
             <tfoot class="bg-slate-50 dark:bg-slate-800/50 font-medium">
               <tr>
-                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="2">Total</td>
+                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="3">Total</td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(entry.total_debit) }}
                 </td>
