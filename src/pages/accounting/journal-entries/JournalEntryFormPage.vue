@@ -10,6 +10,7 @@ import {
   type CreateJournalEntryLineData,
 } from '@/api/useJournalEntries'
 import { useAccountsLookup } from '@/api/useAccounts'
+import { useContactsLookup } from '@/api/useContacts'
 import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
 import { formatCurrency } from '@/utils/format'
 import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
@@ -21,6 +22,7 @@ const toast = useToast()
 // Fetch accounts for dropdown
 const { data: accounts, isLoading: accountsLoading } = useAccountsLookup()
 const { data: journals, isLoading: journalsLoading } = useJournalsLookup()
+const { data: contacts, isLoading: contactsLoading } = useContactsLookup()
 const journalId = ref<string>('')
 
 
@@ -38,6 +40,14 @@ const accountOptions = computed(() => {
   return accounts.value.map(acc => ({
     value: String(acc.id),
     label: `${acc.code} - ${acc.name}`,
+  }))
+})
+
+const partnerOptions = computed(() => {
+  if (!contacts.value) return []
+  return contacts.value.map((c) => ({
+    value: String(c.id),
+    label: `${c.code} - ${c.name}`,
   }))
 })
 
@@ -261,8 +271,11 @@ async function handleSubmit() {
           <table class="w-full text-sm">
             <thead class="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-2/5">
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/4">
                   Account <span class="text-red-500">*</span>
+                </th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/5">
+                  Partner
                 </th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/5">
                   Description
@@ -287,6 +300,18 @@ async function handleSubmit() {
                     :loading="accountsLoading"
                     placeholder="Select account"
                     @update:model-value="(v) => line.account_id = v ? parseInt(String(v), 10) : 0"
+                  />
+                </td>
+
+                <!-- Partner -->
+                <td class="px-4 py-2">
+                  <Select
+                    :test-id="`je-line-${index}-partner`"
+                    :model-value="line.partner_id ? String(line.partner_id) : ''"
+                    :options="partnerOptions"
+                    :loading="contactsLoading"
+                    placeholder="Optional"
+                    @update:model-value="(v) => line.partner_id = v ? parseInt(String(v), 10) : null"
                   />
                 </td>
 
@@ -338,7 +363,7 @@ async function handleSubmit() {
             </tbody>
             <tfoot class="bg-slate-50 dark:bg-slate-800/50 font-medium">
               <tr>
-                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="2">Total</td>
+                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="3">Total</td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(totals.totalDebit) }}
                 </td>
@@ -404,6 +429,7 @@ async function handleSubmit() {
         <h2 class="font-semibold text-slate-900 dark:text-slate-100">Tips</h2>
       </template>
       <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
+        <li>• Partner (customer/vendor) is optional on each line for AR/AP reporting</li>
         <li>• Each line can only have a debit OR credit amount, not both</li>
         <li>• Total debits must equal total credits for a balanced entry</li>
         <li>• Use "Auto-Balance" to automatically fill the last line</li>

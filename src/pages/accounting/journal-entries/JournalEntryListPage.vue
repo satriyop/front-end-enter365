@@ -9,6 +9,7 @@ import {
   type JournalEntryFilters,
 } from '@/api/useJournalEntries'
 import { JOURNAL_TYPE_OPTIONS, journalTypeLabel } from '@/api/useJournals'
+import { useContactsLookup } from '@/api/useContacts'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { journalUraian } from '@/pages/dashboard/shopHome'
@@ -22,6 +23,15 @@ const toast = useToast()
 const features = useFeaturesStore()
 const posPack = computed(() => features.preset === 'pos')
 const title = computed(() => posChrome('Journal Entries', posPack.value, POS_NAV_ID))
+
+const { data: contacts, isLoading: contactsLoading } = useContactsLookup()
+const partnerOptions = computed(() => [
+  { value: '', label: posChrome('All Partners', posPack.value) },
+  ...((contacts.value ?? []).map((c) => ({
+    value: String(c.id),
+    label: `${c.code} - ${c.name}`,
+  }))),
+])
 
 // Resource list with filters and pagination
 const {
@@ -44,6 +54,7 @@ const {
     start_date: undefined,
     end_date: undefined,
     journal_type: undefined,
+    partner_id: undefined,
   },
 })
 
@@ -55,6 +66,10 @@ const journalTypeOptions = computed(() => [
 
 function handleJournalTypeChange(value: string | number | null) {
   updateFilter('journal_type', value ? (String(value) as JournalEntryFilters['journal_type']) : undefined)
+}
+
+function handlePartnerChange(value: string | number | null) {
+  updateFilter('partner_id', value ? Number(value) : undefined)
 }
 
 const statusOptions = computed(() => [
@@ -160,6 +175,18 @@ function viewEntry(entry: JournalEntry) {
             :placeholder="posChrome('All Journals', posPack)"
             :test-id="'je-journal-type-filter'"
             @update:model-value="handleJournalTypeChange"
+          />
+        </div>
+
+        <!-- Partner Filter -->
+        <div class="min-w-[14rem]">
+          <Select
+            :model-value="filters.partner_id ? String(filters.partner_id) : ''"
+            :options="partnerOptions"
+            :loading="contactsLoading"
+            :placeholder="posChrome('All Partners', posPack)"
+            :test-id="'je-partner-filter'"
+            @update:model-value="handlePartnerChange"
           />
         </div>
 

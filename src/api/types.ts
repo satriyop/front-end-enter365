@@ -8657,10 +8657,12 @@ export interface components {
             id: number;
             journal_entry_id: number;
             account_id: number;
+            partner_id?: number | null;
             description: string;
             debit: number;
             credit: number;
             account?: components["schemas"]["AccountResource"];
+            partner?: components["schemas"]["ContactResource"] | null;
             created_at: string | null;
             updated_at: string | null;
         };
@@ -10554,6 +10556,7 @@ export interface components {
             reference?: string | null;
             lines: {
                 account_id: number;
+                partner_id?: number | null;
                 description?: string | null;
                 debit?: number;
                 credit?: number;
