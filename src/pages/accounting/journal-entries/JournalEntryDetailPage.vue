@@ -139,6 +139,7 @@ function viewAccount(accountId: string) {
             </div>
             <p class="text-slate-600 dark:text-slate-400">{{ entry.description }}</p>
             <div class="flex items-center gap-4 mt-2 text-sm text-slate-500 dark:text-slate-400">
+              <span v-if="entry.journal" data-testid="je-journal-name">Journal: {{ entry.journal.name }}</span>
               <span>{{ formatDate(entry.entry_date) }}</span>
               <span v-if="entry.reference">Ref: {{ entry.reference }}</span>
             </div>

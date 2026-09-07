@@ -7,7 +7,10 @@ import type { components, paths } from './types'
 // Types
 // ============================================
 
-export type JournalEntry = components['schemas']['JournalEntryResource']
+export type JournalEntry = components['schemas']['JournalEntryResource'] & {
+  journal_id?: number | null
+  journal?: { id: number; name: string; type: string; sequence_prefix: string } | null
+}
 export type JournalEntryLine = components['schemas']['JournalEntryLineResource']
 
 export interface JournalEntryFilters {
@@ -18,9 +21,13 @@ export interface JournalEntryFilters {
   end_date?: string
   is_posted?: boolean
   fiscal_period_id?: number
+  journal_id?: number
+  journal_type?: 'sales' | 'purchase' | 'bank' | 'cash' | 'miscellaneous'
 }
 
-export type CreateJournalEntryData = paths['/journal-entries']['post']['requestBody']['content']['application/json']
+export type CreateJournalEntryData = paths['/journal-entries']['post']['requestBody']['content']['application/json'] & {
+  journal_id: number
+}
 export type CreateJournalEntryLineData = CreateJournalEntryData['lines'][number]
 
 // ============================================
