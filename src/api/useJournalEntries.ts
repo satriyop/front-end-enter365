@@ -23,6 +23,7 @@ export interface JournalEntryFilters {
   fiscal_period_id?: number
   journal_id?: number
   journal_type?: 'sales' | 'purchase' | 'bank' | 'cash' | 'miscellaneous'
+  partner_id?: number
 }
 
 export type CreateJournalEntryData = paths['/journal-entries']['post']['requestBody']['content']['application/json'] & {
@@ -170,6 +171,7 @@ export function validateJournalLines(lines: CreateJournalEntryLineData[]): strin
 export function createEmptyLine(): CreateJournalEntryLineData {
   return {
     account_id: 0,
+    partner_id: null,
     description: '',
     debit: 0,
     credit: 0,
