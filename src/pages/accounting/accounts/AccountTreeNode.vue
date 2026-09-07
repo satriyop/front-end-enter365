@@ -34,7 +34,7 @@ const isSystem = computed(() => !!props.account.is_system)
       @click="$emit('click', account)"
     >
       <!-- Account Name with Tree Indent -->
-      <div class="col-span-5 flex items-center gap-2" :style="{ paddingLeft: level * 24 + 'px' }">
+      <div class="col-span-4 flex items-center gap-2" :style="{ paddingLeft: level * 24 + 'px' }">
         <button
           v-if="hasChildren"
           class="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
@@ -54,12 +54,29 @@ const isSystem = computed(() => !!props.account.is_system)
       </div>
 
       <!-- Type -->
-      <div class="col-span-2">
+      <div class="col-span-1">
         <span
           class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
           :class="getAccountTypeColor(account.type)"
         >
           {{ getAccountTypeLabel(account.type) }}
+        </span>
+      </div>
+
+      <!-- Currency -->
+      <div class="col-span-1 text-center font-mono text-xs text-slate-600 dark:text-slate-400">
+        {{ account.currency || '—' }}
+      </div>
+
+      <!-- Allow Reconciliation -->
+      <div class="col-span-1 text-center">
+        <span
+          class="inline-flex px-2 py-0.5 rounded text-xs font-medium"
+          :class="account.allow_reconciliation
+            ? 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400'
+            : 'bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-400'"
+        >
+          {{ account.allow_reconciliation ? 'Yes' : 'No' }}
         </span>
       </div>
 

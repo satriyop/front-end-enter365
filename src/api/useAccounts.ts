@@ -8,7 +8,11 @@ import type { components, paths } from './types'
 // Types
 // ============================================
 
-export type Account = components['schemas']['AccountResource']
+// Extended until OpenAPI types are regenerated with CoA parity fields
+export type Account = components['schemas']['AccountResource'] & {
+  allow_reconciliation?: boolean
+  currency?: string | null
+}
 
 export interface AccountFilters {
   page?: number
@@ -20,8 +24,14 @@ export interface AccountFilters {
 }
 
 // Use Scramble-generated request types directly
-export type CreateAccountData = components['schemas']['StoreAccountRequest']
-export type UpdateAccountData = components['schemas']['UpdateAccountRequest']
+export type CreateAccountData = components['schemas']['StoreAccountRequest'] & {
+  allow_reconciliation?: boolean
+  currency?: string | null
+}
+export type UpdateAccountData = components['schemas']['UpdateAccountRequest'] & {
+  allow_reconciliation?: boolean
+  currency?: string | null
+}
 
 export type AccountBalance = paths['/accounts/{account}/balance']['get']['responses']['200']['content']['application/json']
 export type AccountLedger = paths['/accounts/{account}/ledger']['get']['responses']['200']['content']['application/json']
