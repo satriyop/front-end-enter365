@@ -155,6 +155,14 @@ export function validateJournalLines(lines: CreateJournalEntryLineData[]): strin
     if (debit < 0 || credit < 0) {
       errors.push(`Line ${index + 1}: Amounts cannot be negative`)
     }
+
+    const distribution = line.analytic_distribution
+    if (distribution && Object.keys(distribution).length > 0) {
+      const percentTotal = Object.values(distribution).reduce((sum, pct) => sum + Number(pct || 0), 0)
+      if (Math.abs(percentTotal - 100) > 0.01) {
+        errors.push(`Line ${index + 1}: Analytic distribution must sum to 100%`)
+      }
+    }
   })
 
   const { isBalanced, difference } = calculateLineTotals(lines)
