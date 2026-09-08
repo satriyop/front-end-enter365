@@ -8,6 +8,8 @@ import { toNumber, CURRENCY_OPTIONS } from '@/utils/format'
 import { useAccountsLookup } from '@/api/useAccounts'
 import { analyticDistributionFromAccountId, analyticDistributionPrimaryId, useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
 import { useContactsLookup } from '@/api/useContacts'
+import { useProductsLookup } from '@/api/useProducts'
+import { useTaxRecords } from '@/api/useTaxRecords'
 import { taxTagIdsFromTagId, taxTagIdsPrimaryId, useTaxTagsLookup } from '@/api/useTaxTags'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
@@ -36,6 +38,8 @@ const contactOptions = computed(() =>
 const { data: accounts, isLoading: accountsLoading } = useAccountsLookup()
 const { data: analyticAccounts, isLoading: analyticAccountsLoading } = useAnalyticAccountsLookup()
 const { data: taxTags, isLoading: taxTagsLoading } = useTaxTagsLookup()
+const { data: products } = useProductsLookup()
+const { data: purchaseTaxRecords } = useTaxRecords('purchase')
 
 const accountOptions = computed(() =>
   (accounts.value ?? []).map((account) => ({
@@ -55,9 +59,16 @@ const taxTagOptions = computed(() =>
     label: `${tag.code} - ${tag.name}`,
   })),
 )
+const productOptions = computed(() =>
+  (products.value ?? []).map((product) => ({
+    value: product.id,
+    label: `${product.sku} - ${product.name}`,
+  })),
+)
 
 function createEmptyItem(): BillItemFormData {
   return {
+    product_id: null,
     description: '',
     quantity: 1,
     unit: 'pcs',
@@ -67,6 +78,8 @@ function createEmptyItem(): BillItemFormData {
     expense_account_id: undefined as unknown as number,
     analytic_account_id: null,
     tax_tag_id: null,
+    tax_record_ids: [],
+    taxes_manual: false,
   }
 }
 
@@ -132,8 +145,11 @@ watch(existingBill, (bill) => {
               account_id?: number | null
               analytic_distribution?: { [key: string]: number } | null
               tax_tag_ids?: number[] | null
+              tax_record_ids?: number[] | null
+              product_id?: number | null
             }
             return {
+              product_id: row.product_id ? Number(row.product_id) : null,
               description: item.description,
               quantity: item.quantity,
               unit: item.unit,
@@ -143,6 +159,8 @@ watch(existingBill, (bill) => {
               expense_account_id: item.expense_account_id ?? row.account_id ?? (undefined as unknown as number),
               analytic_account_id: Number(analyticDistributionPrimaryId(row.analytic_distribution)) || null,
               tax_tag_id: Number(taxTagIdsPrimaryId(row.tax_tag_ids)) || null,
+              tax_record_ids: row.tax_record_ids ?? [],
+              taxes_manual: Array.isArray(row.tax_record_ids),
             }
           })
         : [createEmptyItem()],
@@ -159,6 +177,42 @@ function handleRemoveItem(index: number) {
   if (itemFields.value.length > 1) {
     removeItem(index)
   }
+}
+
+function rateForTaxIds(ids: number[]): number {
+  return (purchaseTaxRecords.value ?? [])
+    .filter((tax) => ids.includes(tax.id))
+    .reduce((sum, tax) => sum + Number(tax.rate), 0)
+}
+
+function onProductSelect(index: number, productId: number | null) {
+  const item = form.items?.[index]
+  if (!item) return
+  item.product_id = productId
+  if (!productId || !products.value) return
+  const product = products.value.find((row) => Number(row.id) === productId)
+  if (!product) return
+  item.description = product.name
+  item.unit = product.unit
+  item.unit_price = Number(product.purchase_price) || Number(product.selling_price) || 0
+  const inherited = (product.purchase_taxes ?? []).map((tax) => tax.id)
+  item.tax_record_ids = inherited
+  item.taxes_manual = false
+  item.tax_rate = inherited.length
+    ? (product.purchase_taxes ?? []).reduce((sum, tax) => sum + Number(tax.rate), 0)
+    : Number(product.tax_rate) || 0
+}
+
+function toggleLineTax(index: number, taxId: number) {
+  const item = form.items?.[index]
+  if (!item) return
+  const current = item.tax_record_ids ?? []
+  const next = current.includes(taxId)
+    ? current.filter((id) => id !== taxId)
+    : [...current, taxId]
+  item.tax_record_ids = next
+  item.taxes_manual = true
+  item.tax_rate = next.length ? rateForTaxIds(next) : 0
 }
 
 // Calculations
@@ -184,15 +238,21 @@ const onSubmit = handleSubmit(async (formValues) => {
   const itemsPayload = (formValues.items || [])
     .filter(item => item.description)
     .map(item => ({
+      product_id: item.product_id || undefined,
       description: item.description,
       quantity: item.quantity,
       unit: item.unit,
       unit_price: item.unit_price,
       discount_percent: item.discount_percent,
-      tax_rate: item.tax_rate,
+      tax_rate: item.taxes_manual
+        ? (item.tax_rate || 0)
+        : ((item.tax_record_ids?.length || !item.product_id) ? item.tax_rate : undefined),
       expense_account_id: item.expense_account_id,
       analytic_distribution: analyticDistributionFromAccountId(item.analytic_account_id),
       tax_tag_ids: taxTagIdsFromTagId(item.tax_tag_id),
+      tax_record_ids: item.taxes_manual
+        ? (item.tax_record_ids ?? [])
+        : (item.tax_record_ids?.length ? item.tax_record_ids : undefined),
     }))
 
   const payload = {
@@ -299,9 +359,21 @@ const onSubmit = handleSubmit(async (formValues) => {
           <div v-for="(field, index) in itemFields" :key="field.key" class="space-y-2 pb-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
             <div class="grid grid-cols-12 gap-2 items-end">
               <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Product</label>
+                <Select
+                  v-model="field.value.product_id"
+                  :options="productOptions"
+                  placeholder="Optional product"
+                  :test-id="`bill-item-${index}-product`"
+                  @update:model-value="(value) => onProductSelect(index, value ? Number(value) : null)"
+                />
+              </div>
+              <div class="col-span-8">
                 <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
                 <Input v-model="field.value.description" placeholder="Item description" :data-testid="`bill-item-${index}-description`" />
               </div>
+            </div>
+            <div class="grid grid-cols-12 gap-2 items-end">
               <div class="col-span-2">
                 <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Qty</label>
                 <Input v-model.number="field.value.quantity" type="number" min="1" :data-testid="`bill-item-${index}-quantity`" />
@@ -312,7 +384,26 @@ const onSubmit = handleSubmit(async (formValues) => {
               </div>
               <div class="col-span-2">
                 <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
-                <Input v-model.number="field.value.tax_rate" type="number" min="0" max="100" />
+                <Input v-model.number="field.value.tax_rate" type="number" min="0" max="100" :data-testid="`bill-item-${index}-tax-rate`" />
+              </div>
+              <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Taxes</label>
+                <div class="flex flex-wrap gap-2 min-h-9 items-center" :data-testid="`bill-item-${index}-tax-records`">
+                  <label
+                    v-for="tax in purchaseTaxRecords"
+                    :key="tax.id"
+                    class="flex items-center gap-1 text-xs text-slate-700 dark:text-slate-300"
+                  >
+                    <input
+                      type="checkbox"
+                      class="rounded border-slate-300 dark:border-slate-600"
+                      :checked="(field.value.tax_record_ids ?? []).includes(tax.id)"
+                      @change="toggleLineTax(index, tax.id)"
+                    />
+                    {{ tax.name }} ({{ tax.rate }}%)
+                  </label>
+                  <span v-if="!purchaseTaxRecords?.length" class="text-xs text-slate-400">No tax records</span>
+                </div>
               </div>
               <div class="col-span-1 flex justify-end">
                 <Button type="button" variant="ghost" size="sm" @click="handleRemoveItem(index)" :disabled="itemFields.length === 1">
@@ -342,7 +433,7 @@ const onSubmit = handleSubmit(async (formValues) => {
                 />
               </div>
               <div class="col-span-4">
-                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Taxes</label>
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax tags</label>
                 <Select
                   v-model="field.value.tax_tag_id"
                   :options="taxTagOptions"

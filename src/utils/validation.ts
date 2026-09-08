@@ -566,6 +566,7 @@ export const bomTemplateSchema = z.object({
  * Bill item schema
  */
 export const billItemSchema = z.object({
+  product_id: z.number().optional().nullable(),
   description: requiredString('Description').max(500),
   quantity: quantitySchema.default(1),
   unit: z.string().max(20).default('pcs'),
@@ -575,6 +576,8 @@ export const billItemSchema = z.object({
   expense_account_id: z.number({ required_error: 'Please select an account' }).positive('Please select an account'),
   analytic_account_id: z.number().optional().nullable(),
   tax_tag_id: z.number().optional().nullable(),
+  tax_record_ids: z.array(z.number()).optional().default([]),
+  taxes_manual: z.boolean().optional().default(false),
 })
 
 /**
