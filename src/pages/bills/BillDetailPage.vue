@@ -9,6 +9,7 @@ import { useWarehousesLookup } from '@/api/useInventory'
 import { Button, Card, Badge, Modal, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatAnalyticDistributionLabel, useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
 import { formatTaxTagLabel, useTaxTagsLookup } from '@/api/useTaxTags'
+import { useTaxRecords } from '@/api/useTaxRecords'
 import { formatCurrency, formatDate, toNumber } from '@/utils/format'
 import { FileText, RotateCcw, Repeat } from 'lucide-vue-next'
 import AttachmentCard from '@/components/AttachmentCard.vue'
@@ -22,6 +23,18 @@ const { data: bill, isLoading } = useBill(billId)
 const { data: purchaseOrders } = usePurchaseOrdersLookup()
 const { data: analyticAccounts } = useAnalyticAccountsLookup()
 const { data: taxTags } = useTaxTagsLookup()
+const { data: taxRecords } = useTaxRecords('purchase')
+
+function formatBillLineTaxes(item: { tax_record_ids?: number[] | null; tax_tag_ids?: number[] | null }): string {
+  const records = (item.tax_record_ids ?? [])
+    .map((id) => taxRecords.value?.find((tax) => tax.id === id))
+    .filter((tax): tax is NonNullable<typeof tax> => Boolean(tax))
+    .map((tax) => `${tax.name} (${tax.rate}%)`)
+    .join(', ')
+  const tags = formatTaxTagLabel(item.tax_tag_ids, taxTags.value)
+
+  return [records, tags].filter(Boolean).join(' · ')
+}
 
 // Mutations
 const postMutation = usePostBill()
@@ -447,7 +460,7 @@ const journalItemColumns: ResponsiveColumn[] = [
               </template>
               <template #cell-taxes="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">
-                  {{ formatTaxTagLabel((item as { tax_tag_ids?: number[] | null }).tax_tag_ids, taxTags) || '-' }}
+                  {{ formatBillLineTaxes(item as { tax_record_ids?: number[] | null; tax_tag_ids?: number[] | null }) || '-' }}
                 </span>
               </template>
               <template #cell-quantity="{ item }">
