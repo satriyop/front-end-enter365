@@ -11,11 +11,13 @@ const router = useRouter()
 // Date filter state
 const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
 const endDate = ref(toLocalISODate())
+const comparePreviousPeriod = ref(false)
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
+const comparePreviousPeriodRef = computed(() => comparePreviousPeriod.value)
 
-const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef)
+const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef, comparePreviousPeriodRef)
 
 const exportMutation = useExportIncomeStatement()
 
@@ -77,6 +79,10 @@ function formatAmount(amount: number): string {
             Year to Date
           </Button>
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-1">
+          <input v-model="comparePreviousPeriod" type="checkbox" class="rounded border-slate-300" />
+          Compare previous period
+        </label>
       </div>
     </Card>
 
@@ -98,6 +104,9 @@ function formatAmount(amount: number): string {
           <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ report.report_name }}</h2>
           <p class="text-slate-500 dark:text-slate-400">
             Period: {{ report.period_start || startDate }} to {{ report.period_end || endDate }}
+          </p>
+          <p v-if="report.variance" class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+            vs previous: net income {{ formatAmount(report.variance.net_income_change) }}
           </p>
         </div>
 

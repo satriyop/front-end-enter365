@@ -2,18 +2,30 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCashFlow } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportCashFlow } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
 const endDate = ref(toLocalISODate())
+const comparePreviousPeriod = ref(false)
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
+const comparePreviousPeriodRef = computed(() => comparePreviousPeriod.value)
 
-const { data: report, isLoading, error } = useCashFlow(startDateRef, endDateRef)
+const { data: report, isLoading, error } = useCashFlow(startDateRef, endDateRef, comparePreviousPeriodRef)
+
+const exportMutation = useExportCashFlow()
+
+function handleExport() {
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+  })
+}
 
 function formatAmount(amount: number): string {
   const formatted = formatCurrency(Math.abs(amount))
@@ -28,7 +40,10 @@ function formatAmount(amount: number): string {
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Cash Flow Statement</h1>
         <p class="text-slate-500 dark:text-slate-400">Laporan Arus Kas - Cash movements by activity</p>
       </div>
-      <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      <div class="flex gap-2">
+        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
+      </div>
     </div>
 
     <!-- Date Filter -->
@@ -66,6 +81,10 @@ function formatAmount(amount: number): string {
             Year to Date
           </Button>
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-1">
+          <input v-model="comparePreviousPeriod" type="checkbox" class="rounded border-slate-300" />
+          Compare previous period
+        </label>
       </div>
     </Card>
 
@@ -86,6 +105,9 @@ function formatAmount(amount: number): string {
           <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ report.report_name }}</h2>
           <p class="text-slate-500 dark:text-slate-400">
             Period: {{ report.period?.start }} to {{ report.period?.end }}
+          </p>
+          <p v-if="report.variance" class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+            vs previous: net cash {{ formatAmount(report.variance.net_cash_change) }}
           </p>
         </div>
 

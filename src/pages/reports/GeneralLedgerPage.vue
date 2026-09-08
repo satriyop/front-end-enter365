@@ -3,7 +3,8 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useGeneralLedger } from '@/api/useReports'
 import { useExportGeneralLedger } from '@/api/useExports'
-import { Button, Input, Card, ExportButton } from '@/components/ui'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { Button, Input, Card, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-vue-next'
 
@@ -12,14 +13,30 @@ const router = useRouter()
 // Date range filters
 const startDate = ref('')
 const endDate = ref('')
+const journalId = ref('')
+const analyticAccountId = ref('')
+
+const { data: journals } = useJournalsLookup()
+const journalOptions = computed(() => {
+  const options = [{ value: '', label: 'All Journals' }]
+  if (!journals.value) return options
+  return options.concat(journals.value.map((journal) => ({
+    value: String(journal.id),
+    label: `${journal.name} (${journalTypeLabel(journal.type)})`,
+  })))
+})
 
 // Computed refs for the hook
 const startDateComputed = computed(() => startDate.value)
 const endDateComputed = computed(() => endDate.value)
+const journalIdComputed = computed(() => journalId.value || undefined)
+const analyticAccountIdComputed = computed(() => analyticAccountId.value || undefined)
 
 const { data: report, isLoading, isError, error } = useGeneralLedger(
   startDateComputed,
-  endDateComputed
+  endDateComputed,
+  journalIdComputed,
+  analyticAccountIdComputed
 )
 
 // Expanded accounts tracking
@@ -54,6 +71,8 @@ function handleExport() {
   exportMutation.mutate({
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
+    journal_id: journalId.value || undefined,
+    analytic_account_id: analyticAccountId.value || undefined,
   })
 }
 
@@ -116,6 +135,18 @@ function setYearToDate() {
             v-model="endDate"
             type="date"
           />
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Journal
+          </label>
+          <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
+        </div>
+        <div class="flex-1 min-w-[160px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Analytic account ID
+          </label>
+          <Input v-model="analyticAccountId" type="number" min="1" placeholder="Optional" />
         </div>
         <div class="flex gap-2">
           <Button

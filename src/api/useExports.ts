@@ -79,12 +79,57 @@ export function useExportIncomeStatement() {
  */
 export function useExportGeneralLedger() {
   return useMutation({
-    mutationFn: async (params?: { account_id?: string; start_date?: string; end_date?: string }) => {
+    mutationFn: async (params?: {
+      account_id?: string
+      start_date?: string
+      end_date?: string
+      journal_id?: string
+      analytic_account_id?: string
+    }) => {
       const response = await api.get('/export/general-ledger', {
         params: { format: 'csv', ...params },
         responseType: 'blob',
       })
       downloadBlob(response.data, `general-ledger-${params?.start_date || today()}.csv`)
+      return true
+    },
+  })
+}
+
+export function useExportCashFlow() {
+  return useMutation({
+    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+      const response = await api.get('/export/cash-flow', {
+        params: { format: 'csv', ...params },
+        responseType: 'blob',
+      })
+      downloadBlob(response.data, `cash-flow-${params?.start_date || today()}.csv`)
+      return true
+    },
+  })
+}
+
+export function useExportChangesInEquity() {
+  return useMutation({
+    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+      const response = await api.get('/export/changes-in-equity', {
+        params: { format: 'csv', ...params },
+        responseType: 'blob',
+      })
+      downloadBlob(response.data, `changes-in-equity-${params?.start_date || today()}.csv`)
+      return true
+    },
+  })
+}
+
+export function useExportDailyCashMovement() {
+  return useMutation({
+    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+      const response = await api.get('/export/daily-cash-movement', {
+        params: { format: 'csv', ...params },
+        responseType: 'blob',
+      })
+      downloadBlob(response.data, `daily-cash-movement-${params?.start_date || today()}.csv`)
       return true
     },
   })

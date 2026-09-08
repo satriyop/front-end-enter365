@@ -3,15 +3,28 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTrialBalance } from '@/api/useReports'
 import { useExportTrialBalance } from '@/api/useExports'
-import { Button, Input, Card, Badge, ExportButton } from '@/components/ui'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { Button, Input, Card, Badge, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 const asOfDate = ref(toLocalISODate())
+const journalId = ref('')
 const asOfDateRef = computed(() => asOfDate.value)
+const journalIdRef = computed(() => journalId.value || undefined)
 
-const { data: report, isLoading, error } = useTrialBalance(asOfDateRef)
+const { data: journals } = useJournalsLookup()
+const journalOptions = computed(() => {
+  const options = [{ value: '', label: 'All Journals' }]
+  if (!journals.value) return options
+  return options.concat(journals.value.map((journal) => ({
+    value: String(journal.id),
+    label: `${journal.name} (${journalTypeLabel(journal.type)})`,
+  })))
+})
+
+const { data: report, isLoading, error } = useTrialBalance(asOfDateRef, journalIdRef)
 
 const exportMutation = useExportTrialBalance()
 
@@ -61,6 +74,10 @@ function getAccountTypeColor(type: string): string {
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">As of Date</label>
           <Input v-model="asOfDate" type="date" class="w-40" />
+        </div>
+        <div class="min-w-[200px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
+          <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
         </div>
         <div class="flex gap-2">
           <Button

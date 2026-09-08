@@ -1,11 +1,14 @@
 <template>
   <div class="max-w-4xl mx-auto p-6">
     <!-- Page Header -->
-    <div class="mb-6">
-      <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
-        Changes in Equity
-      </h1>
-      <p class="text-sm text-muted-foreground">Laporan Perubahan Ekuitas</p>
+    <div class="mb-6 flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-slate-100">
+          Changes in Equity
+        </h1>
+        <p class="text-sm text-muted-foreground">Laporan Perubahan Ekuitas</p>
+      </div>
+      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filters -->
@@ -217,8 +220,18 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useChangesInEquity } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportChangesInEquity } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
+
+const exportMutation = useExportChangesInEquity()
+
+function handleExport() {
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+  })
+}
 
 // Date range filters - default to current month
 const startDate = ref(

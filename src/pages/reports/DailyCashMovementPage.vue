@@ -1,9 +1,12 @@
 <template>
   <div class="max-w-5xl mx-auto space-y-6">
     <!-- Header -->
-    <div>
-      <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Daily Cash Movement</h1>
-      <p class="text-muted-foreground">Mutasi Kas Harian</p>
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Daily Cash Movement</h1>
+        <p class="text-muted-foreground">Mutasi Kas Harian</p>
+      </div>
+      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filter Card -->
@@ -126,7 +129,7 @@
                   {{ formatCurrency(movement.net) }}
                 </td>
                 <td class="py-3 px-4 text-right font-mono font-bold text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(movement.running_balance) }}
+                  {{ formatCurrency(movement.running_balance ?? movement.balance) }}
                 </td>
               </tr>
             </tbody>
@@ -160,7 +163,8 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useDailyCashMovement } from '@/api/useReports'
-import { Button, Input, Card } from '@/components/ui'
+import { useExportDailyCashMovement } from '@/api/useExports'
+import { Button, Input, Card, ExportButton } from '@/components/ui'
 import { formatCurrency, formatDate, toLocalISODate } from '@/utils/format'
 
 // Date range state
@@ -173,6 +177,15 @@ const endDateRef = computed(() => endDate.value)
 
 // Fetch report data
 const { data: report, isLoading, error } = useDailyCashMovement(startDateRef, endDateRef)
+
+const exportMutation = useExportDailyCashMovement()
+
+function handleExport() {
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+  })
+}
 
 // Quick date range filters
 function setThisMonth() {
