@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import { Button, Input, Pagination, EmptyState, Badge, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
 import { formatCurrency } from '@/utils/format'
 import { POS_NAV_ID, posChrome } from '@/config/nav'
+import { freeToUse } from './stockPipeline'
 import { useFeaturesStore } from '@/stores/features'
 
 const features = useFeaturesStore()
@@ -39,7 +40,10 @@ const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'product.sku', label: 'SKU', mobilePriority: 3 },
   { key: 'product.name', label: posChrome('Product', posPack.value), mobilePriority: 1 },
   { key: 'warehouse.name', label: posChrome('Warehouse', posPack.value), showInMobile: false },
-  { key: 'quantity', label: posChrome('Quantity', posPack.value), align: 'right', mobilePriority: 2 },
+  { key: 'quantity', label: posChrome('On Hand', posPack.value) || 'On Hand', align: 'right', mobilePriority: 2 },
+  { key: 'free_to_use', label: 'Free to Use', align: 'right', showInMobile: false },
+  { key: 'incoming_qty', label: 'Incoming', align: 'right', showInMobile: false },
+  { key: 'outgoing_qty', label: 'Outgoing', align: 'right', showInMobile: false },
   { key: 'average_cost', label: posChrome('Avg Cost', posPack.value), align: 'right', showInMobile: false },
   { key: 'total_value', label: posChrome('Value', posPack.value), align: 'right', mobilePriority: 4 },
   { key: 'level', label: posChrome('Level', posPack.value), showInMobile: false },
@@ -125,6 +129,15 @@ const columns = computed<ResponsiveColumn[]>(() => [
         <!-- Custom cell: Quantity -->
         <template #cell-quantity="{ item }">
           <span class="block text-right tabular-nums">{{ item.quantity }} {{ item.product?.unit }}</span>
+        </template>
+        <template #cell-free_to_use="{ item }">
+          <span class="block text-right tabular-nums">{{ item.free_to_use ?? freeToUse(Number(item.quantity), Number(item.reserved_quantity ?? 0)) }}</span>
+        </template>
+        <template #cell-incoming_qty="{ item }">
+          <span class="block text-right tabular-nums">{{ item.incoming_qty ?? 0 }}</span>
+        </template>
+        <template #cell-outgoing_qty="{ item }">
+          <span class="block text-right tabular-nums">{{ item.outgoing_qty ?? 0 }}</span>
         </template>
 
         <template #cell-average_cost="{ item }">
