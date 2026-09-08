@@ -13,6 +13,7 @@ import {
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Card, Input, useToast } from '@/components/ui'
 import { ArrowLeft, Save, Loader2, Calendar } from 'lucide-vue-next'
+import { FISCAL_LOCK_DATE_FIELDS } from '@/config/fiscalLockDates'
 
 const route = useRoute()
 const router = useRouter()
@@ -35,6 +36,11 @@ const fiscalPeriodSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name must be at most 100 characters'),
   start_date: z.string().min(1, 'Start date is required'),
   end_date: z.string().min(1, 'End date is required'),
+  lock_sales_until: z.string().optional(),
+  lock_purchases_until: z.string().optional(),
+  lock_tax_until: z.string().optional(),
+  lock_everything_until: z.string().optional(),
+  hard_lock_until: z.string().optional(),
 }).refine((data) => {
   if (data.start_date && data.end_date) {
     return new Date(data.start_date) <= new Date(data.end_date)
@@ -54,12 +60,33 @@ const { errors, handleSubmit, setFieldValue, setValues, setErrors, defineField }
     name: '',
     start_date: '',
     end_date: '',
+    lock_sales_until: '',
+    lock_purchases_until: '',
+    lock_tax_until: '',
+    lock_everything_until: '',
+    hard_lock_until: '',
   },
 })
 
 const [name] = defineField('name')
 const [startDate] = defineField('start_date')
 const [endDate] = defineField('end_date')
+const [lockSalesUntil] = defineField('lock_sales_until')
+const [lockPurchasesUntil] = defineField('lock_purchases_until')
+const [lockTaxUntil] = defineField('lock_tax_until')
+const [lockEverythingUntil] = defineField('lock_everything_until')
+const [hardLockUntil] = defineField('hard_lock_until')
+
+function lockDateModel(key: (typeof FISCAL_LOCK_DATE_FIELDS)[number]['key']): string {
+  const models = {
+    lock_sales_until: lockSalesUntil.value,
+    lock_purchases_until: lockPurchasesUntil.value,
+    lock_tax_until: lockTaxUntil.value,
+    lock_everything_until: lockEverythingUntil.value,
+    hard_lock_until: hardLockUntil.value,
+  }
+  return models[key] ?? ''
+}
 
 // Populate form when editing
 watch(existingPeriod, (period) => {
@@ -68,6 +95,11 @@ watch(existingPeriod, (period) => {
       name: period.name,
       start_date: period.start_date?.split('T')[0] ?? '',
       end_date: period.end_date?.split('T')[0] ?? '',
+      lock_sales_until: period.lock_sales_until?.split('T')[0] ?? '',
+      lock_purchases_until: period.lock_purchases_until?.split('T')[0] ?? '',
+      lock_tax_until: period.lock_tax_until?.split('T')[0] ?? '',
+      lock_everything_until: period.lock_everything_until?.split('T')[0] ?? '',
+      hard_lock_until: period.hard_lock_until?.split('T')[0] ?? '',
     })
   }
 }, { immediate: true })
@@ -123,10 +155,23 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 
 // Form submission
 const onSubmit = handleSubmit(async (formValues) => {
-  const data: CreateFiscalPeriodData = {
+  const data: CreateFiscalPeriodData & {
+    lock_sales_until?: string | null
+    lock_purchases_until?: string | null
+    lock_tax_until?: string | null
+    lock_everything_until?: string | null
+    hard_lock_until?: string | null
+  } = {
     name: formValues.name,
     start_date: formValues.start_date,
     end_date: formValues.end_date,
+    ...(isEditing.value ? {
+      lock_sales_until: formValues.lock_sales_until || null,
+      lock_purchases_until: formValues.lock_purchases_until || null,
+      lock_tax_until: formValues.lock_tax_until || null,
+      lock_everything_until: formValues.lock_everything_until || null,
+      hard_lock_until: formValues.hard_lock_until || null,
+    } : {}),
   }
 
   try {
@@ -243,6 +288,30 @@ const onSubmit = handleSubmit(async (formValues) => {
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   A descriptive name for this period{{ isEditing ? '' : ' (auto-generated from dates)' }}
                 </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card v-if="isEditing" class="mt-6">
+            <template #header>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100">Lock Dates</h2>
+            </template>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+              Inclusive dates (Odoo Lock Dates). Sales/Purchases/Tax can close independently; Hard Lock blocks all posting including year-end close.
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div
+                v-for="field in FISCAL_LOCK_DATE_FIELDS"
+                :key="field.key"
+                :class="field.key === 'hard_lock_until' ? 'sm:col-span-2' : ''"
+              >
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">{{ field.label }}</label>
+                <Input
+                  :model-value="lockDateModel(field.key)"
+                  type="date"
+                  :data-testid="field.key.replaceAll('_', '-')"
+                  @update:model-value="(value) => setFieldValue(field.key, value ?? '')"
+                />
               </div>
             </div>
           </Card>

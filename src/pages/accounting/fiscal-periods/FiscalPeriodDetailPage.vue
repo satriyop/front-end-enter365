@@ -10,6 +10,7 @@ import {
   getFiscalPeriodStatus,
 } from '@/api/useFiscalPeriods'
 import { formatDate, formatCurrency } from '@/utils/format'
+import { FISCAL_LOCK_DATE_FIELDS } from '@/config/fiscalLockDates'
 import { Button, Card, Modal, useToast } from '@/components/ui'
 import {
   ArrowLeft,
@@ -354,6 +355,16 @@ function handleChecklistAction(url?: string) {
                 <dt class="text-slate-500 dark:text-slate-400">End Date</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">
                   {{ formatDate(period.end_date) }}
+                </dd>
+              </div>
+              <div
+                v-for="field in FISCAL_LOCK_DATE_FIELDS"
+                :key="field.key"
+                class="flex justify-between"
+              >
+                <dt class="text-slate-500 dark:text-slate-400">{{ field.label }}</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
+                  {{ formatDate((period as Record<string, string | null | undefined>)[field.key]) }}
                 </dd>
               </div>
               <div v-if="period.is_closed" class="flex justify-between">
