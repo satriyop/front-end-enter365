@@ -12,6 +12,7 @@ export const SEARCH_QUICK_ACTIONS: SearchCatalogItem[] = [
   { type: 'action', label: 'New Contact', icon: '👤', path: '/contacts/new' },
   { type: 'action', label: 'New Project', icon: '🏗️', path: '/projects/new', feature: 'projects' },
   { type: 'action', label: 'New Work Order', icon: '🔧', path: '/work-orders/new', feature: 'work_orders' },
+  { type: 'action', label: 'New Purchase Order', icon: '🛒', path: '/purchasing/purchase-orders/new', feature: 'purchase_orders' },
 ]
 
 export const SEARCH_NAV_ITEMS: SearchCatalogItem[] = [
@@ -25,6 +26,7 @@ export const SEARCH_NAV_ITEMS: SearchCatalogItem[] = [
   { type: 'nav', label: 'Work Orders', icon: '🔧', path: '/work-orders', feature: 'work_orders' },
   { type: 'nav', label: 'Inventory', icon: '📊', path: '/inventory', feature: 'inventory' },
   { type: 'nav', label: 'Reports', icon: '📈', path: '/reports' },
+  { type: 'nav', label: 'Purchase Orders', icon: '🛒', path: '/purchasing/purchase-orders', feature: 'purchase_orders' },
 ]
 
 export const SEARCH_RESULT_FEATURES: Record<string, string> = {

@@ -44,6 +44,8 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/accounting/recurring-templates', feature: 'recurring' },
   { prefix: '/finance/down-payments', feature: 'down_payments' },
   { prefix: '/purchasing/purchase-orders', feature: 'purchase_orders' },
+  { prefix: '/purchase-orders', feature: 'purchase_orders' },
+  { prefix: '/purchases', feature: 'purchase_orders' },
   { prefix: '/purchasing/goods-receipt-notes', feature: 'goods_receipt_notes' },
   { prefix: '/purchasing/purchase-returns', feature: 'purchase_returns' },
   { prefix: '/sales/delivery-orders', feature: 'delivery_orders' },
@@ -702,6 +704,14 @@ const router = createRouter({
           meta: { breadcrumb: 'Edit Template' }
         },
         // Purchasing - Purchase Orders routes
+        {
+          path: 'purchase-orders',
+          redirect: '/purchasing/purchase-orders',
+        },
+        {
+          path: 'purchases',
+          redirect: '/purchasing/purchase-orders',
+        },
         {
           path: 'purchasing/purchase-orders',
           name: 'purchase-orders',

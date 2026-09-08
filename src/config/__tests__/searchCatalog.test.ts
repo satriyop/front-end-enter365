@@ -34,6 +34,25 @@ describe('search catalog pack gating', () => {
     expect(searchResultVisible('quotation', enabled)).toBe(false)
   })
 
+  it('hides Purchase Orders when the purchase_orders pack is off', () => {
+    const enabled = (feature: string) => feature !== 'purchase_orders'
+
+    const actions = catalogVisible(SEARCH_QUICK_ACTIONS, enabled)
+    const nav = catalogVisible(SEARCH_NAV_ITEMS, enabled)
+
+    expect(actions.map((item) => item.label)).not.toContain('New Purchase Order')
+    expect(nav.map((item) => item.label)).not.toContain('Purchase Orders')
+  })
+
+  it('shows Purchase Orders when the purchase_orders pack is on', () => {
+    const enabled = () => true
+
+    expect(catalogVisible(SEARCH_QUICK_ACTIONS, enabled).map((item) => item.label))
+      .toContain('New Purchase Order')
+    expect(catalogVisible(SEARCH_NAV_ITEMS, enabled).map((item) => item.label))
+      .toContain('Purchase Orders')
+  })
+
   it('shows Invoices when the invoices pack is on', () => {
     const enabled = () => true
 

@@ -64,5 +64,7 @@ describe('navigation permission keys', () => {
     expect(posChrome('Quotations', true, POS_NAV_ID)).toBe('Penawaran')
     expect(posChrome('Invoices', true, POS_NAV_ID)).toBe('Faktur')
     expect(posChrome('Quotations', false, POS_NAV_ID)).toBe('Quotations')
+    expect(posChrome('Purchase Orders', true, POS_NAV_ID)).toBe('Pesanan Pembelian')
+    expect(posChrome('Purchasing', true)).toBe('Pembelian')
   })
 })
