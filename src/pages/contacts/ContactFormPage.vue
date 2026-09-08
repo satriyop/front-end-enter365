@@ -56,6 +56,7 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
     province: '',
     postal_code: '',
     npwp: '',
+    is_pkp: false,
     nik: '',
     credit_limit: 0,
     payment_term_days: 30,
@@ -85,6 +86,7 @@ const [city] = defineField('city')
 const [province] = defineField('province')
 const [postalCode] = defineField('postal_code')
 const [npwp] = defineField('npwp')
+const [isPkp] = defineField('is_pkp')
 const [nik] = defineField('nik')
 const [creditLimit] = defineField('credit_limit')
 const [paymentTermDays] = defineField('payment_term_days')
@@ -161,6 +163,7 @@ watch(existingContact, (contact) => {
       province: contact.province || '',
       postal_code: contact.postal_code || '',
       npwp: contact.npwp || '',
+      is_pkp: contact.is_pkp ?? false,
       nik: contact.nik || '',
       credit_limit: toNumber(contact.credit_limit),
       payment_term_days: toNumber(contact.payment_term_days),
@@ -193,7 +196,7 @@ const isSubmitting = computed(() =>
 )
 
 const onSubmit = handleSubmit(async (formValues) => {
-  const payload: CreateContactData = {
+  const payload: CreateContactData & { is_pkp?: boolean } = {
     code: formValues.code,
     name: formValues.name,
     type: formValues.type,
@@ -204,6 +207,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     province: formValues.province || null,
     postal_code: formValues.postal_code || null,
     npwp: formValues.npwp || null,
+    is_pkp: formValues.is_pkp ?? false,
     nik: formValues.nik || null,
     credit_limit: formValues.credit_limit ?? 0,
     payment_term_days: formValues.payment_term_days ?? 30,
@@ -377,6 +381,16 @@ useFormShortcuts({
               @blur="validateField('npwp')"
             />
           </FormField>
+
+          <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 md:col-span-2">
+            <input
+              v-model="isPkp"
+              type="checkbox"
+              class="rounded border-slate-300"
+              data-testid="contact-is-pkp"
+            />
+            Is PKP (Pengusaha Kena Pajak)
+          </label>
 
           <FormField label="NIK" :error="errors.nik">
             <Input
