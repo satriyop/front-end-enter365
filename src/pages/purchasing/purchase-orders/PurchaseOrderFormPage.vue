@@ -18,6 +18,7 @@ import {
 } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
+import { priceForVendor } from '@/utils/vendorPrice'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
   Button,
@@ -201,17 +202,35 @@ function handleRemoveItem(index: number) {
   }
 }
 
+function resolveLineVendorPrice(index: number) {
+  const item = form.items?.[index]
+  if (!item?.product_id || !products.value) return
+  const product = products.value.find(p => Number(p.id) === item.product_id)
+  if (!product) return
+  item.unit_price = priceForVendor(product, contactId.value ? Number(contactId.value) : null, Number(item.quantity) || 1)
+}
+
 function onProductSelect(index: number, productId: number | null) {
   if (productId && products.value) {
     const product = products.value.find(p => Number(p.id) === productId)
     if (product && form.items?.[index]) {
       form.items[index].description = product.name
       form.items[index].unit = product.unit
-      form.items[index].unit_price = Number(product.purchase_price) || Number(product.selling_price) || 0
       form.items[index].tax_rate = Number(product.tax_rate) || 0
+      resolveLineVendorPrice(index)
     }
   }
 }
+
+function onQuantityChange(index: number) {
+  resolveLineVendorPrice(index)
+}
+
+watch(contactId, (newId, oldId) => {
+  if (!newId || newId === oldId) return
+  if (isEditing.value && !oldId) return
+  (form.items ?? []).forEach((_, index) => resolveLineVendorPrice(index))
+})
 
 // Form submission
 const createMutation = useCreatePurchaseOrder()
@@ -463,6 +482,7 @@ const contactOptions = computed(() => {
                     min="0.0001"
                     step="any"
                     class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    @change="onQuantityChange(index)"
                   />
                 </td>
                 <td class="px-3 py-2">
