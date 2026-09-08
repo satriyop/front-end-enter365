@@ -845,14 +845,16 @@ export interface BankReconciliationReport {
 
 export function useTrialBalance(
   asOfDate?: Ref<string | undefined>,
-  journalId?: Ref<string | undefined>
+  journalId?: Ref<string | undefined>,
+  postedOnly?: Ref<boolean | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'trial-balance', asOfDate, journalId],
+    queryKey: ['reports', 'trial-balance', asOfDate, journalId, postedOnly],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (asOfDate?.value) params.as_of_date = asOfDate.value
       if (journalId?.value) params.journal_id = journalId.value
+      if (postedOnly?.value === false) params.posted_only = '0'
       const response = await api.get<{ data: TrialBalanceReport }>('/reports/trial-balance', { params })
       return response.data.data
     },
@@ -862,14 +864,16 @@ export function useTrialBalance(
 
 export function useBalanceSheet(
   asOfDate?: Ref<string | undefined>,
-  compareTo?: Ref<string | undefined>
+  compareTo?: Ref<string | undefined>,
+  journalId?: Ref<string | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'balance-sheet', asOfDate, compareTo],
+    queryKey: ['reports', 'balance-sheet', asOfDate, compareTo, journalId],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (asOfDate?.value) params.as_of_date = asOfDate.value
       if (compareTo?.value) params.compare_to = compareTo.value
+      if (journalId?.value) params.journal_id = journalId.value
       const response = await api.get<{ data: BalanceSheetReport & {
         current_period?: BalanceSheetReport
         variance?: BalanceSheetReport['variance']
@@ -891,15 +895,17 @@ export function useBalanceSheet(
 export function useIncomeStatement(
   startDate?: Ref<string | undefined>,
   endDate?: Ref<string | undefined>,
-  comparePreviousPeriod?: Ref<boolean>
+  comparePreviousPeriod?: Ref<boolean>,
+  journalId?: Ref<string | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'income-statement', startDate, endDate, comparePreviousPeriod],
+    queryKey: ['reports', 'income-statement', startDate, endDate, comparePreviousPeriod, journalId],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
       if (comparePreviousPeriod?.value) params.compare_previous_period = '1'
+      if (journalId?.value) params.journal_id = journalId.value
       const response = await api.get<{ data: IncomeStatementReport & {
         current_period?: IncomeStatementReport
         variance?: IncomeStatementReport['variance']
@@ -921,15 +927,17 @@ export function useIncomeStatement(
 export function useCashFlow(
   startDate?: Ref<string | undefined>,
   endDate?: Ref<string | undefined>,
-  comparePreviousPeriod?: Ref<boolean>
+  comparePreviousPeriod?: Ref<boolean>,
+  journalId?: Ref<string | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'cash-flow', startDate, endDate, comparePreviousPeriod],
+    queryKey: ['reports', 'cash-flow', startDate, endDate, comparePreviousPeriod, journalId],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
       if (comparePreviousPeriod?.value) params.compare_previous_period = '1'
+      if (journalId?.value) params.journal_id = journalId.value
       const response = await api.get<{ data: CashFlowReport & {
         current_period?: CashFlowReport
         variance?: CashFlowReport['variance']
@@ -976,16 +984,18 @@ export function useGeneralLedger(
   startDate?: Ref<string | undefined>,
   endDate?: Ref<string | undefined>,
   journalId?: Ref<string | undefined>,
-  analyticAccountId?: Ref<string | undefined>
+  analyticAccountId?: Ref<string | undefined>,
+  postedOnly?: Ref<boolean | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'general-ledger', startDate, endDate, journalId, analyticAccountId],
+    queryKey: ['reports', 'general-ledger', startDate, endDate, journalId, analyticAccountId, postedOnly],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
       if (journalId?.value) params.journal_id = journalId.value
       if (analyticAccountId?.value) params.analytic_account_id = analyticAccountId.value
+      if (postedOnly?.value === false) params.posted_only = '0'
       const response = await api.get<{ data: GeneralLedgerReport }>('/reports/general-ledger', { params })
       return response.data.data
     },

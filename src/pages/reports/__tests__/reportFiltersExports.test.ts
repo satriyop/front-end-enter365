@@ -6,7 +6,7 @@ function pageSource(name: string): string {
   return readFileSync(resolve(__dirname, `../${name}`), 'utf8')
 }
 
-describe('report filters and exports (#37)', () => {
+describe('report filters and exports (#37 / #99)', () => {
   it.each([
     'CashFlowPage.vue',
     'ChangesInEquityPage.vue',
@@ -22,6 +22,20 @@ describe('report filters and exports (#37)', () => {
     expect(source).toContain('journalId')
     expect(source).toContain('analyticAccountId')
     expect(source).toContain('All Journals')
+    expect(source).toContain('useAnalyticAccountsLookup')
+    expect(source).toContain('Posted Entries')
+  })
+
+  it('adds journal filters to cash flow, balance sheet, and income statement', () => {
+    expect(pageSource('CashFlowPage.vue')).toContain('journalId')
+    expect(pageSource('BalanceSheetPage.vue')).toContain('journalId')
+    expect(pageSource('IncomeStatementPage.vue')).toContain('journalId')
+  })
+
+  it('offers pdf and xlsx export on core financial reports', () => {
+    expect(pageSource('CashFlowPage.vue')).not.toContain('show-format-options="false"')
+    expect(pageSource('BalanceSheetPage.vue')).not.toContain('show-format-options="false"')
+    expect(pageSource('GeneralLedgerPage.vue')).not.toContain('show-format-options="false"')
   })
 
   it('shows Invoice Date, Due Date, and Matching on partner ledger lines (#74)', () => {

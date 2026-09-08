@@ -3,7 +3,8 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCashFlow } from '@/api/useReports'
 import { useExportCashFlow } from '@/api/useExports'
-import { Button, Input, Card, ExportButton } from '@/components/ui'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { Button, Input, Card, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
@@ -11,19 +12,33 @@ const router = useRouter()
 const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
 const endDate = ref(toLocalISODate())
 const comparePreviousPeriod = ref(false)
+const journalId = ref('')
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
 const comparePreviousPeriodRef = computed(() => comparePreviousPeriod.value)
+const journalIdRef = computed(() => journalId.value || undefined)
 
-const { data: report, isLoading, error } = useCashFlow(startDateRef, endDateRef, comparePreviousPeriodRef)
+const { data: journals } = useJournalsLookup()
+const journalOptions = computed(() => {
+  const options = [{ value: '', label: 'All Journals' }]
+  if (!journals.value) return options
+  return options.concat(journals.value.map((journal) => ({
+    value: String(journal.id),
+    label: `${journal.name} (${journalTypeLabel(journal.type)})`,
+  })))
+})
+
+const { data: report, isLoading, error } = useCashFlow(startDateRef, endDateRef, comparePreviousPeriodRef, journalIdRef)
 
 const exportMutation = useExportCashFlow()
 
-function handleExport() {
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
   exportMutation.mutate({
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
   })
 }
 
@@ -41,7 +56,7 @@ function formatAmount(amount: number): string {
         <p class="text-slate-500 dark:text-slate-400">Laporan Arus Kas - Cash movements by activity</p>
       </div>
       <div class="flex gap-2">
-        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
         <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
       </div>
     </div>
@@ -56,6 +71,10 @@ function formatAmount(amount: number): string {
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
           <Input v-model="endDate" type="date" class="w-40" />
+        </div>
+        <div class="min-w-[200px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
+          <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
         </div>
         <div class="flex gap-2">
           <Button
