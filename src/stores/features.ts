@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { api } from '@/api/client'
+import { isPosAcquisitionPreset } from '@/config/searchCatalog'
 
 /**
  * Backend product modules (config/features.php).
@@ -42,6 +43,8 @@ export const useFeaturesStore = defineStore('features', () => {
       .filter(([, on]) => on)
       .map(([name]) => name),
   )
+
+  const posAcquisition = computed(() => isPosAcquisitionPreset(preset.value))
 
   /**
    * Whether a product module is enabled.
@@ -106,6 +109,7 @@ export const useFeaturesStore = defineStore('features', () => {
   return {
     modules,
     preset,
+    posAcquisition,
     loaded,
     loading,
     enabledList,

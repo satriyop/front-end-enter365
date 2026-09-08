@@ -46,7 +46,7 @@ const filteredNavigation = computed(() => {
   })).filter(group => group.items.length > 0)
 })
 
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 function groupLabel(label: string): string {
   return posChrome(label, posPack.value, POS_GROUP_ID)

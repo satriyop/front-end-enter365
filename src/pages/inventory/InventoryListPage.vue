@@ -8,7 +8,7 @@ import { POS_NAV_ID, posChrome } from '@/config/nav'
 import { useFeaturesStore } from '@/stores/features'
 
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 // Resource list with filters and pagination
 const {

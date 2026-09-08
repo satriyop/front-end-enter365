@@ -21,7 +21,7 @@ import { Plus, Search, FileText, Calendar } from 'lucide-vue-next'
 const router = useRouter()
 const toast = useToast()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 const title = computed(() => posChrome('Journal Entries', posPack.value, POS_NAV_ID))
 
 const { data: contacts, isLoading: contactsLoading } = useContactsLookup()

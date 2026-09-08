@@ -14,7 +14,7 @@ defineEmits<{
 
 const auth = useAuthStore()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 const showUserMenu = ref(false)
 const menuRoot = ref<HTMLElement | null>(null)
 

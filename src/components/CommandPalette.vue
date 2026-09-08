@@ -33,6 +33,8 @@ import {
 } from 'lucide-vue-next'
 import { useRecentlyViewed, type RecentlyViewedItem } from '@/composables/useRecentlyViewed'
 import { useGlobalSearch } from '@/api/useGlobalSearch'
+import { searchResultVisible } from '@/config/searchCatalog'
+import { useFeaturesStore } from '@/stores/features'
 
 // Types
 interface QuickAction {
@@ -44,6 +46,7 @@ interface QuickAction {
   path?: string
   action?: () => void
   shortcut?: string
+  feature?: string
 }
 
 const props = defineProps<{
@@ -56,6 +59,7 @@ const emit = defineEmits<{
 }>()
 
 const router = useRouter()
+const features = useFeaturesStore()
 const { items: recentItems } = useRecentlyViewed()
 
 // State
@@ -89,20 +93,24 @@ watch(searchQuery, (val) => {
 // Use global search hook
 const { data: searchResultsData, isLoading: isSearching } = useGlobalSearch(debouncedQuery)
 
-const searchResults = computed(() => searchResultsData.value || [])
+const searchResults = computed(() =>
+  (searchResultsData.value || []).filter((row) =>
+    searchResultVisible(row.type, (name) => features.enabled(name)),
+  ),
+)
 
 // Quick actions / navigation
 const quickActions = computed<QuickAction[]>(() => [
   { id: 'home', type: 'navigation', title: 'Dashboard', subtitle: 'Go to home', icon: Home, path: '/', shortcut: 'G H' },
-  { id: 'quotations', type: 'navigation', title: 'Quotations', subtitle: 'View all quotations', icon: FileText, path: '/quotations', shortcut: 'G Q' },
-  { id: 'invoices', type: 'navigation', title: 'Invoices', subtitle: 'View all invoices', icon: Receipt, path: '/invoices', shortcut: 'G I' },
+  { id: 'quotations', type: 'navigation', title: 'Quotations', subtitle: 'View all quotations', icon: FileText, path: '/quotations', shortcut: 'G Q', feature: 'quotations' },
+  { id: 'invoices', type: 'navigation', title: 'Invoices', subtitle: 'View all invoices', icon: Receipt, path: '/invoices', shortcut: 'G I', feature: 'invoices' },
   { id: 'contacts', type: 'navigation', title: 'Contacts', subtitle: 'View all contacts', icon: Users, path: '/contacts', shortcut: 'G C' },
   { id: 'products', type: 'navigation', title: 'Products', subtitle: 'View all products', icon: Package, path: '/products', shortcut: 'G P' },
-  { id: 'boms', type: 'navigation', title: 'Bill of Materials', subtitle: 'View all BOMs', icon: Layers, path: '/boms', shortcut: 'G B' },
-  { id: 'solar', type: 'navigation', title: 'Solar Proposals', subtitle: 'View solar proposals', icon: Sun, path: '/solar-proposals' },
+  { id: 'boms', type: 'navigation', title: 'Bill of Materials', subtitle: 'View all BOMs', icon: Layers, path: '/boms', shortcut: 'G B', feature: 'bom' },
+  { id: 'solar', type: 'navigation', title: 'Solar Proposals', subtitle: 'View solar proposals', icon: Sun, path: '/solar-proposals', feature: 'solar_proposals' },
   { id: 'settings', type: 'navigation', title: 'Settings', subtitle: 'App settings', icon: Settings, path: '/settings' },
   { id: 'shortcuts', type: 'action', title: 'Keyboard Shortcuts', subtitle: 'View all shortcuts', icon: Keyboard, action: () => { isOpen.value = false; emit('show-shortcuts') }, shortcut: '?' },
-])
+].filter((action) => !action.feature || features.enabled(action.feature)))
 
 const typeIcons: Record<string, typeof Home> = {
   quotation: FileText,

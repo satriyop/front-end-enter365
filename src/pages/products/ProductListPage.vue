@@ -14,7 +14,7 @@ import { useFeaturesStore } from '@/stores/features'
 import { Download, Plus } from 'lucide-vue-next'
 
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 const toast = useToast()
 const route = useRoute()
