@@ -4,38 +4,24 @@
 
 ## Quick Reference
 
-| Environment | URL | Build Command |
-|-------------|-----|---------------|
+| Environment | URL | How |
+|-------------|-----|-----|
 | Development | `http://localhost:3000` | `npm run dev` |
-| Production | TBD | `npm run build` |
+| Production | `https://enter365.pamungkas.org` | From `$BE`: `./scripts/prod.sh deploy` |
+
+Merging this repo is not a release. GitHub Actions runs Vitest only. See [CI-CD.md](CI-CD.md).
 
 ---
 
 ## Overview
 
 ```
-                         ┌─────────────────────────────────────┐
-                         │           CI/CD Pipeline             │
-                         └─────────────┬───────────────────────┘
-                                       │
-                                       ▼
-┌─────────────┐   Push    ┌─────────────────────────────────────┐
-│  Developer  │ ────────▶ │         GitHub Actions               │
-│   (local)   │           │                                       │
-└─────────────┘           │  1. Install dependencies              │
-                          │  2. Type check                        │
-                          │  3. Lint                              │
-                          │  4. Test                              │
-                          │  5. Build                             │
-                          │  6. Deploy                            │
-                          │                                       │
-                          └─────────────┬─────────────────────────┘
-                                        │
-                                        ▼
-                          ┌─────────────────────────────────────┐
-                          │         Static Hosting               │
-                          │  (Vercel / Netlify / Nginx)         │
-                          └─────────────────────────────────────┘
+Laptop ($BE = ../enter365)
+  ./scripts/prod.sh deploy
+       │
+       ├─ npx vite build   (this repo)
+       ├─ rsync dist/  →  aidev:/var/www/enter365-spa
+       └─ rsync Laravel + migrate --force
 ```
 
 ---
@@ -108,6 +94,8 @@ const isDebug = import.meta.env.VITE_DEBUG === 'true'
 ---
 
 ## Deployment Options
+
+Production for this product is **not** Vercel/Netlify. Use `$BE/scripts/prod.sh deploy`. The notes below are generic static-hosting reference only.
 
 ### Option 1: Static File Hosting
 

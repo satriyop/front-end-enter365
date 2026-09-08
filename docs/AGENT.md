@@ -17,6 +17,8 @@ ICONS:            lucide-vue-next (import { Icon } from 'lucide-vue-next')
 STYLING:          Tailwind CSS with semantic tokens (text-muted-foreground, NOT text-gray-500)
 API CALLS:        Create hooks in src/api/use*.ts using TanStack Query pattern
 FILE DOWNLOADS:   Use blob pattern with auth headers (NOT window.open)
+DEPLOY:           Merging main is not live. No GitHub CD. From $BE (../enter365): ./scripts/prod.sh deploy
+CI:               .github/workflows/vitest.yml — Vitest on PRs / push to main
 ```
 
 ---

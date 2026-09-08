@@ -8,6 +8,18 @@
 | **Backend** | `/Users/satriyo/dev/laravel-project/enter365` (Laravel API) | https://enter365.test |
 | **Stack** | Vue 3, Vite, TanStack Query, Radix Vue, Tailwind CSS |
 
+## Deploy
+
+Merging this repo does **not** ship production. There is no GitHub deploy workflow.
+
+Ship from the Laravel repo (`$BE` = `/Users/satriyo/dev/laravel-project/enter365`):
+
+```bash
+./scripts/prod.sh deploy
+```
+
+That builds this SPA on the laptop and rsyncs `dist/` to aidev (`https://enter365.pamungkas.org`). Pair with the matching backend migrate. GitHub Actions here is Vitest only.
+
 ## Skills (Detailed Patterns)
 
 Claude skills in `.claude/skills/` provide comprehensive patterns:
