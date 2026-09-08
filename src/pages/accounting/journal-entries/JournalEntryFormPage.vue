@@ -11,8 +11,10 @@ import {
 } from '@/api/useJournalEntries'
 import { useAccountsLookup } from '@/api/useAccounts'
 import {
-  analyticDistributionFromAccountId,
-  analyticDistributionPrimaryId,
+  analyticDistributionFromRows,
+  analyticDistributionPercentTotal,
+  analyticDistributionRows,
+  type AnalyticDistributionRow,
   useAnalyticAccountsLookup,
 } from '@/api/useAnalyticAccounts'
 import { useContactsLookup } from '@/api/useContacts'
@@ -110,10 +112,37 @@ function removeLine(index: number) {
   }
 }
 
-function onAnalyticSelect(index: number, value: string | number | null) {
+const analyticDrafts = ref<Record<number, AnalyticDistributionRow[]>>({})
+
+function analyticRowsFor(index: number): AnalyticDistributionRow[] {
+  return analyticDrafts.value[index] ?? analyticDistributionRows(lines.value[index]?.analytic_distribution)
+}
+
+function commitAnalyticRows(index: number, rows: AnalyticDistributionRow[]) {
+  analyticDrafts.value = { ...analyticDrafts.value, [index]: rows }
   const line = lines.value[index]
   if (!line) return
-  line.analytic_distribution = analyticDistributionFromAccountId(value)
+  line.analytic_distribution = analyticDistributionFromRows(rows)
+}
+
+function addAnalyticRow(index: number) {
+  const rows = [...analyticRowsFor(index)]
+  const remaining = Math.max(0, 100 - analyticDistributionPercentTotal(rows))
+  rows.push({ id: '', percentage: remaining })
+  commitAnalyticRows(index, rows)
+}
+
+function updateAnalyticRow(index: number, rowIndex: number, patch: Partial<AnalyticDistributionRow>) {
+  const rows = [...analyticRowsFor(index)]
+  const current = rows[rowIndex] ?? { id: '', percentage: 0 }
+  rows[rowIndex] = { ...current, ...patch }
+  commitAnalyticRows(index, rows)
+}
+
+function removeAnalyticRow(index: number, rowIndex: number) {
+  const rows = [...analyticRowsFor(index)]
+  rows.splice(rowIndex, 1)
+  commitAnalyticRows(index, rows)
 }
 
 function onTaxTagSelect(index: number, value: string | number | null) {
@@ -360,15 +389,53 @@ async function handleSubmit() {
                 </td>
 
                 <!-- Analytic Distribution -->
-                <td class="px-4 py-2">
-                  <Select
-                    :test-id="`je-line-${index}-analytic`"
-                    :model-value="analyticDistributionPrimaryId(line.analytic_distribution)"
-                    :options="analyticOptions"
-                    :loading="analyticAccountsLoading"
-                    placeholder="Optional"
-                    @update:model-value="(v) => onAnalyticSelect(index, v)"
-                  />
+                <td class="px-4 py-2 min-w-[220px]">
+                  <div class="flex flex-col gap-1">
+                    <div
+                      v-for="(row, rowIndex) in analyticRowsFor(index)"
+                      :key="`${index}-analytic-${rowIndex}`"
+                      class="flex items-center gap-1"
+                    >
+                      <Select
+                        :test-id="rowIndex === 0 ? `je-line-${index}-analytic` : `je-line-${index}-analytic-${rowIndex}`"
+                        :model-value="row.id"
+                        :options="analyticOptions"
+                        :loading="analyticAccountsLoading"
+                        placeholder="Account"
+                        @update:model-value="(v) => updateAnalyticRow(index, rowIndex, { id: v ? String(v) : '' })"
+                      />
+                      <Input
+                        :model-value="String(row.percentage)"
+                        :data-testid="`je-line-${index}-analytic-pct-${rowIndex}`"
+                        type="number"
+                        min="0"
+                        max="100"
+                        class="w-16 text-sm"
+                        @update:model-value="(v) => updateAnalyticRow(index, rowIndex, { percentage: Number(v) || 0 })"
+                      />
+                      <span class="text-xs text-slate-500">%</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        :data-testid="`je-line-${index}-analytic-remove-${rowIndex}`"
+                        @click="removeAnalyticRow(index, rowIndex)"
+                      >
+                        <Trash2 class="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      :data-testid="`je-line-${index}-analytic-add`"
+                      class="self-start"
+                      @click="addAnalyticRow(index)"
+                    >
+                      <Plus class="h-3.5 w-3.5 mr-1" />
+                      Add a Line
+                    </Button>
+                  </div>
                 </td>
 
                 <!-- Tax Grids -->
@@ -498,7 +565,7 @@ async function handleSubmit() {
       </template>
       <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
         <li>• Partner (customer/vendor) is optional on each line for AR/AP reporting</li>
-        <li>• Analytic: pick an analytic account; stored as Odoo analytic_distribution JSON ({id: 100})</li>
+        <li>• Analytic: add one or more analytic accounts with percentages that sum to 100%</li>
         <li>• Tax Grids: pick a tax tag (base or tax); VAT / Tax Summary stay on invoices and bills</li>
         <li>• Each line can only have a debit OR credit amount, not both</li>
         <li>• Total debits must equal total credits for a balanced entry</li>

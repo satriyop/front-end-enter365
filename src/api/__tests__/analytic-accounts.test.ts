@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
   analyticDistributionFromAccountId,
+  analyticDistributionFromRows,
+  analyticDistributionPercentTotal,
   analyticDistributionPrimaryId,
+  analyticDistributionRows,
   formatAnalyticDistributionLabel,
 } from '../useAnalyticAccounts'
 
@@ -17,6 +20,18 @@ describe('analytic account picker helpers', () => {
     expect(analyticDistributionPrimaryId({ '7': 100 })).toBe('7')
     expect(analyticDistributionPrimaryId({ '3': 60, '4': 40 })).toBe('3')
     expect(analyticDistributionPrimaryId(null)).toBe('')
+  })
+
+  it('round-trips multi-account percentage rows summing to 100', () => {
+    const rows = analyticDistributionRows({ '3': 60, '4': 40 })
+    expect(rows).toEqual([
+      { id: '3', percentage: 60 },
+      { id: '4', percentage: 40 },
+    ])
+    expect(analyticDistributionFromRows(rows)).toEqual({ '3': 60, '4': 40 })
+    expect(analyticDistributionPercentTotal(rows)).toBe(100)
+    expect(analyticDistributionFromRows([{ id: '', percentage: 100 }])).toBeNull()
+    expect(analyticDistributionPercentTotal([{ id: '3', percentage: 60 }, { id: '4', percentage: 30 }])).toBe(90)
   })
 
   it('labels distribution using analytic account master rows', () => {

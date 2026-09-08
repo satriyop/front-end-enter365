@@ -4,6 +4,8 @@ import {
   parseAnalyticDistribution,
   formatTaxTagIds,
   parseTaxTagIds,
+  validateJournalLines,
+  type CreateJournalEntryLineData,
 } from '../useJournalEntries'
 
 describe('JE line analytic / tax grid helpers', () => {
@@ -16,6 +18,20 @@ describe('JE line analytic / tax grid helpers', () => {
     expect(parseAnalyticDistribution('bad')).toBeNull()
     expect(formatAnalyticDistribution({ '1': 100 })).toBe('1:100')
     expect(formatAnalyticDistribution(null)).toBe('')
+  })
+
+  it('rejects analytic splits that do not sum to 100 percent', () => {
+    const balanced: CreateJournalEntryLineData[] = [
+      { account_id: 1, debit: 100, credit: 0, analytic_distribution: { '3': 60, '4': 40 } },
+      { account_id: 2, debit: 0, credit: 100, analytic_distribution: null },
+    ]
+    expect(validateJournalLines(balanced)).toEqual([])
+
+    const unbalanced: CreateJournalEntryLineData[] = [
+      { account_id: 1, debit: 100, credit: 0, analytic_distribution: { '3': 60, '4': 30 } },
+      { account_id: 2, debit: 0, credit: 100, analytic_distribution: null },
+    ]
+    expect(validateJournalLines(unbalanced).some((error) => error.includes('sum to 100%'))).toBe(true)
   })
 
   it('parses and formats tax_tag_ids', () => {
