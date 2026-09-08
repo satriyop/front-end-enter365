@@ -198,7 +198,7 @@ export const contactSchema = z.object({
 export const productSchema = z.object({
   sku: requiredString('SKU').max(50),
   name: requiredString('Name').max(255),
-  type: z.enum(['product', 'service'], {
+  type: z.enum(['product', 'service', 'combo'], {
     errorMap: () => ({ message: 'Please select a type' }),
   }),
   description: z.string().max(500).optional().default(''),
@@ -231,6 +231,7 @@ export const productSchema = z.object({
     lead_time_days: z.number().min(0).default(0),
     vendor_product_code: z.string().max(100).optional().default(''),
   })).optional().default([]),
+  procurement_type: z.enum(['buy', 'make', 'subcontract']).optional().default('buy'),
   // Account mapping (for products with inventory tracking)
   inventory_account_id: z.number().optional().nullable(),
   cogs_account_id: z.number().optional().nullable(),

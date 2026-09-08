@@ -26,8 +26,13 @@ export type Product = components['schemas']['ProductResource'] & {
   purchase_control_policy?: 'ordered' | 'received'
   purchase_description?: string | null
   vendor_pricelists?: ProductVendorPricelist[]
+  incoming_qty?: number
+  outgoing_qty?: number
+  forecasted_qty?: number
+  procurement_type?: 'buy' | 'make' | 'subcontract' | null
 }
 export type CreateProductData = components['schemas']['StoreProductRequest'] & {
+  type?: 'product' | 'service' | 'combo'
   sales_tax_ids?: number[]
   purchase_tax_ids?: number[]
   purchase_control_policy?: 'ordered' | 'received'
@@ -41,13 +46,14 @@ export type CreateProductData = components['schemas']['StoreProductRequest'] & {
     lead_time_days?: number
     vendor_product_code?: string | null
   }>
+  procurement_type?: 'buy' | 'make' | 'subcontract'
 }
 
 export interface ProductFilters {
   page?: number
   per_page?: number
   search?: string
-  type?: 'product' | 'service'
+  type?: 'product' | 'service' | 'combo'
   category_id?: number
   is_active?: boolean
 }

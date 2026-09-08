@@ -174,6 +174,10 @@ async function handleStockAdjust() {
                 <dd class="text-foreground">{{ productTypeLabel(product, posPack) }}</dd>
               </div>
               <div>
+                <dt class="text-sm text-muted-foreground">Routes</dt>
+                <dd class="text-foreground">{{ product.procurement_type === 'make' ? 'Make' : product.procurement_type === 'subcontract' ? 'Subcontract' : 'Buy' }}</dd>
+              </div>
+              <div>
                 <dt class="text-sm text-muted-foreground">Category</dt>
                 <dd class="text-foreground">{{ product.category?.name ?? '-' }}</dd>
               </div>
@@ -321,8 +325,20 @@ async function handleStockAdjust() {
             </template>
             <dl class="space-y-3">
               <div class="flex justify-between">
-                <dt class="text-muted-foreground">Total Stock</dt>
+                <dt class="text-muted-foreground">On Hand</dt>
                 <dd class="font-medium text-foreground">{{ product.current_stock ?? 0 }} {{ product.unit }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-muted-foreground">Incoming</dt>
+                <dd class="text-foreground">{{ product.incoming_qty ?? 0 }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-muted-foreground">Outgoing</dt>
+                <dd class="text-foreground">{{ product.outgoing_qty ?? 0 }}</dd>
+              </div>
+              <div class="flex justify-between">
+                <dt class="text-muted-foreground">Forecasted</dt>
+                <dd class="font-medium text-foreground">{{ product.forecasted_qty ?? product.current_stock ?? 0 }}</dd>
               </div>
               <div class="flex justify-between">
                 <dt class="text-muted-foreground">Min Stock</dt>
