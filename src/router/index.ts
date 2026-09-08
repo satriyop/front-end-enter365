@@ -937,6 +937,12 @@ const router = createRouter({
           meta: { breadcrumb: 'General Ledger' }
         },
         {
+          path: 'reports/partner-ledger',
+          name: 'report-partner-ledger',
+          component: () => import('@/pages/reports/PartnerLedgerPage.vue'),
+          meta: { breadcrumb: 'Partner Ledger' }
+        },
+        {
           path: 'reports/changes-in-equity',
           name: 'report-changes-in-equity',
           component: () => import('@/pages/reports/ChangesInEquityPage.vue'),
