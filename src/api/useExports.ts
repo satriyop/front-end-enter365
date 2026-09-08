@@ -5,13 +5,25 @@ import { api } from './client'
 // Shared download helper
 // ─────────────────────────────────────────────────────────────
 
-function downloadBlob(data: Blob, filename: string) {
-  const blob = new Blob([data], { type: 'text/csv' })
+function reportFormat(format?: string): 'csv' | 'xlsx' | 'pdf' {
+  if (format === 'pdf') return 'pdf'
+  if (format === 'xlsx' || format === 'excel') return 'xlsx'
+  return 'csv'
+}
+
+function downloadBlob(data: Blob, filename: string, mime = 'text/csv') {
+  const blob = new Blob([data], { type: mime || data.type || 'application/octet-stream' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = filename
   link.click()
   URL.revokeObjectURL(link.href)
+}
+
+function mimeFor(format: 'csv' | 'xlsx' | 'pdf'): string {
+  if (format === 'pdf') return 'application/pdf'
+  if (format === 'xlsx') return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+  return 'text/csv'
 }
 
 function today() {
@@ -28,12 +40,13 @@ function today() {
  */
 export function useExportTrialBalance() {
   return useMutation({
-    mutationFn: async (params?: { date?: string }) => {
+    mutationFn: async (params?: { date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/trial-balance', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `trial-balance-${params?.date || today()}.csv`)
+      downloadBlob(response.data, `trial-balance-${params?.date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -45,12 +58,13 @@ export function useExportTrialBalance() {
  */
 export function useExportBalanceSheet() {
   return useMutation({
-    mutationFn: async (params?: { date?: string }) => {
+    mutationFn: async (params?: { date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/balance-sheet', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `balance-sheet-${params?.date || today()}.csv`)
+      downloadBlob(response.data, `balance-sheet-${params?.date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -62,12 +76,13 @@ export function useExportBalanceSheet() {
  */
 export function useExportIncomeStatement() {
   return useMutation({
-    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/income-statement', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `income-statement-${params?.start_date || today()}.csv`)
+      downloadBlob(response.data, `income-statement-${params?.start_date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -85,12 +100,15 @@ export function useExportGeneralLedger() {
       end_date?: string
       journal_id?: string
       analytic_account_id?: string
+      format?: string
+      posted_only?: boolean
     }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/general-ledger', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `general-ledger-${params?.start_date || today()}.csv`)
+      downloadBlob(response.data, `general-ledger-${params?.start_date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -98,12 +116,13 @@ export function useExportGeneralLedger() {
 
 export function useExportCashFlow() {
   return useMutation({
-    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string; journal_id?: string }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/cash-flow', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `cash-flow-${params?.start_date || today()}.csv`)
+      downloadBlob(response.data, `cash-flow-${params?.start_date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -111,12 +130,13 @@ export function useExportCashFlow() {
 
 export function useExportChangesInEquity() {
   return useMutation({
-    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/changes-in-equity', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `changes-in-equity-${params?.start_date || today()}.csv`)
+      downloadBlob(response.data, `changes-in-equity-${params?.start_date || today()}.${format}`, mimeFor(format))
       return true
     },
   })
@@ -124,12 +144,13 @@ export function useExportChangesInEquity() {
 
 export function useExportDailyCashMovement() {
   return useMutation({
-    mutationFn: async (params?: { start_date?: string; end_date?: string }) => {
+    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string }) => {
+      const format = reportFormat(params?.format)
       const response = await api.get('/export/daily-cash-movement', {
-        params: { format: 'csv', ...params },
+        params: { ...params, format },
         responseType: 'blob',
       })
-      downloadBlob(response.data, `daily-cash-movement-${params?.start_date || today()}.csv`)
+      downloadBlob(response.data, `daily-cash-movement-${params?.start_date || today()}.${format}`, mimeFor(format))
       return true
     },
   })

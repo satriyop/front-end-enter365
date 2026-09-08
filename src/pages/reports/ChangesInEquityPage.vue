@@ -8,7 +8,7 @@
         </h1>
         <p class="text-sm text-muted-foreground">Laporan Perubahan Ekuitas</p>
       </div>
-      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+      <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filters -->
@@ -226,10 +226,11 @@ import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const exportMutation = useExportChangesInEquity()
 
-function handleExport() {
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
   exportMutation.mutate({
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
+    format,
   })
 }
 

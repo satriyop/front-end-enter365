@@ -11,8 +11,10 @@ const router = useRouter()
 
 const asOfDate = ref(toLocalISODate())
 const journalId = ref('')
+const postedOnly = ref(true)
 const asOfDateRef = computed(() => asOfDate.value)
 const journalIdRef = computed(() => journalId.value || undefined)
+const postedOnlyRef = computed(() => postedOnly.value)
 
 const { data: journals } = useJournalsLookup()
 const journalOptions = computed(() => {
@@ -24,12 +26,17 @@ const journalOptions = computed(() => {
   })))
 })
 
-const { data: report, isLoading, error } = useTrialBalance(asOfDateRef, journalIdRef)
+const { data: report, isLoading, error } = useTrialBalance(asOfDateRef, journalIdRef, postedOnlyRef)
 
 const exportMutation = useExportTrialBalance()
 
-function handleExport() {
-  exportMutation.mutate({ date: asOfDate.value || undefined })
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
+  exportMutation.mutate({
+    date: asOfDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function getAccountTypeLabel(type: string): string {
@@ -63,7 +70,7 @@ function getAccountTypeColor(type: string): string {
         <p class="text-slate-500 dark:text-slate-400">Neraca Saldo - Summary of all account balances</p>
       </div>
       <div class="flex gap-2">
-        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
         <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
       </div>
     </div>
@@ -79,6 +86,10 @@ function getAccountTypeColor(type: string): string {
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
           <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="tb-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="secondary"

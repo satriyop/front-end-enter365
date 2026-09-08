@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useGeneralLedger } from '@/api/useReports'
 import { useExportGeneralLedger } from '@/api/useExports'
 import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
 import { Button, Input, Card, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { ArrowLeft, ChevronDown, ChevronRight } from 'lucide-vue-next'
@@ -15,8 +16,10 @@ const startDate = ref('')
 const endDate = ref('')
 const journalId = ref('')
 const analyticAccountId = ref('')
+const postedOnly = ref(true)
 
 const { data: journals } = useJournalsLookup()
+const { data: analyticAccounts } = useAnalyticAccountsLookup()
 const journalOptions = computed(() => {
   const options = [{ value: '', label: 'All Journals' }]
   if (!journals.value) return options
@@ -31,12 +34,23 @@ const startDateComputed = computed(() => startDate.value)
 const endDateComputed = computed(() => endDate.value)
 const journalIdComputed = computed(() => journalId.value || undefined)
 const analyticAccountIdComputed = computed(() => analyticAccountId.value || undefined)
+const postedOnlyComputed = computed(() => postedOnly.value)
+
+const analyticOptions = computed(() => {
+  const options = [{ value: '', label: 'All analytics' }]
+  if (!analyticAccounts.value) return options
+  return options.concat(analyticAccounts.value.map((account) => ({
+    value: String(account.id),
+    label: `${account.code} · ${account.name}`,
+  })))
+})
 
 const { data: report, isLoading, isError, error } = useGeneralLedger(
   startDateComputed,
   endDateComputed,
   journalIdComputed,
-  analyticAccountIdComputed
+  analyticAccountIdComputed,
+  postedOnlyComputed
 )
 
 // Expanded accounts tracking
@@ -67,12 +81,14 @@ function setThisMonth() {
 
 const exportMutation = useExportGeneralLedger()
 
-function handleExport() {
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
   exportMutation.mutate({
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
     journal_id: journalId.value || undefined,
     analytic_account_id: analyticAccountId.value || undefined,
+    format,
+    posted_only: postedOnly.value,
   })
 }
 
@@ -109,7 +125,7 @@ function setYearToDate() {
           Buku Besar - Detailed account transactions
         </p>
       </div>
-      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+      <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filter Card -->
@@ -144,10 +160,14 @@ function setYearToDate() {
         </div>
         <div class="flex-1 min-w-[160px]">
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-            Analytic account ID
+            Analytic
           </label>
-          <Input v-model="analyticAccountId" type="number" min="1" placeholder="Optional" />
+          <Select v-model="analyticAccountId" :options="analyticOptions" placeholder="All analytics" />
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="gl-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="outline"

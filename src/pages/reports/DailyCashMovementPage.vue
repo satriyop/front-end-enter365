@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-bold text-slate-900 dark:text-slate-100">Daily Cash Movement</h1>
         <p class="text-muted-foreground">Mutasi Kas Harian</p>
       </div>
-      <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+      <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
     </div>
 
     <!-- Filter Card -->
@@ -180,10 +180,11 @@ const { data: report, isLoading, error } = useDailyCashMovement(startDateRef, en
 
 const exportMutation = useExportDailyCashMovement()
 
-function handleExport() {
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
   exportMutation.mutate({
     start_date: startDate.value || undefined,
     end_date: endDate.value || undefined,
+    format,
   })
 }
 

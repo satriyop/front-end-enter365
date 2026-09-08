@@ -3,7 +3,8 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIncomeStatement } from '@/api/useReports'
 import { useExportIncomeStatement } from '@/api/useExports'
-import { Button, Input, Card, ExportButton } from '@/components/ui'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { Button, Input, Card, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
@@ -12,17 +13,37 @@ const router = useRouter()
 const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date().getMonth(), 1)))
 const endDate = ref(toLocalISODate())
 const comparePreviousPeriod = ref(false)
+const journalId = ref('')
+const postedOnly = ref(true)
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
 const comparePreviousPeriodRef = computed(() => comparePreviousPeriod.value)
+const journalIdRef = computed(() => journalId.value || undefined)
+const postedOnlyRef = computed(() => postedOnly.value)
 
-const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef, comparePreviousPeriodRef)
+const { data: journals } = useJournalsLookup()
+const journalOptions = computed(() => {
+  const options = [{ value: '', label: 'All Journals' }]
+  if (!journals.value) return options
+  return options.concat(journals.value.map((journal) => ({
+    value: String(journal.id),
+    label: `${journal.name} (${journalTypeLabel(journal.type)})`,
+  })))
+})
+
+const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef, comparePreviousPeriodRef, journalIdRef, postedOnlyRef)
 
 const exportMutation = useExportIncomeStatement()
 
-function handleExport() {
-  exportMutation.mutate({ start_date: startDate.value || undefined, end_date: endDate.value || undefined })
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function formatAmount(amount: number): string {
@@ -39,7 +60,7 @@ function formatAmount(amount: number): string {
         <p class="text-slate-500 dark:text-slate-400">Laporan Laba Rugi - Revenue and expenses for the period</p>
       </div>
       <div class="flex gap-2">
-        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
         <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
       </div>
     </div>
@@ -55,6 +76,14 @@ function formatAmount(amount: number): string {
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">End Date</label>
           <Input v-model="endDate" type="date" class="w-40" />
         </div>
+        <div class="min-w-[200px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
+          <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="is-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="secondary"

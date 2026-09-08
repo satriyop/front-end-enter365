@@ -3,22 +3,42 @@ import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useBalanceSheet } from '@/api/useReports'
 import { useExportBalanceSheet } from '@/api/useExports'
-import { Button, Input, Card, Badge, ExportButton } from '@/components/ui'
+import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { Button, Input, Card, Badge, ExportButton, Select } from '@/components/ui'
 import { formatCurrency, toLocalISODate } from '@/utils/format'
 
 const router = useRouter()
 
 const asOfDate = ref(toLocalISODate())
 const compareTo = ref('')
+const journalId = ref('')
+const postedOnly = ref(true)
 const asOfDateRef = computed(() => asOfDate.value)
 const compareToRef = computed(() => compareTo.value || undefined)
+const journalIdRef = computed(() => journalId.value || undefined)
+const postedOnlyRef = computed(() => postedOnly.value)
 
-const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef, compareToRef)
+const { data: journals } = useJournalsLookup()
+const journalOptions = computed(() => {
+  const options = [{ value: '', label: 'All Journals' }]
+  if (!journals.value) return options
+  return options.concat(journals.value.map((journal) => ({
+    value: String(journal.id),
+    label: `${journal.name} (${journalTypeLabel(journal.type)})`,
+  })))
+})
+
+const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef, compareToRef, journalIdRef, postedOnlyRef)
 
 const exportMutation = useExportBalanceSheet()
 
-function handleExport() {
-  exportMutation.mutate({ date: asOfDate.value || undefined })
+function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
+  exportMutation.mutate({
+    date: asOfDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function formatAmount(amount: number): string {
@@ -35,7 +55,7 @@ function formatAmount(amount: number): string {
         <p class="text-slate-500 dark:text-slate-400">Laporan Posisi Keuangan - Assets, liabilities, and equity</p>
       </div>
       <div class="flex gap-2">
-        <ExportButton :show-format-options="false" :loading="exportMutation.isPending.value" @export="handleExport" />
+        <ExportButton :loading="exportMutation.isPending.value" @export="handleExport" />
         <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
       </div>
     </div>
@@ -51,6 +71,14 @@ function formatAmount(amount: number): string {
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Compare to</label>
           <Input v-model="compareTo" type="date" class="w-40" />
         </div>
+        <div class="min-w-[200px]">
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
+          <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
+        </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="bs-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="secondary"
