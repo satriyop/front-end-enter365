@@ -153,6 +153,41 @@ export interface GeneralLedgerReport {
   accounts: GeneralLedgerAccount[]
 }
 
+export interface PartnerLedgerEntry {
+  id: number
+  journal_entry_id: number
+  date: string
+  entry_number: string
+  journal: string | null
+  account_code: string
+  account_name: string
+  description: string
+  reference: string | null
+  debit: number
+  credit: number
+  balance: number
+}
+
+export interface PartnerLedgerPartner {
+  id: number
+  name: string
+  type: string | null
+  opening_balance: number
+  debit: number
+  credit: number
+  closing_balance: number
+  entries: PartnerLedgerEntry[]
+}
+
+export interface PartnerLedgerReport {
+  report_name: string
+  start_date: string | null
+  end_date: string | null
+  partners: PartnerLedgerPartner[]
+  total_debit: number
+  total_credit: number
+}
+
 export interface PpnSummaryReport {
   report_name: string
   period: {
@@ -874,6 +909,25 @@ export function useGeneralLedger(
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
       const response = await api.get<{ data: GeneralLedgerReport }>('/reports/general-ledger', { params })
+      return response.data.data
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export function usePartnerLedger(
+  startDate?: Ref<string | undefined>,
+  endDate?: Ref<string | undefined>,
+  contactId?: Ref<string | undefined>,
+) {
+  return useQuery({
+    queryKey: ['reports', 'partner-ledger', startDate, endDate, contactId],
+    queryFn: async () => {
+      const params: Record<string, string> = {}
+      if (startDate?.value) params.start_date = startDate.value
+      if (endDate?.value) params.end_date = endDate.value
+      if (contactId?.value) params.contact_id = contactId.value
+      const response = await api.get<{ data: PartnerLedgerReport }>('/reports/partner-ledger', { params })
       return response.data.data
     },
     staleTime: 5 * 60 * 1000,

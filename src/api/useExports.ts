@@ -93,6 +93,19 @@ export function useExportGeneralLedger() {
 /**
  * Export Receivables Aging as CSV
  */
+export function useExportPartnerLedger() {
+  return useMutation({
+    mutationFn: async (params?: { start_date?: string; end_date?: string; contact_id?: string }) => {
+      const response = await api.get('/export/partner-ledger', {
+        params: { format: 'csv', ...params },
+        responseType: 'blob',
+      })
+      downloadBlob(response.data, `partner-ledger-${params?.start_date || today()}.csv`)
+      return true
+    },
+  })
+}
+
 export function useExportReceivablesAging() {
   return useMutation({
     mutationFn: async () => {
