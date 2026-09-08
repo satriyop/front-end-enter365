@@ -9,7 +9,12 @@ import type { components } from './types'
 // ─────────────────────────────────────────────────────────────
 
 export type InventoryMovement = components['schemas']['InventoryMovementResource']
-export type ProductStock = components['schemas']['ProductStockResource']
+export type ProductStock = components['schemas']['ProductStockResource'] & {
+  reserved_quantity?: number
+  free_to_use?: number
+  incoming_qty?: number
+  outgoing_qty?: number
+}
 export type Warehouse = components['schemas']['WarehouseResource']
 
 export interface StockCardResponse {
