@@ -236,6 +236,49 @@ async function handleStockAdjust() {
             </dl>
           </Card>
 
+          <Card>
+            <template #header>
+              <h2 class="font-medium text-foreground">Purchase / Supplier</h2>
+            </template>
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <dt class="text-sm text-muted-foreground">Control Policy</dt>
+                <dd class="text-foreground">
+                  {{ product.purchase_control_policy === 'ordered' ? 'On ordered quantities' : 'On received quantities' }}
+                </dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Purchase Description</dt>
+                <dd class="text-foreground">{{ product.purchase_description || '—' }}</dd>
+              </div>
+            </dl>
+            <div v-if="product.vendor_pricelists?.length" class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-border text-left text-muted-foreground">
+                    <th class="py-2 pr-2 font-medium">Vendor</th>
+                    <th class="py-2 pr-2 font-medium text-right">Min qty</th>
+                    <th class="py-2 pr-2 font-medium">UoM</th>
+                    <th class="py-2 pr-2 font-medium text-right">Price</th>
+                    <th class="py-2 pr-2 font-medium">Currency</th>
+                    <th class="py-2 pr-2 font-medium text-right">Lead days</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="line in product.vendor_pricelists" :key="line.id ?? line.contact_id" class="border-b border-border">
+                    <td class="py-2 pr-2">{{ line.contact?.name ?? line.contact_id }}</td>
+                    <td class="py-2 pr-2 text-right font-mono">{{ line.min_qty }}</td>
+                    <td class="py-2 pr-2">{{ line.unit }}</td>
+                    <td class="py-2 pr-2 text-right font-mono">{{ formatCurrency(line.price) }}</td>
+                    <td class="py-2 pr-2">{{ line.currency }}</td>
+                    <td class="py-2 pr-2 text-right">{{ line.lead_time_days }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p v-else class="text-sm text-muted-foreground">No vendor pricelist lines.</p>
+          </Card>
+
           <!-- Accounting Card (only for products) -->
           <Card v-if="product.type === 'product'">
             <template #header>

@@ -8,13 +8,39 @@ import type { components } from './types'
 // Types
 // ============================================
 
+export type ProductVendorPricelist = {
+  id?: number
+  contact_id: number
+  contact?: { id: number; name: string; code: string | null }
+  min_qty: number
+  unit: string
+  price: number
+  currency: string
+  lead_time_days: number
+  vendor_product_code?: string | null
+}
+
 export type Product = components['schemas']['ProductResource'] & {
   sales_taxes?: Array<{ id: number; code: string; name: string; rate: number; applicability: string }>
   purchase_taxes?: Array<{ id: number; code: string; name: string; rate: number; applicability: string }>
+  purchase_control_policy?: 'ordered' | 'received'
+  purchase_description?: string | null
+  vendor_pricelists?: ProductVendorPricelist[]
 }
 export type CreateProductData = components['schemas']['StoreProductRequest'] & {
   sales_tax_ids?: number[]
   purchase_tax_ids?: number[]
+  purchase_control_policy?: 'ordered' | 'received'
+  purchase_description?: string | null
+  vendor_pricelists?: Array<{
+    contact_id: number
+    min_qty?: number
+    unit?: string
+    price: number
+    currency?: string
+    lead_time_days?: number
+    vendor_product_code?: string | null
+  }>
 }
 
 export interface ProductFilters {

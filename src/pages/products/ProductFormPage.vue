@@ -7,6 +7,8 @@ import { useProduct, useCreateProduct, useUpdateProduct, type CreateProductData 
 import { useTaxRecords } from '@/api/useTaxRecords'
 import { useProductCategoriesLookup } from '@/api/useProductCategories'
 import { useAccountsLookup } from '@/api/useAccounts'
+import { useContactsLookup } from '@/api/useContacts'
+import { Plus, Trash2 } from 'lucide-vue-next'
 import { toNumber } from '@/utils/format'
 import { productSchema, type ProductFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
@@ -34,6 +36,7 @@ const { data: categories } = useProductCategoriesLookup()
 const { data: assetAccounts } = useAccountsLookup('asset')
 const { data: expenseAccounts } = useAccountsLookup('expense')
 const { data: revenueAccounts } = useAccountsLookup('revenue')
+const { data: contacts } = useContactsLookup()
 
 const categoryOptions = computed(() => [
   { value: '', label: 'No Category' },
@@ -86,6 +89,9 @@ const {
     brand: '',
     is_sellable: true,
     is_purchasable: true,
+    purchase_control_policy: 'received',
+    purchase_description: '',
+    vendor_pricelists: [],
     inventory_account_id: null,
     cogs_account_id: null,
     sales_account_id: null,
@@ -129,6 +135,9 @@ const [barcode] = defineField('barcode')
 const [brand] = defineField('brand')
 const [isSellable] = defineField('is_sellable')
 const [isPurchasable] = defineField('is_purchasable')
+const [purchaseControlPolicy] = defineField('purchase_control_policy')
+const [purchaseDescription] = defineField('purchase_description')
+const [vendorPricelists] = defineField('vendor_pricelists')
 const [inventoryAccountId] = defineField('inventory_account_id')
 const [cogsAccountId] = defineField('cogs_account_id')
 const [salesAccountId] = defineField('sales_account_id')
@@ -138,6 +147,41 @@ const typeOptions = [
   { value: 'product', label: 'Product' },
   { value: 'service', label: 'Service' },
 ]
+
+const vendorOptions = computed(() => [
+  { value: '', label: 'Select vendor' },
+  ...((contacts.value ?? [])
+    .filter((contact) => contact.type === 'supplier' || contact.type === 'both')
+    .map((contact) => ({
+      value: String(contact.id),
+      label: `${contact.code} - ${contact.name}`,
+    }))),
+])
+
+const controlPolicyOptions = [
+  { value: 'received', label: 'On received quantities' },
+  { value: 'ordered', label: 'On ordered quantities' },
+]
+
+function emptyVendorLine() {
+  return {
+    contact_id: null as number | null,
+    min_qty: 1,
+    unit: unit.value || 'pcs',
+    price: 0,
+    currency: 'IDR',
+    lead_time_days: 0,
+    vendor_product_code: '',
+  }
+}
+
+function addVendorLine() {
+  vendorPricelists.value = [...(vendorPricelists.value ?? []), emptyVendorLine()]
+}
+
+function removeVendorLine(index: number) {
+  vendorPricelists.value = (vendorPricelists.value ?? []).filter((_, i) => i !== index)
+}
 
 const unitOptions = [
   { value: 'pcs', label: 'Pieces (pcs)' },
@@ -171,6 +215,17 @@ watch(existingProduct, (product) => {
       brand: product.brand || '',
       is_sellable: product.is_sellable ?? true,
       is_purchasable: product.is_purchasable ?? true,
+      purchase_control_policy: product.purchase_control_policy ?? 'received',
+      purchase_description: product.purchase_description || '',
+      vendor_pricelists: (product.vendor_pricelists ?? []).map((line) => ({
+        contact_id: line.contact_id,
+        min_qty: toNumber(line.min_qty) || 1,
+        unit: line.unit || product.unit,
+        price: toNumber(line.price),
+        currency: line.currency || 'IDR',
+        lead_time_days: toNumber(line.lead_time_days),
+        vendor_product_code: line.vendor_product_code || '',
+      })),
       inventory_account_id: product.inventory_account_id,
       cogs_account_id: product.cogs_account_id,
       sales_account_id: product.sales_account_id,
@@ -210,6 +265,19 @@ const onSubmit = handleSubmit(async (formValues) => {
       brand: formValues.brand || null,
       is_sellable: formValues.is_sellable,
       is_purchasable: formValues.is_purchasable,
+      purchase_control_policy: formValues.purchase_control_policy,
+      purchase_description: formValues.purchase_description || null,
+      vendor_pricelists: (formValues.vendor_pricelists ?? [])
+        .filter((line) => line.contact_id)
+        .map((line) => ({
+          contact_id: Number(line.contact_id),
+          min_qty: line.min_qty,
+          unit: line.unit || formValues.unit,
+          price: line.price,
+          currency: line.currency || 'IDR',
+          lead_time_days: line.lead_time_days,
+          vendor_product_code: line.vendor_product_code || null,
+        })),
       inventory_account_id: formValues.inventory_account_id || null,
       cogs_account_id: formValues.cogs_account_id || null,
       sales_account_id: formValues.sales_account_id || null,
@@ -442,6 +510,83 @@ useFormShortcuts({
               @update:model-value="(v) => purchaseAccountId = v ? Number(v) : null"
             />
           </FormField>
+        </div>
+      </Card>
+
+      <Card>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h2 class="font-medium text-foreground">Purchase / Supplier</h2>
+            <Button type="button" variant="outline" size="sm" @click="addVendorLine">
+              <Plus class="h-4 w-4 mr-1" />
+              Add vendor
+            </Button>
+          </div>
+        </template>
+        <div class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormField label="Control Policy">
+              <Select v-model="purchaseControlPolicy" :options="controlPolicyOptions" />
+            </FormField>
+            <FormField label="Purchase Description" class="md:col-span-1">
+              <Input v-model="purchaseDescription" placeholder="Shown on purchase orders" />
+            </FormField>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-border text-left text-muted-foreground">
+                  <th class="py-2 pr-2 font-medium">Vendor</th>
+                  <th class="py-2 pr-2 font-medium">Min qty</th>
+                  <th class="py-2 pr-2 font-medium">UoM</th>
+                  <th class="py-2 pr-2 font-medium">Price</th>
+                  <th class="py-2 pr-2 font-medium">Currency</th>
+                  <th class="py-2 pr-2 font-medium">Lead days</th>
+                  <th class="py-2 pr-2 font-medium">Vendor SKU</th>
+                  <th class="py-2 w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(line, index) in vendorPricelists" :key="index" class="border-b border-border">
+                  <td class="py-2 pr-2 min-w-[180px]">
+                    <Select
+                      :model-value="line.contact_id ? String(line.contact_id) : ''"
+                      :options="vendorOptions"
+                      @update:model-value="(v) => line.contact_id = v ? Number(v) : null"
+                    />
+                  </td>
+                  <td class="py-2 pr-2 w-24">
+                    <Input v-model.number="line.min_qty" type="number" min="0" step="1" />
+                  </td>
+                  <td class="py-2 pr-2 w-24">
+                    <Input v-model="line.unit" />
+                  </td>
+                  <td class="py-2 pr-2 w-32">
+                    <Input v-model.number="line.price" type="number" min="0" step="1000" />
+                  </td>
+                  <td class="py-2 pr-2 w-20">
+                    <Input v-model="line.currency" maxlength="3" />
+                  </td>
+                  <td class="py-2 pr-2 w-24">
+                    <Input v-model.number="line.lead_time_days" type="number" min="0" />
+                  </td>
+                  <td class="py-2 pr-2 w-28">
+                    <Input v-model="line.vendor_product_code" />
+                  </td>
+                  <td class="py-2">
+                    <Button type="button" variant="ghost" size="sm" @click="removeVendorLine(index)">
+                      <Trash2 class="h-4 w-4" />
+                    </Button>
+                  </td>
+                </tr>
+                <tr v-if="!vendorPricelists?.length">
+                  <td colspan="8" class="py-4 text-muted-foreground">
+                    No vendor pricelist lines. Add a supplier, min qty, price, and lead time.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </Card>
 
