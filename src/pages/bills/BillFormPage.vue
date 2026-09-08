@@ -79,6 +79,7 @@ function createEmptyItem(): BillItemFormData {
     analytic_account_id: null,
     tax_tag_id: null,
     tax_record_ids: [],
+    taxes_manual: false,
   }
 }
 
@@ -159,6 +160,7 @@ watch(existingBill, (bill) => {
               analytic_account_id: Number(analyticDistributionPrimaryId(row.analytic_distribution)) || null,
               tax_tag_id: Number(taxTagIdsPrimaryId(row.tax_tag_ids)) || null,
               tax_record_ids: row.tax_record_ids ?? [],
+              taxes_manual: Array.isArray(row.tax_record_ids),
             }
           })
         : [createEmptyItem()],
@@ -195,6 +197,7 @@ function onProductSelect(index: number, productId: number | null) {
   item.unit_price = Number(product.purchase_price) || Number(product.selling_price) || 0
   const inherited = (product.purchase_taxes ?? []).map((tax) => tax.id)
   item.tax_record_ids = inherited
+  item.taxes_manual = false
   item.tax_rate = inherited.length
     ? (product.purchase_taxes ?? []).reduce((sum, tax) => sum + Number(tax.rate), 0)
     : Number(product.tax_rate) || 0
@@ -208,7 +211,8 @@ function toggleLineTax(index: number, taxId: number) {
     ? current.filter((id) => id !== taxId)
     : [...current, taxId]
   item.tax_record_ids = next
-  item.tax_rate = next.length ? rateForTaxIds(next) : item.tax_rate
+  item.taxes_manual = true
+  item.tax_rate = next.length ? rateForTaxIds(next) : 0
 }
 
 // Calculations
@@ -240,11 +244,15 @@ const onSubmit = handleSubmit(async (formValues) => {
       unit: item.unit,
       unit_price: item.unit_price,
       discount_percent: item.discount_percent,
-      tax_rate: (item.tax_record_ids?.length || !item.product_id) ? item.tax_rate : undefined,
+      tax_rate: item.taxes_manual
+        ? (item.tax_rate || 0)
+        : ((item.tax_record_ids?.length || !item.product_id) ? item.tax_rate : undefined),
       expense_account_id: item.expense_account_id,
       analytic_distribution: analyticDistributionFromAccountId(item.analytic_account_id),
       tax_tag_ids: taxTagIdsFromTagId(item.tax_tag_id),
-      tax_record_ids: item.tax_record_ids?.length ? item.tax_record_ids : undefined,
+      tax_record_ids: item.taxes_manual
+        ? (item.tax_record_ids ?? [])
+        : (item.tax_record_ids?.length ? item.tax_record_ids : undefined),
     }))
 
   const payload = {

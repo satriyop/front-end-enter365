@@ -577,6 +577,7 @@ export const billItemSchema = z.object({
   analytic_account_id: z.number().optional().nullable(),
   tax_tag_id: z.number().optional().nullable(),
   tax_record_ids: z.array(z.number()).optional().default([]),
+  taxes_manual: z.boolean().optional().default(false),
 })
 
 /**

@@ -9,6 +9,7 @@ describe('bill line tax records (#101)', () => {
 
     expect(form).toContain('useTaxRecords')
     expect(form).toContain('tax_record_ids')
+    expect(form).toContain('taxes_manual')
     expect(form).toContain('onProductSelect')
     expect(form).toContain('purchase_taxes')
     expect(form).toContain('bill-item-${index}-tax-records')
