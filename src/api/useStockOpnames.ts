@@ -24,7 +24,13 @@ export interface StockOpnameFilters {
 }
 
 // Use Scramble-generated request types directly
-export type CreateStockOpnameData = components['schemas']['StoreStockOpnameRequest']
+export type CreateStockOpnameData = components['schemas']['StoreStockOpnameRequest'] & {
+  items?: Array<{
+    product_id: number
+    counted_quantity?: number | null
+    notes?: string | null
+  }>
+}
 export type UpdateStockOpnameData = components['schemas']['UpdateStockOpnameRequest']
 
 // ============================================
