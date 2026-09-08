@@ -140,7 +140,7 @@ async function handleCreditNote() {
       data: { reason: 'vendor_request' },
     })
     toast.success('Vendor credit note created')
-    router.push(`/purchase-returns/${creditNote.id}`)
+    router.push(`/purchasing/purchase-returns/${creditNote.id}`)
   } catch {
     toast.error('Failed to create credit note')
   }
@@ -342,7 +342,7 @@ const journalItemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-muted-foreground">Purchase Order</dt>
                 <dd class="text-slate-900 dark:text-slate-100">
                   <RouterLink
-                    :to="`/purchase-orders/${(bill as { purchase_order_id: number }).purchase_order_id}`"
+                    :to="`/purchasing/purchase-orders/${(bill as { purchase_order_id: number }).purchase_order_id}`"
                     class="text-orange-600 hover:text-orange-700"
                   >
                     PO #{{ (bill as { purchase_order_id: number }).purchase_order_id }}
