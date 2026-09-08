@@ -11,6 +11,8 @@ describe('route permission gates', () => {
     expect(canOpenPath('/accounting/journal-entries', has)).toBe(true)
     expect(canOpenPath('/accounting/analytic-accounts', has)).toBe(true)
     expect(canOpenPath('/accounting/analytic-accounts/new', has)).toBe(false)
+    expect(canOpenPath('/accounting/tax-tags', has)).toBe(true)
+    expect(canOpenPath('/accounting/tax-tags/new', has)).toBe(false)
     expect(canOpenPath('/reports/trial-balance', has)).toBe(true)
     expect(canOpenPath('/reports/stock-summary', has)).toBe(false)
   })

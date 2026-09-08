@@ -7,6 +7,8 @@ export const PERMISSION_ROUTE_PREFIXES: Array<{ prefix: string; permission: stri
   { prefix: '/accounting/journals', permission: 'journals.view' },
   { prefix: '/accounting/analytic-accounts/new', permission: 'journals.create' },
   { prefix: '/accounting/analytic-accounts', permission: 'journals.view' },
+  { prefix: '/accounting/tax-tags/new', permission: 'journals.create' },
+  { prefix: '/accounting/tax-tags', permission: 'journals.view' },
   { prefix: '/accounting/journal-entries/new', permission: 'journals.create' },
   { prefix: '/accounting/journal-entries', permission: 'journals.view' },
   { prefix: '/reports/stock-summary', permission: 'inventory.view' },
