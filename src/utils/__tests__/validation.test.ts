@@ -101,6 +101,35 @@ describe('contactSchema is_pkp', () => {
   })
 })
 
+describe('contactSchema person/company', () => {
+  it('defaults to company and accepts a person under a parent', () => {
+    const company = contactSchema.safeParse({
+      code: 'CO-1',
+      name: 'PT Kopi',
+      type: 'customer',
+    })
+    expect(company.success).toBe(true)
+    if (company.success) {
+      expect(company.data.is_company).toBe(true)
+      expect(company.data.country).toBe('ID')
+    }
+
+    const person = contactSchema.safeParse({
+      code: 'PE-1',
+      name: 'Rina',
+      type: 'customer',
+      is_company: false,
+      parent_id: 9,
+      job_position: 'Accountant',
+    })
+    expect(person.success).toBe(true)
+    if (person.success) {
+      expect(person.data.is_company).toBe(false)
+      expect(person.data.parent_id).toBe(9)
+    }
+  })
+})
+
 describe('nikSchema', () => {
   it('accepts valid 16-digit NIK', () => {
     expect(nikSchema.safeParse('3374012345678901').success).toBe(true)

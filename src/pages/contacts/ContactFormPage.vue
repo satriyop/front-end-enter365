@@ -49,12 +49,17 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
     code: '',
     name: '',
     type: 'customer',
+    is_company: true,
+    parent_id: null,
+    job_position: '',
     email: '',
     phone: '',
     address: '',
+    address_line_2: '',
     city: '',
     province: '',
     postal_code: '',
+    country: 'ID',
     npwp: '',
     is_pkp: false,
     nik: '',
@@ -79,12 +84,17 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
 const [code] = defineField('code')
 const [name] = defineField('name')
 const [type] = defineField('type')
+const [isCompany] = defineField('is_company')
+const [parentId] = defineField('parent_id')
+const [jobPosition] = defineField('job_position')
 const [email] = defineField('email')
 const [phone] = defineField('phone')
 const [address] = defineField('address')
+const [addressLine2] = defineField('address_line_2')
 const [city] = defineField('city')
 const [province] = defineField('province')
 const [postalCode] = defineField('postal_code')
+const [country] = defineField('country')
 const [npwp] = defineField('npwp')
 const [isPkp] = defineField('is_pkp')
 const [nik] = defineField('nik')
@@ -156,12 +166,17 @@ watch(existingContact, (contact) => {
       code: contact.code,
       name: contact.name,
       type: contact.type as 'customer' | 'supplier' | 'both',
+      is_company: contact.is_company ?? true,
+      parent_id: contact.parent_id ?? null,
+      job_position: contact.job_position || '',
       email: contact.email || '',
       phone: contact.phone || '',
       address: contact.address || '',
+      address_line_2: contact.address_line_2 || '',
       city: contact.city || '',
       province: contact.province || '',
       postal_code: contact.postal_code || '',
+      country: contact.country || 'ID',
       npwp: contact.npwp || '',
       is_pkp: contact.is_pkp ?? false,
       nik: contact.nik || '',
@@ -196,16 +211,28 @@ const isSubmitting = computed(() =>
 )
 
 const onSubmit = handleSubmit(async (formValues) => {
-  const payload: CreateContactData & { is_pkp?: boolean } = {
+  const payload: CreateContactData & {
+    is_pkp?: boolean
+    is_company?: boolean
+    parent_id?: number | null
+    job_position?: string | null
+    address_line_2?: string | null
+    country?: string | null
+  } = {
     code: formValues.code,
     name: formValues.name,
     type: formValues.type,
+    is_company: formValues.is_company ?? true,
+    parent_id: formValues.is_company ? null : (formValues.parent_id ?? null),
+    job_position: formValues.is_company ? null : (formValues.job_position || null),
     email: formValues.email || null,
     phone: formValues.phone || null,
     address: formValues.address || null,
+    address_line_2: formValues.address_line_2 || null,
     city: formValues.city || null,
     province: formValues.province || null,
     postal_code: formValues.postal_code || null,
+    country: formValues.country || null,
     npwp: formValues.npwp || null,
     is_pkp: formValues.is_pkp ?? false,
     nik: formValues.nik || null,
@@ -305,6 +332,25 @@ useFormShortcuts({
             />
           </FormField>
 
+          <div class="flex items-center gap-4 md:col-span-2">
+            <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input v-model="isCompany" type="radio" :value="true" data-testid="contact-is-company" />
+              Company
+            </label>
+            <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input v-model="isCompany" type="radio" :value="false" data-testid="contact-is-person" />
+              Person
+            </label>
+          </div>
+
+          <FormField v-if="!isCompany" label="Job Position" :error="errors.job_position">
+            <Input v-model="jobPosition" placeholder="Purchasing, Billing, Delivery..." />
+          </FormField>
+
+          <FormField v-if="!isCompany" label="Parent Company ID" :error="errors.parent_id">
+            <Input v-model.number="parentId" type="number" min="1" placeholder="Company contact id" />
+          </FormField>
+
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
             <Input
               v-model="name"
@@ -351,7 +397,11 @@ useFormShortcuts({
             />
           </FormField>
 
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <FormField label="Street 2" :error="errors.address_line_2">
+            <Input v-model="addressLine2" placeholder="Apartment, floor, suite..." />
+          </FormField>
+
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <FormField label="City" :error="errors.city">
               <Input v-model="city" placeholder="City" />
             </FormField>
@@ -362,6 +412,10 @@ useFormShortcuts({
 
             <FormField label="Postal Code" :error="errors.postal_code">
               <Input v-model="postalCode" placeholder="12345" />
+            </FormField>
+
+            <FormField label="Country" :error="errors.country">
+              <Input v-model="country" maxlength="2" placeholder="ID" />
             </FormField>
           </div>
         </div>
