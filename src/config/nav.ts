@@ -155,6 +155,7 @@ export const POS_NAV_ID: Record<string, string> = {
   'Journals': 'Jurnal (Konfigurasi)',
   'Journal Entries': 'Jurnal',
   'Fiscal Periods': 'Periode Fiskal',
+  'Bank Reconciliation': 'Rekonsiliasi',
   Payments: 'Pembayaran',
   Bills: 'Tagihan',
   Reports: 'Laporan',
