@@ -160,6 +160,7 @@ export const contactSchema = z.object({
   }),
   is_company: z.boolean().optional().default(true),
   parent_id: z.number().int().positive().optional().nullable(),
+  address_role: z.enum(['invoice', 'delivery', 'contact']).optional().nullable(),
   job_position: z.string().max(100).optional().default(''),
   email: emailSchema,
   phone: phoneSchema,

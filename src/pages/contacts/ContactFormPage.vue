@@ -7,6 +7,7 @@ import {
   useContact,
   useCreateContact,
   useUpdateContact,
+  useCompanyContactsLookup,
   type CreateContactData
 } from '@/api/useContacts'
 import { getErrorMessage } from '@/api/client'
@@ -51,6 +52,7 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
     type: 'customer',
     is_company: true,
     parent_id: null,
+    address_role: null,
     job_position: '',
     email: '',
     phone: '',
@@ -86,7 +88,20 @@ const [name] = defineField('name')
 const [type] = defineField('type')
 const [isCompany] = defineField('is_company')
 const [parentId] = defineField('parent_id')
+const [addressRole] = defineField('address_role')
 const [jobPosition] = defineField('job_position')
+
+const { data: companyContacts, isLoading: companiesLoading } = useCompanyContactsLookup()
+const companyOptions = computed(() =>
+  (companyContacts.value ?? [])
+    .filter((company) => company.id !== contactId.value)
+    .map((company) => ({ value: String(company.id), label: `${company.code} · ${company.name}` })),
+)
+const addressRoleOptions = [
+  { value: 'invoice', label: 'Invoice' },
+  { value: 'delivery', label: 'Delivery' },
+  { value: 'contact', label: 'Contact' },
+]
 const [email] = defineField('email')
 const [phone] = defineField('phone')
 const [address] = defineField('address')
@@ -168,6 +183,7 @@ watch(existingContact, (contact) => {
       type: contact.type as 'customer' | 'supplier' | 'both',
       is_company: contact.is_company ?? true,
       parent_id: contact.parent_id ?? null,
+      address_role: contact.address_role ?? null,
       job_position: contact.job_position || '',
       email: contact.email || '',
       phone: contact.phone || '',
@@ -202,6 +218,21 @@ watch(existingContact, (contact) => {
   }
 }, { immediate: true })
 
+watch(
+  () => route.query.parent_id,
+  (parentQuery) => {
+    if (isEditing.value || !parentQuery) {
+      return
+    }
+    isCompany.value = false
+    parentId.value = Number(parentQuery)
+    if (!addressRole.value) {
+      addressRole.value = 'contact'
+    }
+  },
+  { immediate: true },
+)
+
 // Form submission
 const createMutation = useCreateContact()
 const updateMutation = useUpdateContact()
@@ -215,6 +246,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     is_pkp?: boolean
     is_company?: boolean
     parent_id?: number | null
+    address_role?: 'invoice' | 'delivery' | 'contact' | null
     job_position?: string | null
     address_line_2?: string | null
     country?: string | null
@@ -224,6 +256,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     type: formValues.type,
     is_company: formValues.is_company ?? true,
     parent_id: formValues.is_company ? null : (formValues.parent_id ?? null),
+    address_role: formValues.is_company ? null : (formValues.address_role ?? 'contact'),
     job_position: formValues.is_company ? null : (formValues.job_position || null),
     email: formValues.email || null,
     phone: formValues.phone || null,
@@ -347,8 +380,25 @@ useFormShortcuts({
             <Input v-model="jobPosition" placeholder="Purchasing, Billing, Delivery..." />
           </FormField>
 
-          <FormField v-if="!isCompany" label="Parent Company ID" :error="errors.parent_id">
-            <Input v-model.number="parentId" type="number" min="1" placeholder="Company contact id" />
+          <FormField v-if="!isCompany" label="Parent Company" :error="errors.parent_id">
+            <Select
+              :model-value="parentId ? String(parentId) : ''"
+              :options="companyOptions"
+              :loading="companiesLoading"
+              placeholder="Select company"
+              test-id="contact-parent-company"
+              @update:model-value="(v) => { parentId = v ? Number(v) : null }"
+            />
+          </FormField>
+
+          <FormField v-if="!isCompany" label="Address Role" :error="errors.address_role">
+            <Select
+              :model-value="addressRole ?? 'contact'"
+              :options="addressRoleOptions"
+              placeholder="Contact"
+              test-id="contact-address-role"
+              @update:model-value="(v) => { addressRole = v ? String(v) as 'invoice' | 'delivery' | 'contact' : 'contact' }"
+            />
           </FormField>
 
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">

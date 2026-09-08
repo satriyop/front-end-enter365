@@ -128,6 +128,21 @@ describe('contactSchema person/company', () => {
       expect(person.data.parent_id).toBe(9)
     }
   })
+
+  it('accepts invoice delivery and contact address roles', () => {
+    const result = contactSchema.safeParse({
+      code: 'PE-2',
+      name: 'Billing',
+      type: 'customer',
+      is_company: false,
+      parent_id: 9,
+      address_role: 'invoice',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.address_role).toBe('invoice')
+    }
+  })
 })
 
 describe('nikSchema', () => {
