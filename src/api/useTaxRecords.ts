@@ -31,8 +31,11 @@ export function useTaxRecords(applicability?: 'sales' | 'purchase') {
   return useQuery({
     queryKey: ['tax-records', applicability],
     queryFn: async () => {
-      const params: Record<string, string> = { is_active: '1', per_page: '100' }
-      if (applicability) params.applicability = applicability
+      const params: Record<string, string> = { per_page: '100' }
+      if (applicability) {
+        params.applicability = applicability
+        params.is_active = '1'
+      }
       const response = await api.get<{ data: TaxRecord[] }>('/tax-records', { params })
       return response.data.data
     },
