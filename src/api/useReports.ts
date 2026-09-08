@@ -46,6 +46,14 @@ export interface BalanceSheetReport {
   total_equity: number
   total_liabilities_equity: number
   is_balanced: boolean
+  variance?: {
+    assets_change: number
+    assets_change_percent: number
+    liabilities_change: number
+    liabilities_change_percent: number
+    equity_change: number
+    equity_change_percent: number
+  }
 }
 
 export interface IncomeStatementSection {
@@ -70,6 +78,14 @@ export interface IncomeStatementReport {
   net_income: number
   gross_profit?: number
   operating_income?: number
+  variance?: {
+    revenue_change: number
+    revenue_change_percent: number
+    expenses_change: number
+    expenses_change_percent: number
+    net_income_change: number
+    net_income_change_percent: number
+  }
 }
 
 export interface CashFlowCategory {
@@ -93,6 +109,11 @@ export interface CashFlowReport {
   net_cash_change: number
   opening_balance: number
   closing_balance: number
+  variance?: {
+    net_cash_change: number
+    opening_balance_change: number
+    closing_balance_change: number
+  }
 }
 
 export interface AgingBucket {
@@ -150,6 +171,8 @@ export interface GeneralLedgerReport {
   report_name: string
   start_date: string
   end_date: string
+  journal_id?: number | null
+  analytic_account_id?: number | null
   accounts: GeneralLedgerAccount[]
 }
 
@@ -249,7 +272,8 @@ export interface DailyCashMovement {
   receipts: number
   payments: number
   net: number
-  running_balance: number
+  running_balance?: number
+  balance?: number
 }
 
 export interface DailyCashMovementReport {
@@ -816,11 +840,16 @@ export interface BankReconciliationReport {
 // Hooks
 // ─────────────────────────────────────────────────────────────
 
-export function useTrialBalance(asOfDate?: Ref<string | undefined>) {
+export function useTrialBalance(
+  asOfDate?: Ref<string | undefined>,
+  journalId?: Ref<string | undefined>
+) {
   return useQuery({
-    queryKey: ['reports', 'trial-balance', asOfDate],
+    queryKey: ['reports', 'trial-balance', asOfDate, journalId],
     queryFn: async () => {
-      const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
+      const params: Record<string, string> = {}
+      if (asOfDate?.value) params.as_of_date = asOfDate.value
+      if (journalId?.value) params.journal_id = journalId.value
       const response = await api.get<{ data: TrialBalanceReport }>('/reports/trial-balance', { params })
       return response.data.data
     },
@@ -828,13 +857,29 @@ export function useTrialBalance(asOfDate?: Ref<string | undefined>) {
   })
 }
 
-export function useBalanceSheet(asOfDate?: Ref<string | undefined>) {
+export function useBalanceSheet(
+  asOfDate?: Ref<string | undefined>,
+  compareTo?: Ref<string | undefined>
+) {
   return useQuery({
-    queryKey: ['reports', 'balance-sheet', asOfDate],
+    queryKey: ['reports', 'balance-sheet', asOfDate, compareTo],
     queryFn: async () => {
-      const params = asOfDate?.value ? { as_of_date: asOfDate.value } : {}
-      const response = await api.get<{ data: BalanceSheetReport }>('/reports/balance-sheet', { params })
-      return response.data.data
+      const params: Record<string, string> = {}
+      if (asOfDate?.value) params.as_of_date = asOfDate.value
+      if (compareTo?.value) params.compare_to = compareTo.value
+      const response = await api.get<{ data: BalanceSheetReport & {
+        current_period?: BalanceSheetReport
+        variance?: BalanceSheetReport['variance']
+      } }>('/reports/balance-sheet', { params })
+      const raw = response.data.data
+      if (raw.current_period) {
+        return {
+          ...raw.current_period,
+          report_name: raw.report_name,
+          variance: raw.variance,
+        }
+      }
+      return raw
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -842,16 +887,29 @@ export function useBalanceSheet(asOfDate?: Ref<string | undefined>) {
 
 export function useIncomeStatement(
   startDate?: Ref<string | undefined>,
-  endDate?: Ref<string | undefined>
+  endDate?: Ref<string | undefined>,
+  comparePreviousPeriod?: Ref<boolean>
 ) {
   return useQuery({
-    queryKey: ['reports', 'income-statement', startDate, endDate],
+    queryKey: ['reports', 'income-statement', startDate, endDate, comparePreviousPeriod],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<{ data: IncomeStatementReport }>('/reports/income-statement', { params })
-      return response.data.data
+      if (comparePreviousPeriod?.value) params.compare_previous_period = '1'
+      const response = await api.get<{ data: IncomeStatementReport & {
+        current_period?: IncomeStatementReport
+        variance?: IncomeStatementReport['variance']
+      } }>('/reports/income-statement', { params })
+      const raw = response.data.data
+      if (raw.current_period) {
+        return {
+          ...raw.current_period,
+          report_name: raw.report_name,
+          variance: raw.variance,
+        }
+      }
+      return raw
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -859,16 +917,29 @@ export function useIncomeStatement(
 
 export function useCashFlow(
   startDate?: Ref<string | undefined>,
-  endDate?: Ref<string | undefined>
+  endDate?: Ref<string | undefined>,
+  comparePreviousPeriod?: Ref<boolean>
 ) {
   return useQuery({
-    queryKey: ['reports', 'cash-flow', startDate, endDate],
+    queryKey: ['reports', 'cash-flow', startDate, endDate, comparePreviousPeriod],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
-      const response = await api.get<{ data: CashFlowReport }>('/reports/cash-flow', { params })
-      return response.data.data
+      if (comparePreviousPeriod?.value) params.compare_previous_period = '1'
+      const response = await api.get<{ data: CashFlowReport & {
+        current_period?: CashFlowReport
+        variance?: CashFlowReport['variance']
+      } }>('/reports/cash-flow', { params })
+      const raw = response.data.data
+      if (raw.current_period) {
+        return {
+          ...raw.current_period,
+          report_name: raw.report_name,
+          variance: raw.variance,
+        }
+      }
+      return raw
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -900,14 +971,18 @@ export function usePayablesAging(asOfDate?: Ref<string | undefined>) {
 
 export function useGeneralLedger(
   startDate?: Ref<string | undefined>,
-  endDate?: Ref<string | undefined>
+  endDate?: Ref<string | undefined>,
+  journalId?: Ref<string | undefined>,
+  analyticAccountId?: Ref<string | undefined>
 ) {
   return useQuery({
-    queryKey: ['reports', 'general-ledger', startDate, endDate],
+    queryKey: ['reports', 'general-ledger', startDate, endDate, journalId, analyticAccountId],
     queryFn: async () => {
       const params: Record<string, string> = {}
       if (startDate?.value) params.start_date = startDate.value
       if (endDate?.value) params.end_date = endDate.value
+      if (journalId?.value) params.journal_id = journalId.value
+      if (analyticAccountId?.value) params.analytic_account_id = analyticAccountId.value
       const response = await api.get<{ data: GeneralLedgerReport }>('/reports/general-ledger', { params })
       return response.data.data
     },

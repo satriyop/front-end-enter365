@@ -9,9 +9,11 @@ import { formatCurrency, toLocalISODate } from '@/utils/format'
 const router = useRouter()
 
 const asOfDate = ref(toLocalISODate())
+const compareTo = ref('')
 const asOfDateRef = computed(() => asOfDate.value)
+const compareToRef = computed(() => compareTo.value || undefined)
 
-const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef)
+const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef, compareToRef)
 
 const exportMutation = useExportBalanceSheet()
 
@@ -44,6 +46,10 @@ function formatAmount(amount: number): string {
         <div>
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">As of Date</label>
           <Input v-model="asOfDate" type="date" class="w-40" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Compare to</label>
+          <Input v-model="compareTo" type="date" class="w-40" />
         </div>
         <div class="flex gap-2">
           <Button
@@ -94,6 +100,10 @@ function formatAmount(amount: number): string {
         <div class="text-center border-b border-slate-200 dark:border-slate-700 pb-4 mb-4">
           <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-100">{{ report.report_name }}</h2>
           <p class="text-slate-500 dark:text-slate-400">As of {{ report.as_of_date }}</p>
+          <p v-if="report.variance" class="text-sm text-slate-600 dark:text-slate-300 mt-2">
+            vs compare date: assets {{ formatAmount(report.variance.assets_change) }},
+            equity {{ formatAmount(report.variance.equity_change) }}
+          </p>
           <Badge v-if="report.is_balanced" variant="success" class="mt-2">Balanced</Badge>
           <Badge v-else variant="destructive" class="mt-2">Not Balanced</Badge>
         </div>
