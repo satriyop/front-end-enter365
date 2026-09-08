@@ -18,7 +18,7 @@ import AccountTreeNode from './AccountTreeNode.vue'
 const router = useRouter()
 const toast = useToast()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 // Fetch all accounts for tree
 const { data: accountsData, isLoading, error, refetch } = useAccountsTree()

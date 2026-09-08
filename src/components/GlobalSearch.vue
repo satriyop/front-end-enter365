@@ -4,11 +4,17 @@ import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
 import { api } from '@/api/client'
 import { posChrome } from '@/config/nav'
+import {
+  SEARCH_NAV_ITEMS,
+  SEARCH_QUICK_ACTIONS,
+  catalogVisible,
+  searchResultVisible,
+} from '@/config/searchCatalog'
 import { useFeaturesStore } from '@/stores/features'
 
 const router = useRouter()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 const isOpen = ref(false)
 const searchQuery = ref('')
 const selectedIndex = ref(0)
@@ -23,27 +29,13 @@ interface SearchItem {
   subtitle?: string
 }
 
-// Quick navigation items (always shown)
-const quickActions: SearchItem[] = [
-  { type: 'action', label: 'New Quotation', icon: '📝', path: '/quotations/new' },
-  { type: 'action', label: 'New Invoice', icon: '📄', path: '/invoices/new' },
-  { type: 'action', label: 'New Contact', icon: '👤', path: '/contacts/new' },
-  { type: 'action', label: 'New Project', icon: '🏗️', path: '/projects/new' },
-  { type: 'action', label: 'New Work Order', icon: '🔧', path: '/work-orders/new' },
-]
+const quickActions = computed(() =>
+  catalogVisible(SEARCH_QUICK_ACTIONS, (name) => features.enabled(name)),
+)
 
-const navigationItems: SearchItem[] = [
-  { type: 'nav', label: 'Dashboard', icon: '🏠', path: '/' },
-  { type: 'nav', label: 'Quotations', icon: '📝', path: '/quotations' },
-  { type: 'nav', label: 'Invoices', icon: '📄', path: '/invoices' },
-  { type: 'nav', label: 'Bills', icon: '📋', path: '/bills' },
-  { type: 'nav', label: 'Contacts', icon: '👤', path: '/contacts' },
-  { type: 'nav', label: 'Products', icon: '📦', path: '/products' },
-  { type: 'nav', label: 'Projects', icon: '🏗️', path: '/projects' },
-  { type: 'nav', label: 'Work Orders', icon: '🔧', path: '/work-orders' },
-  { type: 'nav', label: 'Inventory', icon: '📊', path: '/inventory' },
-  { type: 'nav', label: 'Reports', icon: '📈', path: '/reports' },
-]
+const navigationItems = computed(() =>
+  catalogVisible(SEARCH_NAV_ITEMS, (name) => features.enabled(name)),
+)
 
 // Search API
 const { data: searchResults, isFetching } = useQuery({
@@ -72,19 +64,19 @@ const displayItems = computed(() => {
   if (!query) {
     return [
       { type: 'group', label: 'Quick Actions' } as SearchItem,
-      ...quickActions,
+      ...quickActions.value,
       { type: 'group', label: 'Navigation' } as SearchItem,
-      ...navigationItems,
+      ...navigationItems.value,
     ]
   }
 
   const items: SearchItem[] = []
 
   // Filter navigation and actions by query
-  const filteredActions = quickActions.filter(item =>
+  const filteredActions = quickActions.value.filter(item =>
     item.label.toLowerCase().includes(query)
   )
-  const filteredNav = navigationItems.filter(item =>
+  const filteredNav = navigationItems.value.filter(item =>
     item.label.toLowerCase().includes(query)
   )
 
@@ -128,7 +120,7 @@ const displayItems = computed(() => {
       })
     }
 
-    if (quotations?.length) {
+    if (quotations?.length && features.enabled('quotations')) {
       items.push({ type: 'group' as const, label: 'Quotations' })
       quotations.slice(0, 5).forEach(q => {
         items.push({
@@ -141,7 +133,7 @@ const displayItems = computed(() => {
       })
     }
 
-    if (invoices?.length) {
+    if (invoices?.length && searchResultVisible('invoice', (name) => features.enabled(name))) {
       items.push({ type: 'group' as const, label: 'Invoices' })
       invoices.slice(0, 5).forEach(i => {
         items.push({
@@ -154,7 +146,7 @@ const displayItems = computed(() => {
       })
     }
 
-    if (projects?.length) {
+    if (projects?.length && features.enabled('projects')) {
       items.push({ type: 'group' as const, label: 'Projects' })
       projects.slice(0, 5).forEach(p => {
         items.push({

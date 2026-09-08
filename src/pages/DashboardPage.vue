@@ -13,7 +13,7 @@ import PosShopHome from '@/pages/dashboard/PosShopHome.vue'
 
 const auth = useAuthStore()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
@@ -54,7 +54,7 @@ onMounted(() => {
   const label = PACK_LABELS[pack] ?? pack
   toast.warning({
     title: 'Modul tidak aktif',
-    message: features.preset === 'pos'
+    message: features.posAcquisition
       ? `${label} tidak dipakai toko ini.`
       : `${label} dimatikan di konfigurasi produk (FEATURE_PRESET / pack). Nyalakan di .env bila diperlukan.`,
     duration: 8000,

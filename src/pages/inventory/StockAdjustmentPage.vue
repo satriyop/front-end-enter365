@@ -14,7 +14,7 @@ import { useFeaturesStore } from '@/stores/features'
 const router = useRouter()
 const toast = useToast()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 // Adjustment type
 const adjustmentType = ref<'adjust' | 'in' | 'out'>('adjust')

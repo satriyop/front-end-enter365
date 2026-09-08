@@ -30,6 +30,7 @@ vi.mock('vue-router', () => ({
 vi.mock('@/stores/features', () => ({
   useFeaturesStore: () => ({
     preset: 'general',
+    posAcquisition: false,
   }),
 }))
 

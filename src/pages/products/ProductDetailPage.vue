@@ -10,7 +10,7 @@ import { useFeaturesStore } from '@/stores/features'
 import { Pencil, Trash2, Copy, ArrowLeft, Scale } from 'lucide-vue-next'
 
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 const route = useRoute()
 const router = useRouter()

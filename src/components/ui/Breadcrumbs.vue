@@ -13,7 +13,7 @@ interface BreadcrumbItem {
 const route = useRoute()
 const router = useRouter()
 const features = useFeaturesStore()
-const posPack = computed(() => features.preset === 'pos')
+const posPack = computed(() => features.posAcquisition)
 
 function crumb(label: string): string {
   return posChrome(label, posPack.value, POS_BREADCRUMB_ID)
