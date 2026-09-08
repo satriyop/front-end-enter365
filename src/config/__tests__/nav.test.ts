@@ -66,5 +66,24 @@ describe('navigation permission keys', () => {
     expect(posChrome('Quotations', false, POS_NAV_ID)).toBe('Quotations')
     expect(posChrome('Purchase Orders', true, POS_NAV_ID)).toBe('Pesanan Pembelian')
     expect(posChrome('Purchasing', true)).toBe('Pembelian')
+    expect(posChrome('Payments', true, POS_NAV_ID)).toBe('Pembayaran')
+    expect(posChrome('Bank Reconciliation', true, POS_NAV_ID)).toBe('Rekonsiliasi')
+  })
+
+  it('gates Payments and Bank Reconciliation on their packs', () => {
+    expect(item('Payments').feature).toBe('payments')
+    expect(item('Bank Reconciliation').feature).toBe('bank_reconciliation')
+    expect(navItemVisible(item('Payments'), {
+      featureEnabled: () => false,
+      hasPermission: () => true,
+    })).toBe(false)
+    expect(navItemVisible(item('Bank Reconciliation'), {
+      featureEnabled: (name) => name === 'bank_reconciliation',
+      hasPermission: (name) => name === 'journals.view',
+    })).toBe(true)
+    expect(navItemVisible(item('Payments'), {
+      featureEnabled: (name) => name === 'payments',
+      hasPermission: (name) => name === 'payments.view',
+    })).toBe(true)
   })
 })
