@@ -7,6 +7,8 @@ import {
   usePostJournalEntry,
   useReverseJournalEntry,
   getJournalEntryStatus,
+  formatAnalyticDistribution,
+  formatTaxTagIds,
 } from '@/api/useJournalEntries'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Card, Modal, Input, useToast } from '@/components/ui'
@@ -251,6 +253,8 @@ function viewAccount(accountId: string) {
               <tr>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Account</th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Partner</th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Analytic</th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Tax Grids</th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400">Description</th>
                 <th class="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Debit</th>
                 <th class="px-4 py-3 text-right font-medium text-slate-500 dark:text-slate-400">Credit</th>
@@ -279,6 +283,12 @@ function viewAccount(accountId: string) {
                   </template>
                   <template v-else>-</template>
                 </td>
+                <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400" data-testid="je-line-analytic">
+                  {{ formatAnalyticDistribution(line.analytic_distribution) || '-' }}
+                </td>
+                <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400" data-testid="je-line-tax-grids">
+                  {{ formatTaxTagIds(line.tax_tag_ids) || '-' }}
+                </td>
                 <td class="px-4 py-3 text-slate-600 dark:text-slate-400">
                   {{ line.description || '-' }}
                 </td>
@@ -292,7 +302,7 @@ function viewAccount(accountId: string) {
             </tbody>
             <tfoot class="bg-slate-50 dark:bg-slate-800/50 font-medium">
               <tr>
-                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="3">Total</td>
+                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="5">Total</td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(entry.total_debit) }}
                 </td>

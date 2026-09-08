@@ -6,6 +6,10 @@ import {
   calculateLineTotals,
   validateJournalLines,
   createEmptyLine,
+  formatAnalyticDistribution,
+  parseAnalyticDistribution,
+  formatTaxTagIds,
+  parseTaxTagIds,
   type CreateJournalEntryData,
   type CreateJournalEntryLineData,
 } from '@/api/useJournalEntries'
@@ -60,6 +64,10 @@ const lines = ref<CreateJournalEntryLineData[]>([
   createEmptyLine(),
 ])
 
+/** Draft strings for optional Odoo dimensions (no analytic/tax-tag masters yet). */
+const analyticDrafts = ref<string[]>(['', ''])
+const taxTagDrafts = ref<string[]>(['', ''])
+
 // Calculate totals
 const totals = computed(() => calculateLineTotals(lines.value))
 
@@ -75,13 +83,41 @@ const hasErrors = computed(() => validationErrors.value.length > 0)
 // Add new line
 function addLine() {
   lines.value.push(createEmptyLine())
+  analyticDrafts.value.push('')
+  taxTagDrafts.value.push('')
 }
 
 // Remove line
 function removeLine(index: number) {
   if (lines.value.length > 2) {
     lines.value.splice(index, 1)
+    analyticDrafts.value.splice(index, 1)
+    taxTagDrafts.value.splice(index, 1)
   }
+}
+
+function onAnalyticInput(index: number, value: string) {
+  analyticDrafts.value[index] = value
+  const line = lines.value[index]
+  if (!line) return
+  if (!value.trim()) {
+    line.analytic_distribution = null
+    return
+  }
+  const parsed = parseAnalyticDistribution(value)
+  if (parsed) line.analytic_distribution = parsed
+}
+
+function onTaxTagsInput(index: number, value: string) {
+  taxTagDrafts.value[index] = value
+  const line = lines.value[index]
+  if (!line) return
+  if (!value.trim()) {
+    line.tax_tag_ids = null
+    return
+  }
+  const parsed = parseTaxTagIds(value)
+  if (parsed) line.tax_tag_ids = parsed
 }
 
 // Handle debit change - clear credit if debit is entered
@@ -155,6 +191,34 @@ async function handleSubmit() {
   if (hasErrors.value) {
     toast.error('Please fix the errors before submitting')
     return
+  }
+
+  // Commit optional dimension drafts (reject half-typed values)
+  for (let i = 0; i < lines.value.length; i++) {
+    const line = lines.value[i]
+    if (!line) continue
+    const analyticRaw = analyticDrafts.value[i] ?? ''
+    if (analyticRaw.trim()) {
+      const parsed = parseAnalyticDistribution(analyticRaw)
+      if (!parsed) {
+        toast.error(`Line ${i + 1}: Analytic Distribution must be id:pct pairs (e.g. 1:100 or 1:50, 2:50)`)
+        return
+      }
+      line.analytic_distribution = parsed
+    } else {
+      line.analytic_distribution = null
+    }
+    const taxRaw = taxTagDrafts.value[i] ?? ''
+    if (taxRaw.trim()) {
+      const parsed = parseTaxTagIds(taxRaw)
+      if (!parsed) {
+        toast.error(`Line ${i + 1}: Tax Grids must be comma-separated positive ids (e.g. 101, 202)`)
+        return
+      }
+      line.tax_tag_ids = parsed
+    } else {
+      line.tax_tag_ids = null
+    }
   }
 
   // Filter out empty lines
@@ -274,8 +338,14 @@ async function handleSubmit() {
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/4">
                   Account <span class="text-red-500">*</span>
                 </th>
-                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/5">
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[9rem]">
                   Partner
+                </th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[8rem]" title="Odoo analytic_distribution — id:pct (no analytic master yet)">
+                  Analytic
+                </th>
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[7rem]" title="Odoo Tax Grids / tax_tag_ids (no tax-tag master yet)">
+                  Tax Grids
                 </th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/5">
                   Description
@@ -312,6 +382,28 @@ async function handleSubmit() {
                     :loading="contactsLoading"
                     placeholder="Optional"
                     @update:model-value="(v) => line.partner_id = v ? parseInt(String(v), 10) : null"
+                  />
+                </td>
+
+                <!-- Analytic Distribution -->
+                <td class="px-4 py-2">
+                  <Input
+                    :model-value="analyticDrafts[index] ?? formatAnalyticDistribution(line.analytic_distribution)"
+                    :data-testid="`je-line-${index}-analytic`"
+                    placeholder="1:100"
+                    class="text-sm font-mono"
+                    @update:model-value="(v) => onAnalyticInput(index, String(v))"
+                  />
+                </td>
+
+                <!-- Tax Grids -->
+                <td class="px-4 py-2">
+                  <Input
+                    :model-value="taxTagDrafts[index] ?? formatTaxTagIds(line.tax_tag_ids)"
+                    :data-testid="`je-line-${index}-tax-grids`"
+                    placeholder="101, 202"
+                    class="text-sm font-mono"
+                    @update:model-value="(v) => onTaxTagsInput(index, String(v))"
                   />
                 </td>
 
@@ -363,7 +455,7 @@ async function handleSubmit() {
             </tbody>
             <tfoot class="bg-slate-50 dark:bg-slate-800/50 font-medium">
               <tr>
-                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="3">Total</td>
+                <td class="px-4 py-3 text-slate-900 dark:text-slate-100" colspan="5">Total</td>
                 <td class="px-4 py-3 text-right font-mono text-slate-900 dark:text-slate-100">
                   {{ formatCurrency(totals.totalDebit) }}
                 </td>
@@ -430,6 +522,8 @@ async function handleSubmit() {
       </template>
       <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
         <li>• Partner (customer/vendor) is optional on each line for AR/AP reporting</li>
+        <li>• Analytic: optional id:pct pairs (e.g. 1:100) — stored as Odoo analytic_distribution JSON until an analytic master exists</li>
+        <li>• Tax Grids: optional comma-separated tag ids — stored as tax_tag_ids; VAT reports remain document-level for now</li>
         <li>• Each line can only have a debit OR credit amount, not both</li>
         <li>• Total debits must equal total credits for a balanced entry</li>
         <li>• Use "Auto-Balance" to automatically fill the last line</li>

@@ -172,10 +172,88 @@ export function createEmptyLine(): CreateJournalEntryLineData {
   return {
     account_id: 0,
     partner_id: null,
+    analytic_distribution: null,
+    tax_tag_ids: null,
     description: '',
     debit: 0,
     credit: 0,
   }
+}
+
+/**
+ * Format Odoo analytic_distribution as "id:pct, id:pct" for the line grid.
+ */
+export function formatAnalyticDistribution(
+  value: { [key: string]: number } | null | undefined,
+): string {
+  if (!value || Object.keys(value).length === 0) return ''
+  return Object.entries(value)
+    .map(([id, pct]) => `${id}:${pct}`)
+    .join(', ')
+}
+
+/**
+ * Parse "id:pct, id:pct" (or JSON object) into analytic_distribution.
+ * Returns null when empty/invalid.
+ */
+export function parseAnalyticDistribution(
+  raw: string,
+): { [key: string]: number } | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+
+  if (trimmed.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>
+      const out: { [key: string]: number } = {}
+      for (const [k, v] of Object.entries(parsed)) {
+        const n = Number(v)
+        if (!Number.isFinite(n) || n < 0 || n > 100) return null
+        out[String(k)] = n
+      }
+      return Object.keys(out).length ? out : null
+    } catch {
+      return null
+    }
+  }
+
+  const out: { [key: string]: number } = {}
+  for (const part of trimmed.split(',')) {
+    const piece = part.trim()
+    if (!piece) continue
+    const [idRaw, pctRaw] = piece.split(':').map((s) => s.trim())
+    if (!idRaw || pctRaw === undefined) return null
+    const pct = Number(pctRaw)
+    if (!/^\d+$/.test(idRaw) || !Number.isFinite(pct) || pct < 0 || pct > 100) return null
+    out[idRaw] = pct
+  }
+  return Object.keys(out).length ? out : null
+}
+
+/**
+ * Format tax_tag_ids as comma-separated ids for the line grid.
+ */
+export function formatTaxTagIds(value: number[] | null | undefined): string {
+  if (!value || value.length === 0) return ''
+  return value.join(', ')
+}
+
+/**
+ * Parse comma-separated tax tag ids. Returns null when empty; null on invalid.
+ */
+export function parseTaxTagIds(raw: string): number[] | null {
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  const ids: number[] = []
+  for (const part of trimmed.split(',')) {
+    const piece = part.trim()
+    if (!piece) continue
+    if (!/^\d+$/.test(piece)) return null
+    const n = parseInt(piece, 10)
+    if (n < 1) return null
+    ids.push(n)
+  }
+  return ids.length ? ids : null
 }
 
 /**

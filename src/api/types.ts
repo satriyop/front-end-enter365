@@ -8658,6 +8658,10 @@ export interface components {
             journal_entry_id: number;
             account_id: number;
             partner_id?: number | null;
+            /** Odoo analytic_distribution map {analytic_account_id: percentage} */
+            analytic_distribution?: { [key: string]: number } | null;
+            /** Odoo Tax Grids / tax_tag_ids */
+            tax_tag_ids?: number[] | null;
             description: string;
             debit: number;
             credit: number;
@@ -10557,6 +10561,8 @@ export interface components {
             lines: {
                 account_id: number;
                 partner_id?: number | null;
+                analytic_distribution?: { [key: string]: number } | null;
+                tax_tag_ids?: number[] | null;
                 description?: string | null;
                 debit?: number;
                 credit?: number;
