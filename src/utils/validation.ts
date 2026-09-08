@@ -220,6 +220,17 @@ export const productSchema = z.object({
   // Sales & purchasing options
   is_sellable: z.boolean().default(true),
   is_purchasable: z.boolean().default(true),
+  purchase_control_policy: z.enum(['ordered', 'received']).default('received'),
+  purchase_description: z.string().max(2000).optional().default(''),
+  vendor_pricelists: z.array(z.object({
+    contact_id: z.number().nullable(),
+    min_qty: z.number().min(0).default(1),
+    unit: z.string().max(20).default('pcs'),
+    price: z.number().min(0).default(0),
+    currency: z.string().length(3).default('IDR'),
+    lead_time_days: z.number().min(0).default(0),
+    vendor_product_code: z.string().max(100).optional().default(''),
+  })).optional().default([]),
   // Account mapping (for products with inventory tracking)
   inventory_account_id: z.number().optional().nullable(),
   cogs_account_id: z.number().optional().nullable(),

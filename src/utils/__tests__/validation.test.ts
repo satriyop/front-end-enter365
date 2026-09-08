@@ -581,6 +581,34 @@ describe('nullable vs optional pattern', () => {
     }
   })
 
+  it('product accepts vendor pricelist lines and control policy', () => {
+    const result = productSchema.safeParse({
+      sku: 'SKU001',
+      name: 'Product',
+      type: 'product',
+      unit: 'kg',
+      purchase_control_policy: 'ordered',
+      purchase_description: 'Grade 1 beans',
+      vendor_pricelists: [
+        {
+          contact_id: 9,
+          min_qty: 10,
+          unit: 'kg',
+          price: 75000,
+          currency: 'IDR',
+          lead_time_days: 5,
+          vendor_product_code: 'GY-1',
+        },
+      ],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.purchase_control_policy).toBe('ordered')
+      expect(result.data.vendor_pricelists?.[0]?.contact_id).toBe(9)
+      expect(result.data.vendor_pricelists?.[0]?.price).toBe(75000)
+    }
+  })
+
   it('warehouse string fields default to empty string', () => {
     const result = warehouseSchema.safeParse({ name: 'Main Warehouse' })
     expect(result.success).toBe(true)
