@@ -2,7 +2,8 @@
  * Bills API hooks
  */
 
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { computed, type Ref } from 'vue'
 import { api } from './client'
 import { createCrudHooks } from './factory'
 import type { components } from './types'
@@ -80,12 +81,69 @@ export function useBillCreditNote() {
   })
 }
 
+export interface PurchaseMatchingBillLine {
+  id: number
+  product_id: number | null
+  description: string
+  quantity: number
+  unit: string
+  unit_price: number
+  line_total: number
+  purchase_order_item_id: number | null
+}
+
+export interface PurchaseMatchingPoLine {
+  id: number
+  product_id: number | null
+  description: string
+  quantity: number
+  quantity_received: number
+  unit: string
+  unit_price: number
+  billed_quantity: number
+  billed_amount: number
+  qty_to_invoice: number
+}
+
+export interface PurchaseMatchingWorksheet {
+  purchase_order_id: number | null
+  bill_lines: PurchaseMatchingBillLine[]
+  purchase_lines: PurchaseMatchingPoLine[]
+}
+
+export function useBillPurchaseMatching(
+  billId: Ref<number>,
+  purchaseOrderId: Ref<number | string>,
+  enabled: Ref<boolean>,
+) {
+  return useQuery({
+    queryKey: ['bills', billId, 'purchase-matching', purchaseOrderId],
+    enabled: computed(() => enabled.value && !!billId.value && Number(purchaseOrderId.value) > 0),
+    queryFn: async () => {
+      const response = await api.get<{ data: PurchaseMatchingWorksheet }>(
+        `/bills/${billId.value}/purchase-matching`,
+        { params: { purchase_order_id: Number(purchaseOrderId.value) } },
+      )
+      return response.data.data
+    },
+  })
+}
+
 export function useMatchBillPurchaseOrder() {
   const queryClient = useQueryClient()
   return useMutation({
-    mutationFn: async ({ id, purchase_order_id }: { id: number; purchase_order_id: number }) => {
+    mutationFn: async ({
+      id,
+      purchase_order_id,
+      lines,
+    }: {
+      id: number
+      purchase_order_id: number
+      lines: { bill_item_id: number; purchase_order_item_id: number }[]
+    }) => {
       const response = await api.post<{ data: Bill }>(`/bills/${id}/match-purchase-order`, {
         purchase_order_id,
+        lines,
       })
       return response.data.data
     },
