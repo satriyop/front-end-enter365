@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useBill, useBillCreditNote, useDeleteBill, useMatchBillPurchaseOrder, usePostBill, useVoidBill } from '@/api/useBills'
+import { useBill, useBillCreditNote, useBillPurchaseMatching, useDeleteBill, useMatchBillPurchaseOrder, usePostBill, useVoidBill } from '@/api/useBills'
 import { usePurchaseOrdersLookup } from '@/api/usePurchaseOrders'
 import { useMakeBillRecurring, frequencyOptions, type MakeRecurringData } from '@/api/useRecurringTemplates'
 import { useCreatePurchaseReturnFromBill, type CreateFromBillData } from '@/api/usePurchaseReturns'
@@ -31,6 +31,8 @@ const creditNoteMutation = useBillCreditNote()
 const matchPoMutation = useMatchBillPurchaseOrder()
 const showMatchPoModal = ref(false)
 const selectedPurchaseOrderId = ref<number | string>('')
+const lineMatches = ref<Record<number, number | ''>>({})
+const { data: purchaseMatching } = useBillPurchaseMatching(billId, selectedPurchaseOrderId, showMatchPoModal)
 const makeRecurringMutation = useMakeBillRecurring()
 const createPRMutation = useCreatePurchaseReturnFromBill()
 
@@ -154,17 +156,61 @@ async function handleCreditNote() {
   }
 }
 
+watch(purchaseMatching, (worksheet) => {
+  if (!worksheet) {
+    return
+  }
+  const used = new Set<number>()
+  const next: Record<number, number | ''> = {}
+  for (const billLine of worksheet.bill_lines) {
+    if (billLine.purchase_order_item_id) {
+      next[billLine.id] = billLine.purchase_order_item_id
+      used.add(billLine.purchase_order_item_id)
+      continue
+    }
+    const byProduct = worksheet.purchase_lines.find(
+      (poLine) => poLine.product_id && poLine.product_id === billLine.product_id && !used.has(poLine.id),
+    )
+    if (byProduct) {
+      next[billLine.id] = byProduct.id
+      used.add(byProduct.id)
+    } else {
+      next[billLine.id] = ''
+    }
+  }
+  lineMatches.value = next
+})
+
+const purchaseLineOptions = computed(() => {
+  const lines = purchaseMatching.value?.purchase_lines ?? []
+  return lines.map((line) => ({
+    value: String(line.id),
+    label: `${line.description} · qty ${line.quantity} · billed ${line.billed_quantity} · to invoice ${line.qty_to_invoice}`,
+  }))
+})
+
 async function handleMatchPurchaseOrder() {
   const poId = Number(selectedPurchaseOrderId.value)
   if (!poId) {
     toast.error('Select a purchase order')
     return
   }
+  const lines = Object.entries(lineMatches.value)
+    .filter(([, poItemId]) => Number(poItemId) > 0)
+    .map(([billItemId, poItemId]) => ({
+      bill_item_id: Number(billItemId),
+      purchase_order_item_id: Number(poItemId),
+    }))
+  if (lines.length === 0) {
+    toast.error('Match at least one bill line to a PO line')
+    return
+  }
   try {
-    await matchPoMutation.mutateAsync({ id: billId.value, purchase_order_id: poId })
+    await matchPoMutation.mutateAsync({ id: billId.value, purchase_order_id: poId, lines })
     showMatchPoModal.value = false
     selectedPurchaseOrderId.value = ''
-    toast.success('Bill matched to purchase order')
+    lineMatches.value = {}
+    toast.success('Bill lines matched to purchase order')
   } catch {
     toast.error('Failed to match purchase order')
   }
@@ -601,9 +647,9 @@ const journalItemColumns: ResponsiveColumn[] = [
       </template>
     </Modal>
 
-    <Modal :open="showMatchPoModal" title="Purchase Matching" size="sm" @update:open="showMatchPoModal = $event">
+    <Modal :open="showMatchPoModal" title="Purchase Matching" size="lg" @update:open="showMatchPoModal = $event">
       <p class="text-muted-foreground mb-4">
-        Match this bill to a purchase order from the same vendor.
+        Match bill lines to purchase-order quantities (billed vs purchased).
       </p>
       <FormField label="Purchase Order">
         <Select
@@ -613,6 +659,52 @@ const journalItemColumns: ResponsiveColumn[] = [
           test-id="bill-match-po"
         />
       </FormField>
+      <div v-if="purchaseMatching" class="mt-4 space-y-4">
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-slate-500">
+                <th class="py-1">Bill line</th>
+                <th class="py-1">Qty</th>
+                <th class="py-1">PO line</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="billLine in purchaseMatching.bill_lines" :key="billLine.id">
+                <td class="py-2 pr-2">{{ billLine.description }}</td>
+                <td class="py-2 pr-2">{{ billLine.quantity }} {{ billLine.unit }}</td>
+                <td class="py-2">
+                  <Select
+                    :model-value="lineMatches[billLine.id] ? String(lineMatches[billLine.id]) : ''"
+                    :options="purchaseLineOptions"
+                    placeholder="PO line"
+                    :test-id="`bill-match-line-${billLine.id}`"
+                    @update:model-value="(v) => { lineMatches[billLine.id] = v ? Number(v) : '' }"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-left text-slate-500">
+                <th class="py-1">Purchased</th>
+                <th class="py-1">Billed</th>
+                <th class="py-1">Qty to invoice</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="poLine in purchaseMatching.purchase_lines" :key="poLine.id">
+                <td class="py-2 pr-2">{{ poLine.description }} · {{ poLine.quantity }}</td>
+                <td class="py-2 pr-2">{{ poLine.billed_quantity }} ({{ formatCurrency(poLine.billed_amount) }})</td>
+                <td class="py-2">{{ poLine.qty_to_invoice }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
       <template #footer>
         <Button variant="ghost" @click="showMatchPoModal = false">Cancel</Button>
         <Button
