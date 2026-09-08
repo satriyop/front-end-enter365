@@ -154,6 +154,35 @@ const subcontractorServicesDisplay = computed(() => {
             </dl>
           </Card>
 
+          <Card v-if="contact.is_company" data-testid="contact-children-tab">
+            <template #header>
+              <div class="flex items-center justify-between">
+                <h2 class="font-semibold text-slate-900 dark:text-slate-100">Contacts</h2>
+                <RouterLink :to="`/contacts/new?parent_id=${contact.id}`">
+                  <Button size="sm" data-testid="contact-add-child">Add Contact</Button>
+                </RouterLink>
+              </div>
+            </template>
+
+            <div v-if="!contact.children?.length" class="text-sm text-slate-500 dark:text-slate-400">
+              No nested contacts yet. Add invoice, delivery, or other contacts under this company.
+            </div>
+            <ul v-else class="divide-y divide-slate-200 dark:divide-slate-700">
+              <li v-for="child in contact.children" :key="child.id" class="py-3 flex items-center justify-between gap-3">
+                <div>
+                  <RouterLink :to="`/contacts/${child.id}`" class="font-medium text-slate-900 dark:text-slate-100 hover:text-orange-600">
+                    {{ child.name }}
+                  </RouterLink>
+                  <p class="text-sm text-slate-500 dark:text-slate-400 capitalize">
+                    {{ child.address_role || 'contact' }}
+                    <span v-if="child.job_position"> · {{ child.job_position }}</span>
+                  </p>
+                </div>
+                <span class="text-xs font-mono text-slate-400">{{ child.code }}</span>
+              </li>
+            </ul>
+          </Card>
+
           <!-- Address -->
           <Card>
             <template #header>

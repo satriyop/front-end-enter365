@@ -8,14 +8,22 @@ import type { components } from './types'
 // Types
 // ============================================
 
-export type Contact = components['schemas']['ContactResource']
+export type ContactAddressRole = 'invoice' | 'delivery' | 'contact'
+
+export type Contact = components['schemas']['ContactResource'] & {
+  address_role?: ContactAddressRole | null
+  children?: Contact[]
+  parent?: Contact | null
+}
 
 export interface ContactFilters {
   page?: number
   per_page?: number
   type?: 'customer' | 'supplier' | 'both'
+  kind?: 'persons' | 'companies'
   search?: string
   is_active?: boolean
+  is_company?: boolean
 }
 
 export type CreateContactData = components['schemas']['StoreContactRequest']
@@ -58,6 +66,10 @@ export const useDeleteContact = hooks.useDelete
  */
 export function useContactsLookup(type?: 'customer' | 'supplier') {
   return hooks.useLookup({ type })
+}
+
+export function useCompanyContactsLookup() {
+  return hooks.useLookup({ is_company: true, is_active: true })
 }
 
 /**

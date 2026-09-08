@@ -22,6 +22,7 @@ const {
     page: 1,
     per_page: 10,
     type: undefined,
+    kind: undefined,
     search: '',
     is_active: undefined,
   },
@@ -33,6 +34,12 @@ const typeOptions = [
   { value: 'customer', label: 'Customers' },
   { value: 'supplier', label: 'Suppliers' },
   { value: 'both', label: 'Both' },
+]
+
+const kindOptions = [
+  { value: '', label: 'Persons & Companies' },
+  { value: 'persons', label: 'Persons' },
+  { value: 'companies', label: 'Companies' },
 ]
 
 // Status options
@@ -113,6 +120,15 @@ async function handleDelete() {
             v-model="filters.type"
             :options="typeOptions"
             placeholder="All Types"
+          />
+        </div>
+
+        <div class="w-48">
+          <Select
+            v-model="filters.kind"
+            :options="kindOptions"
+            placeholder="Persons & Companies"
+            test-id="contact-kind-filter"
           />
         </div>
 
