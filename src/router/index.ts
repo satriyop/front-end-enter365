@@ -469,8 +469,20 @@ const router = createRouter({
         {
           path: 'inventory/transfer',
           name: 'inventory-transfer',
-          component: () => import('@/pages/inventory/StockTransferPage.vue'),
+          component: () => import('@/pages/inventory/StockTransferListPage.vue'),
           meta: { breadcrumb: 'Stock Transfer' }
+        },
+        {
+          path: 'inventory/transfer/new',
+          name: 'inventory-transfer-new',
+          component: () => import('@/pages/inventory/StockTransferFormPage.vue'),
+          meta: { breadcrumb: 'New Transfer' }
+        },
+        {
+          path: 'inventory/transfer/:id',
+          name: 'inventory-transfer-detail',
+          component: () => import('@/pages/inventory/StockTransferDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Transfer #${route.params.id}` }
         },
         {
           path: 'inventory/stock-card/:id',
