@@ -59,6 +59,43 @@ export function usePostBill() {
   })
 }
 
+export function useBillCreditNote() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: number
+      data?: { return_date?: string; warehouse_id?: number; reason?: string; notes?: string }
+    }) => {
+      const response = await api.post<{ data: { id: number } }>(`/bills/${id}/credit-note`, data ?? {})
+      return response.data.data
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['bills'] })
+      queryClient.invalidateQueries({ queryKey: ['bill', id] })
+      queryClient.invalidateQueries({ queryKey: ['purchase-returns'] })
+    },
+  })
+}
+
+export function useMatchBillPurchaseOrder() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ id, purchase_order_id }: { id: number; purchase_order_id: number }) => {
+      const response = await api.post<{ data: Bill }>(`/bills/${id}/match-purchase-order`, {
+        purchase_order_id,
+      })
+      return response.data.data
+    },
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['bills'] })
+      queryClient.invalidateQueries({ queryKey: ['bill', id] })
+    },
+  })
+}
+
 export function useVoidBill() {
   const queryClient = useQueryClient()
   return useMutation({
