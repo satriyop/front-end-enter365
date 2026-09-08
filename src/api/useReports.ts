@@ -186,6 +186,9 @@ export interface PartnerLedgerEntry {
   account_name: string
   description: string
   reference: string | null
+  invoice_date: string | null
+  due_date: string | null
+  matching: string | null
   debit: number
   credit: number
   balance: number

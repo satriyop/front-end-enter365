@@ -172,6 +172,9 @@ function handleExport() {
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Date</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Journal</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Account</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Invoice Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Due Date</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Matching</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Description</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Debit</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-slate-700 dark:text-slate-300 uppercase tracking-wider">Credit</th>
@@ -187,13 +190,16 @@ function handleExport() {
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ formatDate(entry.date) }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ entry.journal || entry.entry_number }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ entry.account_code }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ entry.invoice_date ? formatDate(entry.invoice_date) : '—' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ entry.due_date ? formatDate(entry.due_date) : '—' }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-900 dark:text-slate-100">{{ entry.matching || '—' }}</td>
                     <td class="px-6 py-4 text-sm text-slate-900 dark:text-slate-100">{{ entry.description }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 dark:text-slate-100">{{ entry.debit ? formatCurrency(entry.debit) : '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 dark:text-slate-100">{{ entry.credit ? formatCurrency(entry.credit) : '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(entry.balance) }}</td>
                   </tr>
                   <tr class="bg-slate-50 dark:bg-slate-800/50 font-semibold">
-                    <td colspan="6" class="px-6 py-4 text-sm text-slate-900 dark:text-slate-100">Closing Balance</td>
+                    <td colspan="9" class="px-6 py-4 text-sm text-slate-900 dark:text-slate-100">Closing Balance</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right text-slate-900 dark:text-slate-100">{{ formatCurrency(partner.closing_balance) }}</td>
                   </tr>
                 </tbody>
