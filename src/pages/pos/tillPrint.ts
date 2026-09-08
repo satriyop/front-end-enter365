@@ -49,13 +49,17 @@ export function tillReceiptHtml(
     return `<tr><td>${item.quantity}× ${name}</td><td style="text-align:right">${rp(item.payable_amount)}</td></tr>`
   }).join('')
 
+  const rounding = sale.rounding_amount ?? 0
+  const cashDue = sale.cash_due_amount ?? (sale.payable_amount + rounding)
   const extras = [
     `<tr><td>Subtotal</td><td style="text-align:right">${rp(subtotal)}</td></tr>`,
     service > 0 ? `<tr><td>Service ${serviceRate}%</td><td style="text-align:right">${rp(service)}</td></tr>` : '',
     tax > 0 ? `<tr><td>${taxName} ${taxRate}%</td><td style="text-align:right">${rp(tax)}</td></tr>` : '',
+    rounding !== 0 ? `<tr><td>Pembulatan</td><td style="text-align:right">${rp(rounding)}</td></tr>` : '',
   ].join('')
 
   const waktu = formatStrukWaktu(sale.sold_at)
+  const tunai = rounding !== 0 ? `<div>Tunai ${rp(cashDue)}</div>` : ''
   const bayar = sale.change_amount > 0
     ? `<div>Bayar ${rp(sale.cash_received_amount)}</div><div>Kembalian ${rp(sale.change_amount)}</div>`
     : '<div>Uang pas</div>'
@@ -76,6 +80,7 @@ export function tillReceiptHtml(
   ${cashier ? `<div class="muted">Kasir ${cashier}</div>` : ''}
   <table>${lines}${extras}</table>
   <div class="total">Total ${rp(sale.payable_amount)}</div>
+  ${tunai}
   ${bayar}
   <p class="muted">Terima kasih</p>
 </body></html>`
