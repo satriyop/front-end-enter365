@@ -6,16 +6,18 @@ import {
   calculateLineTotals,
   validateJournalLines,
   createEmptyLine,
-  formatAnalyticDistribution,
-  parseAnalyticDistribution,
-  formatTaxTagIds,
-  parseTaxTagIds,
   type CreateJournalEntryData,
   type CreateJournalEntryLineData,
 } from '@/api/useJournalEntries'
 import { useAccountsLookup } from '@/api/useAccounts'
+import {
+  analyticDistributionFromAccountId,
+  analyticDistributionPrimaryId,
+  useAnalyticAccountsLookup,
+} from '@/api/useAnalyticAccounts'
 import { useContactsLookup } from '@/api/useContacts'
 import { useJournalsLookup, journalTypeLabel } from '@/api/useJournals'
+import { taxTagIdsFromTagId, taxTagIdsPrimaryId, useTaxTagsLookup } from '@/api/useTaxTags'
 import { formatCurrency } from '@/utils/format'
 import { Button, Card, Input, Select, useToast, CurrencyInput } from '@/components/ui'
 import { ArrowLeft, Save, Loader2, Plus, Trash2, AlertTriangle, CheckCircle } from 'lucide-vue-next'
@@ -27,6 +29,8 @@ const toast = useToast()
 const { data: accounts, isLoading: accountsLoading } = useAccountsLookup()
 const { data: journals, isLoading: journalsLoading } = useJournalsLookup()
 const { data: contacts, isLoading: contactsLoading } = useContactsLookup()
+const { data: analyticAccounts, isLoading: analyticAccountsLoading } = useAnalyticAccountsLookup()
+const { data: taxTags, isLoading: taxTagsLoading } = useTaxTagsLookup()
 const journalId = ref<string>('')
 
 
@@ -55,6 +59,22 @@ const partnerOptions = computed(() => {
   }))
 })
 
+const analyticOptions = computed(() => {
+  if (!analyticAccounts.value) return []
+  return analyticAccounts.value.map((account) => ({
+    value: String(account.id),
+    label: `${account.code} - ${account.name}`,
+  }))
+})
+
+const taxTagOptions = computed(() => {
+  if (!taxTags.value) return []
+  return taxTags.value.map((tag) => ({
+    value: String(tag.id),
+    label: `${tag.code} - ${tag.name}`,
+  }))
+})
+
 // Form state
 const entryDate = ref(new Date().toISOString().split('T')[0])
 const description = ref('')
@@ -64,9 +84,7 @@ const lines = ref<CreateJournalEntryLineData[]>([
   createEmptyLine(),
 ])
 
-/** Draft strings for optional Odoo dimensions (no analytic/tax-tag masters yet). */
-const analyticDrafts = ref<string[]>(['', ''])
-const taxTagDrafts = ref<string[]>(['', ''])
+
 
 // Calculate totals
 const totals = computed(() => calculateLineTotals(lines.value))
@@ -83,41 +101,25 @@ const hasErrors = computed(() => validationErrors.value.length > 0)
 // Add new line
 function addLine() {
   lines.value.push(createEmptyLine())
-  analyticDrafts.value.push('')
-  taxTagDrafts.value.push('')
 }
 
 // Remove line
 function removeLine(index: number) {
   if (lines.value.length > 2) {
     lines.value.splice(index, 1)
-    analyticDrafts.value.splice(index, 1)
-    taxTagDrafts.value.splice(index, 1)
   }
 }
 
-function onAnalyticInput(index: number, value: string) {
-  analyticDrafts.value[index] = value
+function onAnalyticSelect(index: number, value: string | number | null) {
   const line = lines.value[index]
   if (!line) return
-  if (!value.trim()) {
-    line.analytic_distribution = null
-    return
-  }
-  const parsed = parseAnalyticDistribution(value)
-  if (parsed) line.analytic_distribution = parsed
+  line.analytic_distribution = analyticDistributionFromAccountId(value)
 }
 
-function onTaxTagsInput(index: number, value: string) {
-  taxTagDrafts.value[index] = value
+function onTaxTagSelect(index: number, value: string | number | null) {
   const line = lines.value[index]
   if (!line) return
-  if (!value.trim()) {
-    line.tax_tag_ids = null
-    return
-  }
-  const parsed = parseTaxTagIds(value)
-  if (parsed) line.tax_tag_ids = parsed
+  line.tax_tag_ids = taxTagIdsFromTagId(value)
 }
 
 // Handle debit change - clear credit if debit is entered
@@ -191,34 +193,6 @@ async function handleSubmit() {
   if (hasErrors.value) {
     toast.error('Please fix the errors before submitting')
     return
-  }
-
-  // Commit optional dimension drafts (reject half-typed values)
-  for (let i = 0; i < lines.value.length; i++) {
-    const line = lines.value[i]
-    if (!line) continue
-    const analyticRaw = analyticDrafts.value[i] ?? ''
-    if (analyticRaw.trim()) {
-      const parsed = parseAnalyticDistribution(analyticRaw)
-      if (!parsed) {
-        toast.error(`Line ${i + 1}: Analytic Distribution must be id:pct pairs (e.g. 1:100 or 1:50, 2:50)`)
-        return
-      }
-      line.analytic_distribution = parsed
-    } else {
-      line.analytic_distribution = null
-    }
-    const taxRaw = taxTagDrafts.value[i] ?? ''
-    if (taxRaw.trim()) {
-      const parsed = parseTaxTagIds(taxRaw)
-      if (!parsed) {
-        toast.error(`Line ${i + 1}: Tax Grids must be comma-separated positive ids (e.g. 101, 202)`)
-        return
-      }
-      line.tax_tag_ids = parsed
-    } else {
-      line.tax_tag_ids = null
-    }
   }
 
   // Filter out empty lines
@@ -341,10 +315,10 @@ async function handleSubmit() {
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[9rem]">
                   Partner
                 </th>
-                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[8rem]" title="Odoo analytic_distribution — id:pct (no analytic master yet)">
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[10rem]" title="Analytic account from master — stored as {id: 100}">
                   Analytic
                 </th>
-                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[7rem]" title="Odoo Tax Grids / tax_tag_ids (no tax-tag master yet)">
+                <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 min-w-[10rem]" title="Tax tag from master — stored as tax_tag_ids">
                   Tax Grids
                 </th>
                 <th class="px-4 py-3 text-left font-medium text-slate-500 dark:text-slate-400 w-1/5">
@@ -387,23 +361,25 @@ async function handleSubmit() {
 
                 <!-- Analytic Distribution -->
                 <td class="px-4 py-2">
-                  <Input
-                    :model-value="analyticDrafts[index] ?? formatAnalyticDistribution(line.analytic_distribution)"
-                    :data-testid="`je-line-${index}-analytic`"
-                    placeholder="1:100"
-                    class="text-sm font-mono"
-                    @update:model-value="(v) => onAnalyticInput(index, String(v))"
+                  <Select
+                    :test-id="`je-line-${index}-analytic`"
+                    :model-value="analyticDistributionPrimaryId(line.analytic_distribution)"
+                    :options="analyticOptions"
+                    :loading="analyticAccountsLoading"
+                    placeholder="Optional"
+                    @update:model-value="(v) => onAnalyticSelect(index, v)"
                   />
                 </td>
 
                 <!-- Tax Grids -->
                 <td class="px-4 py-2">
-                  <Input
-                    :model-value="taxTagDrafts[index] ?? formatTaxTagIds(line.tax_tag_ids)"
-                    :data-testid="`je-line-${index}-tax-grids`"
-                    placeholder="101, 202"
-                    class="text-sm font-mono"
-                    @update:model-value="(v) => onTaxTagsInput(index, String(v))"
+                  <Select
+                    :test-id="`je-line-${index}-tax-grids`"
+                    :model-value="taxTagIdsPrimaryId(line.tax_tag_ids)"
+                    :options="taxTagOptions"
+                    :loading="taxTagsLoading"
+                    placeholder="Optional"
+                    @update:model-value="(v) => onTaxTagSelect(index, v)"
                   />
                 </td>
 
@@ -522,8 +498,8 @@ async function handleSubmit() {
       </template>
       <ul class="text-sm text-slate-600 dark:text-slate-400 space-y-2">
         <li>• Partner (customer/vendor) is optional on each line for AR/AP reporting</li>
-        <li>• Analytic: optional id:pct pairs (e.g. 1:100) — stored as Odoo analytic_distribution JSON until an analytic master exists</li>
-        <li>• Tax Grids: optional comma-separated tag ids — stored as tax_tag_ids; VAT reports remain document-level for now</li>
+        <li>• Analytic: pick an analytic account; stored as Odoo analytic_distribution JSON ({id: 100})</li>
+        <li>• Tax Grids: pick a tax tag (base or tax); VAT / Tax Summary stay on invoices and bills</li>
         <li>• Each line can only have a debit OR credit amount, not both</li>
         <li>• Total debits must equal total credits for a balanced entry</li>
         <li>• Use "Auto-Balance" to automatically fill the last line</li>

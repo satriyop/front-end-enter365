@@ -371,7 +371,7 @@ describe('billSchema', () => {
     contact_id: 1,
     bill_date: '2024-06-15',
     due_date: '2024-07-15',
-    items: [{ description: 'Material', quantity: 1, unit: 'pcs', unit_price: 75000 }],
+    items: [{ description: 'Material', quantity: 1, unit: 'pcs', unit_price: 75000, expense_account_id: 1 }],
   }
 
   it('accepts valid bill', () => {

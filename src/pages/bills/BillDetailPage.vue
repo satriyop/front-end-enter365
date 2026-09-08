@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useBill, usePostBill, useVoidBill, useDeleteBill } from '@/api/useBills'
+import { useBill, useBillCreditNote, useDeleteBill, useMatchBillPurchaseOrder, usePostBill, useVoidBill } from '@/api/useBills'
+import { usePurchaseOrdersLookup } from '@/api/usePurchaseOrders'
 import { useMakeBillRecurring, frequencyOptions, type MakeRecurringData } from '@/api/useRecurringTemplates'
 import { useCreatePurchaseReturnFromBill, type CreateFromBillData } from '@/api/usePurchaseReturns'
 import { useWarehousesLookup } from '@/api/useInventory'
 import { Button, Card, Badge, Modal, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { formatAnalyticDistributionLabel, useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
+import { formatTaxTagLabel, useTaxTagsLookup } from '@/api/useTaxTags'
 import { formatCurrency, formatDate, toNumber } from '@/utils/format'
 import { FileText, RotateCcw, Repeat } from 'lucide-vue-next'
 import AttachmentCard from '@/components/AttachmentCard.vue'
@@ -16,11 +19,18 @@ const toast = useToast()
 
 const billId = computed(() => Number(route.params.id))
 const { data: bill, isLoading } = useBill(billId)
+const { data: purchaseOrders } = usePurchaseOrdersLookup()
+const { data: analyticAccounts } = useAnalyticAccountsLookup()
+const { data: taxTags } = useTaxTagsLookup()
 
 // Mutations
 const postMutation = usePostBill()
 const voidMutation = useVoidBill()
 const deleteMutation = useDeleteBill()
+const creditNoteMutation = useBillCreditNote()
+const matchPoMutation = useMatchBillPurchaseOrder()
+const showMatchPoModal = ref(false)
+const selectedPurchaseOrderId = ref<number | string>('')
 const makeRecurringMutation = useMakeBillRecurring()
 const createPRMutation = useCreatePurchaseReturnFromBill()
 
@@ -88,7 +98,18 @@ const canMakeRecurring = computed(() => {
 
 const canCreatePurchaseReturn = computed(() => {
   const status = bill.value?.status?.value
-  return status === 'posted' || status === 'partial' || status === 'paid'
+  return status === 'posted' || status === 'received' || status === 'partial' || status === 'paid' || status === 'overdue'
+})
+
+const canPayOrMatch = computed(() => canCreatePurchaseReturn.value)
+
+const purchaseOrderOptions = computed(() => {
+  const vendorId = bill.value?.contact_id
+  const list = (purchaseOrders.value ?? []).filter((order) => !vendorId || order.contact_id === vendorId)
+  return list.map((order) => ({
+    value: order.id,
+    label: order.po_number || `PO #${order.id}`,
+  }))
 })
 
 // Action handlers
@@ -109,6 +130,35 @@ async function handleVoid() {
     toast.success('Bill voided')
   } catch {
     toast.error('Failed to void bill')
+  }
+}
+
+async function handleCreditNote() {
+  try {
+    const creditNote = await creditNoteMutation.mutateAsync({
+      id: billId.value,
+      data: { reason: 'vendor_request' },
+    })
+    toast.success('Vendor credit note created')
+    router.push(`/purchasing/purchase-returns/${creditNote.id}`)
+  } catch {
+    toast.error('Failed to create credit note')
+  }
+}
+
+async function handleMatchPurchaseOrder() {
+  const poId = Number(selectedPurchaseOrderId.value)
+  if (!poId) {
+    toast.error('Select a purchase order')
+    return
+  }
+  try {
+    await matchPoMutation.mutateAsync({ id: billId.value, purchase_order_id: poId })
+    showMatchPoModal.value = false
+    selectedPurchaseOrderId.value = ''
+    toast.success('Bill matched to purchase order')
+  } catch {
+    toast.error('Failed to match purchase order')
   }
 }
 
@@ -173,9 +223,18 @@ async function handleCreatePR() {
 // Line items table columns with mobile priorities
 const itemColumns: ResponsiveColumn[] = [
   { key: 'description', label: 'Description', mobilePriority: 1 },
+  { key: 'account', label: 'Account', showInMobile: false },
+  { key: 'analytic', label: 'Analytic', showInMobile: false },
+  { key: 'taxes', label: 'Taxes', showInMobile: false },
   { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
   { key: 'unit_price', label: 'Price', align: 'right', showInMobile: false },
   { key: 'line_total', label: 'Amount', align: 'right', mobilePriority: 2 },
+]
+
+const journalItemColumns: ResponsiveColumn[] = [
+  { key: 'account', label: 'Account', mobilePriority: 1 },
+  { key: 'debit', label: 'Debit', align: 'right', mobilePriority: 2 },
+  { key: 'credit', label: 'Credit', align: 'right', mobilePriority: 3 },
 ]
 </script>
 
@@ -217,8 +276,33 @@ const itemColumns: ResponsiveColumn[] = [
             >
               Post Bill
             </Button>
+            <RouterLink
+              v-if="canPayOrMatch && toNumber(bill.outstanding_amount) > 0"
+              :to="`/payments/new?type=send&bill_id=${bill.id}`"
+            >
+              <Button size="sm" data-testid="bill-pay">Pay</Button>
+            </RouterLink>
             <Button
-              v-if="bill.status.value === 'posted' || bill.status.value === 'partial'"
+              v-if="canPayOrMatch"
+              variant="secondary"
+              size="sm"
+              data-testid="bill-credit-note"
+              :loading="creditNoteMutation.isPending.value"
+              @click="handleCreditNote"
+            >
+              Credit Note
+            </Button>
+            <Button
+              v-if="canPayOrMatch"
+              variant="secondary"
+              size="sm"
+              data-testid="bill-purchase-matching"
+              @click="showMatchPoModal = true"
+            >
+              Purchase Matching
+            </Button>
+            <Button
+              v-if="bill.status.value === 'posted' || bill.status.value === 'received' || bill.status.value === 'partial'"
               variant="destructive"
               size="sm"
               @click="showVoidModal = true"
@@ -254,6 +338,17 @@ const itemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-muted-foreground">Vendor Invoice #</dt>
                 <dd class="text-slate-900 dark:text-slate-100">{{ bill.vendor_invoice_number || '-' }}</dd>
               </div>
+              <div v-if="(bill as { purchase_order_id?: number | null }).purchase_order_id">
+                <dt class="text-sm text-muted-foreground">Purchase Order</dt>
+                <dd class="text-slate-900 dark:text-slate-100">
+                  <RouterLink
+                    :to="`/purchasing/purchase-orders/${(bill as { purchase_order_id: number }).purchase_order_id}`"
+                    class="text-orange-600 hover:text-orange-700"
+                  >
+                    PO #{{ (bill as { purchase_order_id: number }).purchase_order_id }}
+                  </RouterLink>
+                </dd>
+              </div>
               <div>
                 <dt class="text-sm text-muted-foreground">Bill Date</dt>
                 <dd class="text-slate-900 dark:text-slate-100">{{ formatDate(bill.bill_date) }}</dd>
@@ -286,6 +381,21 @@ const itemColumns: ResponsiveColumn[] = [
               <template #cell-description="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">{{ item.description }}</span>
               </template>
+              <template #cell-account="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ item.expense_account ? `${item.expense_account.code} ${item.expense_account.name}` : (item.expense_account_id || '-') }}
+                </span>
+              </template>
+              <template #cell-analytic="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ formatAnalyticDistributionLabel((item as { analytic_distribution?: { [key: string]: number } | null }).analytic_distribution, analyticAccounts) || '-' }}
+                </span>
+              </template>
+              <template #cell-taxes="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ formatTaxTagLabel((item as { tax_tag_ids?: number[] | null }).tax_tag_ids, taxTags) || '-' }}
+                </span>
+              </template>
               <template #cell-quantity="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
               </template>
@@ -297,6 +407,29 @@ const itemColumns: ResponsiveColumn[] = [
               </template>
               <template #mobile-title="{ item }">
                 <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</span>
+              </template>
+            </ResponsiveTable>
+          </Card>
+
+          <Card v-if="bill.journal_entry?.lines?.length" :padding="false" data-testid="bill-journal-items">
+            <template #header>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100 px-6 pt-6">Journal Items</h2>
+            </template>
+            <ResponsiveTable
+              :items="bill.journal_entry.lines"
+              :columns="journalItemColumns"
+              title-field="description"
+            >
+              <template #cell-account="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ item.account ? `${item.account.code} ${item.account.name}` : item.account_id }}
+                </span>
+              </template>
+              <template #cell-debit="{ item }">
+                <span class="font-mono">{{ Number(item.debit) > 0 ? formatCurrency(item.debit) : '-' }}</span>
+              </template>
+              <template #cell-credit="{ item }">
+                <span class="font-mono">{{ Number(item.credit) > 0 ? formatCurrency(item.credit) : '-' }}</span>
               </template>
             </ResponsiveTable>
           </Card>
@@ -369,7 +502,7 @@ const itemColumns: ResponsiveColumn[] = [
             </template>
             <div class="space-y-2">
               <RouterLink v-if="toNumber(bill.outstanding_amount) > 0" :to="`/payments/new?type=send&bill_id=${bill.id}`" class="block">
-                <Button class="w-full">Record Payment</Button>
+                <Button class="w-full" data-testid="bill-pay-sidebar">Pay</Button>
               </RouterLink>
               <Button
                 v-if="canCreatePurchaseReturn"
@@ -440,6 +573,30 @@ const itemColumns: ResponsiveColumn[] = [
         <Button variant="ghost" @click="showDeleteModal = false">Cancel</Button>
         <Button variant="destructive" :loading="deleteMutation.isPending.value" @click="handleDelete">
           Delete
+        </Button>
+      </template>
+    </Modal>
+
+    <Modal :open="showMatchPoModal" title="Purchase Matching" size="sm" @update:open="showMatchPoModal = $event">
+      <p class="text-muted-foreground mb-4">
+        Match this bill to a purchase order from the same vendor.
+      </p>
+      <FormField label="Purchase Order">
+        <Select
+          v-model="selectedPurchaseOrderId"
+          :options="purchaseOrderOptions"
+          placeholder="Select PO"
+          test-id="bill-match-po"
+        />
+      </FormField>
+      <template #footer>
+        <Button variant="ghost" @click="showMatchPoModal = false">Cancel</Button>
+        <Button
+          data-testid="bill-match-po-submit"
+          :loading="matchPoMutation.isPending.value"
+          @click="handleMatchPurchaseOrder"
+        >
+          Match
         </Button>
       </template>
     </Modal>

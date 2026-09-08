@@ -49,6 +49,7 @@ export const usePurchaseOrder = hooks.useSingle
 export const useCreatePurchaseOrder = hooks.useCreate
 export const useUpdatePurchaseOrder = hooks.useUpdate
 export const useDeletePurchaseOrder = hooks.useDelete
+export const usePurchaseOrdersLookup = hooks.useLookup
 
 // ============================================
 // Statistics Hook

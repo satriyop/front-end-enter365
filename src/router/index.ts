@@ -534,6 +534,42 @@ const router = createRouter({
           component: () => import('@/pages/accounting/journals/JournalFormPage.vue'),
           meta: { breadcrumb: 'Edit Journal' }
         },
+        {
+          path: 'accounting/analytic-accounts',
+          name: 'analytic-accounts',
+          component: () => import('@/pages/accounting/analytic-accounts/AnalyticAccountListPage.vue'),
+          meta: { breadcrumb: 'Analytic Accounts' }
+        },
+        {
+          path: 'accounting/analytic-accounts/new',
+          name: 'analytic-account-new',
+          component: () => import('@/pages/accounting/analytic-accounts/AnalyticAccountFormPage.vue'),
+          meta: { breadcrumb: 'New Analytic Account' }
+        },
+        {
+          path: 'accounting/analytic-accounts/:id/edit',
+          name: 'analytic-account-edit',
+          component: () => import('@/pages/accounting/analytic-accounts/AnalyticAccountFormPage.vue'),
+          meta: { breadcrumb: 'Edit Analytic Account' }
+        },
+        {
+          path: 'accounting/tax-tags',
+          name: 'tax-tags',
+          component: () => import('@/pages/accounting/tax-tags/TaxTagListPage.vue'),
+          meta: { breadcrumb: 'Tax Tags' }
+        },
+        {
+          path: 'accounting/tax-tags/new',
+          name: 'tax-tag-new',
+          component: () => import('@/pages/accounting/tax-tags/TaxTagFormPage.vue'),
+          meta: { breadcrumb: 'New Tax Tag' }
+        },
+        {
+          path: 'accounting/tax-tags/:id/edit',
+          name: 'tax-tag-edit',
+          component: () => import('@/pages/accounting/tax-tags/TaxTagFormPage.vue'),
+          meta: { breadcrumb: 'Edit Tax Tag' }
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',
