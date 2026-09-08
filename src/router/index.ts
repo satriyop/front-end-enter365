@@ -567,6 +567,24 @@ const router = createRouter({
           meta: { breadcrumb: 'Edit Analytic Account' }
         },
         {
+          path: 'accounting/tax-records',
+          name: 'tax-records',
+          component: () => import('@/pages/accounting/tax-records/TaxRecordListPage.vue'),
+          meta: { breadcrumb: 'Taxes' }
+        },
+        {
+          path: 'accounting/tax-records/new',
+          name: 'tax-record-new',
+          component: () => import('@/pages/accounting/tax-records/TaxRecordFormPage.vue'),
+          meta: { breadcrumb: 'New Tax' }
+        },
+        {
+          path: 'accounting/tax-records/:id/edit',
+          name: 'tax-record-edit',
+          component: () => import('@/pages/accounting/tax-records/TaxRecordFormPage.vue'),
+          meta: { breadcrumb: 'Edit Tax' }
+        },
+        {
           path: 'accounting/tax-tags',
           name: 'tax-tags',
           component: () => import('@/pages/accounting/tax-tags/TaxTagListPage.vue'),
