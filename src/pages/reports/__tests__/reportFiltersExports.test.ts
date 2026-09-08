@@ -24,6 +24,16 @@ describe('report filters and exports (#37)', () => {
     expect(source).toContain('All Journals')
   })
 
+  it('shows Invoice Date, Due Date, and Matching on partner ledger lines (#74)', () => {
+    const source = pageSource('PartnerLedgerPage.vue')
+    expect(source).toContain('Invoice Date')
+    expect(source).toContain('Due Date')
+    expect(source).toContain('Matching')
+    expect(source).toContain('entry.invoice_date')
+    expect(source).toContain('entry.due_date')
+    expect(source).toContain('entry.matching')
+  })
+
   it('offers comparison on balance sheet, income statement, and cash flow', () => {
     expect(pageSource('BalanceSheetPage.vue')).toContain('compareTo')
     expect(pageSource('IncomeStatementPage.vue')).toContain('comparePreviousPeriod')
