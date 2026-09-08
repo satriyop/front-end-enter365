@@ -226,8 +226,9 @@ function onQuantityChange(index: number) {
   resolveLineVendorPrice(index)
 }
 
-watch(contactId, (_newId, oldId) => {
-  if (!oldId) return
+watch(contactId, (newId, oldId) => {
+  if (!newId || newId === oldId) return
+  if (isEditing.value && !oldId) return
   (form.items ?? []).forEach((_, index) => resolveLineVendorPrice(index))
 })
 
