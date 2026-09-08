@@ -9,6 +9,8 @@ describe('route permission gates', () => {
     expect(canOpenPath('/inventory/opnames/new', has)).toBe(false)
     expect(canOpenPath('/inventory/adjust', has)).toBe(false)
     expect(canOpenPath('/accounting/journal-entries', has)).toBe(true)
+    expect(canOpenPath('/accounting/analytic-accounts', has)).toBe(true)
+    expect(canOpenPath('/accounting/analytic-accounts/new', has)).toBe(false)
     expect(canOpenPath('/reports/trial-balance', has)).toBe(true)
     expect(canOpenPath('/reports/stock-summary', has)).toBe(false)
   })

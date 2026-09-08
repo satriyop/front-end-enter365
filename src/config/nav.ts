@@ -74,6 +74,7 @@ export const navigation: NavGroup[] = [
     items: [
       { name: 'Chart of Accounts', path: '/accounting/accounts', icon: '📒', permission: 'accounts.view' },
       { name: 'Journals', path: '/accounting/journals', icon: '🗂️', permission: 'journals.view' },
+      { name: 'Analytic Accounts', path: '/accounting/analytic-accounts', icon: '🎯', permission: 'journals.view' },
       { name: 'Journal Entries', path: '/accounting/journal-entries', icon: '📝', permission: 'journals.view' },
       { name: 'Fiscal Periods', path: '/accounting/fiscal-periods', icon: '📅', permission: 'fiscal_periods.view' },
       { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view', feature: 'budgeting' },

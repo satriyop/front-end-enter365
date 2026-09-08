@@ -7,9 +7,12 @@ import {
   usePostJournalEntry,
   useReverseJournalEntry,
   getJournalEntryStatus,
-  formatAnalyticDistribution,
   formatTaxTagIds,
 } from '@/api/useJournalEntries'
+import {
+  formatAnalyticDistributionLabel,
+  useAnalyticAccountsLookup,
+} from '@/api/useAnalyticAccounts'
 import { formatCurrency, formatDate } from '@/utils/format'
 import { Button, Card, Modal, Input, useToast } from '@/components/ui'
 import { ArrowLeft, Trash2, CheckCircle, RotateCcw, AlertTriangle } from 'lucide-vue-next'
@@ -22,6 +25,7 @@ const entryId = computed(() => String(route.params.id))
 
 // Fetch journal entry
 const { data: entry, isLoading, error, refetch } = useJournalEntry(entryId)
+const { data: analyticAccounts } = useAnalyticAccountsLookup()
 
 // Mutations
 const deleteMutation = useDeleteJournalEntry()
@@ -284,7 +288,7 @@ function viewAccount(accountId: string) {
                   <template v-else>-</template>
                 </td>
                 <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400" data-testid="je-line-analytic">
-                  {{ formatAnalyticDistribution(line.analytic_distribution) || '-' }}
+                  {{ formatAnalyticDistributionLabel(line.analytic_distribution, analyticAccounts) || '-' }}
                 </td>
                 <td class="px-4 py-3 font-mono text-slate-600 dark:text-slate-400" data-testid="je-line-tax-grids">
                   {{ formatTaxTagIds(line.tax_tag_ids) || '-' }}
