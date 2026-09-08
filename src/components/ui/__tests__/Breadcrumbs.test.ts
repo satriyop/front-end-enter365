@@ -27,6 +27,12 @@ vi.mock('vue-router', () => ({
   useRouter: () => mockRouter,
 }))
 
+vi.mock('@/stores/features', () => ({
+  useFeaturesStore: () => ({
+    preset: 'general',
+  }),
+}))
+
 function mountBreadcrumbs() {
   return mount(Breadcrumbs, {
     global: {

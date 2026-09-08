@@ -27,8 +27,11 @@
 ## Running Tests
 
 ```bash
-# Run all tests
+# Watch (local)
 npm test
+
+# Single run (CI)
+npm run test:run
 
 # Run tests in watch mode
 npm test -- --watch
