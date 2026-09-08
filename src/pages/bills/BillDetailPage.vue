@@ -42,7 +42,9 @@ const showVoidModal = ref(false)
 const showDeleteModal = ref(false)
 const showRecurringModal = ref(false)
 const showCreatePRModal = ref(false)
+const showCreditNoteModal = ref(false)
 const voidReason = ref('')
+const creditNoteReason = ref('')
 
 // Make Recurring form
 const today = new Date().toISOString().split('T')[0] || ''
@@ -134,13 +136,19 @@ async function handleVoid() {
 }
 
 async function handleCreditNote() {
+  if (!creditNoteReason.value.trim()) {
+    toast.error('Alasan nota kredit wajib diisi')
+    return
+  }
   try {
     const creditNote = await creditNoteMutation.mutateAsync({
       id: billId.value,
-      data: { reason: 'vendor_request' },
+      data: { reason: creditNoteReason.value.trim() },
     })
-    toast.success('Vendor credit note created')
-    router.push(`/purchasing/purchase-returns/${creditNote.id}`)
+    showCreditNoteModal.value = false
+    creditNoteReason.value = ''
+    toast.success('Nota kredit vendor (pembalikan jurnal) dibuat')
+    router.push(`/accounting/journal-entries/${creditNote.id}`)
   } catch {
     toast.error('Failed to create credit note')
   }
@@ -288,7 +296,7 @@ const journalItemColumns: ResponsiveColumn[] = [
               size="sm"
               data-testid="bill-credit-note"
               :loading="creditNoteMutation.isPending.value"
-              @click="handleCreditNote"
+              @click="showCreditNoteModal = true"
             >
               Credit Note
             </Button>
@@ -546,6 +554,22 @@ const journalItemColumns: ResponsiveColumn[] = [
         </div>
       </div>
     </template>
+
+    <Modal :open="showCreditNoteModal" title="Vendor Credit Note" @update:open="showCreditNoteModal = $event">
+      <p class="text-muted-foreground mb-4">
+        Membalik jurnal tagihan (utang usaha). Retur stok tetap lewat Create Purchase Return.
+      </p>
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Reason</label>
+        <Textarea v-model="creditNoteReason" data-testid="bill-credit-note-reason" :rows="3" placeholder="Alasan nota kredit..." />
+      </div>
+      <template #footer>
+        <Button variant="ghost" @click="showCreditNoteModal = false">Cancel</Button>
+        <Button data-testid="bill-credit-note-submit" :loading="creditNoteMutation.isPending.value" @click="handleCreditNote">
+          Reverse
+        </Button>
+      </template>
+    </Modal>
 
     <!-- Void Modal -->
     <Modal :open="showVoidModal" title="Void Bill" @update:open="showVoidModal = $event">

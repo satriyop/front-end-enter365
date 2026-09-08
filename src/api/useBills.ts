@@ -67,15 +67,15 @@ export function useBillCreditNote() {
       data,
     }: {
       id: number
-      data?: { return_date?: string; warehouse_id?: number; reason?: string; notes?: string }
+      data?: { reason: string; notes?: string }
     }) => {
-      const response = await api.post<{ data: { id: number } }>(`/bills/${id}/credit-note`, data ?? {})
+      const response = await api.post<{ data: { id: number; source_type?: string } }>(`/bills/${id}/credit-note`, data ?? {})
       return response.data.data
     },
     onSuccess: (_, { id }) => {
       queryClient.invalidateQueries({ queryKey: ['bills'] })
       queryClient.invalidateQueries({ queryKey: ['bill', id] })
-      queryClient.invalidateQueries({ queryKey: ['purchase-returns'] })
+      queryClient.invalidateQueries({ queryKey: ['journal-entries'] })
     },
   })
 }
