@@ -6,6 +6,8 @@ import { useMakeBillRecurring, frequencyOptions, type MakeRecurringData } from '
 import { useCreatePurchaseReturnFromBill, type CreateFromBillData } from '@/api/usePurchaseReturns'
 import { useWarehousesLookup } from '@/api/useInventory'
 import { Button, Card, Badge, Modal, Input, Textarea, Select, FormField, useToast, ResponsiveTable, type ResponsiveColumn } from '@/components/ui'
+import { formatAnalyticDistributionLabel, useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
+import { formatTaxTagLabel, useTaxTagsLookup } from '@/api/useTaxTags'
 import { formatCurrency, formatDate, toNumber } from '@/utils/format'
 import { FileText, RotateCcw, Repeat } from 'lucide-vue-next'
 import AttachmentCard from '@/components/AttachmentCard.vue'
@@ -16,6 +18,8 @@ const toast = useToast()
 
 const billId = computed(() => Number(route.params.id))
 const { data: bill, isLoading } = useBill(billId)
+const { data: analyticAccounts } = useAnalyticAccountsLookup()
+const { data: taxTags } = useTaxTagsLookup()
 
 // Mutations
 const postMutation = usePostBill()
@@ -173,9 +177,18 @@ async function handleCreatePR() {
 // Line items table columns with mobile priorities
 const itemColumns: ResponsiveColumn[] = [
   { key: 'description', label: 'Description', mobilePriority: 1 },
+  { key: 'account', label: 'Account', showInMobile: false },
+  { key: 'analytic', label: 'Analytic', showInMobile: false },
+  { key: 'taxes', label: 'Taxes', showInMobile: false },
   { key: 'quantity', label: 'Qty', align: 'right', mobilePriority: 3 },
   { key: 'unit_price', label: 'Price', align: 'right', showInMobile: false },
   { key: 'line_total', label: 'Amount', align: 'right', mobilePriority: 2 },
+]
+
+const journalItemColumns: ResponsiveColumn[] = [
+  { key: 'account', label: 'Account', mobilePriority: 1 },
+  { key: 'debit', label: 'Debit', align: 'right', mobilePriority: 2 },
+  { key: 'credit', label: 'Credit', align: 'right', mobilePriority: 3 },
 ]
 </script>
 
@@ -286,6 +299,21 @@ const itemColumns: ResponsiveColumn[] = [
               <template #cell-description="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">{{ item.description }}</span>
               </template>
+              <template #cell-account="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ item.expense_account ? `${item.expense_account.code} ${item.expense_account.name}` : (item.expense_account_id || '-') }}
+                </span>
+              </template>
+              <template #cell-analytic="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ formatAnalyticDistributionLabel((item as { analytic_distribution?: { [key: string]: number } | null }).analytic_distribution, analyticAccounts) || '-' }}
+                </span>
+              </template>
+              <template #cell-taxes="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ formatTaxTagLabel((item as { tax_tag_ids?: number[] | null }).tax_tag_ids, taxTags) || '-' }}
+                </span>
+              </template>
               <template #cell-quantity="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">{{ item.quantity }} {{ item.unit }}</span>
               </template>
@@ -297,6 +325,29 @@ const itemColumns: ResponsiveColumn[] = [
               </template>
               <template #mobile-title="{ item }">
                 <span class="font-medium text-slate-900 dark:text-slate-100">{{ item.description }}</span>
+              </template>
+            </ResponsiveTable>
+          </Card>
+
+          <Card v-if="bill.journal_entry?.lines?.length" :padding="false" data-testid="bill-journal-items">
+            <template #header>
+              <h2 class="font-semibold text-slate-900 dark:text-slate-100 px-6 pt-6">Journal Items</h2>
+            </template>
+            <ResponsiveTable
+              :items="bill.journal_entry.lines"
+              :columns="journalItemColumns"
+              title-field="description"
+            >
+              <template #cell-account="{ item }">
+                <span class="text-slate-900 dark:text-slate-100">
+                  {{ item.account ? `${item.account.code} ${item.account.name}` : item.account_id }}
+                </span>
+              </template>
+              <template #cell-debit="{ item }">
+                <span class="font-mono">{{ Number(item.debit) > 0 ? formatCurrency(item.debit) : '-' }}</span>
+              </template>
+              <template #cell-credit="{ item }">
+                <span class="font-mono">{{ Number(item.credit) > 0 ? formatCurrency(item.credit) : '-' }}</span>
               </template>
             </ResponsiveTable>
           </Card>

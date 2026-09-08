@@ -5,7 +5,10 @@ import { useForm, useFieldArray } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useBill, useCreateBill, useUpdateBill } from '@/api/useBills'
 import { toNumber, CURRENCY_OPTIONS } from '@/utils/format'
+import { useAccountsLookup } from '@/api/useAccounts'
+import { analyticDistributionFromAccountId, analyticDistributionPrimaryId, useAnalyticAccountsLookup } from '@/api/useAnalyticAccounts'
 import { useContactsLookup } from '@/api/useContacts'
+import { taxTagIdsFromTagId, taxTagIdsPrimaryId, useTaxTagsLookup } from '@/api/useTaxTags'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast, CurrencyInput } from '@/components/ui'
@@ -30,6 +33,28 @@ const { data: contacts } = useContactsLookup('supplier')
 const contactOptions = computed(() =>
   (contacts.value ?? []).map(c => ({ value: c.id, label: c.name }))
 )
+const { data: accounts, isLoading: accountsLoading } = useAccountsLookup()
+const { data: analyticAccounts, isLoading: analyticAccountsLoading } = useAnalyticAccountsLookup()
+const { data: taxTags, isLoading: taxTagsLoading } = useTaxTagsLookup()
+
+const accountOptions = computed(() =>
+  (accounts.value ?? []).map((account) => ({
+    value: account.id,
+    label: `${account.code} - ${account.name}`,
+  })),
+)
+const analyticOptions = computed(() =>
+  (analyticAccounts.value ?? []).map((account) => ({
+    value: account.id,
+    label: `${account.code} - ${account.name}`,
+  })),
+)
+const taxTagOptions = computed(() =>
+  (taxTags.value ?? []).map((tag) => ({
+    value: tag.id,
+    label: `${tag.code} - ${tag.name}`,
+  })),
+)
 
 function createEmptyItem(): BillItemFormData {
   return {
@@ -39,6 +64,9 @@ function createEmptyItem(): BillItemFormData {
     unit_price: 0,
     discount_percent: 0,
     tax_rate: 11,
+    expense_account_id: undefined as unknown as number,
+    analytic_account_id: null,
+    tax_tag_id: null,
   }
 }
 
@@ -99,14 +127,24 @@ watch(existingBill, (bill) => {
       currency: bill.currency ?? 'IDR',
       exchange_rate: Number(bill.exchange_rate) || 1,
       items: bill.items && bill.items.length > 0
-        ? bill.items.map(item => ({
-            description: item.description,
-            quantity: item.quantity,
-            unit: item.unit,
-            unit_price: toNumber(item.unit_price),
-            discount_percent: item.discount_percent ?? 0,
-            tax_rate: item.tax_rate ?? 11,
-          }))
+        ? bill.items.map((item) => {
+            const row = item as typeof item & {
+              account_id?: number | null
+              analytic_distribution?: { [key: string]: number } | null
+              tax_tag_ids?: number[] | null
+            }
+            return {
+              description: item.description,
+              quantity: item.quantity,
+              unit: item.unit,
+              unit_price: toNumber(item.unit_price),
+              discount_percent: item.discount_percent ?? 0,
+              tax_rate: item.tax_rate ?? 11,
+              expense_account_id: item.expense_account_id ?? row.account_id ?? (undefined as unknown as number),
+              analytic_account_id: Number(analyticDistributionPrimaryId(row.analytic_distribution)) || null,
+              tax_tag_id: Number(taxTagIdsPrimaryId(row.tax_tag_ids)) || null,
+            }
+          })
         : [createEmptyItem()],
     })
   }
@@ -152,6 +190,9 @@ const onSubmit = handleSubmit(async (formValues) => {
       unit_price: item.unit_price,
       discount_percent: item.discount_percent,
       tax_rate: item.tax_rate,
+      expense_account_id: item.expense_account_id,
+      analytic_distribution: analyticDistributionFromAccountId(item.analytic_account_id),
+      tax_tag_ids: taxTagIdsFromTagId(item.tax_tag_id),
     }))
 
   const payload = {
@@ -255,27 +296,61 @@ const onSubmit = handleSubmit(async (formValues) => {
         </template>
 
         <div class="space-y-4">
-          <div v-for="(field, index) in itemFields" :key="field.key" class="grid grid-cols-12 gap-2 items-end">
-            <div class="col-span-4">
-              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
-              <Input v-model="field.value.description" placeholder="Item description" :data-testid="`bill-item-${index}-description`" />
+          <div v-for="(field, index) in itemFields" :key="field.key" class="space-y-2 pb-4 border-b border-slate-100 dark:border-slate-800 last:border-0">
+            <div class="grid grid-cols-12 gap-2 items-end">
+              <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
+                <Input v-model="field.value.description" placeholder="Item description" :data-testid="`bill-item-${index}-description`" />
+              </div>
+              <div class="col-span-2">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Qty</label>
+                <Input v-model.number="field.value.quantity" type="number" min="1" :data-testid="`bill-item-${index}-quantity`" />
+              </div>
+              <div class="col-span-3">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Unit Price</label>
+                <CurrencyInput v-model="field.value.unit_price" size="sm" :min="0" :data-testid="`bill-item-${index}-price`" />
+              </div>
+              <div class="col-span-2">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
+                <Input v-model.number="field.value.tax_rate" type="number" min="0" max="100" />
+              </div>
+              <div class="col-span-1 flex justify-end">
+                <Button type="button" variant="ghost" size="sm" @click="handleRemoveItem(index)" :disabled="itemFields.length === 1">
+                  Remove
+                </Button>
+              </div>
             </div>
-            <div class="col-span-2">
-              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Qty</label>
-              <Input v-model.number="field.value.quantity" type="number" min="1" :data-testid="`bill-item-${index}-quantity`" />
-            </div>
-            <div class="col-span-2">
-              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Unit Price</label>
-              <CurrencyInput v-model="field.value.unit_price" size="sm" :min="0" :data-testid="`bill-item-${index}-price`" />
-            </div>
-            <div class="col-span-2">
-              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tax %</label>
-              <Input v-model.number="field.value.tax_rate" type="number" min="0" max="100" />
-            </div>
-            <div class="col-span-2 flex justify-end">
-              <Button type="button" variant="ghost" size="sm" @click="handleRemoveItem(index)" :disabled="itemFields.length === 1">
-                Remove
-              </Button>
+            <div class="grid grid-cols-12 gap-2 items-end">
+              <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Account</label>
+                <Select
+                  v-model="field.value.expense_account_id"
+                  :options="accountOptions"
+                  :loading="accountsLoading"
+                  placeholder="Expense account"
+                  :test-id="`bill-item-${index}-account`"
+                />
+              </div>
+              <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Analytic</label>
+                <Select
+                  v-model="field.value.analytic_account_id"
+                  :options="analyticOptions"
+                  :loading="analyticAccountsLoading"
+                  placeholder="Optional"
+                  :test-id="`bill-item-${index}-analytic`"
+                />
+              </div>
+              <div class="col-span-4">
+                <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Taxes</label>
+                <Select
+                  v-model="field.value.tax_tag_id"
+                  :options="taxTagOptions"
+                  :loading="taxTagsLoading"
+                  placeholder="Optional"
+                  :test-id="`bill-item-${index}-tax`"
+                />
+              </div>
             </div>
           </div>
         </div>

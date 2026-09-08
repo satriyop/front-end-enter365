@@ -551,6 +551,9 @@ export const billItemSchema = z.object({
   unit_price: unitPriceSchema.default(0),
   discount_percent: percentageSchema.default(0),
   tax_rate: percentageSchema.default(11),
+  expense_account_id: z.number({ required_error: 'Please select an account' }).positive('Please select an account'),
+  analytic_account_id: z.number().optional().nullable(),
+  tax_tag_id: z.number().optional().nullable(),
 })
 
 /**
