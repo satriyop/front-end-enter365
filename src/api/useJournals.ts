@@ -11,6 +11,8 @@ export interface Journal {
   suspense_account_id: number | null
   outstanding_receipts_account_id: number | null
   outstanding_payments_account_id: number | null
+  profit_account_id: number | null
+  loss_account_id: number | null
   bank_account_number: string | null
   dedicated_payment_sequence: boolean
   currency: string | null
@@ -35,6 +37,16 @@ export interface Journal {
     code: string
     name: string
   } | null
+  profit_account?: {
+    id: number
+    code: string
+    name: string
+  } | null
+  loss_account?: {
+    id: number
+    code: string
+    name: string
+  } | null
   created_at?: string | null
   updated_at?: string | null
 }
@@ -55,6 +67,8 @@ export interface CreateJournalData {
   suspense_account_id?: number | null
   outstanding_receipts_account_id?: number | null
   outstanding_payments_account_id?: number | null
+  profit_account_id?: number | null
+  loss_account_id?: number | null
   bank_account_number?: string | null
   dedicated_payment_sequence?: boolean
   currency?: string | null
