@@ -13,7 +13,9 @@ describe('tillReceiptHtml', () => {
       service_amount: 400,
       tax_amount: 840,
       payable_amount: 9_240,
-      cash_received_amount: 9_240,
+      rounding_amount: -40,
+      cash_due_amount: 9_200,
+      cash_received_amount: 9_200,
       change_amount: 0,
       sold_at: '2026-08-31T13:00:00+07:00',
       void_reason: null,
@@ -29,6 +31,8 @@ describe('tillReceiptHtml', () => {
     expect(html).toContain('PBJT 10%')
     expect(html).toContain('840')
     expect(html).toContain('9.240')
+    expect(html).toContain('Pembulatan')
+    expect(html).toContain('9.200')
     expect(html).toContain('Kasir Siti Kasir')
     expect(html).toContain('WIB')
     expect(html).not.toContain('Printer belum terhubung')

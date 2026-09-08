@@ -23,6 +23,7 @@ export interface PosSession {
   service_rate?: number
   tax_add_rate?: number
   tax_add_name?: string | null
+  cash_rounding_unit?: number
   opening_cash_amount: number
   expected_cash_amount: number | null
   counted_cash_amount: number | null
@@ -43,6 +44,8 @@ export interface PosSale {
   service_amount?: number
   tax_amount?: number
   payable_amount: number
+  rounding_amount?: number
+  cash_due_amount?: number
   cash_received_amount: number
   change_amount: number
   sold_at: string

@@ -24,7 +24,7 @@ import { bindOutletId, formatHoldClock, resolveStartWarehouse, tillExpectedCash 
 import { tillTileMarks } from '@/pages/pos/tillMarks'
 import { printTillReceipt } from '@/pages/pos/tillPrint'
 import { onRescue } from '@/utils/clickRescue'
-import { tillBill } from './tillBill'
+import { roundCashPayable, tillBill } from './tillBill'
 import { typeCashReceived } from './tillCash'
 import { shouldShowTillOfflineDialog } from './tillErrors'
 import { useQueryClient } from '@tanstack/vue-query'
@@ -140,9 +140,16 @@ const bill = computed(() => tillBill(
   session.value?.tax_add_rate,
 ))
 const payable = computed(() => bill.value.payable)
+const cashDue = computed(() => {
+  if (way.value !== 'cash') {
+    return payable.value
+  }
+  return roundCashPayable(payable.value, session.value?.cash_rounding_unit ?? 100)
+})
+const roundingAmount = computed(() => cashDue.value - payable.value)
 const itemCount = computed(() => cart.value.reduce((sum, line) => sum + line.quantity, 0))
-const change = computed(() => received.value - payable.value)
-const canCommit = computed(() => way.value === 'qris' || received.value >= payable.value)
+const change = computed(() => received.value - cashDue.value)
+const canCommit = computed(() => way.value === 'qris' || received.value >= cashDue.value)
 const countedCash = computed(() => DENOMS.reduce((sum, d) => sum + d * (count[d] || 0), 0))
 const expectedCash = computed(() => tillExpectedCash(session.value?.opening_cash_amount ?? 0, sales.value))
 
@@ -762,6 +769,14 @@ onMounted(async () => {
               <div class="l">Total tagihan</div>
               <div class="v">{{ rp(payable) }}</div>
             </div>
+            <div v-if="way === 'cash' && roundingAmount !== 0" class="slab" data-testid="kasir-rounding">
+              <div class="l">Pembulatan</div>
+              <div class="v">{{ rp(roundingAmount) }}</div>
+            </div>
+            <div v-if="way === 'cash' && roundingAmount !== 0" class="slab" data-testid="kasir-cash-due">
+              <div class="l">Tunai dibayar</div>
+              <div class="v">{{ rp(cashDue) }}</div>
+            </div>
             <div v-if="way === 'qris'" class="banner warn" style="margin:0">
               <span>!</span>
               <div>
@@ -783,7 +798,7 @@ onMounted(async () => {
           <div class="pr">
             <template v-if="way === 'cash'">
               <div class="quick">
-                <button class="pas" data-testid="kasir-exact-cash" @click="received = payable">Uang pas · {{ rp(payable) }}</button>
+                <button class="pas" data-testid="kasir-exact-cash" @click="received = cashDue">Uang pas · {{ rp(cashDue) }}</button>
                 <button v-for="q in QUICK" :key="q" @click="received = q">{{ rp(q) }}</button>
               </div>
               <div class="keys">
