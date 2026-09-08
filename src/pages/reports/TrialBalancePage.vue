@@ -31,7 +31,12 @@ const { data: report, isLoading, error } = useTrialBalance(asOfDateRef, journalI
 const exportMutation = useExportTrialBalance()
 
 function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
-  exportMutation.mutate({ date: asOfDate.value || undefined, format })
+  exportMutation.mutate({
+    date: asOfDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function getAccountTypeLabel(type: string): string {

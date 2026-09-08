@@ -12,9 +12,11 @@ const router = useRouter()
 const asOfDate = ref(toLocalISODate())
 const compareTo = ref('')
 const journalId = ref('')
+const postedOnly = ref(true)
 const asOfDateRef = computed(() => asOfDate.value)
 const compareToRef = computed(() => compareTo.value || undefined)
 const journalIdRef = computed(() => journalId.value || undefined)
+const postedOnlyRef = computed(() => postedOnly.value)
 
 const { data: journals } = useJournalsLookup()
 const journalOptions = computed(() => {
@@ -26,12 +28,17 @@ const journalOptions = computed(() => {
   })))
 })
 
-const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef, compareToRef, journalIdRef)
+const { data: report, isLoading, error } = useBalanceSheet(asOfDateRef, compareToRef, journalIdRef, postedOnlyRef)
 
 const exportMutation = useExportBalanceSheet()
 
 function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
-  exportMutation.mutate({ date: asOfDate.value || undefined, format, journal_id: journalId.value || undefined })
+  exportMutation.mutate({
+    date: asOfDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function formatAmount(amount: number): string {
@@ -68,6 +75,10 @@ function formatAmount(amount: number): string {
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
           <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="bs-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="secondary"

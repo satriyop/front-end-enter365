@@ -32,6 +32,13 @@ describe('report filters and exports (#37 / #99)', () => {
     expect(pageSource('IncomeStatementPage.vue')).toContain('journalId')
   })
 
+  it('exports trial balance with journal and posted filters and shows Posted Entries on BS/IS', () => {
+    expect(pageSource('TrialBalancePage.vue')).toContain('posted_only: postedOnly.value')
+    expect(pageSource('TrialBalancePage.vue')).toContain('journal_id: journalId.value')
+    expect(pageSource('BalanceSheetPage.vue')).toContain('Posted Entries')
+    expect(pageSource('IncomeStatementPage.vue')).toContain('Posted Entries')
+  })
+
   it('offers pdf and xlsx export on core financial reports', () => {
     expect(pageSource('CashFlowPage.vue')).not.toContain('show-format-options="false"')
     expect(pageSource('BalanceSheetPage.vue')).not.toContain('show-format-options="false"')

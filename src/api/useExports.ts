@@ -40,7 +40,7 @@ function today() {
  */
 export function useExportTrialBalance() {
   return useMutation({
-    mutationFn: async (params?: { date?: string; format?: string }) => {
+    mutationFn: async (params?: { date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
       const format = reportFormat(params?.format)
       const response = await api.get('/export/trial-balance', {
         params: { ...params, format },
@@ -58,7 +58,7 @@ export function useExportTrialBalance() {
  */
 export function useExportBalanceSheet() {
   return useMutation({
-    mutationFn: async (params?: { date?: string; format?: string; journal_id?: string }) => {
+    mutationFn: async (params?: { date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
       const format = reportFormat(params?.format)
       const response = await api.get('/export/balance-sheet', {
         params: { ...params, format },
@@ -76,7 +76,7 @@ export function useExportBalanceSheet() {
  */
 export function useExportIncomeStatement() {
   return useMutation({
-    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string; journal_id?: string }) => {
+    mutationFn: async (params?: { start_date?: string; end_date?: string; format?: string; journal_id?: string; posted_only?: boolean }) => {
       const format = reportFormat(params?.format)
       const response = await api.get('/export/income-statement', {
         params: { ...params, format },

@@ -14,11 +14,13 @@ const startDate = ref(toLocalISODate(new Date(new Date().getFullYear(), new Date
 const endDate = ref(toLocalISODate())
 const comparePreviousPeriod = ref(false)
 const journalId = ref('')
+const postedOnly = ref(true)
 
 const startDateRef = computed(() => startDate.value)
 const endDateRef = computed(() => endDate.value)
 const comparePreviousPeriodRef = computed(() => comparePreviousPeriod.value)
 const journalIdRef = computed(() => journalId.value || undefined)
+const postedOnlyRef = computed(() => postedOnly.value)
 
 const { data: journals } = useJournalsLookup()
 const journalOptions = computed(() => {
@@ -30,12 +32,18 @@ const journalOptions = computed(() => {
   })))
 })
 
-const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef, comparePreviousPeriodRef, journalIdRef)
+const { data: report, isLoading, error } = useIncomeStatement(startDateRef, endDateRef, comparePreviousPeriodRef, journalIdRef, postedOnlyRef)
 
 const exportMutation = useExportIncomeStatement()
 
 function handleExport(format: 'excel' | 'csv' | 'pdf' = 'csv') {
-  exportMutation.mutate({ start_date: startDate.value || undefined, end_date: endDate.value || undefined, format, journal_id: journalId.value || undefined })
+  exportMutation.mutate({
+    start_date: startDate.value || undefined,
+    end_date: endDate.value || undefined,
+    format,
+    journal_id: journalId.value || undefined,
+    posted_only: postedOnly.value,
+  })
 }
 
 function formatAmount(amount: number): string {
@@ -72,6 +80,10 @@ function formatAmount(amount: number): string {
           <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Journal</label>
           <Select v-model="journalId" :options="journalOptions" placeholder="All Journals" />
         </div>
+        <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300 pb-2">
+          <input v-model="postedOnly" type="checkbox" data-testid="is-posted-only" />
+          Posted Entries
+        </label>
         <div class="flex gap-2">
           <Button
             variant="secondary"
