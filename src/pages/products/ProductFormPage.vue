@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import { useProduct, useCreateProduct, useUpdateProduct, type CreateProductData } from '@/api/useProducts'
+import { useTaxRecords } from '@/api/useTaxRecords'
 import { useProductCategoriesLookup } from '@/api/useProductCategories'
 import { useAccountsLookup } from '@/api/useAccounts'
 import { toNumber } from '@/utils/format'
@@ -75,6 +76,8 @@ const {
     selling_price: 0,
     tax_rate: 11,
     is_taxable: true,
+    sales_tax_ids: [],
+    purchase_tax_ids: [],
     is_active: true,
     track_inventory: true,
     min_stock: 0,
@@ -99,6 +102,25 @@ const [purchasePrice] = defineField('purchase_price')
 const [sellingPrice] = defineField('selling_price')
 const [taxRate] = defineField('tax_rate')
 const [isTaxable] = defineField('is_taxable')
+const [salesTaxIds] = defineField('sales_tax_ids')
+const [purchaseTaxIds] = defineField('purchase_tax_ids')
+
+const { data: salesTaxRecords } = useTaxRecords('sales')
+const { data: purchaseTaxRecords } = useTaxRecords('purchase')
+
+function toggleSalesTax(id: number) {
+  const current = salesTaxIds.value ?? []
+  salesTaxIds.value = current.includes(id)
+    ? current.filter((item) => item !== id)
+    : [...current, id]
+}
+
+function togglePurchaseTax(id: number) {
+  const current = purchaseTaxIds.value ?? []
+  purchaseTaxIds.value = current.includes(id)
+    ? current.filter((item) => item !== id)
+    : [...current, id]
+}
 const [isActive] = defineField('is_active')
 const [trackInventory] = defineField('track_inventory')
 const [minStock] = defineField('min_stock')
@@ -139,6 +161,8 @@ watch(existingProduct, (product) => {
       selling_price: toNumber(product.selling_price),
       tax_rate: toNumber(product.tax_rate),
       is_taxable: !!product.is_taxable,
+      sales_tax_ids: product.sales_taxes?.map((tax) => tax.id) ?? [],
+      purchase_tax_ids: product.purchase_taxes?.map((tax) => tax.id) ?? [],
       is_active: !!product.is_active,
       track_inventory: !!product.track_inventory,
       min_stock: toNumber(product.min_stock),
@@ -176,6 +200,8 @@ const onSubmit = handleSubmit(async (formValues) => {
       selling_price: formValues.selling_price,
       tax_rate: formValues.tax_rate,
       is_taxable: formValues.is_taxable,
+      sales_tax_ids: formValues.sales_tax_ids ?? [],
+      purchase_tax_ids: formValues.purchase_tax_ids ?? [],
       is_active: formValues.is_active,
       track_inventory: formValues.track_inventory,
       min_stock: formValues.min_stock,
@@ -296,6 +322,42 @@ useFormShortcuts({
               <span class="text-sm text-foreground">Taxable</span>
             </label>
           </div>
+          <FormField label="Sales Taxes" class="md:col-span-2">
+            <div class="flex flex-wrap gap-3">
+              <label
+                v-for="tax in salesTaxRecords"
+                :key="tax.id"
+                class="flex items-center gap-2 text-sm text-foreground"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-border"
+                  :checked="(salesTaxIds ?? []).includes(tax.id)"
+                  @change="toggleSalesTax(tax.id)"
+                />
+                {{ tax.name }} ({{ tax.rate }}%)
+              </label>
+              <p v-if="!salesTaxRecords?.length" class="text-sm text-muted-foreground">No sales tax records yet.</p>
+            </div>
+          </FormField>
+          <FormField label="Purchase Taxes" class="md:col-span-2">
+            <div class="flex flex-wrap gap-3">
+              <label
+                v-for="tax in purchaseTaxRecords"
+                :key="tax.id"
+                class="flex items-center gap-2 text-sm text-foreground"
+              >
+                <input
+                  type="checkbox"
+                  class="rounded border-border"
+                  :checked="(purchaseTaxIds ?? []).includes(tax.id)"
+                  @change="togglePurchaseTax(tax.id)"
+                />
+                {{ tax.name }} ({{ tax.rate }}%)
+              </label>
+              <p v-if="!purchaseTaxRecords?.length" class="text-sm text-muted-foreground">No purchase tax records yet.</p>
+            </div>
+          </FormField>
         </div>
       </Card>
 

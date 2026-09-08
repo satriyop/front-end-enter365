@@ -8,8 +8,14 @@ import type { components } from './types'
 // Types
 // ============================================
 
-export type Product = components['schemas']['ProductResource']
-export type CreateProductData = components['schemas']['StoreProductRequest']
+export type Product = components['schemas']['ProductResource'] & {
+  sales_taxes?: Array<{ id: number; code: string; name: string; rate: number; applicability: string }>
+  purchase_taxes?: Array<{ id: number; code: string; name: string; rate: number; applicability: string }>
+}
+export type CreateProductData = components['schemas']['StoreProductRequest'] & {
+  sales_tax_ids?: number[]
+  purchase_tax_ids?: number[]
+}
 
 export interface ProductFilters {
   page?: number

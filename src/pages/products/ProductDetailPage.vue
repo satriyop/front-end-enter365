@@ -214,6 +214,14 @@ async function handleStockAdjust() {
                 <dd class="text-foreground">{{ product.tax_rate }}%</dd>
               </div>
               <div>
+                <dt class="text-sm text-muted-foreground">Sales Taxes</dt>
+                <dd class="text-foreground">{{ product.sales_taxes?.map((tax) => `${tax.name} (${tax.rate}%)`).join(', ') || '—' }}</dd>
+              </div>
+              <div>
+                <dt class="text-sm text-muted-foreground">Purchase Taxes</dt>
+                <dd class="text-foreground">{{ product.purchase_taxes?.map((tax) => `${tax.name} (${tax.rate}%)`).join(', ') || '—' }}</dd>
+              </div>
+              <div>
                 <dt class="text-sm text-muted-foreground">Selling Price (incl. Tax)</dt>
                 <dd class="font-medium text-foreground">{{ product.selling_price_with_tax }}</dd>
               </div>
