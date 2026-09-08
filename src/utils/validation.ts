@@ -208,6 +208,8 @@ export const productSchema = z.object({
   selling_price: unitPriceSchema.default(0),
   tax_rate: percentageSchema.default(11),
   is_taxable: z.boolean().default(true),
+  sales_tax_ids: z.array(z.number()).optional().default([]),
+  purchase_tax_ids: z.array(z.number()).optional().default([]),
   // Inventory
   track_inventory: z.boolean().default(true),
   min_stock: z.number().min(0, 'Minimum stock cannot be negative').default(0),

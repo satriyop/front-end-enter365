@@ -565,6 +565,22 @@ describe('nullable vs optional pattern', () => {
     }
   })
 
+  it('product accepts sales and purchase tax record ids', () => {
+    const result = productSchema.safeParse({
+      sku: 'SKU001',
+      name: 'Product',
+      type: 'product',
+      unit: 'pcs',
+      sales_tax_ids: [1],
+      purchase_tax_ids: [2],
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.sales_tax_ids).toEqual([1])
+      expect(result.data.purchase_tax_ids).toEqual([2])
+    }
+  })
+
   it('warehouse string fields default to empty string', () => {
     const result = warehouseSchema.safeParse({ name: 'Main Warehouse' })
     expect(result.success).toBe(true)
