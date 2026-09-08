@@ -62,6 +62,8 @@ const schema = z.object({
   suspense_account_id: z.string().optional(),
   outstanding_receipts_account_id: z.string().optional(),
   outstanding_payments_account_id: z.string().optional(),
+  profit_account_id: z.string().optional(),
+  loss_account_id: z.string().optional(),
   bank_account_number: z.string().optional(),
   dedicated_payment_sequence: z.boolean(),
   currency: z.string().optional(),
@@ -80,6 +82,8 @@ const { errors, handleSubmit, setValues, setErrors, defineField } = useForm<Form
     suspense_account_id: '',
     outstanding_receipts_account_id: '',
     outstanding_payments_account_id: '',
+    profit_account_id: '',
+    loss_account_id: '',
     bank_account_number: '',
     dedicated_payment_sequence: false,
     currency: '',
@@ -94,6 +98,8 @@ const [defaultAccountId] = defineField('default_account_id')
 const [suspenseAccountId] = defineField('suspense_account_id')
 const [outstandingReceiptsAccountId] = defineField('outstanding_receipts_account_id')
 const [outstandingPaymentsAccountId] = defineField('outstanding_payments_account_id')
+const [profitAccountId] = defineField('profit_account_id')
+const [lossAccountId] = defineField('loss_account_id')
 const [bankAccountNumber] = defineField('bank_account_number')
 const [dedicatedPaymentSequence] = defineField('dedicated_payment_sequence')
 const [currency] = defineField('currency')
@@ -115,6 +121,8 @@ watch(existingJournal, (journal) => {
     outstanding_payments_account_id: journal.outstanding_payments_account_id
       ? String(journal.outstanding_payments_account_id)
       : '',
+    profit_account_id: journal.profit_account_id ? String(journal.profit_account_id) : '',
+    loss_account_id: journal.loss_account_id ? String(journal.loss_account_id) : '',
     bank_account_number: journal.bank_account_number ?? '',
     dedicated_payment_sequence: journal.dedicated_payment_sequence ?? false,
     currency: journal.currency ?? '',
@@ -141,6 +149,12 @@ const onSubmit = handleSubmit(async (values) => {
       : null,
     outstanding_payments_account_id: bankOrCash && values.outstanding_payments_account_id
       ? Number(values.outstanding_payments_account_id)
+      : null,
+    profit_account_id: bankOrCash && values.profit_account_id
+      ? Number(values.profit_account_id)
+      : null,
+    loss_account_id: bankOrCash && values.loss_account_id
+      ? Number(values.loss_account_id)
       : null,
     bank_account_number: bankOrCash ? (values.bank_account_number || null) : null,
     dedicated_payment_sequence: bankOrCash ? values.dedicated_payment_sequence : false,
@@ -281,6 +295,32 @@ const onSubmit = handleSubmit(async (values) => {
                 :loading="accountsLoading"
                 :test-id="'journal-outstanding-payments'"
                 @update:model-value="(v) => outstandingPaymentsAccountId = v ? String(v) : ''"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Profit Account
+              </label>
+              <Select
+                :model-value="profitAccountId ?? ''"
+                :options="accountOptions"
+                :loading="accountsLoading"
+                :test-id="'journal-profit-account'"
+                @update:model-value="(v) => profitAccountId = v ? String(v) : ''"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Loss Account
+              </label>
+              <Select
+                :model-value="lossAccountId ?? ''"
+                :options="accountOptions"
+                :loading="accountsLoading"
+                :test-id="'journal-loss-account'"
+                @update:model-value="(v) => lossAccountId = v ? String(v) : ''"
               />
             </div>
 
