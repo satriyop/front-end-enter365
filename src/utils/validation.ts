@@ -165,6 +165,7 @@ export const contactSchema = z.object({
   province: z.string().max(100).optional(),
   postal_code: z.string().max(10).optional(),
   npwp: npwpSchema,
+  is_pkp: z.boolean().optional().default(false),
   nik: nikSchema,
   // Payment terms
   credit_limit: currencySchema.optional(),

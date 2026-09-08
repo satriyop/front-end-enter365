@@ -194,6 +194,10 @@ const subcontractorServicesDisplay = computed(() => {
                 <dd class="font-medium text-slate-900 dark:text-slate-100 font-mono">{{ contact.npwp || '-' }}</dd>
               </div>
               <div>
+                <dt class="text-sm text-slate-500 dark:text-slate-400">Is PKP</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">{{ contact.is_pkp ? 'Yes' : 'No' }}</dd>
+              </div>
+              <div>
                 <dt class="text-sm text-slate-500 dark:text-slate-400">NIK</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100 font-mono">{{ contact.nik || '-' }}</dd>
               </div>

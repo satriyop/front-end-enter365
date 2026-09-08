@@ -85,6 +85,22 @@ describe('npwpSchema', () => {
   })
 })
 
+describe('contactSchema is_pkp', () => {
+  it('accepts is_pkp true next to npwp', () => {
+    const result = contactSchema.safeParse({
+      code: 'C-PKP',
+      name: 'PT PKP',
+      type: 'customer',
+      npwp: '12.345.678.9-012.345',
+      is_pkp: true,
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.is_pkp).toBe(true)
+    }
+  })
+})
+
 describe('nikSchema', () => {
   it('accepts valid 16-digit NIK', () => {
     expect(nikSchema.safeParse('3374012345678901').success).toBe(true)
@@ -502,6 +518,7 @@ describe('nullable vs optional pattern', () => {
     if (result.success) {
       expect(result.data.notes).toBe('')
       expect(result.data.bank_name).toBe('')
+      expect(result.data.is_pkp).toBe(false)
     }
   })
 
