@@ -78,9 +78,10 @@ const pendingDeleteItemId = ref<number | string | null>(null)
 // Table Columns
 const columns: ResponsiveColumn[] = [
   { key: 'product.name', label: 'Product', mobilePriority: 1 },
-  { key: 'system_quantity', label: 'System Qty', align: 'right', mobilePriority: 3 },
+  { key: 'system_quantity', label: 'On Hand', align: 'right', mobilePriority: 3 },
   { key: 'actual_quantity', label: 'Counted Qty', align: 'right', mobilePriority: 2 },
-  { key: 'difference_quantity', label: 'Variance', align: 'right', showInMobile: false },
+  { key: 'difference_quantity', label: 'Difference', align: 'right', showInMobile: false },
+  { key: 'product.unit', label: 'UoM', showInMobile: false },
   { key: 'actions', label: '', showInMobile: false },
 ]
 

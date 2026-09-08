@@ -21,6 +21,7 @@ import {
 } from '@/components/ui'
 import { Plus, Search, Package } from 'lucide-vue-next'
 import { ref } from 'vue'
+import { opnameListStatusLabel } from './stockOpname'
 
 const toast = useToast()
 const showDeleteModal = ref(false)
@@ -54,9 +55,9 @@ const deleteMutation = useDeleteStockOpname()
 const statusOptions = [
   { value: '', label: 'All Status' },
   { value: 'draft', label: 'Draft' },
-  { value: 'counting', label: 'Counting' },
+  { value: 'counting', label: 'In Progress' },
   { value: 'reviewed', label: 'Reviewed' },
-  { value: 'completed', label: 'Completed' },
+  { value: 'completed', label: 'Done' },
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
@@ -187,7 +188,7 @@ async function confirmDelete() {
           <!-- Custom cell: Status -->
           <template #cell-status="{ item }">
             <Badge :status="item.status.value as any">
-              {{ item.status.label }}
+              {{ opnameListStatusLabel(item.status.value, item.status.label) }}
             </Badge>
           </template>
 
