@@ -62,6 +62,7 @@ const typeOptions = computed(() => [
   { value: '', label: posChrome('All Types', posPack.value) },
   { value: 'product', label: posChrome('Products', posPack.value) },
   { value: 'service', label: posChrome('Services', posPack.value) },
+  { value: 'combo', label: 'Combo' },
 ])
 
 const columns = computed<ResponsiveColumn[]>(() => [
@@ -69,7 +70,8 @@ const columns = computed<ResponsiveColumn[]>(() => [
   { key: 'name', label: posChrome('Name', posPack.value), mobilePriority: 1 },
   { key: 'type', label: posChrome('Type', posPack.value), mobilePriority: 4 },
   { key: 'selling_price', label: posChrome('Price', posPack.value), align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
-  { key: 'current_stock', label: posChrome('Stock', posPack.value), align: 'right', showInMobile: false },
+  { key: 'current_stock', label: posChrome('On Hand', posPack.value) || 'On Hand', align: 'right', showInMobile: false },
+  { key: 'forecasted_qty', label: 'Forecasted', align: 'right', showInMobile: false },
 ])
 
 // Delete handling

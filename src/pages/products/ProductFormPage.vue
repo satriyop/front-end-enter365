@@ -74,6 +74,7 @@ const {
     name: '',
     description: '',
     type: 'product',
+    procurement_type: 'buy',
     unit: 'pcs',
     purchase_price: 0,
     selling_price: 0,
@@ -103,6 +104,7 @@ const [sku] = defineField('sku')
 const [name] = defineField('name')
 const [description] = defineField('description')
 const [type] = defineField('type')
+const [procurementType] = defineField('procurement_type')
 const [unit] = defineField('unit')
 const [purchasePrice] = defineField('purchase_price')
 const [sellingPrice] = defineField('selling_price')
@@ -144,8 +146,15 @@ const [salesAccountId] = defineField('sales_account_id')
 const [purchaseAccountId] = defineField('purchase_account_id')
 
 const typeOptions = [
-  { value: 'product', label: 'Product' },
+  { value: 'product', label: 'Product (Goods)' },
   { value: 'service', label: 'Service' },
+  { value: 'combo', label: 'Combo' },
+]
+
+const routeOptions = [
+  { value: 'buy', label: 'Buy' },
+  { value: 'make', label: 'Make' },
+  { value: 'subcontract', label: 'Subcontract' },
 ]
 
 const vendorOptions = computed(() => [
@@ -198,7 +207,8 @@ watch(existingProduct, (product) => {
     setValues({
       sku: product.sku,
       name: product.name,
-      type: product.type as 'product' | 'service',
+      type: product.type as 'product' | 'service' | 'combo',
+      procurement_type: product.procurement_type ?? 'buy',
       description: product.description || '',
       unit: product.unit,
       purchase_price: toNumber(product.purchase_price),
@@ -249,6 +259,7 @@ const onSubmit = handleSubmit(async (formValues) => {
       sku: formValues.sku || null,
       name: formValues.name,
       type: formValues.type,
+      procurement_type: formValues.procurement_type,
       description: formValues.description || null,
       unit: formValues.unit,
       purchase_price: formValues.purchase_price,
@@ -342,6 +353,9 @@ useFormShortcuts({
           </FormField>
           <FormField label="Type" required :error="errors.type">
             <Select v-model="type" test-id="product-type" :options="typeOptions" @update:model-value="validateField('type')" />
+          </FormField>
+          <FormField label="Routes">
+            <Select v-model="procurementType" :options="routeOptions" />
           </FormField>
           <FormField label="Name" required :error="errors.name" class="md:col-span-2">
             <Input v-model="name" data-testid="product-name" placeholder="Product name" @blur="validateField('name')" />

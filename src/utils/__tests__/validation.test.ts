@@ -551,6 +551,21 @@ describe('nullable vs optional pattern', () => {
     }
   })
 
+  it('product accepts combo type and buy route', () => {
+    const result = productSchema.safeParse({
+      sku: 'KIT-1',
+      name: 'Kopi combo',
+      type: 'combo',
+      unit: 'paket',
+      procurement_type: 'buy',
+    })
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.type).toBe('combo')
+      expect(result.data.procurement_type).toBe('buy')
+    }
+  })
+
   it('product foreign key fields accept null', () => {
     const result = productSchema.safeParse({
       sku: 'SKU001',
