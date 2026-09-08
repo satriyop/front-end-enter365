@@ -59,6 +59,11 @@ const schema = z.object({
   type: z.enum(['sales', 'purchase', 'bank', 'cash', 'miscellaneous']),
   sequence_prefix: z.string().min(1, 'Sequence prefix is required').max(32),
   default_account_id: z.string().optional(),
+  suspense_account_id: z.string().optional(),
+  outstanding_receipts_account_id: z.string().optional(),
+  outstanding_payments_account_id: z.string().optional(),
+  bank_account_number: z.string().optional(),
+  dedicated_payment_sequence: z.boolean(),
   currency: z.string().optional(),
   is_active: z.boolean(),
 })
@@ -72,6 +77,11 @@ const { errors, handleSubmit, setValues, setErrors, defineField } = useForm<Form
     type: 'miscellaneous',
     sequence_prefix: '',
     default_account_id: '',
+    suspense_account_id: '',
+    outstanding_receipts_account_id: '',
+    outstanding_payments_account_id: '',
+    bank_account_number: '',
+    dedicated_payment_sequence: false,
     currency: '',
     is_active: true,
   },
@@ -81,8 +91,15 @@ const [name] = defineField('name')
 const [type] = defineField('type')
 const [sequencePrefix] = defineField('sequence_prefix')
 const [defaultAccountId] = defineField('default_account_id')
+const [suspenseAccountId] = defineField('suspense_account_id')
+const [outstandingReceiptsAccountId] = defineField('outstanding_receipts_account_id')
+const [outstandingPaymentsAccountId] = defineField('outstanding_payments_account_id')
+const [bankAccountNumber] = defineField('bank_account_number')
+const [dedicatedPaymentSequence] = defineField('dedicated_payment_sequence')
 const [currency] = defineField('currency')
 const [isActive] = defineField('is_active')
+
+const isBankOrCash = computed(() => type.value === 'bank' || type.value === 'cash')
 
 watch(existingJournal, (journal) => {
   if (!journal) return
@@ -91,6 +108,15 @@ watch(existingJournal, (journal) => {
     type: journal.type,
     sequence_prefix: journal.sequence_prefix,
     default_account_id: journal.default_account_id ? String(journal.default_account_id) : '',
+    suspense_account_id: journal.suspense_account_id ? String(journal.suspense_account_id) : '',
+    outstanding_receipts_account_id: journal.outstanding_receipts_account_id
+      ? String(journal.outstanding_receipts_account_id)
+      : '',
+    outstanding_payments_account_id: journal.outstanding_payments_account_id
+      ? String(journal.outstanding_payments_account_id)
+      : '',
+    bank_account_number: journal.bank_account_number ?? '',
+    dedicated_payment_sequence: journal.dedicated_payment_sequence ?? false,
     currency: journal.currency ?? '',
     is_active: journal.is_active,
   })
@@ -101,11 +127,23 @@ const updateMutation = useUpdateJournal()
 const isSubmitting = computed(() => createMutation.isPending.value || updateMutation.isPending.value)
 
 const onSubmit = handleSubmit(async (values) => {
+  const bankOrCash = values.type === 'bank' || values.type === 'cash'
   const payload: CreateJournalData = {
     name: values.name,
     type: values.type as JournalType,
     sequence_prefix: values.sequence_prefix,
     default_account_id: values.default_account_id ? Number(values.default_account_id) : null,
+    suspense_account_id: bankOrCash && values.suspense_account_id
+      ? Number(values.suspense_account_id)
+      : null,
+    outstanding_receipts_account_id: bankOrCash && values.outstanding_receipts_account_id
+      ? Number(values.outstanding_receipts_account_id)
+      : null,
+    outstanding_payments_account_id: bankOrCash && values.outstanding_payments_account_id
+      ? Number(values.outstanding_payments_account_id)
+      : null,
+    bank_account_number: bankOrCash ? (values.bank_account_number || null) : null,
+    dedicated_payment_sequence: bankOrCash ? values.dedicated_payment_sequence : false,
     currency: values.currency || null,
     is_active: values.is_active,
   }
@@ -142,7 +180,7 @@ const onSubmit = handleSubmit(async (values) => {
 
     <div class="mb-6">
       <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
-      <p class="text-slate-500 dark:text-slate-400">Set journal type, sequence prefix, and optional default account</p>
+      <p class="text-slate-500 dark:text-slate-400">Set journal type, sequence prefix, default account, and bank/cash payment accounts</p>
     </div>
 
     <div v-if="isEditing && loadingJournal" class="py-12 text-center text-slate-500">
@@ -194,7 +232,79 @@ const onSubmit = handleSubmit(async (values) => {
               :test-id="'journal-default-account'"
               @update:model-value="(v) => defaultAccountId = v ? String(v) : ''"
             />
+            <p class="text-xs text-slate-500 mt-1">Bank/cash default (liquidity) account</p>
           </div>
+
+          <template v-if="isBankOrCash">
+            <div class="border-t border-slate-200 dark:border-slate-700 pt-4">
+              <h2 class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-3">
+                Payment accounts
+              </h2>
+              <p class="text-xs text-slate-500 mb-4">
+                Used for bank/cash payment posting and reconciliation (nullable until payments module wires them).
+              </p>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Suspense Account
+              </label>
+              <Select
+                :model-value="suspenseAccountId ?? ''"
+                :options="accountOptions"
+                :loading="accountsLoading"
+                :test-id="'journal-suspense-account'"
+                @update:model-value="(v) => suspenseAccountId = v ? String(v) : ''"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Outstanding Receipts Account
+              </label>
+              <Select
+                :model-value="outstandingReceiptsAccountId ?? ''"
+                :options="accountOptions"
+                :loading="accountsLoading"
+                :test-id="'journal-outstanding-receipts'"
+                @update:model-value="(v) => outstandingReceiptsAccountId = v ? String(v) : ''"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Outstanding Payments Account
+              </label>
+              <Select
+                :model-value="outstandingPaymentsAccountId ?? ''"
+                :options="accountOptions"
+                :loading="accountsLoading"
+                :test-id="'journal-outstanding-payments'"
+                @update:model-value="(v) => outstandingPaymentsAccountId = v ? String(v) : ''"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Bank Account Number
+              </label>
+              <Input
+                v-model="bankAccountNumber"
+                data-testid="journal-bank-account-number"
+                placeholder="e.g. 1234567890"
+              />
+            </div>
+
+            <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+              <input
+                v-model="dedicatedPaymentSequence"
+                type="checkbox"
+                class="rounded border-slate-300"
+                data-testid="journal-dedicated-payment-sequence"
+              />
+              Dedicated Payment Sequence
+            </label>
+          </template>
 
           <div>
             <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">

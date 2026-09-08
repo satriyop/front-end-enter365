@@ -8,9 +8,29 @@ export interface Journal {
   type: JournalType
   sequence_prefix: string
   default_account_id: number | null
+  suspense_account_id: number | null
+  outstanding_receipts_account_id: number | null
+  outstanding_payments_account_id: number | null
+  bank_account_number: string | null
+  dedicated_payment_sequence: boolean
   currency: string | null
   is_active: boolean
   default_account?: {
+    id: number
+    code: string
+    name: string
+  } | null
+  suspense_account?: {
+    id: number
+    code: string
+    name: string
+  } | null
+  outstanding_receipts_account?: {
+    id: number
+    code: string
+    name: string
+  } | null
+  outstanding_payments_account?: {
     id: number
     code: string
     name: string
@@ -32,6 +52,11 @@ export interface CreateJournalData {
   type: JournalType
   sequence_prefix: string
   default_account_id?: number | null
+  suspense_account_id?: number | null
+  outstanding_receipts_account_id?: number | null
+  outstanding_payments_account_id?: number | null
+  bank_account_number?: string | null
+  dedicated_payment_sequence?: boolean
   currency?: string | null
   is_active?: boolean
 }
