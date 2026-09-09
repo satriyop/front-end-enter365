@@ -82,7 +82,7 @@ export const navigation: NavGroup[] = [
       { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view', feature: 'budgeting' },
       { name: 'Bank Reconciliation', path: '/accounting/bank-reconciliation', icon: '🏦', permission: 'journals.view', feature: 'bank_reconciliation' },
       { name: 'Recurring Templates', path: '/accounting/recurring-templates', icon: '🔄', permission: 'journals.view', feature: 'recurring' },
-      { name: 'Reports', path: '/reports', icon: '📊', permission: 'reports.financial' },
+      { name: 'Laporan', path: '/reports', icon: '📊', permission: 'reports.financial' },
     ],
   },
   {
@@ -162,6 +162,7 @@ export const POS_NAV_ID: Record<string, string> = {
   Payments: 'Pembayaran',
   Bills: 'Tagihan',
   Reports: 'Laporan',
+  Laporan: 'Laporan',
   'Company Profiles': 'Profil Perusahaan',
   Warehouses: 'Gudang',
   Roles: 'Peran',

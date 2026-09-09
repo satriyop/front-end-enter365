@@ -16,6 +16,9 @@ export default defineConfig({
       manifest: false, // Use our custom manifest.json in public/
       workbox: {
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
+        cacheId: 'e365-spa-20260909-sw',
         // Hashed JS/CSS are precached. Do not SWR them — a waiting SW plus
         // a cached index.html is how kasir/akuntan/gudang kept running old click handlers.
         runtimeCaching: [

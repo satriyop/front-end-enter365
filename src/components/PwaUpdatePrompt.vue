@@ -15,9 +15,15 @@ onMounted(async () => {
           immediate: true,
           onRegistered(registration) {
             if (registration) {
+              void registration.update()
+              document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                  void registration.update()
+                }
+              })
               setInterval(() => {
                 registration.update()
-              }, 60 * 60 * 1000)
+              }, 15_000)
             }
           },
           onRegisterError(error) {
