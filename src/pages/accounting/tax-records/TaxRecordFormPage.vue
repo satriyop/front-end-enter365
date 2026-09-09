@@ -106,13 +106,13 @@ async function handleSubmit() {
         <Select
           :model-value="invoiceAccountId"
           :options="accountOptions"
-          placeholder="Invoice account"
+          placeholder="Distribution for Invoices (bills & invoices)"
           @update:model-value="(v) => { invoiceAccountId = v ? String(v) : '' }"
         />
         <Select
           :model-value="refundAccountId"
           :options="accountOptions"
-          placeholder="Refund account"
+          placeholder="Distribution for Refunds (credit notes)"
           @update:model-value="(v) => { refundAccountId = v ? String(v) : '' }"
         />
         <Select
