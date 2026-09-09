@@ -18,7 +18,7 @@ import {
 } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
-import { priceForVendor } from '@/utils/vendorPrice'
+import { priceForVendor, vendorPriceSource } from '@/utils/vendorPrice'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
   Button,
@@ -224,6 +224,18 @@ function onProductSelect(index: number, productId: number | null) {
 
 function onQuantityChange(index: number) {
   resolveLineVendorPrice(index)
+}
+
+function linePriceHint(index: number): string {
+  const item = form.items?.[index]
+  if (!item?.product_id || !products.value) return ''
+  const product = products.value.find(p => Number(p.id) === item.product_id)
+  if (!product) return ''
+  const source = vendorPriceSource(product, contactId.value ? Number(contactId.value) : null, Number(item.quantity) || 1)
+  if (source === 'pricelist') return 'Vendor pricelist'
+  if (source === 'purchase_price') return 'Product purchase price'
+  if (source === 'selling_price') return 'Product selling price'
+  return ''
 }
 
 watch(contactId, (newId, oldId) => {
@@ -448,14 +460,16 @@ const contactOptions = computed(() => {
                   <select
                     :value="field.value.product_id ?? ''"
                     :data-testid="`po-item-${index}-product`"
+                    :disabled="!contactId"
+                    :title="contactId ? undefined : 'Select a vendor first to use the vendor pricelist'"
                     @change="(e) => {
                       const val = (e.target as HTMLSelectElement).value
                       field.value.product_id = val ? Number(val) : null
                       onProductSelect(index, field.value.product_id)
                     }"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent disabled:opacity-60"
                   >
-                    <option value="">Custom</option>
+                    <option value="">Select product…</option>
                     <option
                       v-for="opt in products"
                       :key="opt.id"
@@ -464,6 +478,9 @@ const contactOptions = computed(() => {
                       {{ opt.sku }} - {{ opt.name }}
                     </option>
                   </select>
+                  <p v-if="!contactId && index === 0" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                    Select a vendor first for pricelist prices. Custom description-only lines stay available.
+                  </p>
                 </td>
                 <td class="px-3 py-2">
                   <input
@@ -501,6 +518,13 @@ const contactOptions = computed(() => {
                     :min="0"
                     :data-testid="`po-item-${index}-price`"
                   />
+                  <p
+                    v-if="linePriceHint(index)"
+                    class="mt-1 text-xs text-slate-500 dark:text-slate-400"
+                    :data-testid="`po-item-${index}-price-source`"
+                  >
+                    {{ linePriceHint(index) }}
+                  </p>
                 </td>
                 <td class="px-3 py-2">
                   <input
