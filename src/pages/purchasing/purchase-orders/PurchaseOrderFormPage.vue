@@ -19,7 +19,7 @@ import {
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
 import { api } from '@/api/client'
-import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint, purchaseOrderPriceHintFromQuote, type VendorPriceQuote } from './poLineDefaults'
+import { applyPurchaseOrderProductDefaults, applyQuotedUnitPrice, isCurrentVendorQuoteRequest, purchaseOrderPriceHint, purchaseOrderPriceHintFromQuote, type VendorPriceQuote } from './poLineDefaults'
 import type { Product } from '@/api/useProducts'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
@@ -200,26 +200,43 @@ function addItem() {
 }
 
 function handleRemoveItem(index: number) {
-  if (itemFields.value.length > 1) {
-    removeItem(index)
+  if (itemFields.value.length <= 1) {
+    return
   }
+  const nextQuotes = { ...lineQuotes.value }
+  delete nextQuotes[lineKey(index)]
+  removeItem(index)
+  lineQuotes.value = nextQuotes
 }
 
 function vendorId(): number | null {
   return contactId.value ? Number(contactId.value) : null
 }
 
-const lineQuotes = ref<Record<number, VendorPriceQuote>>({})
+const lineQuotes = ref<Record<string, VendorPriceQuote>>({})
+
+function lineKey(index: number): string {
+  return String(itemFields.value[index]?.key ?? index)
+}
+
+function setLineQuote(index: number, quote: VendorPriceQuote | undefined): void {
+  const key = lineKey(index)
+  const next = { ...lineQuotes.value }
+  if (quote) {
+    next[key] = quote
+  } else {
+    delete next[key]
+  }
+  lineQuotes.value = next
+}
 
 function applyProductToLine(index: number, product: Product, quote?: VendorPriceQuote): void {
   const current = form.items?.[index]
   if (!current) return
   const next = { ...current }
   applyPurchaseOrderProductDefaults(next, product, vendorId())
-  if (quote) {
-    next.unit_price = quote.price
-    lineQuotes.value = { ...lineQuotes.value, [index]: quote }
-  }
+  applyQuotedUnitPrice(next, quote)
+  setLineQuote(index, quote)
   void setFieldValue(`items[${index}]`, next)
 }
 
@@ -250,17 +267,26 @@ async function quoteVendorPrice(productId: number, qty: number): Promise<VendorP
 async function resolveLineVendorPrice(index: number): Promise<void> {
   const item = form.items?.[index]
   if (!item?.product_id) return
-  const product = await resolveProduct(item.product_id)
+  const requested = {
+    productId: Number(item.product_id),
+    qty: Number(item.quantity) || 1,
+    vendorId: vendorId(),
+  }
+  const [product, quote] = await Promise.all([
+    resolveProduct(requested.productId),
+    quoteVendorPrice(requested.productId, requested.qty),
+  ])
+  const live = form.items?.[index]
+  if (!live || !isCurrentVendorQuoteRequest(live, vendorId(), requested)) {
+    return
+  }
   if (!product) return
-  const quote = await quoteVendorPrice(item.product_id, Number(item.quantity) || 1)
   applyProductToLine(index, product, quote)
 }
 
 async function onProductSelect(index: number, productId: number | null): Promise<void> {
   if (!productId) {
-    const nextQuotes = { ...lineQuotes.value }
-    delete nextQuotes[index]
-    lineQuotes.value = nextQuotes
+    setLineQuote(index, undefined)
     void setFieldValue(`items[${index}].product_id`, null)
     return
   }
@@ -278,7 +304,7 @@ function onQuantityChange(index: number) {
 }
 
 function linePriceHint(index: number): string {
-  const quote = lineQuotes.value[index]
+  const quote = lineQuotes.value[lineKey(index)]
   if (quote) {
     return purchaseOrderPriceHintFromQuote(quote)
   }

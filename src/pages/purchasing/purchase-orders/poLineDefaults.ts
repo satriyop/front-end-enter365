@@ -60,3 +60,19 @@ export function purchaseOrderPriceHint(
     price: priceForVendor(product, vendorId, qty),
   })
 }
+
+export function applyQuotedUnitPrice(item: PurchaseLineDraft, quote?: VendorPriceQuote | null): void {
+  if (quote) {
+    item.unit_price = quote.price
+  }
+}
+
+export function isCurrentVendorQuoteRequest(
+  item: { product_id: number | null; quantity?: number },
+  vendorId: number | null,
+  requested: { productId: number; qty: number; vendorId: number | null },
+): boolean {
+  return Number(item.product_id) === requested.productId
+    && (Number(item.quantity) || 1) === requested.qty
+    && vendorId === requested.vendorId
+}
