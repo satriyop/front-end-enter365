@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { priceForVendor } from '../vendorPrice'
+import { priceForVendor, vendorPriceSource } from '../vendorPrice'
 
 const product = {
   purchase_price: 80_000,
@@ -20,5 +20,11 @@ describe('priceForVendor', () => {
   it('falls back to purchase_price when vendor or qty does not match', () => {
     expect(priceForVendor(product, 9, 10)).toBe(80_000)
     expect(priceForVendor(product, null, 10)).toBe(80_000)
+  })
+
+  it('labels pricelist vs purchase-price fallback (#128)', () => {
+    expect(vendorPriceSource(product, 7, 1)).toBe('pricelist')
+    expect(vendorPriceSource(product, 9, 10)).toBe('purchase_price')
+    expect(vendorPriceSource(product, null, 10)).toBe('purchase_price')
   })
 })
