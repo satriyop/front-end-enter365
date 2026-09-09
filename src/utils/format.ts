@@ -92,11 +92,32 @@ export function formatPercent(value: NumericValue, decimals: number = 1): string
 }
 
 /**
+ * Parse a calendar date without UTC off-by-one.
+ *
+ * `new Date('2026-01-01')` is UTC midnight. In timezones west of UTC that
+ * becomes 31 Dec locally, so fiscal-period lists showed 31 Des–30 Des while
+ * `<input type="date">` (YYYY-MM-DD) still showed 01/01–12/31.
+ */
+export function parseCalendarDate(date: string | Date): Date {
+  if (date instanceof Date) {
+    return date
+  }
+
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim())
+  if (dateOnly) {
+    return new Date(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]))
+  }
+
+  return new Date(date)
+}
+
+/**
  * Format date in Indonesian format (27 Des 2024)
  */
 export function formatDate(date: string | Date | null | undefined): string {
   if (!date) return '-'
-  const d = new Date(date)
+  const d = parseCalendarDate(date)
+  if (Number.isNaN(d.getTime())) return '-'
   return new Intl.DateTimeFormat('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -156,7 +177,7 @@ export function toLocalISODate(date: Date = new Date()): string {
  * Calculate days remaining until date
  */
 export function daysRemaining(dueDate: string | Date): { days: number; isOverdue: boolean } {
-  const due = new Date(dueDate)
+  const due = parseCalendarDate(dueDate)
   const now = new Date()
   const diffMs = due.getTime() - now.getTime()
   const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
