@@ -12,14 +12,15 @@ function item(name: string) {
 describe('navigation permission keys', () => {
   it('uses seeder names for journals and reports', () => {
     expect(item('Journal Entries').permission).toBe('journals.view')
-    expect(item('Reports').permission).toBe('reports.financial')
+    expect(item('Laporan').permission).toBe('reports.financial')
   })
 
   it('puts Laporan under Accounting, not Finance (#129)', () => {
     const accounting = navigation.find((group) => group.label === 'Accounting')
     const finance = navigation.find((group) => group.label === 'Finance')
-    expect(accounting?.items.map((row) => row.name)).toContain('Reports')
-    expect(accounting?.items.find((row) => row.name === 'Reports')?.path).toBe('/reports')
+    expect(accounting?.items.map((row) => row.name)).toContain('Laporan')
+    expect(accounting?.items.find((row) => row.name === 'Laporan')?.path).toBe('/reports')
+    expect(finance?.items.map((row) => row.name)).not.toContain('Laporan')
     expect(finance?.items.map((row) => row.name)).not.toContain('Reports')
   })
 
