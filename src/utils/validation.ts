@@ -981,7 +981,7 @@ export type ProjectRevenueFormData = z.infer<typeof projectRevenueSchema>
  */
 export const materialRequisitionItemSchema = z.object({
   work_order_item_id: z.number().optional().nullable(),
-  product_id: z.number().optional().nullable(),
+  product_id: z.number({ required_error: 'Please select a product' }).positive('Please select a product'),
   description: z.string().default(''),
   quantity_requested: z.number().min(1, 'Quantity must be at least 1').default(1),
   unit: z.string().default('unit'),

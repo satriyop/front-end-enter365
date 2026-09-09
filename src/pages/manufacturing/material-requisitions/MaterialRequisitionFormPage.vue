@@ -10,7 +10,9 @@ import {
 } from '@/api/useMaterialRequisitions'
 import { useWorkOrdersLookup } from '@/api/useWorkOrders'
 import { useWarehousesLookup } from '@/api/useInventory'
+import { useProductsLookup } from '@/api/useProducts'
 import { materialRequisitionSchema, type MaterialRequisitionFormData, type MaterialRequisitionItemFormData } from '@/utils/validation'
+import { applyMaterialRequisitionProductDefaults } from './materialRequisitionLineDefaults'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { Button, Input, FormField, Textarea, Select, Card, useToast } from '@/components/ui'
 
@@ -46,10 +48,18 @@ const warehouseOptions = computed(() =>
   }))
 )
 
+const { data: products } = useProductsLookup()
+const productOptions = computed(() =>
+  (products.value ?? []).map(product => ({
+    value: product.id,
+    label: `${product.sku} - ${product.name}`,
+  }))
+)
+
 function createEmptyItem(): MaterialRequisitionItemFormData {
   return {
     work_order_item_id: null,
-    product_id: null,
+    product_id: undefined as unknown as number,
     description: '',
     quantity_requested: 1,
     unit: 'unit',
@@ -98,7 +108,7 @@ watch(existingRequisition, (requisition) => {
       items: requisition.items && requisition.items.length > 0
         ? requisition.items.map(item => ({
             work_order_item_id: item.work_order_item_id ? Number(item.work_order_item_id) : null,
-            product_id: item.product_id ? Number(item.product_id) : null,
+            product_id: item.product_id ? Number(item.product_id) : (undefined as unknown as number),
             description: item.product?.name || '',
             quantity_requested: Number(item.quantity_requested),
             unit: item.unit || 'unit',
@@ -120,6 +130,16 @@ function handleRemoveItem(index: number) {
   }
 }
 
+function onProductSelect(index: number, productId: number | null) {
+  const item = form.items?.[index]
+  if (!item) return
+  item.product_id = productId
+  if (!productId || !products.value) return
+  const product = products.value.find((row) => Number(row.id) === productId)
+  if (!product) return
+  applyMaterialRequisitionProductDefaults(item, product)
+}
+
 // Total calculation
 const totalQuantity = computed(() =>
   (form.items || []).reduce((sum, item) => sum + (item.quantity_requested || 0), 0)
@@ -132,11 +152,12 @@ const isSubmitting = computed(() => createMutation.isPending.value || updateMuta
 
 const onSubmit = handleSubmit(async (formValues) => {
   const itemsPayload = (formValues.items || [])
-    .filter(item => item.description || item.product_id || item.work_order_item_id)
+    .filter(item => item.product_id)
     .map(item => ({
       work_order_item_id: item.work_order_item_id || undefined,
       product_id: item.product_id || undefined,
       quantity_requested: item.quantity_requested,
+      unit: item.unit || undefined,
       notes: item.notes || undefined,
     }))
 
@@ -227,8 +248,14 @@ const onSubmit = handleSubmit(async (formValues) => {
         <div class="space-y-4">
           <div v-for="(field, index) in itemFields" :key="field.key" class="grid grid-cols-12 gap-2 items-end">
             <div class="col-span-5">
-              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Description</label>
-              <Input v-model="field.value.description" placeholder="Material description" />
+              <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Product</label>
+              <Select
+                v-model="field.value.product_id"
+                :options="productOptions"
+                placeholder="Select product"
+                :test-id="`mr-item-${index}-product`"
+                @update:model-value="(value) => onProductSelect(index, value ? Number(value) : null)"
+              />
             </div>
             <div class="col-span-2">
               <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Quantity</label>
