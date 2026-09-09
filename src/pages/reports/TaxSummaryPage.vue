@@ -49,7 +49,7 @@ function getNetClass(net: number): string {
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
       <div>
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Tax Summary</h1>
-        <p class="text-slate-500 dark:text-slate-400">Ringkasan Pajak - Taxes collected and paid</p>
+        <p class="text-slate-500 dark:text-slate-400">Ringkasan Pajak - Taxes collected and paid. Monthly totals include journal tax-grid adjustments.</p>
       </div>
       <Button variant="ghost" @click="router.push('/reports')">Back to Reports</Button>
     </div>

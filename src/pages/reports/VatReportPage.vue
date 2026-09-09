@@ -206,6 +206,42 @@ function formatAmount(amount: number): string {
           </div>
         </div>
       </Card>
+
+      <Card v-if="(summaryReport.details?.journal_grids ?? []).length > 0">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1">Tax Grids</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">
+          Journal item tax tags (misc, reversals). Credit notes reduce the original side.
+        </p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead class="bg-slate-50 dark:bg-slate-800">
+              <tr>
+                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Date</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Entry</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Tag</th>
+                <th class="text-left px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Side</th>
+                <th class="text-right px-4 py-3 font-medium text-slate-700 dark:text-slate-300">Amount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 dark:divide-slate-700">
+              <tr
+                v-for="(grid, index) in summaryReport.details.journal_grids"
+                :key="`${grid.entry_number}-${grid.tag_code}-${index}`"
+              >
+                <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ grid.date }}</td>
+                <td class="px-4 py-3 font-mono text-slate-700 dark:text-slate-300">{{ grid.entry_number }}</td>
+                <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ grid.tag_code }}</td>
+                <td class="px-4 py-3 capitalize" :class="grid.side === 'output' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'">
+                  {{ grid.side }}
+                </td>
+                <td class="text-right px-4 py-3 font-mono" :class="grid.amount < 0 ? 'text-slate-500' : ''">
+                  {{ formatAmount(grid.amount) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </Card>
     </div>
 
     <!-- Monthly View -->
