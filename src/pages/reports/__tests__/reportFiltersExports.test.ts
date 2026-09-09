@@ -39,6 +39,15 @@ describe('report filters and exports (#37 / #99)', () => {
     expect(pageSource('IncomeStatementPage.vue')).toContain('Posted Entries')
   })
 
+  it('exports general ledger without requiring a single account_id (#109)', () => {
+    const page = pageSource('GeneralLedgerPage.vue')
+    const exports = readFileSync(resolve(__dirname, '../../../api/useExports.ts'), 'utf8')
+    expect(page).toContain('useExportGeneralLedger')
+    expect(page).toContain('analytic_account_id: analyticAccountId.value')
+    expect(page).not.toContain('account_id: accountId')
+    expect(exports).toContain('/export/general-ledger')
+  })
+
   it('offers pdf and xlsx export on core financial reports', () => {
     expect(pageSource('CashFlowPage.vue')).not.toContain('show-format-options="false"')
     expect(pageSource('BalanceSheetPage.vue')).not.toContain('show-format-options="false"')
