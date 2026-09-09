@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm, useFieldArray } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -19,7 +19,7 @@ import {
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
 import { api } from '@/api/client'
-import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint } from './poLineDefaults'
+import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint, purchaseOrderPriceHintFromQuote, type VendorPriceQuote } from './poLineDefaults'
 import type { Product } from '@/api/useProducts'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
@@ -209,11 +209,17 @@ function vendorId(): number | null {
   return contactId.value ? Number(contactId.value) : null
 }
 
-function applyProductToLine(index: number, product: Product): void {
+const lineQuotes = ref<Record<number, VendorPriceQuote>>({})
+
+function applyProductToLine(index: number, product: Product, quote?: VendorPriceQuote): void {
   const current = form.items?.[index]
   if (!current) return
   const next = { ...current }
   applyPurchaseOrderProductDefaults(next, product, vendorId())
+  if (quote) {
+    next.unit_price = quote.price
+    lineQuotes.value = { ...lineQuotes.value, [index]: quote }
+  }
   void setFieldValue(`items[${index}]`, next)
 }
 
@@ -227,16 +233,34 @@ async function resolveProduct(productId: number): Promise<Product | undefined> {
   }
 }
 
+async function quoteVendorPrice(productId: number, qty: number): Promise<VendorPriceQuote | undefined> {
+  try {
+    const response = await api.get<{ data: VendorPriceQuote }>(`/products/${productId}/price-for-vendor`, {
+      params: {
+        contact_id: vendorId() ?? undefined,
+        quantity: qty,
+      },
+    })
+    return response.data.data
+  } catch {
+    return undefined
+  }
+}
+
 async function resolveLineVendorPrice(index: number): Promise<void> {
   const item = form.items?.[index]
   if (!item?.product_id) return
   const product = await resolveProduct(item.product_id)
   if (!product) return
-  applyProductToLine(index, product)
+  const quote = await quoteVendorPrice(item.product_id, Number(item.quantity) || 1)
+  applyProductToLine(index, product, quote)
 }
 
 async function onProductSelect(index: number, productId: number | null): Promise<void> {
   if (!productId) {
+    const nextQuotes = { ...lineQuotes.value }
+    delete nextQuotes[index]
+    lineQuotes.value = nextQuotes
     void setFieldValue(`items[${index}].product_id`, null)
     return
   }
@@ -246,10 +270,7 @@ async function onProductSelect(index: number, productId: number | null): Promise
   } else {
     void setFieldValue(`items[${index}].product_id`, productId)
   }
-  const detailed = await resolveProduct(productId)
-  if (detailed) {
-    applyProductToLine(index, detailed)
-  }
+  await resolveLineVendorPrice(index)
 }
 
 function onQuantityChange(index: number) {
@@ -257,6 +278,10 @@ function onQuantityChange(index: number) {
 }
 
 function linePriceHint(index: number): string {
+  const quote = lineQuotes.value[index]
+  if (quote) {
+    return purchaseOrderPriceHintFromQuote(quote)
+  }
   const item = form.items?.[index]
   if (!item?.product_id || !products.value) return ''
   const product = products.value.find(p => Number(p.id) === item.product_id)

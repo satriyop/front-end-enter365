@@ -32,21 +32,31 @@ export function applyPurchaseOrderProductDefaults(
   item.unit_price = priceForVendor(product, vendorId, qty)
 }
 
+export type VendorPriceQuote = {
+  price: number
+  source: 'pricelist' | 'purchase_price' | 'selling_price' | 'none'
+}
+
+export function purchaseOrderPriceHintFromQuote(quote: VendorPriceQuote): string {
+  if (quote.source === 'pricelist') {
+    return `Vendor pricelist · ${quote.price}`
+  }
+  if (quote.source === 'purchase_price') {
+    return `Product purchase price · ${quote.price}`
+  }
+  if (quote.source === 'selling_price') {
+    return `Product selling price · ${quote.price}`
+  }
+  return ''
+}
+
 export function purchaseOrderPriceHint(
   product: PurchaseProductLike,
   vendorId: number | null,
   qty: number,
 ): string {
-  const source = vendorPriceSource(product, vendorId, qty)
-  const price = priceForVendor(product, vendorId, qty)
-  if (source === 'pricelist') {
-    return `Vendor pricelist · ${price}`
-  }
-  if (source === 'purchase_price') {
-    return `Product purchase price · ${price}`
-  }
-  if (source === 'selling_price') {
-    return `Product selling price · ${price}`
-  }
-  return ''
+  return purchaseOrderPriceHintFromQuote({
+    source: vendorPriceSource(product, vendorId, qty),
+    price: priceForVendor(product, vendorId, qty),
+  })
 }

@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint } from '../poLineDefaults'
+import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint, purchaseOrderPriceHintFromQuote } from '../poLineDefaults'
 
 describe('PO vendor pricelist (#128)', () => {
   it('fills unit price from the vendor pricelist, else purchase price', () => {
@@ -44,6 +44,11 @@ describe('PO vendor pricelist (#128)', () => {
     expect(form).toContain('po-item-${index}-price-source')
     expect(form).toContain("setFieldValue(`items[${index}]`")
     expect(form).toContain('po-price-${index}-${field.value.product_id}')
+    expect(form).toContain('/price-for-vendor')
     expect(form).not.toMatch(/<option value="">Custom<\/option>/)
+  })
+
+  it('labels a server quote as vendor pricelist', () => {
+    expect(purchaseOrderPriceHintFromQuote({ price: 2432, source: 'pricelist' })).toBe('Vendor pricelist · 2432')
   })
 })
