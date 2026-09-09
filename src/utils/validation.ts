@@ -297,10 +297,14 @@ export const quotationSchema = z.object({
  * Invoice item schema
  */
 export const invoiceItemSchema = z.object({
+  product_id: z.number().optional().nullable(),
   description: requiredString('Description').max(500),
   quantity: quantitySchema.default(1),
   unit: z.string().max(20).default('pcs'),
   unit_price: unitPriceSchema.default(0),
+  tax_rate: percentageSchema.default(11),
+  tax_record_ids: z.array(z.number()).optional().default([]),
+  taxes_manual: z.boolean().optional().default(false),
   revenue_account_id: z.number().optional().nullable(),
 })
 
