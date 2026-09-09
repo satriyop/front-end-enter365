@@ -242,6 +242,16 @@ export interface PpnSummaryReport {
       tax_rate: number
       tax: number
     }>
+    journal_grids?: Array<{
+      date: string
+      entry_number: string
+      source_type: string | null
+      description: string
+      tag_code: string
+      applicability: string
+      side: 'input' | 'output' | string
+      amount: number
+    }>
     bills: Array<{
       date: string
       number: string

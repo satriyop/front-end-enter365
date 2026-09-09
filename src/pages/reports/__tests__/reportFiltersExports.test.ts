@@ -39,6 +39,16 @@ describe('report filters and exports (#37 / #99)', () => {
     expect(pageSource('IncomeStatementPage.vue')).toContain('Posted Entries')
   })
 
+  it('renders VAT journal_grids on the period summary (#104)', () => {
+    const page = pageSource('VatReportPage.vue')
+    const summary = pageSource('TaxSummaryPage.vue')
+    const reports = readFileSync(resolve(__dirname, '../../../api/useReports.ts'), 'utf8')
+    expect(reports).toContain('journal_grids')
+    expect(page).toContain('journal_grids')
+    expect(page).toContain('Tax Grids')
+    expect(summary).toContain('journal tax-grid')
+  })
+
   it('exports general ledger without requiring a single account_id (#109)', () => {
     const page = pageSource('GeneralLedgerPage.vue')
     const exports = readFileSync(resolve(__dirname, '../../../api/useExports.ts'), 'utf8')
