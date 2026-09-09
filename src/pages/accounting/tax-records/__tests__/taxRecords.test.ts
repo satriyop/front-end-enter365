@@ -14,6 +14,8 @@ describe('tax records admin (#100)', () => {
     expect(list).toContain('New Tax')
     expect(form).toContain('invoice_account_id')
     expect(form).toContain('refund_account_id')
+    expect(form).toContain('Distribution for Invoices')
+    expect(form).toContain('Distribution for Refunds')
     expect(form).toContain('tax_tag_id')
     expect(form).toContain('computation')
     expect(form).toContain('is_active')
