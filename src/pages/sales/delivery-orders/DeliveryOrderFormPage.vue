@@ -11,7 +11,9 @@ import {
 } from '@/api/useDeliveryOrders'
 import { useContactsLookup } from '@/api/useContacts'
 import { useWarehousesLookup } from '@/api/useInventory'
+import { useProductsLookup } from '@/api/useProducts'
 import { deliveryOrderSchema, type DeliveryOrderFormData, type DeliveryOrderItemFormData } from '@/utils/validation'
+import { applyDeliveryProductDefaults } from './deliveryOrderLineDefaults'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import {
   Button,
@@ -44,9 +46,11 @@ const { data: existingDO, isLoading: loadingDO } = useDeliveryOrder(doIdRef)
 // Lookups
 const { data: contacts, isLoading: loadingContacts } = useContactsLookup('customer')
 const { data: warehouses, isLoading: loadingWarehouses } = useWarehousesLookup()
+const { data: products } = useProductsLookup()
 
 function createEmptyItem(): DeliveryOrderItemFormData {
   return {
+    product_id: null,
     description: '',
     quantity: 1,
     unit: 'pcs',
@@ -98,7 +102,7 @@ watch(existingDO, (dorder) => {
       notes: dorder.notes ?? '',
       items: dorder.items && dorder.items.length > 0
         ? dorder.items.map(item => ({
-            product_id: item.product_id || undefined,
+            product_id: item.product_id ? Number(item.product_id) : null,
             description: item.description || '',
             quantity: item.quantity,
             unit: item.unit || 'pcs',
@@ -120,6 +124,16 @@ function handleRemoveItem(index: number) {
   }
 }
 
+function onProductSelect(index: number, productId: number | null) {
+  const item = itemFields.value[index]?.value
+  if (!item) return
+  item.product_id = productId
+  if (!productId || !products.value) return
+  const product = products.value.find((row) => Number(row.id) === productId)
+  if (!product) return
+  applyDeliveryProductDefaults(item, product)
+}
+
 // Form submission
 const createMutation = useCreateDeliveryOrder()
 const updateMutation = useUpdateDeliveryOrder()
@@ -130,7 +144,7 @@ const isSubmitting = computed(() =>
 
 const onSubmit = handleSubmit(async (formValues) => {
   const itemsPayload: CreateDeliveryOrderItem[] = (formValues.items || [])
-    .filter(item => item.description)
+    .filter(item => item.description || item.product_id)
     .map(item => ({
       product_id: item.product_id || undefined,
       description: item.description,
@@ -186,6 +200,13 @@ const warehouseOptions = computed(() => {
     })),
   ]
 })
+
+const productOptions = computed(() =>
+  (products.value ?? []).map((product) => ({
+    value: product.id,
+    label: `${product.sku} - ${product.name}`,
+  })),
+)
 </script>
 
 <template>
@@ -288,6 +309,7 @@ const warehouseOptions = computed(() => {
           <table class="w-full text-sm">
             <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               <tr>
+                <th class="px-3 py-2 text-left w-56">Product</th>
                 <th class="px-3 py-2 text-left">Description</th>
                 <th class="px-3 py-2 text-right w-24">Qty</th>
                 <th class="px-3 py-2 text-left w-20">Unit</th>
@@ -296,6 +318,15 @@ const warehouseOptions = computed(() => {
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
               <tr v-for="(field, index) in itemFields" :key="field.key" class="align-top">
+                <td class="px-3 py-2">
+                  <Select
+                    v-model="field.value.product_id"
+                    :options="productOptions"
+                    placeholder="Select product…"
+                    :test-id="`do-item-${index}-product`"
+                    @update:model-value="(value) => onProductSelect(index, value ? Number(value) : null)"
+                  />
+                </td>
                 <td class="px-3 py-2">
                   <input
                     v-model="field.value.description"
