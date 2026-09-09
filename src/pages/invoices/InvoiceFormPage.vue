@@ -10,9 +10,13 @@ import {
   type CreateInvoiceItem
 } from '@/api/useInvoices'
 import { useContactsLookup } from '@/api/useContacts'
+import { useProductsLookup } from '@/api/useProducts'
+import { useAccountsLookup } from '@/api/useAccounts'
+import { useTaxRecords } from '@/api/useTaxRecords'
 import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, toNumber, CURRENCY_OPTIONS } from '@/utils/format'
+import { applyInvoiceProductDefaults, toggleInvoiceLineTax } from './invoiceLineDefaults'
 import {
   Button,
   Input,
@@ -44,13 +48,21 @@ const { data: existingInvoice, isLoading: loadingInvoice } = useInvoice(invoiceI
 
 // Lookups
 const { data: contacts, isLoading: loadingContacts } = useContactsLookup('customer')
+const { data: products } = useProductsLookup()
+const { data: accounts, isLoading: accountsLoading } = useAccountsLookup('revenue')
+const { data: salesTaxRecords } = useTaxRecords('sales')
 
 function createEmptyItem(): InvoiceItemFormData {
   return {
+    product_id: null,
     description: '',
     quantity: 1,
     unit: 'pcs',
     unit_price: 0,
+    tax_rate: 11,
+    tax_record_ids: [],
+    taxes_manual: false,
+    revenue_account_id: null,
   }
 }
 
@@ -117,10 +129,15 @@ watch(existingInvoice, (invoice) => {
       discount_amount: toNumber(invoice.discount_amount),
       items: invoice.items && invoice.items.length > 0
         ? invoice.items.map(item => ({
+            product_id: item.product_id ? Number(item.product_id) : null,
             description: item.description,
             quantity: item.quantity,
             unit: item.unit,
             unit_price: toNumber(item.unit_price),
+            tax_rate: toNumber(item.tax_rate) || 11,
+            tax_record_ids: [],
+            taxes_manual: false,
+            revenue_account_id: item.revenue_account_id ? Number(item.revenue_account_id) : null,
           }))
         : [createEmptyItem()],
     })
@@ -138,9 +155,37 @@ const subtotal = computed(() => {
 
 const afterDiscount = computed(() => subtotal.value - (form.discount_amount || 0))
 
-const taxAmount = computed(() => afterDiscount.value * ((form.tax_rate || 0) / 100))
+const hasLineTax = computed(() =>
+  (form.items || []).some(item => (item.tax_rate || 0) > 0 || (item.tax_record_ids?.length ?? 0) > 0)
+)
+
+const taxAmount = computed(() => {
+  if (hasLineTax.value) {
+    return (form.items || []).reduce((sum, item) => {
+      const lineTotal = (item.quantity || 0) * (item.unit_price || 0)
+      return sum + (lineTotal * (item.tax_rate || 0) / 100)
+    }, 0)
+  }
+  return afterDiscount.value * ((form.tax_rate || 0) / 100)
+})
 
 const grandTotal = computed(() => afterDiscount.value + taxAmount.value)
+
+function onProductSelect(index: number, productId: number | null) {
+  const item = form.items?.[index]
+  if (!item) return
+  item.product_id = productId
+  if (!productId || !products.value) return
+  const product = products.value.find((row) => Number(row.id) === productId)
+  if (!product) return
+  applyInvoiceProductDefaults(item, product)
+}
+
+function toggleLineTax(index: number, taxId: number) {
+  const item = form.items?.[index]
+  if (!item) return
+  toggleInvoiceLineTax(item, taxId, salesTaxRecords.value)
+}
 
 // Item management
 function addItem() {
@@ -165,10 +210,13 @@ const onSubmit = handleSubmit(async (formValues) => {
   const itemsPayload: CreateInvoiceItem[] = (formValues.items || [])
     .filter(item => item.description)
     .map(item => ({
+      product_id: item.product_id || undefined,
       description: item.description,
       quantity: item.quantity,
       unit: item.unit,
       unit_price: item.unit_price,
+      tax_rate: item.tax_rate,
+      revenue_account_id: item.revenue_account_id || undefined,
     }))
 
   const payload = {
@@ -220,6 +268,20 @@ const contactOptions = computed(() => {
     label: c.name || `Contact #${c.id}`,
   }))
 })
+
+const productOptions = computed(() =>
+  (products.value ?? []).map((product) => ({
+    value: product.id,
+    label: `${product.sku} - ${product.name}`,
+  })),
+)
+
+const accountOptions = computed(() =>
+  (accounts.value ?? []).map((account) => ({
+    value: account.id,
+    label: `${account.code} - ${account.name}`,
+  })),
+)
 </script>
 
 <template>
@@ -325,6 +387,7 @@ const contactOptions = computed(() => {
           <table class="w-full text-sm">
             <thead class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
               <tr>
+                <th class="px-3 py-2 text-left w-48">Product</th>
                 <th class="px-3 py-2 text-left">Description</th>
                 <th class="px-3 py-2 text-right w-24">Qty</th>
                 <th class="px-3 py-2 text-left w-20">Unit</th>
@@ -334,59 +397,105 @@ const contactOptions = computed(() => {
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
-              <tr v-for="(field, index) in itemFields" :key="field.key" class="align-top">
-                <td class="px-3 py-2">
-                  <input
-                    v-model="field.value.description"
-                    :data-testid="`invoice-item-${index}-description`"
-                    type="text"
-                    placeholder="Item description"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </td>
-                <td class="px-3 py-2">
-                  <input
-                    v-model.number="field.value.quantity"
-                    :data-testid="`invoice-item-${index}-quantity`"
-                    type="number"
-                    min="1"
-                    step="any"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </td>
-                <td class="px-3 py-2">
-                  <input
-                    v-model="field.value.unit"
-                    :data-testid="`invoice-item-${index}-unit`"
-                    type="text"
-                    placeholder="pcs"
-                    class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </td>
-                <td class="px-3 py-2">
-                  <CurrencyInput
-                    v-model="field.value.unit_price"
-                    :data-testid="`invoice-item-${index}-price`"
-                    size="sm"
-                    :min="0"
-                  />
-                </td>
-                <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
-                  {{ formatCurrency(calculateItemTotal(field.value)) }}
-                </td>
-                <td class="px-3 py-2">
-                  <button
-                    type="button"
-                    @click="handleRemoveItem(index)"
-                    :disabled="itemFields.length === 1"
-                    class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
+              <template v-for="(field, index) in itemFields" :key="field.key">
+                <tr class="align-top">
+                  <td class="px-3 py-2">
+                    <Select
+                      v-model="field.value.product_id"
+                      :options="productOptions"
+                      placeholder="Select product…"
+                      :test-id="`invoice-item-${index}-product`"
+                      @update:model-value="(value) => onProductSelect(index, value ? Number(value) : null)"
+                    />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input
+                      v-model="field.value.description"
+                      :data-testid="`invoice-item-${index}-description`"
+                      type="text"
+                      placeholder="Item description"
+                      class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input
+                      v-model.number="field.value.quantity"
+                      :data-testid="`invoice-item-${index}-quantity`"
+                      type="number"
+                      min="1"
+                      step="any"
+                      class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </td>
+                  <td class="px-3 py-2">
+                    <input
+                      v-model="field.value.unit"
+                      :data-testid="`invoice-item-${index}-unit`"
+                      type="text"
+                      placeholder="pcs"
+                      class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </td>
+                  <td class="px-3 py-2">
+                    <CurrencyInput
+                      v-model="field.value.unit_price"
+                      :data-testid="`invoice-item-${index}-price`"
+                      size="sm"
+                      :min="0"
+                    />
+                  </td>
+                  <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
+                    {{ formatCurrency(calculateItemTotal(field.value)) }}
+                  </td>
+                  <td class="px-3 py-2">
+                    <button
+                      type="button"
+                      @click="handleRemoveItem(index)"
+                      :disabled="itemFields.length === 1"
+                      class="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <td colspan="7" class="px-3 pb-3">
+                    <div class="grid grid-cols-12 gap-2 items-start">
+                      <div class="col-span-8">
+                        <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sales taxes</label>
+                        <div class="flex flex-wrap gap-2 min-h-9 items-center" :data-testid="`invoice-item-${index}-tax-records`">
+                          <label
+                            v-for="tax in salesTaxRecords"
+                            :key="tax.id"
+                            class="flex items-center gap-1 text-xs text-slate-700 dark:text-slate-300"
+                          >
+                            <input
+                              type="checkbox"
+                              class="rounded border-slate-300 dark:border-slate-600"
+                              :checked="(field.value.tax_record_ids ?? []).includes(tax.id)"
+                              @change="toggleLineTax(index, tax.id)"
+                            />
+                            {{ tax.name }} ({{ tax.rate }}%)
+                          </label>
+                          <span v-if="!salesTaxRecords?.length" class="text-xs text-slate-400">No tax records</span>
+                        </div>
+                      </div>
+                      <div class="col-span-4">
+                        <label v-if="index === 0" class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Account</label>
+                        <Select
+                          v-model="field.value.revenue_account_id"
+                          :options="accountOptions"
+                          :loading="accountsLoading"
+                          placeholder="Income account (optional)"
+                          :test-id="`invoice-item-${index}-account`"
+                        />
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>
