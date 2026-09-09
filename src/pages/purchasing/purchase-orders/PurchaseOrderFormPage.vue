@@ -210,25 +210,18 @@ function vendorId(): number | null {
 }
 
 function applyProductToLine(index: number, product: Product): void {
-  const item = form.items?.[index]
-  if (!item) return
-  applyPurchaseOrderProductDefaults(item, product, vendorId())
-  void setFieldValue(`items.${index}.description`, item.description)
-  void setFieldValue(`items.${index}.unit`, item.unit)
-  void setFieldValue(`items.${index}.tax_rate`, item.tax_rate)
-  void setFieldValue(`items.${index}.unit_price`, item.unit_price)
+  const current = form.items?.[index]
+  if (!current) return
+  const next = { ...current }
+  applyPurchaseOrderProductDefaults(next, product, vendorId())
+  void setFieldValue(`items[${index}]`, next)
 }
 
 async function resolveProduct(productId: number): Promise<Product | undefined> {
   const listed = products.value?.find(p => Number(p.id) === productId)
-  if (listed && (listed.vendor_pricelists?.length || listed.purchase_price)) {
-    if (listed.vendor_pricelists?.length) {
-      return listed
-    }
-  }
   try {
     const response = await api.get<{ data: Product }>(`/products/${productId}`)
-    return response.data.data
+    return response.data.data ?? listed
   } catch {
     return listed
   }
@@ -243,13 +236,20 @@ async function resolveLineVendorPrice(index: number): Promise<void> {
 }
 
 async function onProductSelect(index: number, productId: number | null): Promise<void> {
-  const item = form.items?.[index]
-  if (!item) return
-  item.product_id = productId
-  if (!productId) return
-  const product = await resolveProduct(productId)
-  if (!product) return
-  applyProductToLine(index, product)
+  if (!productId) {
+    void setFieldValue(`items[${index}].product_id`, null)
+    return
+  }
+  const listed = products.value?.find(p => Number(p.id) === productId)
+  if (listed) {
+    applyProductToLine(index, listed)
+  } else {
+    void setFieldValue(`items[${index}].product_id`, productId)
+  }
+  const detailed = await resolveProduct(productId)
+  if (detailed) {
+    applyProductToLine(index, detailed)
+  }
 }
 
 function onQuantityChange(index: number) {
@@ -539,10 +539,12 @@ const contactOptions = computed(() => {
                 </td>
                 <td class="px-3 py-2">
                   <CurrencyInput
-                    v-model="field.value.unit_price"
+                    :key="`po-price-${index}-${field.value.product_id}`"
+                    :model-value="field.value.unit_price"
                     size="sm"
                     :min="0"
                     :data-testid="`po-item-${index}-price`"
+                    @update:model-value="(value) => setFieldValue(`items[${index}].unit_price`, Number(value) || 0)"
                   />
                   <p
                     v-if="linePriceHint(index)"

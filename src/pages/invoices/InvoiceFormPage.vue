@@ -86,7 +86,6 @@ const {
     reference: '',
     currency: 'IDR',
     exchange_rate: 1,
-    tax_rate: 11,
     discount_amount: 0,
     items: [createEmptyItem()],
   },
@@ -124,7 +123,6 @@ watch(existingInvoice, (invoice) => {
       reference: invoice.reference ?? '',
       currency: invoice.currency ?? 'IDR',
       exchange_rate: Number(invoice.exchange_rate) || 1,
-      tax_rate: invoice.tax_rate ?? 11,
       discount_amount: toNumber(invoice.discount_amount),
       items: invoice.items && invoice.items.length > 0
         ? invoice.items.map(item => ({
@@ -154,30 +152,30 @@ const subtotal = computed(() => {
 
 const afterDiscount = computed(() => subtotal.value - (form.discount_amount || 0))
 
-const hasLineTax = computed(() =>
-  (form.items || []).some(item => (item.tax_rate || 0) > 0 || (item.tax_record_ids?.length ?? 0) > 0)
-)
-
 const taxAmount = computed(() => {
-  if (hasLineTax.value) {
-    return (form.items || []).reduce((sum, item) => {
-      const lineTotal = (item.quantity || 0) * (item.unit_price || 0)
-      return sum + (lineTotal * (item.tax_rate || 0) / 100)
-    }, 0)
-  }
-  return afterDiscount.value * ((form.tax_rate || 0) / 100)
+  return (form.items || []).reduce((sum, item) => {
+    const lineTotal = (item.quantity || 0) * (item.unit_price || 0)
+    return sum + (lineTotal * (item.tax_rate || 0) / 100)
+  }, 0)
 })
 
 const grandTotal = computed(() => afterDiscount.value + taxAmount.value)
 
 function onProductSelect(index: number, productId: number | null) {
-  const item = form.items?.[index]
-  if (!item) return
-  item.product_id = productId
-  if (!productId || !products.value) return
+  const current = form.items?.[index]
+  if (!current) return
+  if (!productId || !products.value) {
+    void setFieldValue(`items[${index}].product_id`, productId)
+    return
+  }
   const product = products.value.find((row) => Number(row.id) === productId)
-  if (!product) return
-  applyInvoiceProductDefaults(item, product)
+  if (!product) {
+    void setFieldValue(`items[${index}].product_id`, productId)
+    return
+  }
+  const next = { ...current }
+  applyInvoiceProductDefaults(next, product)
+  void setFieldValue(`items[${index}]`, next)
 }
 
 function toggleLineTax(index: number, taxId: number) {
@@ -436,10 +434,12 @@ const accountOptions = computed(() =>
                   </td>
                   <td class="px-3 py-2">
                     <CurrencyInput
-                      v-model="field.value.unit_price"
+                      :key="`invoice-price-${index}-${field.value.product_id}`"
+                      :model-value="field.value.unit_price"
                       :data-testid="`invoice-item-${index}-price`"
                       size="sm"
                       :min="0"
+                      @update:model-value="(value) => setFieldValue(`items[${index}].unit_price`, Number(value) || 0)"
                     />
                   </td>
                   <td class="px-3 py-2 text-right font-medium text-slate-900 dark:text-slate-100">
@@ -522,8 +522,8 @@ const accountOptions = computed(() =>
               </div>
 
               <div class="flex justify-between text-sm">
-                <span class="text-slate-600 dark:text-slate-400">Tax</span>
-                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(taxAmount) }}</span>
+                <span class="text-slate-600 dark:text-slate-400">Tax (from line taxes)</span>
+                <span class="font-medium text-slate-900 dark:text-slate-100" data-testid="invoice-tax-amount">{{ formatCurrency(taxAmount) }}</span>
               </div>
 
               <div class="flex justify-between text-lg font-semibold border-t border-slate-200 dark:border-slate-700 pt-2">
