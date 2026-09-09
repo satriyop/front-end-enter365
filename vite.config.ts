@@ -12,6 +12,7 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
+      filename: 'sw-v2.js',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: false, // Use our custom manifest.json in public/
       workbox: {
