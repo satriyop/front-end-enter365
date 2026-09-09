@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { flattenNav, navItemVisible, navigation, posChrome, POS_NAV_ID } from '../nav'
 
@@ -22,6 +24,15 @@ describe('navigation permission keys', () => {
     expect(accounting?.items[0]?.path).toBe('/reports')
     expect(finance?.items.map((row) => row.name)).not.toContain('Laporan')
     expect(finance?.items.map((row) => row.name)).not.toContain('Reports')
+  })
+
+  it('also pins Laporan in Menu so it is visible without scrolling Accounting (#129)', () => {
+    const menu = navigation.find((group) => group.label === 'Menu')
+    expect(menu?.items.map((row) => row.name)).toContain('Laporan')
+    expect(menu?.items.find((row) => row.name === 'Laporan')?.path).toBe('/reports')
+
+    const sidebar = readFileSync(resolve(__dirname, '../../layouts/AppSidebar.vue'), 'utf8')
+    expect(sidebar).toContain('sidebar-laporan-${group.label.toLowerCase()}')
   })
 
   it('gates Reminders and Overdue on the invoices pack', () => {

@@ -12,14 +12,14 @@ export default defineConfig({
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
-      filename: 'sw-v2.js',
+      filename: 'sw-v3.js',
       includeAssets: ['favicon.ico', 'icons/*.png'],
       manifest: false, // Use our custom manifest.json in public/
       workbox: {
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
-        cacheId: 'e365-spa-20260909-c',
+        cacheId: 'e365-spa-20260909-d',
         // Hashed JS/CSS are precached. Do not SWR them — a waiting SW plus
         // a cached index.html is how kasir/akuntan/gudang kept running old click handlers.
         runtimeCaching: [

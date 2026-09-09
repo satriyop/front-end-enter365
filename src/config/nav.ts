@@ -20,6 +20,7 @@ export const navigation: NavGroup[] = [
     items: [
       { name: 'Dashboard', path: '/', icon: '🏠' },
       { name: 'Kasir', path: '/kasir', icon: '🖥️', permission: 'pos.sale.checkout', feature: 'pos' },
+      { name: 'Laporan', path: '/reports', icon: '📊', permission: 'reports.financial' },
     ],
   },
   {
