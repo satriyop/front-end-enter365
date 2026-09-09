@@ -15,6 +15,7 @@ import {
   formatPercent,
   formatDate,
   formatDateTime,
+  parseCalendarDate,
   formatRelativeTime,
   daysRemaining,
   truncate,
@@ -199,6 +200,22 @@ describe('formatPercent', () => {
   })
 })
 
+describe('parseCalendarDate', () => {
+  it('treats YYYY-MM-DD as a local calendar date, not UTC midnight', () => {
+    const d = parseCalendarDate('2026-01-01')
+    expect(d.getFullYear()).toBe(2026)
+    expect(d.getMonth()).toBe(0)
+    expect(d.getDate()).toBe(1)
+  })
+
+  it('keeps 31 December on 31 December', () => {
+    const d = parseCalendarDate('2026-12-31')
+    expect(d.getFullYear()).toBe(2026)
+    expect(d.getMonth()).toBe(11)
+    expect(d.getDate()).toBe(31)
+  })
+})
+
 describe('formatDate', () => {
   it('returns dash for null', () => {
     expect(formatDate(null)).toBe('-')
@@ -216,6 +233,11 @@ describe('formatDate', () => {
     const result = formatDate('2024-12-27')
     expect(result).toContain('27')
     expect(result).toContain('2024')
+  })
+
+  it('does not shift fiscal year bounds to the previous local day', () => {
+    expect(formatDate('2026-01-01')).toMatch(/1\s+Jan\s+2026/)
+    expect(formatDate('2026-12-31')).toMatch(/31\s+Des\s+2026/)
   })
 
   it('formats Date object', () => {

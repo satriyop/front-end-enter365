@@ -3,6 +3,7 @@ import { computed, type Ref, type ComputedRef } from 'vue'
 import { createCrudHooks } from './factory'
 import { api } from './client'
 import type { components } from './types'
+import { parseCalendarDate, toLocalISODate } from '@/utils/format'
 
 // ============================================
 // Types
@@ -205,9 +206,9 @@ export function getFiscalPeriodStatus(period: FiscalPeriod): {
  * Check if a date falls within a fiscal period
  */
 export function isDateInPeriod(date: string, period: FiscalPeriod): boolean {
-  const d = new Date(date)
-  const start = new Date(period.start_date)
-  const end = new Date(period.end_date)
+  const d = parseCalendarDate(date)
+  const start = parseCalendarDate(period.start_date)
+  const end = parseCalendarDate(period.end_date)
   return d >= start && d <= end
 }
 
@@ -215,7 +216,7 @@ export function isDateInPeriod(date: string, period: FiscalPeriod): boolean {
  * Get current fiscal period from a list
  */
 export function getCurrentPeriod(periods: FiscalPeriod[]): FiscalPeriod | undefined {
-  const today = new Date().toISOString().split('T')[0] ?? ''
+  const today = toLocalISODate()
   return periods.find(p => isDateInPeriod(today, p) && !p.is_closed)
 }
 
@@ -223,8 +224,8 @@ export function getCurrentPeriod(periods: FiscalPeriod[]): FiscalPeriod | undefi
  * Format fiscal period date range
  */
 export function formatPeriodRange(period: FiscalPeriod): string {
-  const start = new Date(period.start_date)
-  const end = new Date(period.end_date)
+  const start = parseCalendarDate(period.start_date)
+  const end = parseCalendarDate(period.end_date)
 
   const startMonth = start.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
   const endMonth = end.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })
