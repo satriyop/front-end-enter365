@@ -18,8 +18,8 @@ describe('navigation permission keys', () => {
   it('puts Laporan under Accounting, not Finance (#129)', () => {
     const accounting = navigation.find((group) => group.label === 'Accounting')
     const finance = navigation.find((group) => group.label === 'Finance')
-    expect(accounting?.items.map((row) => row.name)).toContain('Laporan')
-    expect(accounting?.items.find((row) => row.name === 'Laporan')?.path).toBe('/reports')
+    expect(accounting?.items[0]?.name).toBe('Laporan')
+    expect(accounting?.items[0]?.path).toBe('/reports')
     expect(finance?.items.map((row) => row.name)).not.toContain('Laporan')
     expect(finance?.items.map((row) => row.name)).not.toContain('Reports')
   })

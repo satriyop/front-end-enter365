@@ -65,6 +65,7 @@ describe('invoice line product defaults (#127)', () => {
     expect(form).toContain('invoice-item-${index}-tax-records')
     expect(form).toContain("useTaxRecords('sales')")
     expect(form).toContain('product_id: item.product_id || undefined')
+    expect(form).not.toContain('Tax (%)')
     expect(validation).toContain('tax_record_ids: z.array(z.number())')
   })
 })

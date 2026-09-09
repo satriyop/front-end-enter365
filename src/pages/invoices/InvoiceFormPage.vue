@@ -99,7 +99,6 @@ const [description] = defineField('description')
 const [reference] = defineField('reference')
 const [currency] = defineField('currency')
 const [exchangeRate] = defineField('exchange_rate')
-const [taxRate] = defineField('tax_rate')
 const [discountAmount] = defineField('discount_amount')
 
 // Auto-fill currency from contact's default
@@ -227,7 +226,6 @@ const onSubmit = handleSubmit(async (formValues) => {
     reference: formValues.reference || undefined,
     currency: formValues.currency || 'IDR',
     exchange_rate: formValues.exchange_rate || 1,
-    tax_rate: formValues.tax_rate,
     discount_amount: formValues.discount_amount || undefined,
     items: itemsPayload,
   }
@@ -523,19 +521,9 @@ const accountOptions = computed(() =>
                 </span>
               </div>
 
-              <!-- Tax Rate -->
-              <div class="flex items-center gap-2">
-                <span class="text-slate-600 dark:text-slate-400 text-sm w-20">Tax (%)</span>
-                <input
-                  v-model.number="taxRate"
-                  type="number"
-                  min="0"
-                  max="100"
-                  class="w-20 px-2 py-1 rounded border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-sm text-right"
-                />
-                <span class="text-slate-500 dark:text-slate-400 text-sm ml-auto">
-                  {{ formatCurrency(taxAmount) }}
-                </span>
+              <div class="flex justify-between text-sm">
+                <span class="text-slate-600 dark:text-slate-400">Tax</span>
+                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency(taxAmount) }}</span>
               </div>
 
               <div class="flex justify-between text-lg font-semibold border-t border-slate-200 dark:border-slate-700 pt-2">
