@@ -18,7 +18,9 @@ import {
 } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, CURRENCY_OPTIONS } from '@/utils/format'
-import { priceForVendor, vendorPriceSource } from '@/utils/vendorPrice'
+import { api } from '@/api/client'
+import { applyPurchaseOrderProductDefaults, purchaseOrderPriceHint } from './poLineDefaults'
+import type { Product } from '@/api/useProducts'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
   Button,
@@ -59,6 +61,7 @@ const {
   errors,
   handleSubmit,
   setValues,
+  setFieldValue,
   setErrors,
   validateField,
   defineField,
@@ -202,28 +205,55 @@ function handleRemoveItem(index: number) {
   }
 }
 
-function resolveLineVendorPrice(index: number) {
-  const item = form.items?.[index]
-  if (!item?.product_id || !products.value) return
-  const product = products.value.find(p => Number(p.id) === item.product_id)
-  if (!product) return
-  item.unit_price = priceForVendor(product, contactId.value ? Number(contactId.value) : null, Number(item.quantity) || 1)
+function vendorId(): number | null {
+  return contactId.value ? Number(contactId.value) : null
 }
 
-function onProductSelect(index: number, productId: number | null) {
-  if (productId && products.value) {
-    const product = products.value.find(p => Number(p.id) === productId)
-    if (product && form.items?.[index]) {
-      form.items[index].description = product.name
-      form.items[index].unit = product.unit
-      form.items[index].tax_rate = Number(product.tax_rate) || 0
-      resolveLineVendorPrice(index)
+function applyProductToLine(index: number, product: Product): void {
+  const item = form.items?.[index]
+  if (!item) return
+  applyPurchaseOrderProductDefaults(item, product, vendorId())
+  void setFieldValue(`items.${index}.description`, item.description)
+  void setFieldValue(`items.${index}.unit`, item.unit)
+  void setFieldValue(`items.${index}.tax_rate`, item.tax_rate)
+  void setFieldValue(`items.${index}.unit_price`, item.unit_price)
+}
+
+async function resolveProduct(productId: number): Promise<Product | undefined> {
+  const listed = products.value?.find(p => Number(p.id) === productId)
+  if (listed && (listed.vendor_pricelists?.length || listed.purchase_price)) {
+    if (listed.vendor_pricelists?.length) {
+      return listed
     }
+  }
+  try {
+    const response = await api.get<{ data: Product }>(`/products/${productId}`)
+    return response.data.data
+  } catch {
+    return listed
   }
 }
 
+async function resolveLineVendorPrice(index: number): Promise<void> {
+  const item = form.items?.[index]
+  if (!item?.product_id) return
+  const product = await resolveProduct(item.product_id)
+  if (!product) return
+  applyProductToLine(index, product)
+}
+
+async function onProductSelect(index: number, productId: number | null): Promise<void> {
+  const item = form.items?.[index]
+  if (!item) return
+  item.product_id = productId
+  if (!productId) return
+  const product = await resolveProduct(productId)
+  if (!product) return
+  applyProductToLine(index, product)
+}
+
 function onQuantityChange(index: number) {
-  resolveLineVendorPrice(index)
+  void resolveLineVendorPrice(index)
 }
 
 function linePriceHint(index: number): string {
@@ -231,17 +261,13 @@ function linePriceHint(index: number): string {
   if (!item?.product_id || !products.value) return ''
   const product = products.value.find(p => Number(p.id) === item.product_id)
   if (!product) return ''
-  const source = vendorPriceSource(product, contactId.value ? Number(contactId.value) : null, Number(item.quantity) || 1)
-  if (source === 'pricelist') return 'Vendor pricelist'
-  if (source === 'purchase_price') return 'Product purchase price'
-  if (source === 'selling_price') return 'Product selling price'
-  return ''
+  return purchaseOrderPriceHint(product, vendorId(), Number(item.quantity) || 1)
 }
 
 watch(contactId, (newId, oldId) => {
   if (!newId || newId === oldId) return
   if (isEditing.value && !oldId) return
-  (form.items ?? []).forEach((_, index) => resolveLineVendorPrice(index))
+  (form.items ?? []).forEach((_, index) => void resolveLineVendorPrice(index))
 })
 
 // Form submission

@@ -72,6 +72,7 @@ export const navigation: NavGroup[] = [
   {
     label: 'Accounting',
     items: [
+      { name: 'Laporan', path: '/reports', icon: '📊', permission: 'reports.financial' },
       { name: 'Chart of Accounts', path: '/accounting/accounts', icon: '📒', permission: 'accounts.view' },
       { name: 'Journals', path: '/accounting/journals', icon: '🗂️', permission: 'journals.view' },
       { name: 'Analytic Accounts', path: '/accounting/analytic-accounts', icon: '🎯', permission: 'journals.view' },
@@ -82,7 +83,6 @@ export const navigation: NavGroup[] = [
       { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view', feature: 'budgeting' },
       { name: 'Bank Reconciliation', path: '/accounting/bank-reconciliation', icon: '🏦', permission: 'journals.view', feature: 'bank_reconciliation' },
       { name: 'Recurring Templates', path: '/accounting/recurring-templates', icon: '🔄', permission: 'journals.view', feature: 'recurring' },
-      { name: 'Laporan', path: '/reports', icon: '📊', permission: 'reports.financial' },
     ],
   },
   {
