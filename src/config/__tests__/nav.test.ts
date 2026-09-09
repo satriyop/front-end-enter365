@@ -15,6 +15,14 @@ describe('navigation permission keys', () => {
     expect(item('Reports').permission).toBe('reports.financial')
   })
 
+  it('puts Laporan under Accounting, not Finance (#129)', () => {
+    const accounting = navigation.find((group) => group.label === 'Accounting')
+    const finance = navigation.find((group) => group.label === 'Finance')
+    expect(accounting?.items.map((row) => row.name)).toContain('Reports')
+    expect(accounting?.items.find((row) => row.name === 'Reports')?.path).toBe('/reports')
+    expect(finance?.items.map((row) => row.name)).not.toContain('Reports')
+  })
+
   it('gates Reminders and Overdue on the invoices pack', () => {
     expect(item('Reminders').feature).toBe('invoices')
     expect(item('Overdue Management').feature).toBe('invoices')
