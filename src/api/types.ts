@@ -2392,6 +2392,134 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/deferred-expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["deferred-expenses.index"];
+        put?: never;
+        post: operations["deferred-expenses.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-expenses/{deferredEntry}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["deferred-expenses.show"];
+        put: operations["deferred-expenses.update"];
+        post?: never;
+        delete: operations["deferred-expenses.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-expenses/{deferredEntry}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["deferredExpense.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-expenses/{deferredEntry}/post-recognition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["deferredExpense.postRecognition"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-revenues": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["deferred-revenues.index"];
+        put?: never;
+        post: operations["deferred-revenues.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-revenues/{deferredEntry}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["deferred-revenues.show"];
+        put: operations["deferred-revenues.update"];
+        post?: never;
+        delete: operations["deferred-revenues.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-revenues/{deferredEntry}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["deferredRevenue.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/deferred-revenues/{deferredEntry}/post-recognition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["deferredRevenue.postRecognition"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/delivery-orders": {
         parameters: {
             query?: never;
@@ -9080,6 +9208,45 @@ export interface components {
             name?: string | null;
             is_primary_variant?: boolean | null;
         };
+        /** DeferredEntryLineResource */
+        DeferredEntryLineResource: {
+            id: number;
+            deferred_entry_id: string;
+            sequence: string;
+            recognition_date: string | null;
+            amount: string;
+            remaining_amount: string;
+            status: string;
+            journal_entry_id: string;
+            posted_at: string | null;
+        };
+        /** DeferredEntryResource */
+        DeferredEntryResource: {
+            id: number;
+            kind: string;
+            code: string;
+            name: string;
+            contact_id: string;
+            amount: string;
+            duration_months: string;
+            start_date: string | null;
+            deferred_account_id: string;
+            recognition_account_id: string;
+            counterpart_account_id: string;
+            journal_id: string;
+            status: string;
+            remaining_amount: string;
+            origination_journal_entry_id: string;
+            notes: string;
+            contact?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            lines?: components["schemas"]["DeferredEntryLineResource"][];
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** DeliveryOrderItemResource */
         DeliveryOrderItemResource: {
             id: number;
@@ -9701,7 +9868,7 @@ export interface components {
         };
         /** LoanLineResource */
         LoanLineResource: {
-            id: string;
+            id: number;
             loan_id: string;
             sequence: string;
             due_date: string | null;
@@ -9715,7 +9882,7 @@ export interface components {
         };
         /** LoanResource */
         LoanResource: {
-            id: string;
+            id: number;
             code: string;
             name: string;
             contact_id: string;
@@ -11761,6 +11928,21 @@ export interface components {
             is_active?: boolean;
             fiscal_position_id?: number | null;
         };
+        /** StoreDeferredEntryRequest */
+        StoreDeferredEntryRequest: {
+            code: string;
+            name: string;
+            contact_id?: number | null;
+            amount: number;
+            duration_months: number;
+            /** Format: date-time */
+            start_date: string;
+            deferred_account_id: number;
+            recognition_account_id: number;
+            counterpart_account_id: number;
+            journal_id?: number | null;
+            notes?: string | null;
+        };
         /** StoreDeliveryOrderRequest */
         StoreDeliveryOrderRequest: {
             invoice_id?: number | null;
@@ -13013,6 +13195,21 @@ export interface components {
             notes?: string | null;
             is_active?: boolean;
             fiscal_position_id?: number | null;
+        };
+        /** UpdateDeferredEntryRequest */
+        UpdateDeferredEntryRequest: {
+            code?: string;
+            name?: string;
+            contact_id?: number | null;
+            amount?: number;
+            duration_months?: number;
+            /** Format: date-time */
+            start_date?: string;
+            deferred_account_id?: number;
+            recognition_account_id?: number;
+            counterpart_account_id?: number;
+            journal_id?: number | null;
+            notes?: string | null;
         };
         /** UpdateDeliveryOrderRequest */
         UpdateDeliveryOrderRequest: {
@@ -20632,6 +20829,456 @@ export interface operations {
             };
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "deferred-expenses.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["DeferredEntryResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "deferred-expenses.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreDeferredEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description `DeferredEntryResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "deferred-expenses.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferred-expenses.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateDeferredEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "deferred-expenses.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Biaya tangguhan berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferredExpense.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferredExpense.postRecognition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferred-revenues.index": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["DeferredEntryResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "deferred-revenues.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreDeferredEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description `DeferredEntryResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "deferred-revenues.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferred-revenues.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateDeferredEntryRequest"];
+            };
+        };
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "deferred-revenues.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Pendapatan tangguhan berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferredRevenue.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "deferredRevenue.postRecognition": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The deferred entry ID */
+                deferredEntry: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `DeferredEntryResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["DeferredEntryResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "delivery-orders.index": {

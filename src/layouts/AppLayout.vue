@@ -56,9 +56,9 @@ function closeSidebar() {
         <Breadcrumbs />
 
         <!-- Route Transition -->
-        <RouterView v-slot="{ Component }">
+        <RouterView v-slot="{ Component, route }">
           <Transition name="fade" mode="out-in">
-            <component :is="Component" />
+            <component :is="Component" :key="String(route.name)" />
           </Transition>
         </RouterView>
       </main>
