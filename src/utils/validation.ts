@@ -176,6 +176,7 @@ export const contactSchema = z.object({
   // Payment terms
   credit_limit: currencySchema.optional(),
   payment_term_days: z.number().int().min(0).max(365).optional(),
+  fiscal_position_id: z.number().int().positive().optional().nullable(),
   currency: z.string().max(3).optional().default(''),
   // Early payment discount
   early_discount_percent: z.number().min(0).max(100).optional().nullable(),

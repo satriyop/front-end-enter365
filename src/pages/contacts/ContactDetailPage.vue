@@ -364,6 +364,12 @@ const subcontractorServicesDisplay = computed(() => {
                 <dt class="text-slate-500 dark:text-slate-400">Payment Terms</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ contact.payment_term_days }} days</dd>
               </div>
+              <div v-if="contact.fiscal_position_id" class="flex justify-between">
+                <dt class="text-slate-500 dark:text-slate-400">Fiscal Position</dt>
+                <dd class="font-medium text-slate-900 dark:text-slate-100">
+                  {{ contact.fiscal_position?.name ?? `#${contact.fiscal_position_id}` }}
+                </dd>
+              </div>
               <div v-if="contact.currency && contact.currency !== 'IDR'" class="flex justify-between">
                 <dt class="text-slate-500 dark:text-slate-400">Currency</dt>
                 <dd class="font-medium text-slate-900 dark:text-slate-100">{{ contact.currency }}</dd>

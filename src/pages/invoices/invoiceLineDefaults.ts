@@ -1,3 +1,9 @@
+import {
+  mapAccountThroughFiscalPosition,
+  mapTaxIdsThroughFiscalPosition,
+  type FiscalPositionMapsLike,
+} from '@/utils/fiscalPositionMaps'
+
 export type InvoiceSalesTax = {
   id: number
   rate: number
@@ -30,19 +36,31 @@ export function rateForTaxIds(taxes: InvoiceSalesTax[] | null | undefined, ids: 
     .reduce((sum, tax) => sum + Number(tax.rate), 0)
 }
 
-export function applyInvoiceProductDefaults(item: InvoiceLineDraft, product: InvoiceProductLike): void {
+export function applyInvoiceProductDefaults(
+  item: InvoiceLineDraft,
+  product: InvoiceProductLike,
+  fiscalPosition?: FiscalPositionMapsLike,
+  taxCatalog?: InvoiceSalesTax[] | null,
+): void {
   item.product_id = Number(product.id)
   item.description = product.name
   item.unit = product.unit || 'pcs'
   item.unit_price = Number(product.selling_price) || 0
-  const inherited = (product.sales_taxes ?? []).map((tax) => tax.id)
+  const inherited = mapTaxIdsThroughFiscalPosition(
+    (product.sales_taxes ?? []).map((tax) => tax.id),
+    fiscalPosition,
+  )
   item.tax_record_ids = inherited
   item.taxes_manual = false
+  const rateTaxes = [...(product.sales_taxes ?? []), ...(taxCatalog ?? [])]
   item.tax_rate = inherited.length
-    ? (product.sales_taxes ?? []).reduce((sum, tax) => sum + Number(tax.rate), 0)
+    ? rateForTaxIds(rateTaxes, inherited)
     : Number(product.tax_rate) || 0
   if (product.sales_account_id) {
-    item.revenue_account_id = Number(product.sales_account_id)
+    item.revenue_account_id = mapAccountThroughFiscalPosition(
+      Number(product.sales_account_id),
+      fiscalPosition,
+    )
   }
 }
 

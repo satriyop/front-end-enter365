@@ -39,6 +39,26 @@ describe('invoice line product defaults (#127)', () => {
     expect(item.revenue_account_id).toBe(40)
   })
 
+  it('maps product taxes and income account through the customer fiscal position', () => {
+    const item = emptyLine()
+    applyInvoiceProductDefaults(item, {
+      id: 12,
+      name: 'Kopi Tubruk',
+      unit: 'cup',
+      selling_price: 15000,
+      tax_rate: 0,
+      sales_account_id: 40,
+      sales_taxes: [{ id: 3, rate: 11 }],
+    }, {
+      tax_maps: [{ source_tax_record_id: 3, dest_tax_record_id: 9 }],
+      account_maps: [{ source_account_id: 40, dest_account_id: 55 }],
+    }, [{ id: 9, rate: 0 }])
+
+    expect(item.tax_record_ids).toEqual([9])
+    expect(item.tax_rate).toBe(0)
+    expect(item.revenue_account_id).toBe(55)
+  })
+
   it('lets the user override sales tax records', () => {
     const item = emptyLine()
     applyInvoiceProductDefaults(item, {

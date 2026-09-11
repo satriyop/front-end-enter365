@@ -14,6 +14,8 @@ export type Contact = components['schemas']['ContactResource'] & {
   address_role?: ContactAddressRole | null
   children?: Contact[]
   parent?: Contact | null
+  fiscal_position_id?: number | null
+  fiscal_position?: { id: number; code: string; name: string } | null
 }
 
 export interface ContactFilters {
