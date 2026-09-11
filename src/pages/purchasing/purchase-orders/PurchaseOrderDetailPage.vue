@@ -16,6 +16,7 @@ import { useCreateGRNFromPO, type CreateFromPOData } from '@/api/useGoodsReceipt
 import { useWarehousesLookup } from '@/api/useInventory'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
+import { purchaseOrderAmount } from './purchaseOrderAmount'
 import {
   ArrowLeft,
   Edit,
@@ -515,7 +516,7 @@ const itemColumns: ResponsiveColumn[] = [
               <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
-                <dd class="font-bold text-lg text-primary-600 dark:text-primary-400">{{ formatCurrency(po.total) }}</dd>
+                <dd class="font-bold text-lg text-primary-600 dark:text-primary-400" data-testid="po-detail-total">{{ formatCurrency(purchaseOrderAmount(po)) }}</dd>
               </div>
               <div v-if="po.currency !== 'IDR'" class="flex justify-between text-sm" data-testid="po-base-currency-total">
                 <dt class="text-slate-500 dark:text-slate-400">Base Currency</dt>
