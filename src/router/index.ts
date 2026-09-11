@@ -603,6 +603,82 @@ const router = createRouter({
           meta: { breadcrumb: 'Edit Analytic Account' }
         },
         {
+          path: 'accounting/analytic-plans',
+          name: 'analytic-plans',
+          component: () => import('@/pages/accounting/analytic-plans/AnalyticPlanListPage.vue'),
+          meta: { breadcrumb: 'Analytic Plans' }
+        },
+        {
+          path: 'accounting/analytic-plans/new',
+          name: 'analytic-plan-new',
+          component: () => import('@/pages/accounting/analytic-plans/AnalyticPlanFormPage.vue'),
+          meta: { breadcrumb: 'New Analytic Plan' }
+        },
+        {
+          path: 'accounting/analytic-plans/:id/edit',
+          name: 'analytic-plan-edit',
+          component: () => import('@/pages/accounting/analytic-plans/AnalyticPlanFormPage.vue'),
+          meta: { breadcrumb: 'Edit Analytic Plan' }
+        },
+        {
+          path: 'accounting/analytic-distribution-models',
+          name: 'analytic-distribution-models',
+          component: () => import('@/pages/accounting/analytic-distribution-models/AnalyticDistributionModelListPage.vue'),
+          meta: { breadcrumb: 'Analytic Distribution Models' }
+        },
+        {
+          path: 'accounting/analytic-distribution-models/new',
+          name: 'analytic-distribution-model-new',
+          component: () => import('@/pages/accounting/analytic-distribution-models/AnalyticDistributionModelFormPage.vue'),
+          meta: { breadcrumb: 'New Distribution Model' }
+        },
+        {
+          path: 'accounting/analytic-distribution-models/:id/edit',
+          name: 'analytic-distribution-model-edit',
+          component: () => import('@/pages/accounting/analytic-distribution-models/AnalyticDistributionModelFormPage.vue'),
+          meta: { breadcrumb: 'Edit Distribution Model' }
+        },
+        {
+          path: 'accounting/analytic-items',
+          name: 'analytic-items',
+          component: () => import('@/pages/accounting/analytic-items/AnalyticItemListPage.vue'),
+          meta: { breadcrumb: 'Analytic Items' }
+        },
+        {
+          path: 'accounting/analytic-budgets',
+          name: 'analytic-budgets',
+          component: () => import('@/pages/accounting/analytic-budgets/AnalyticBudgetListPage.vue'),
+          meta: { breadcrumb: 'Analytic Budgets' }
+        },
+        {
+          path: 'accounting/analytic-budgets/new',
+          name: 'analytic-budget-new',
+          component: () => import('@/pages/accounting/analytic-budgets/AnalyticBudgetFormPage.vue'),
+          meta: { breadcrumb: 'New Analytic Budget' }
+        },
+        {
+          path: 'accounting/analytic-budgets/:id',
+          name: 'analytic-budget-detail',
+          component: () => import('@/pages/accounting/analytic-budgets/AnalyticBudgetFormPage.vue'),
+          meta: { breadcrumb: (route) => `Analytic Budget #${route.params.id}` }
+        },
+        {
+          path: 'analytic-plans',
+          redirect: { name: 'analytic-plans' },
+        },
+        {
+          path: 'analytic-distribution-models',
+          redirect: { name: 'analytic-distribution-models' },
+        },
+        {
+          path: 'analytic-items',
+          redirect: { name: 'analytic-items' },
+        },
+        {
+          path: 'analytic-budgets',
+          redirect: { name: 'analytic-budgets' },
+        },
+        {
           path: 'accounting/tax-records',
           name: 'tax-records',
           component: () => import('@/pages/accounting/tax-records/TaxRecordListPage.vue'),
