@@ -742,6 +742,62 @@ const router = createRouter({
           path: 'loans-analysis',
           redirect: { name: 'loans-analysis' },
         },
+        {
+          path: 'accounting/deferred-expenses',
+          name: 'deferred-expenses',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryListPage.vue'),
+          meta: { breadcrumb: 'Deferred Expenses', kind: 'expense' }
+        },
+        {
+          path: 'accounting/deferred-expenses/new',
+          name: 'deferred-expense-new',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryFormPage.vue'),
+          meta: { breadcrumb: 'New Deferred Expense', kind: 'expense' }
+        },
+        {
+          path: 'accounting/deferred-expenses/:id',
+          name: 'deferred-expense-detail',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Deferred Expense #${route.params.id}`, kind: 'expense' }
+        },
+        {
+          path: 'accounting/deferred-expenses/:id/edit',
+          name: 'deferred-expense-edit',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryFormPage.vue'),
+          meta: { breadcrumb: 'Edit Deferred Expense', kind: 'expense' }
+        },
+        {
+          path: 'accounting/deferred-revenues',
+          name: 'deferred-revenues',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryListPage.vue'),
+          meta: { breadcrumb: 'Deferred Revenues', kind: 'revenue' }
+        },
+        {
+          path: 'accounting/deferred-revenues/new',
+          name: 'deferred-revenue-new',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryFormPage.vue'),
+          meta: { breadcrumb: 'New Deferred Revenue', kind: 'revenue' }
+        },
+        {
+          path: 'accounting/deferred-revenues/:id',
+          name: 'deferred-revenue-detail',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Deferred Revenue #${route.params.id}`, kind: 'revenue' }
+        },
+        {
+          path: 'accounting/deferred-revenues/:id/edit',
+          name: 'deferred-revenue-edit',
+          component: () => import('@/pages/accounting/deferred-entries/DeferredEntryFormPage.vue'),
+          meta: { breadcrumb: 'Edit Deferred Revenue', kind: 'revenue' }
+        },
+        {
+          path: 'deferred-expenses',
+          redirect: { name: 'deferred-expenses' },
+        },
+        {
+          path: 'deferred-revenues',
+          redirect: { name: 'deferred-revenues' },
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',
