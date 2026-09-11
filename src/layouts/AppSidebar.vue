@@ -148,7 +148,15 @@ onBeforeUnmount(stopNavRescue)
                                   ? 'sidebar-transfers'
                                   : item.path === '/accounting/reconcile'
                                     ? 'sidebar-reconcile'
-                                    : undefined"
+                                    : item.path === '/accounting/bill-to-receive'
+                                      ? 'sidebar-bill-to-receive'
+                                      : item.path === '/accounting/billed-not-received'
+                                        ? 'sidebar-billed-not-received'
+                                        : item.path === '/accounting/invoices-to-be-issued'
+                                          ? 'sidebar-invoices-to-be-issued'
+                                          : item.path === '/accounting/invoiced-not-delivered'
+                                            ? 'sidebar-invoiced-not-delivered'
+                                            : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

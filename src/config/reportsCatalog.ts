@@ -29,6 +29,16 @@ export const reportCategories: ReportCategory[] = [
     ],
   },
   {
+    title: 'Period-end Review',
+    description: 'Cutover accruals: received not billed, billed not received, delivered not invoiced, invoiced not delivered',
+    reports: [
+      { name: 'Bill to Receive', path: '/accounting/bill-to-receive', description: 'Goods received, vendor bill not posted' },
+      { name: 'Billed Not Received', path: '/accounting/billed-not-received', description: 'Vendor bill posted, goods not received' },
+      { name: 'Invoices to Be Issued', path: '/accounting/invoices-to-be-issued', description: 'Goods delivered, customer invoice not posted' },
+      { name: 'Invoiced Not Delivered', path: '/accounting/invoiced-not-delivered', description: 'Customer invoice posted, goods not delivered' },
+    ],
+  },
+  {
     title: 'Sales Reports',
     description: 'Revenue, customers, and receivables',
     reports: [
