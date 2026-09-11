@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   usePurchaseOrders,
@@ -68,11 +69,18 @@ function handleStatusChange(value: string | number | null) {
   updateFilter('status', value === '' ? undefined : (value as PurchaseOrderStatus))
 }
 
+const poListRows = computed(() =>
+  purchaseOrders.value.map((po) => ({
+    ...po,
+    total_amount: purchaseOrderAmount(po),
+  })),
+)
+
 // Table columns
 const columns: ResponsiveColumn[] = [
   { key: 'po_number', label: 'PO Number', mobilePriority: 1 },
   { key: 'contact', label: 'Vendor', mobilePriority: 2 },
-  { key: 'total_amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'total_amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(purchaseOrderAmount({ total_amount: v })) },
   { key: 'status', label: 'Status', showInMobile: false },
   { key: 'expected_date', label: 'Expected', showInMobile: false, format: (v) => v ? formatDate(v as string) : '-' },
   { key: 'actions', label: '', showInMobile: false },
@@ -217,7 +225,7 @@ function viewPO(item: Record<string, unknown>) {
     <!-- Table -->
     <Card v-else :padding="false">
       <ResponsiveTable
-        :items="purchaseOrders"
+        :items="poListRows"
         :columns="columns"
         :loading="isLoading"
         title-field="full_number"
