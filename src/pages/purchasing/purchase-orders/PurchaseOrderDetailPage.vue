@@ -16,7 +16,7 @@ import { useCreateGRNFromPO, type CreateFromPOData } from '@/api/useGoodsReceipt
 import { useWarehousesLookup } from '@/api/useInventory'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
-import { purchaseOrderAmount } from './purchaseOrderAmount'
+import { purchaseOrderAmount, purchaseOrderLineAmount } from './purchaseOrderAmount'
 import {
   ArrowLeft,
   Edit,
@@ -44,6 +44,8 @@ const poId = computed(() => Number(route.params.id))
 
 // Data fetching
 const { data: po, isLoading, error } = usePurchaseOrder(poId)
+
+const headerTotal = computed(() => purchaseOrderAmount(po.value))
 
 // Mutations
 const submitMutation = useSubmitPurchaseOrder()
@@ -450,7 +452,7 @@ const itemColumns: ResponsiveColumn[] = [
 
               <!-- Line Total -->
               <template #cell-line_total="{ item }">
-                <span class="font-medium text-slate-900 dark:text-slate-100">{{ formatCurrency((item as any).line_total) }}</span>
+                <span class="font-medium text-slate-900 dark:text-slate-100" data-testid="po-line-total">{{ formatCurrency(purchaseOrderLineAmount(item)) }}</span>
               </template>
 
               <!-- Mobile title -->
@@ -516,7 +518,7 @@ const itemColumns: ResponsiveColumn[] = [
               <hr class="border-slate-200 dark:border-slate-700" />
               <div class="flex justify-between">
                 <dt class="font-semibold text-slate-900 dark:text-slate-100">Total</dt>
-                <dd class="font-bold text-lg text-primary-600 dark:text-primary-400" data-testid="po-detail-total">{{ formatCurrency(purchaseOrderAmount(po)) }}</dd>
+                <dd class="font-bold text-lg text-primary-600 dark:text-primary-400" data-testid="po-detail-total">{{ formatCurrency(headerTotal) }}</dd>
               </div>
               <div v-if="po.currency !== 'IDR'" class="flex justify-between text-sm" data-testid="po-base-currency-total">
                 <dt class="text-slate-500 dark:text-slate-400">Base Currency</dt>
