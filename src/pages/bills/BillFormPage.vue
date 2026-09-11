@@ -10,6 +10,8 @@ import { analyticDistributionFromAccountId, analyticDistributionPrimaryId, useAn
 import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
 import { useTaxRecords } from '@/api/useTaxRecords'
+import { useFiscalPositionsLookup } from '@/api/useFiscalPositions'
+import { mapTaxIdsThroughFiscalPosition } from '@/utils/fiscalPositionMaps'
 import { taxTagIdsFromTagId, taxTagIdsPrimaryId, useTaxTagsLookup } from '@/api/useTaxTags'
 import { billSchema, type BillFormData, type BillItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
@@ -40,6 +42,7 @@ const { data: analyticAccounts, isLoading: analyticAccountsLoading } = useAnalyt
 const { data: taxTags, isLoading: taxTagsLoading } = useTaxTagsLookup()
 const { data: products } = useProductsLookup()
 const { data: purchaseTaxRecords } = useTaxRecords('purchase')
+const { data: fiscalPositions } = useFiscalPositionsLookup()
 
 const accountOptions = computed(() =>
   (accounts.value ?? []).map((account) => ({
@@ -109,6 +112,13 @@ const {
 })
 
 const [contactId] = defineField('contact_id')
+const selectedFiscalPosition = computed(() => {
+  const contact = (contacts.value ?? []).find((row) => Number(row.id) === Number(contactId.value))
+  if (!contact?.fiscal_position_id) {
+    return null
+  }
+  return (fiscalPositions.value ?? []).find((row) => row.id === contact.fiscal_position_id) ?? null
+})
 const [vendorInvoiceNumber] = defineField('vendor_invoice_number')
 const [billDate] = defineField('bill_date')
 const [dueDate] = defineField('due_date')
@@ -195,11 +205,14 @@ function onProductSelect(index: number, productId: number | null) {
   item.description = product.name
   item.unit = product.unit
   item.unit_price = Number(product.purchase_price) || Number(product.selling_price) || 0
-  const inherited = (product.purchase_taxes ?? []).map((tax) => tax.id)
+  const inherited = mapTaxIdsThroughFiscalPosition(
+    (product.purchase_taxes ?? []).map((tax) => tax.id),
+    selectedFiscalPosition.value,
+  )
   item.tax_record_ids = inherited
   item.taxes_manual = false
   item.tax_rate = inherited.length
-    ? (product.purchase_taxes ?? []).reduce((sum, tax) => sum + Number(tax.rate), 0)
+    ? rateForTaxIds(inherited)
     : Number(product.tax_rate) || 0
 }
 

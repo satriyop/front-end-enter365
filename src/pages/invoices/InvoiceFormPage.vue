@@ -12,6 +12,7 @@ import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
 import { useAccountsLookup } from '@/api/useAccounts'
 import { useTaxRecords } from '@/api/useTaxRecords'
+import { useFiscalPositionsLookup } from '@/api/useFiscalPositions'
 import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, toNumber, CURRENCY_OPTIONS } from '@/utils/format'
@@ -51,6 +52,7 @@ const { data: contacts, isLoading: loadingContacts } = useContactsLookup('custom
 const { data: products } = useProductsLookup()
 const { data: accounts, isLoading: accountsLoading } = useAccountsLookup('revenue')
 const { data: salesTaxRecords } = useTaxRecords('sales')
+const { data: fiscalPositions } = useFiscalPositionsLookup()
 
 function createEmptyItem(): InvoiceItemFormData {
   return {
@@ -91,6 +93,13 @@ const {
 })
 
 const [contactId] = defineField('contact_id')
+const selectedFiscalPosition = computed(() => {
+  const contact = (contacts.value ?? []).find((row) => Number(row.id) === Number(contactId.value))
+  if (!contact?.fiscal_position_id) {
+    return null
+  }
+  return (fiscalPositions.value ?? []).find((row) => row.id === contact.fiscal_position_id) ?? null
+})
 const [invoiceDate] = defineField('invoice_date')
 const [dueDate] = defineField('due_date')
 const [description] = defineField('description')
@@ -173,7 +182,7 @@ function onProductSelect(index: number, productId: number | null) {
     return
   }
   const next = { ...current }
-  applyInvoiceProductDefaults(next, product)
+  applyInvoiceProductDefaults(next, product, selectedFiscalPosition.value, salesTaxRecords.value)
   void setFieldValue(`items[${index}]`, next)
 }
 

@@ -10,6 +10,7 @@ import {
   useCompanyContactsLookup,
   type CreateContactData
 } from '@/api/useContacts'
+import { useFiscalPositionsLookup } from '@/api/useFiscalPositions'
 import { getErrorMessage } from '@/api/client'
 import { toNumber } from '@/utils/format'
 import { contactSchema, type ContactFormData } from '@/utils/validation'
@@ -67,6 +68,7 @@ const { errors, handleSubmit, setValues, setErrors, meta, validateField, defineF
     nik: '',
     credit_limit: 0,
     payment_term_days: 30,
+    fiscal_position_id: null,
     currency: '',
     early_discount_percent: null,
     early_discount_days: null,
@@ -115,7 +117,17 @@ const [isPkp] = defineField('is_pkp')
 const [nik] = defineField('nik')
 const [creditLimit] = defineField('credit_limit')
 const [paymentTermDays] = defineField('payment_term_days')
+const [fiscalPositionId] = defineField('fiscal_position_id')
 const [isActive] = defineField('is_active')
+
+const { data: fiscalPositions } = useFiscalPositionsLookup()
+const fiscalPositionOptions = computed(() => [
+  { value: '', label: 'None' },
+  ...(fiscalPositions.value ?? []).map((position) => ({
+    value: String(position.id),
+    label: `${position.code} · ${position.name}`,
+  })),
+])
 
 // New fields - Payment terms
 const [currency] = defineField('currency')
@@ -198,6 +210,7 @@ watch(existingContact, (contact) => {
       nik: contact.nik || '',
       credit_limit: toNumber(contact.credit_limit),
       payment_term_days: toNumber(contact.payment_term_days),
+      fiscal_position_id: contact.fiscal_position_id ?? null,
       currency: contact.currency || '',
       early_discount_percent: contact.early_discount_percent ? parseFloat(contact.early_discount_percent) : null,
       early_discount_days: contact.early_discount_days ?? null,
@@ -250,6 +263,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     job_position?: string | null
     address_line_2?: string | null
     country?: string | null
+    fiscal_position_id?: number | null
   } = {
     code: formValues.code,
     name: formValues.name,
@@ -271,6 +285,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     nik: formValues.nik || null,
     credit_limit: formValues.credit_limit ?? 0,
     payment_term_days: formValues.payment_term_days ?? 30,
+    fiscal_position_id: formValues.fiscal_position_id ?? null,
     currency: formValues.currency || undefined,
     early_discount_percent: formValues.early_discount_percent ?? null,
     early_discount_days: formValues.early_discount_days ?? null,
@@ -518,6 +533,16 @@ useFormShortcuts({
               v-model.number="paymentTermDays"
               type="number"
               min="0"
+            />
+          </FormField>
+
+          <FormField label="Fiscal Position" :error="errors.fiscal_position_id" hint="Maps taxes/accounts on invoices and bills. Not a fiscal period.">
+            <Select
+              :model-value="fiscalPositionId ? String(fiscalPositionId) : ''"
+              :options="fiscalPositionOptions"
+              placeholder="None"
+              test-id="contact-fiscal-position"
+              @update:model-value="(v) => { fiscalPositionId = v ? Number(v) : null }"
             />
           </FormField>
 

@@ -606,6 +606,24 @@ const router = createRouter({
           component: () => import('@/pages/accounting/tax-tags/TaxTagFormPage.vue'),
           meta: { breadcrumb: 'Edit Tax Tag' }
         },
+        {
+          path: 'accounting/fiscal-positions',
+          name: 'fiscal-positions',
+          component: () => import('@/pages/accounting/fiscal-positions/FiscalPositionListPage.vue'),
+          meta: { breadcrumb: 'Fiscal Positions' }
+        },
+        {
+          path: 'accounting/fiscal-positions/new',
+          name: 'fiscal-position-new',
+          component: () => import('@/pages/accounting/fiscal-positions/FiscalPositionFormPage.vue'),
+          meta: { breadcrumb: 'New Fiscal Position' }
+        },
+        {
+          path: 'accounting/fiscal-positions/:id/edit',
+          name: 'fiscal-position-edit',
+          component: () => import('@/pages/accounting/fiscal-positions/FiscalPositionFormPage.vue'),
+          meta: { breadcrumb: 'Edit Fiscal Position' }
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',
