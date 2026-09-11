@@ -132,7 +132,11 @@ onBeforeUnmount(stopNavRescue)
                   ? 'sidebar-fiscal-positions'
                   : item.path === '/accounting/assets'
                     ? 'sidebar-assets'
-                    : undefined"
+                    : item.path === '/accounting/loans'
+                      ? 'sidebar-loans'
+                      : item.path === '/accounting/loans-analysis'
+                        ? 'sidebar-loans-analysis'
+                        : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

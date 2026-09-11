@@ -704,6 +704,44 @@ const router = createRouter({
           component: () => import('@/pages/accounting/depreciation-schedule/DepreciationSchedulePage.vue'),
           meta: { breadcrumb: 'Depreciation Schedule' }
         },
+        {
+          path: 'accounting/loans',
+          name: 'loans',
+          component: () => import('@/pages/accounting/loans/LoanListPage.vue'),
+          meta: { breadcrumb: 'Loans' }
+        },
+        {
+          path: 'accounting/loans/new',
+          name: 'loan-new',
+          component: () => import('@/pages/accounting/loans/LoanFormPage.vue'),
+          meta: { breadcrumb: 'New Loan' }
+        },
+        {
+          path: 'accounting/loans/:id',
+          name: 'loan-detail',
+          component: () => import('@/pages/accounting/loans/LoanDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Loan #${route.params.id}` }
+        },
+        {
+          path: 'accounting/loans/:id/edit',
+          name: 'loan-edit',
+          component: () => import('@/pages/accounting/loans/LoanFormPage.vue'),
+          meta: { breadcrumb: 'Edit Loan' }
+        },
+        {
+          path: 'accounting/loans-analysis',
+          name: 'loans-analysis',
+          component: () => import('@/pages/accounting/loans-analysis/LoansAnalysisPage.vue'),
+          meta: { breadcrumb: 'Loans Analysis' }
+        },
+        {
+          path: 'loans',
+          redirect: { name: 'loans' },
+        },
+        {
+          path: 'loans-analysis',
+          redirect: { name: 'loans-analysis' },
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',
