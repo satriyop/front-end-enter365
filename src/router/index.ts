@@ -1051,6 +1051,50 @@ const router = createRouter({
           path: 'reconcile',
           redirect: { name: 'accounting-reconcile' },
         },
+        {
+          path: 'accounting/bill-to-receive',
+          name: 'bill-to-receive',
+          component: () => import('@/pages/accounting/cutover/CutoverReviewPage.vue'),
+          props: { kind: 'bill-to-receive' },
+          meta: { breadcrumb: 'Bill to Receive', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/billed-not-received',
+          name: 'billed-not-received',
+          component: () => import('@/pages/accounting/cutover/CutoverReviewPage.vue'),
+          props: { kind: 'billed-not-received' },
+          meta: { breadcrumb: 'Billed Not Received', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/invoices-to-be-issued',
+          name: 'invoices-to-be-issued',
+          component: () => import('@/pages/accounting/cutover/CutoverReviewPage.vue'),
+          props: { kind: 'invoices-to-be-issued' },
+          meta: { breadcrumb: 'Invoices to Be Issued', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/invoiced-not-delivered',
+          name: 'invoiced-not-delivered',
+          component: () => import('@/pages/accounting/cutover/CutoverReviewPage.vue'),
+          props: { kind: 'invoiced-not-delivered' },
+          meta: { breadcrumb: 'Invoiced Not Delivered', permission: 'reports.financial' }
+        },
+        {
+          path: 'bill-to-receive',
+          redirect: { name: 'bill-to-receive' },
+        },
+        {
+          path: 'billed-not-received',
+          redirect: { name: 'billed-not-received' },
+        },
+        {
+          path: 'invoices-to-be-issued',
+          redirect: { name: 'invoices-to-be-issued' },
+        },
+        {
+          path: 'invoiced-not-delivered',
+          redirect: { name: 'invoiced-not-delivered' },
+        },
         // Accounting - Bank Reconciliation routes
         {
           path: 'accounting/bank-reconciliation',

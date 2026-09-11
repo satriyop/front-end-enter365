@@ -2580,6 +2580,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/cutover/bill-to-receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Period-end review: goods received, vendor bill not posted (Odoo Review › Bill to Receive) */
+        get: operations["reports.cutover.bill-to-receive"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cutover/billed-not-received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Period-end review: vendor bill posted, goods not received (Odoo Review › Billed Not Received) */
+        get: operations["reports.cutover.billed-not-received"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cutover/invoices-to-be-issued": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Period-end review: goods delivered, customer invoice not posted (Odoo Review › Invoices to Be Issued) */
+        get: operations["reports.cutover.invoices-to-be-issued"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/cutover/invoiced-not-delivered": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Period-end review: customer invoice posted, goods not delivered (Odoo Review › Invoiced Not Delivered) */
+        get: operations["reports.cutover.invoiced-not-delivered"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dashboard/summary": {
         parameters: {
             query?: never;
@@ -22085,6 +22153,306 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "reports.cutover.bill-to-receive": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            /** @constant */
+                            kind: "bill-to-receive";
+                            as_of_date: string | null;
+                            rows: ({
+                                id: number;
+                                /** @constant */
+                                document_type: "grn";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "bill";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "delivery_order";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "invoice";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            })[];
+                            totals: {
+                                count: number;
+                                amount: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "reports.cutover.billed-not-received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            /** @constant */
+                            kind: "billed-not-received";
+                            as_of_date: string | null;
+                            rows: ({
+                                id: number;
+                                /** @constant */
+                                document_type: "grn";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "bill";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "delivery_order";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "invoice";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            })[];
+                            totals: {
+                                count: number;
+                                amount: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "reports.cutover.invoices-to-be-issued": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            /** @constant */
+                            kind: "invoices-to-be-issued";
+                            as_of_date: string | null;
+                            rows: ({
+                                id: number;
+                                /** @constant */
+                                document_type: "grn";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "bill";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "delivery_order";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "invoice";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            })[];
+                            totals: {
+                                count: number;
+                                amount: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+        };
+    };
+    "reports.cutover.invoiced-not-delivered": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            report_name: string;
+                            /** @constant */
+                            kind: "invoiced-not-delivered";
+                            as_of_date: string | null;
+                            rows: ({
+                                id: number;
+                                /** @constant */
+                                document_type: "grn";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "bill";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "delivery_order";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            } | {
+                                id: number;
+                                /** @constant */
+                                document_type: "invoice";
+                                number: string;
+                                date: string | null;
+                                partner: string;
+                                reference: string;
+                                amount: number;
+                                status: string;
+                            })[];
+                            totals: {
+                                count: number;
+                                amount: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
         };
     };
     "dashboard.summary": {
