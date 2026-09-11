@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useCreateStandaloneGRN, type StandaloneGRNItem } from '@/api/useGoodsReceiptNotes'
+import { ref, computed, reactive, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useQuery } from '@tanstack/vue-query'
+import { api } from '@/api/client'
+import { useCreateStandaloneGRN, useCreateGRNFromPO, type StandaloneGRNItem } from '@/api/useGoodsReceiptNotes'
+import { usePurchaseOrder, type PurchaseOrder } from '@/api/usePurchaseOrders'
 import { useWarehousesLookup } from '@/api/useWarehouses'
 import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup, type Product } from '@/api/useProducts'
 import { formatCurrency } from '@/utils/format'
+import { remainingGrnLinesFromPurchaseOrder } from './grnFromPurchaseOrder'
 import { ArrowLeft, Plus, X } from 'lucide-vue-next'
 import {
   Button,
@@ -18,6 +22,7 @@ import {
   useToast,
 } from '@/components/ui'
 
+const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 
@@ -25,6 +30,20 @@ const toast = useToast()
 const { data: warehouses, isLoading: loadingWarehouses } = useWarehousesLookup()
 const { data: suppliers, isLoading: loadingSuppliers } = useContactsLookup('supplier')
 const { data: products } = useProductsLookup()
+const { data: receivablePOs, isLoading: loadingPOs } = useQuery({
+  queryKey: ['purchase-orders', 'receivable-for-grn'],
+  queryFn: async () => {
+    const response = await api.get<{ data: PurchaseOrder[] }>('/purchase-orders', {
+      params: { active_only: true, outstanding_only: true, per_page: 100, include: 'contact' },
+    })
+    return response.data.data
+  },
+})
+
+const queryPoId = Number(route.query.purchase_order_id)
+const purchaseOrderId = ref<number | null>(Number.isFinite(queryPoId) && queryPoId > 0 ? queryPoId : null)
+const selectedPoId = computed(() => purchaseOrderId.value ?? 0)
+const { data: selectedPO } = usePurchaseOrder(selectedPoId)
 
 // Form state
 const receiptDate = ref(new Date().toISOString().split('T')[0] || '')
@@ -35,6 +54,7 @@ const supplierInvoiceNumber = ref('')
 const vehicleNumber = ref('')
 const driverName = ref('')
 const notes = ref('')
+const fromPurchaseOrder = computed(() => purchaseOrderId.value != null && purchaseOrderId.value > 0)
 
 // Line items
 interface LineItem {
@@ -66,6 +86,35 @@ function onProductSelect(index: number, productId: number | null) {
   }
 }
 
+function applyPurchaseOrderLines(po: PurchaseOrder) {
+  const lines = remainingGrnLinesFromPurchaseOrder(po)
+  items.splice(0, items.length)
+  if (lines.length === 0) {
+    items.push({ product_id: null, quantity_ordered: 1, unit_price: 0 })
+    return
+  }
+  lines.forEach((line) => items.push(line))
+  if (po.contact_id) {
+    contactId.value = Number(po.contact_id)
+  }
+}
+
+watch(selectedPO, (po) => {
+  if (!po || !fromPurchaseOrder.value) {
+    return
+  }
+  applyPurchaseOrderLines(po)
+}, { immediate: true })
+
+function onPurchaseOrderSelect(value: string | number | null) {
+  const id = value ? Number(value) : null
+  purchaseOrderId.value = id && id > 0 ? id : null
+  if (!purchaseOrderId.value) {
+    items.splice(0, items.length)
+    items.push({ product_id: null, quantity_ordered: 1, unit_price: 0 })
+  }
+}
+
 // Computed options
 const warehouseOptions = computed(() => {
   if (!warehouses.value) return []
@@ -82,6 +131,22 @@ const supplierOptions = computed(() => {
       value: s.id,
       label: s.name || `Contact #${s.id}`,
     })))
+  }
+  return opts
+})
+
+const purchaseOrderOptions = computed(() => {
+  const opts = [{ value: '' as string | number, label: 'Standalone (no PO)' }]
+  const rows = receivablePOs.value ?? []
+  opts.push(...rows.map((po) => ({
+    value: po.id,
+    label: `${po.po_number || `PO #${po.id}`} — ${po.contact?.name ?? 'Vendor'}`,
+  })))
+  if (selectedPO.value && !rows.some((po) => po.id === selectedPO.value?.id)) {
+    opts.push({
+      value: selectedPO.value.id,
+      label: `${selectedPO.value.po_number || `PO #${selectedPO.value.id}`} — ${selectedPO.value.contact?.name ?? 'Vendor'}`,
+    })
   }
   return opts
 })
@@ -105,10 +170,18 @@ function validateForm(): boolean {
     errors.value.warehouse_id = 'Warehouse is required'
   }
 
-  // Validate line items
-  const validItems = items.filter(item => item.product_id)
-  if (validItems.length === 0) {
-    errors.value.items = 'At least one item with a product is required'
+  if (fromPurchaseOrder.value) {
+    const remaining = selectedPO.value
+      ? remainingGrnLinesFromPurchaseOrder(selectedPO.value)
+      : []
+    if (selectedPO.value && remaining.length === 0) {
+      errors.value.purchase_order_id = 'This purchase order has no remaining quantity to receive'
+    }
+  } else {
+    const validItems = items.filter(item => item.product_id)
+    if (validItems.length === 0) {
+      errors.value.items = 'At least one item with a product is required'
+    }
   }
 
   for (const [i, item] of items.entries()) {
@@ -122,35 +195,49 @@ function validateForm(): boolean {
 
 // Submission
 const createMutation = useCreateStandaloneGRN()
-const isSubmitting = computed(() => createMutation.isPending.value)
+const createFromPoMutation = useCreateGRNFromPO()
+const isSubmitting = computed(() =>
+  createMutation.isPending.value || createFromPoMutation.isPending.value
+)
 
 async function handleSubmit() {
   if (!validateForm()) {
-    toast.error('Please fix validation errors')
+    toast.error(Object.values(errors.value)[0] || 'Please fix validation errors')
     return
   }
 
-  // Filter out empty items
-  const validItems: StandaloneGRNItem[] = items
-    .filter(item => item.product_id)
-    .map(item => ({
-      product_id: item.product_id!,
-      quantity_ordered: item.quantity_ordered,
-      unit_price: item.unit_price,
-    }))
+  const header = {
+    warehouse_id: warehouseId.value!,
+    receipt_date: receiptDate.value || undefined,
+    supplier_do_number: supplierDoNumber.value || undefined,
+    supplier_invoice_number: supplierInvoiceNumber.value || undefined,
+    vehicle_number: vehicleNumber.value || undefined,
+    driver_name: driverName.value || undefined,
+    notes: notes.value || undefined,
+  }
 
   try {
-    const result = await createMutation.mutateAsync({
-      warehouse_id: warehouseId.value!,
-      contact_id: contactId.value || undefined,
-      receipt_date: receiptDate.value || undefined,
-      supplier_do_number: supplierDoNumber.value || undefined,
-      supplier_invoice_number: supplierInvoiceNumber.value || undefined,
-      vehicle_number: vehicleNumber.value || undefined,
-      driver_name: driverName.value || undefined,
-      notes: notes.value || undefined,
-      items: validItems,
-    })
+    const result = fromPurchaseOrder.value && purchaseOrderId.value
+      ? await createFromPoMutation.mutateAsync({
+          purchaseOrderId: purchaseOrderId.value,
+          data: header,
+        })
+      : await createMutation.mutateAsync({
+          ...header,
+          contact_id: contactId.value || undefined,
+          items: items
+            .filter(item => item.product_id)
+            .map((item): StandaloneGRNItem => ({
+              product_id: item.product_id!,
+              quantity_ordered: item.quantity_ordered,
+              unit_price: item.unit_price,
+            })),
+        })
+
+    if (!result?.id) {
+      toast.error('GRN was not created')
+      return
+    }
 
     toast.success('GRN created successfully')
     router.push(`/purchasing/goods-receipt-notes/${result.id}`)
@@ -186,11 +273,11 @@ function handleCancel() {
             Goods Receipt Notes
           </RouterLink>
           <span>/</span>
-          <span class="text-foreground">New Standalone GRN</span>
+          <span class="text-foreground">New GRN</span>
         </div>
-        <h1 class="text-2xl font-semibold text-foreground">Create Standalone GRN</h1>
+        <h1 class="text-2xl font-semibold text-foreground">Create Goods Receipt</h1>
         <p class="text-muted-foreground">
-          Record goods received without a purchase order
+          Receive against a purchase order, or record a standalone receipt
         </p>
       </div>
       <Button variant="ghost" @click="handleCancel">
@@ -207,6 +294,20 @@ function handleCancel() {
         </template>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField label="Purchase Order" :error="errors.purchase_order_id" class="md:col-span-2">
+            <Select
+              :model-value="purchaseOrderId ?? ''"
+              :options="purchaseOrderOptions"
+              placeholder="Select purchase order…"
+              :loading="loadingPOs"
+              test-id="grn-purchase-order"
+              @update:model-value="onPurchaseOrderSelect"
+            />
+            <template #hint>
+              Approved / partially received POs prefill remaining quantity. Leave empty for a standalone receipt.
+            </template>
+          </FormField>
+
           <!-- Warehouse -->
           <FormField label="Warehouse" required :error="errors.warehouse_id">
             <Select
@@ -250,7 +351,7 @@ function handleCancel() {
         <template #header>
           <div class="flex items-center justify-between">
             <h2 class="font-medium text-foreground">Line Items</h2>
-            <Button type="button" variant="ghost" size="sm" @click="addItem">
+            <Button v-if="!fromPurchaseOrder" type="button" variant="ghost" size="sm" @click="addItem">
               <Plus class="w-4 h-4 mr-1" />
               Add Item
             </Button>
@@ -277,12 +378,13 @@ function handleCancel() {
                 <td class="px-3 py-2">
                   <select
                     :value="item.product_id ?? ''"
+                    :disabled="fromPurchaseOrder"
                     @change="(e) => {
                       const val = (e.target as HTMLSelectElement).value
                       item.product_id = val ? Number(val) : null
                       onProductSelect(index, item.product_id)
                     }"
-                    class="w-full px-2 py-1.5 rounded border border-border bg-background text-foreground text-sm focus:ring-2 focus:ring-primary focus:border-transparent"
+                    class="w-full px-2 py-1.5 rounded border border-border bg-background text-foreground text-sm focus:ring-2 focus:ring-primary focus:border-transparent disabled:opacity-60"
                   >
                     <option value="">Select product...</option>
                     <option
@@ -322,7 +424,7 @@ function handleCancel() {
                   <button
                     type="button"
                     @click="removeItem(index)"
-                    :disabled="items.length === 1"
+                    :disabled="fromPurchaseOrder || items.length === 1"
                     class="text-muted-foreground hover:text-destructive disabled:opacity-30 disabled:cursor-not-allowed"
                   >
                     <X class="w-4 h-4" />
