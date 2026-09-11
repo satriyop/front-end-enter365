@@ -262,8 +262,8 @@ async function handleCreateSR() {
       data: payload,
     })
     showCreateSRModal.value = false
-    toast.success('Sales return created')
-    router.push(`/sales/sales-returns/${newSR.id}`)
+    toast.success('Credit note created')
+    router.push(`/accounting/credit-notes/${newSR.id}`)
   } catch {
     toast.error('Failed to create sales return')
   }
@@ -595,7 +595,7 @@ const itemColumns: ResponsiveColumn[] = [
                 @click="showCreateSRModal = true"
               >
                 <RotateCcw class="w-4 h-4 mr-2" />
-                Create Sales Return
+                Create Credit Note
               </Button>
               <Button
                 v-if="canSend"
@@ -801,9 +801,9 @@ const itemColumns: ResponsiveColumn[] = [
     </Modal>
 
     <!-- Create Sales Return Modal -->
-    <Modal :open="showCreateSRModal" title="Create Sales Return" @update:open="showCreateSRModal = $event">
+    <Modal :open="showCreateSRModal" title="Create Credit Note" @update:open="showCreateSRModal = $event">
       <p class="text-slate-600 dark:text-slate-400 mb-4">
-        Create a sales return from this invoice. Items will be copied automatically.
+        Create a customer credit note from this invoice. Items will be copied automatically.
       </p>
       <div class="space-y-4">
         <FormField label="Return Date">
@@ -841,7 +841,7 @@ const itemColumns: ResponsiveColumn[] = [
           @click="handleCreateSR"
         >
           <RotateCcw class="w-4 h-4 mr-2" />
-          Create Sales Return
+          Create Credit Note
         </Button>
       </template>
     </Modal>

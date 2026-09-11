@@ -14,6 +14,7 @@ import {
 } from '@/api/usePurchaseReturns'
 import { getErrorMessage } from '@/api/client'
 import { formatCurrency, formatDate } from '@/utils/format'
+import { vendorRefundJourney } from '@/pages/accounting/creditDocuments'
 import {
   ArrowLeft,
   Edit,
@@ -30,6 +31,7 @@ import { Button, Badge, Card, Modal, PageSkeleton, useToast, ResponsiveTable, ty
 const route = useRoute()
 const router = useRouter()
 const toast = useToast()
+const copy = computed(() => vendorRefundJourney(route.path))
 
 const returnId = computed(() => Number(route.params.id))
 
@@ -106,7 +108,7 @@ async function handleDelete() {
     await deleteMutation.mutateAsync(returnId.value)
     showDeleteModal.value = false
     toast.success('Return deleted')
-    router.push('/purchasing/purchase-returns')
+    router.push(copy.value.listPath)
   } catch (err) {
     toast.error(getErrorMessage(err, 'Failed to delete return'))
   }
@@ -144,9 +146,9 @@ const itemColumns: ResponsiveColumn[] = [
     <template v-else-if="purchaseReturn">
       <!-- Breadcrumb -->
       <div class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mb-4">
-        <RouterLink to="/purchasing/purchase-returns" class="hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1">
+        <RouterLink :to="copy.listPath" class="hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1">
           <ArrowLeft class="w-4 h-4" />
-          Purchase Returns
+          {{ copy.listTitle }}
         </RouterLink>
         <span>/</span>
         <span class="text-slate-900 dark:text-slate-100">{{ formatReturnNumber(purchaseReturn) }}</span>
@@ -173,7 +175,7 @@ const itemColumns: ResponsiveColumn[] = [
           <!-- Action Buttons -->
           <div class="flex flex-wrap gap-2">
             <!-- Edit (draft only) -->
-            <RouterLink v-if="canEdit" :to="`/purchasing/purchase-returns/${returnId}/edit`">
+            <RouterLink v-if="canEdit" :to="copy.editPath(returnId)">
               <Button variant="secondary" size="sm">
                 <Edit class="w-4 h-4 mr-1" />
                 Edit

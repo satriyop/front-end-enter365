@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { customerCreditNoteJourney } from '@/pages/accounting/creditDocuments'
 import {
   useSalesReturns,
   getSalesReturnStatus,
@@ -17,7 +19,9 @@ import { Button, Input, Select, Badge, Card, Pagination, ResponsiveTable, type R
 import FilterBar from '@/components/ui/FilterBar.vue'
 import FilterGroup from '@/components/ui/FilterGroup.vue'
 
+const route = useRoute()
 const router = useRouter()
+const copy = computed(() => customerCreditNoteJourney(route.path))
 
 // Resource list with filters and pagination
 const {
@@ -68,7 +72,7 @@ const columns: ResponsiveColumn[] = [
 
 // Navigate to detail
 function viewReturn(item: Record<string, unknown>) {
-  router.push(`/sales/sales-returns/${item.id}`)
+  router.push(copy.value.detailPath(item.id as number))
 }
 </script>
 
@@ -77,13 +81,13 @@ function viewReturn(item: Record<string, unknown>) {
     <!-- Page Header -->
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">Sales Returns</h1>
-        <p class="text-slate-500 dark:text-slate-400">Manage returns from customers</p>
+        <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100" data-testid="credit-document-heading">{{ copy.listTitle }}</h1>
+        <p class="text-slate-500 dark:text-slate-400">{{ copy.listHint }}</p>
       </div>
-      <RouterLink to="/sales/sales-returns/new">
-        <Button>
+      <RouterLink :to="copy.newPath">
+        <Button data-testid="credit-document-new">
           <Plus class="w-4 h-4 mr-2" />
-          New Return
+          {{ copy.createCta }}
         </Button>
       </RouterLink>
     </div>
@@ -127,11 +131,11 @@ function viewReturn(item: Record<string, unknown>) {
     <!-- Empty State -->
     <Card v-else-if="isEmpty" class="text-center py-12">
       <RotateCcw class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">No sales returns found</h3>
+      <h3 class="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">{{ copy.emptyTitle }}</h3>
       <p class="text-slate-500 dark:text-slate-400 mb-4">
-        Create a return when a customer returns goods
+        {{ copy.emptyHint }}
       </p>
-      <RouterLink to="/sales/sales-returns/new">
+      <RouterLink :to="copy.newPath">
         <Button>
           <Plus class="w-4 h-4 mr-2" />
           Create Return

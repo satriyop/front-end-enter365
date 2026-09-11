@@ -13,6 +13,7 @@ import { useContactsLookup } from '@/api/useContacts'
 import { useWarehousesLookup } from '@/api/useWarehouses'
 import { purchaseReturnSchema, type PurchaseReturnFormData, type PurchaseReturnItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
+import { vendorRefundJourney } from '@/pages/accounting/creditDocuments'
 import { formatCurrency, toNumber } from '@/utils/format'
 import {
   Button,
@@ -37,7 +38,8 @@ const purchaseReturnId = computed(() => {
 })
 
 const isEditing = computed(() => purchaseReturnId.value !== null)
-const pageTitle = computed(() => isEditing.value ? 'Edit Purchase Return' : 'New Purchase Return')
+const copy = computed(() => vendorRefundJourney(route.path))
+const pageTitle = computed(() => isEditing.value ? copy.value.editTitle : copy.value.newTitle)
 
 // Fetch existing purchase return if editing
 const prIdRef = computed(() => purchaseReturnId.value ?? 0)
@@ -186,12 +188,12 @@ const onSubmit = handleSubmit(async (formValues) => {
   try {
     if (isEditing.value && purchaseReturnId.value) {
       await updateMutation.mutateAsync({ id: purchaseReturnId.value, data: payload as any })
-      toast.success('Purchase return updated successfully')
-      router.push(`/purchasing/purchase-returns/${purchaseReturnId.value}`)
+      toast.success(`${copy.value.listTitle.slice(0, -1)} updated successfully`)
+      router.push(copy.value.detailPath(purchaseReturnId.value))
     } else {
       const result = await createMutation.mutateAsync(payload as any)
-      toast.success('Purchase return created successfully')
-      router.push(`/purchasing/purchase-returns/${result.id}`)
+      toast.success(`${copy.value.listTitle.slice(0, -1)} created successfully`)
+      router.push(copy.value.detailPath(result.id))
     }
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
@@ -230,7 +232,7 @@ const warehouseOptions = computed(() => {
       <div>
         <h1 class="text-2xl font-semibold text-foreground">{{ pageTitle }}</h1>
         <p class="text-muted-foreground">
-          {{ isEditing ? 'Update purchase return details' : 'Create a new purchase return' }}
+          {{ isEditing ? copy.listHint : copy.emptyHint }}
         </p>
       </div>
       <Button variant="ghost" @click="router.back()">
@@ -420,7 +422,7 @@ const warehouseOptions = computed(() => {
           Cancel
         </Button>
         <Button type="submit" :loading="isSubmitting">
-          {{ isEditing ? 'Update Purchase Return' : 'Create Purchase Return' }}
+          {{ isEditing ? copy.saveUpdate : copy.saveCreate }}
         </Button>
       </div>
     </form>
