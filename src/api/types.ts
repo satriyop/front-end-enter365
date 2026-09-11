@@ -3848,6 +3848,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/loans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the loan register (Odoo Accounting › Loans) */
+        get: operations["loans.index"];
+        put?: never;
+        post: operations["loans.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans/{loan}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["loans.show"];
+        put: operations["loans.update"];
+        post?: never;
+        delete: operations["loans.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans/{loan}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm a draft loan: generate the amortization board and post disbursement */
+        post: operations["loan.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans/{loan}/post-installment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post the next installment (principal + interest) to the journal */
+        post: operations["loan.postInstallment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/loans-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Loans analysis (Odoo Review › Loans Analysis) */
+        get: operations["loanAnalysis.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/work-order-costs": {
         parameters: {
             query?: never;
@@ -9615,6 +9699,47 @@ export interface components {
             value: string;
             label: string;
         };
+        /** LoanLineResource */
+        LoanLineResource: {
+            id: string;
+            loan_id: string;
+            sequence: string;
+            due_date: string | null;
+            principal_amount: string;
+            interest_amount: string;
+            payment_amount: string;
+            remaining_principal: string;
+            status: string;
+            journal_entry_id: string;
+            posted_at: string | null;
+        };
+        /** LoanResource */
+        LoanResource: {
+            id: string;
+            code: string;
+            name: string;
+            contact_id: string;
+            principal: string;
+            annual_interest_rate: number;
+            duration_months: string;
+            start_date: string | null;
+            liability_account_id: string;
+            interest_account_id: string;
+            bank_account_id: string;
+            journal_id: string;
+            status: string;
+            remaining_principal: string;
+            disbursement_journal_entry_id: string;
+            notes: string;
+            contact?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            lines?: components["schemas"]["LoanLineResource"][];
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** LoginRequest */
         LoginRequest: {
             /** Format: email */
@@ -11811,6 +11936,22 @@ export interface components {
             currency?: "IDR" | "USD" | "EUR" | "SGD" | "JPY" | "CNY" | null;
             is_active?: boolean;
         };
+        /** StoreLoanRequest */
+        StoreLoanRequest: {
+            code: string;
+            name: string;
+            contact_id?: number | null;
+            principal: number;
+            annual_interest_rate?: number | null;
+            duration_months: number;
+            /** Format: date-time */
+            start_date: string;
+            liability_account_id: number;
+            interest_account_id: number;
+            bank_account_id: number;
+            journal_id?: number | null;
+            notes?: string | null;
+        };
         /** StoreMaterialRequisitionRequest */
         StoreMaterialRequisitionRequest: {
             warehouse_id?: number | null;
@@ -13019,6 +13160,22 @@ export interface components {
             /** @enum {string|null} */
             currency?: "IDR" | "USD" | "EUR" | "SGD" | "JPY" | "CNY" | null;
             is_active?: boolean;
+        };
+        /** UpdateLoanRequest */
+        UpdateLoanRequest: {
+            code?: string;
+            name?: string;
+            contact_id?: number | null;
+            principal?: number;
+            annual_interest_rate?: number | null;
+            duration_months?: number;
+            /** Format: date-time */
+            start_date?: string;
+            liability_account_id?: number;
+            interest_account_id?: number;
+            bank_account_id?: number;
+            journal_id?: number | null;
+            notes?: string | null;
         };
         /** UpdateMaterialRequisitionRequest */
         UpdateMaterialRequisitionRequest: {
@@ -24585,6 +24742,260 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "loans.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `LoanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["LoanResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "loans.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreLoanRequest"];
+            };
+        };
+        responses: {
+            /** @description `LoanResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LoanResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "loans.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The loan ID */
+                loan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `LoanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LoanResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "loans.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The loan ID */
+                loan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateLoanRequest"];
+            };
+        };
+        responses: {
+            /** @description `LoanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LoanResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "loans.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The loan ID */
+                loan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Pinjaman berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "loan.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The loan ID */
+                loan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `LoanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LoanResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "loan.postInstallment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The loan ID */
+                loan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `LoanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["LoanResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "loanAnalysis.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            [key: string]: unknown;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "reports.work-order-costs": {

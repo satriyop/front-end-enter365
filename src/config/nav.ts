@@ -89,6 +89,8 @@ export const navigation: NavGroup[] = [
       { name: 'Assets', path: '/accounting/assets', icon: '🏢', permission: 'journals.view' },
       { name: 'Asset Models', path: '/accounting/asset-models', icon: '📐', permission: 'journals.view' },
       { name: 'Depreciation Schedule', path: '/accounting/depreciation-schedule', icon: '📉', permission: 'journals.view' },
+      { name: 'Loans', path: '/accounting/loans', icon: '🏦', permission: 'journals.view' },
+      { name: 'Loans Analysis', path: '/accounting/loans-analysis', icon: '📈', permission: 'journals.view' },
       { name: 'Journal Entries', path: '/accounting/journal-entries', icon: '📝', permission: 'journals.view' },
       { name: 'Fiscal Periods', path: '/accounting/fiscal-periods', icon: '📅', permission: 'fiscal_periods.view' },
       { name: 'Budgets', path: '/accounting/budgets', icon: '📊', permission: 'budgets.view', feature: 'budgeting' },
