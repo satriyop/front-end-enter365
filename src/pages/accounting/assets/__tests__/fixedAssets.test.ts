@@ -29,5 +29,9 @@ describe('fixed assets (#142)', () => {
     expect(api).toContain('useConfirmFixedAsset')
     expect(api).toContain('usePostAssetDepreciation')
     expect(api).toContain('/depreciation-schedule')
+
+    const detail = readFileSync(resolve(__dirname, '../AssetDetailPage.vue'), 'utf8')
+    expect(detail).not.toContain('router.push(`')
+    expect(detail).toContain('editAsset')
   })
 })

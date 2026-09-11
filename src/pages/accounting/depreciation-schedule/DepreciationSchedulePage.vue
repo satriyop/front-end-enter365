@@ -13,6 +13,10 @@ const filters = ref<DepreciationScheduleFilters>({
 })
 const { data, isLoading, error } = useDepreciationSchedule(filters)
 
+function openLine(row: { fixed_asset_id: number }) {
+  router.push('/accounting/assets/' + row.fixed_asset_id)
+}
+
 const columns: ResponsiveColumn[] = [
   { key: 'depreciation_date', label: 'Date', mobilePriority: 1 },
   { key: 'asset', label: 'Asset', mobilePriority: 2 },
@@ -56,7 +60,7 @@ const columns: ResponsiveColumn[] = [
         :columns="columns"
         :loading="isLoading"
         row-key="id"
-        @row-click="(row) => router.push(`/accounting/assets/${row.fixed_asset_id}`)"
+        @row-click="openLine"
       >
         <template #cell-depreciation_date="{ item }">{{ formatDate(item.depreciation_date) }}</template>
         <template #cell-asset="{ item }">{{ item.asset ? `${item.asset.code} · ${item.asset.name}` : item.fixed_asset_id }}</template>

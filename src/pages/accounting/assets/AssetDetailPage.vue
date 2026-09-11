@@ -43,6 +43,10 @@ async function postNext() {
     toast.error('Failed to post depreciation')
   }
 }
+
+function editAsset() {
+  router.push('/accounting/assets/' + assetId.value + '/edit')
+}
 </script>
 
 <template>
@@ -63,7 +67,7 @@ async function postNext() {
           <p class="text-slate-500">{{ asset.status }} · book {{ formatCurrency(asset.book_value) }}</p>
         </div>
         <div class="flex gap-2">
-          <Button v-if="asset.status === 'draft'" variant="secondary" @click="router.push(`/accounting/assets/${asset.id}/edit')">
+          <Button v-if="asset.status === 'draft'" variant="secondary" @click="editAsset">
             Edit
           </Button>
           <Button v-if="asset.status === 'draft'" data-testid="asset-confirm" @click="confirm">
