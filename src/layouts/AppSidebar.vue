@@ -130,7 +130,9 @@ onBeforeUnmount(stopNavRescue)
                 ? 'sidebar-vendor-refunds'
                 : item.path === '/accounting/fiscal-positions'
                   ? 'sidebar-fiscal-positions'
-                  : undefined"
+                  : item.path === '/accounting/assets'
+                    ? 'sidebar-assets'
+                    : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

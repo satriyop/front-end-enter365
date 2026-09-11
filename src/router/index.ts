@@ -624,6 +624,54 @@ const router = createRouter({
           component: () => import('@/pages/accounting/fiscal-positions/FiscalPositionFormPage.vue'),
           meta: { breadcrumb: 'Edit Fiscal Position' }
         },
+        {
+          path: 'accounting/asset-models',
+          name: 'asset-models',
+          component: () => import('@/pages/accounting/asset-models/AssetModelListPage.vue'),
+          meta: { breadcrumb: 'Asset Models' }
+        },
+        {
+          path: 'accounting/asset-models/new',
+          name: 'asset-model-new',
+          component: () => import('@/pages/accounting/asset-models/AssetModelFormPage.vue'),
+          meta: { breadcrumb: 'New Asset Model' }
+        },
+        {
+          path: 'accounting/asset-models/:id/edit',
+          name: 'asset-model-edit',
+          component: () => import('@/pages/accounting/asset-models/AssetModelFormPage.vue'),
+          meta: { breadcrumb: 'Edit Asset Model' }
+        },
+        {
+          path: 'accounting/assets',
+          name: 'assets',
+          component: () => import('@/pages/accounting/assets/AssetListPage.vue'),
+          meta: { breadcrumb: 'Assets' }
+        },
+        {
+          path: 'accounting/assets/new',
+          name: 'asset-new',
+          component: () => import('@/pages/accounting/assets/AssetFormPage.vue'),
+          meta: { breadcrumb: 'New Asset' }
+        },
+        {
+          path: 'accounting/assets/:id',
+          name: 'asset-detail',
+          component: () => import('@/pages/accounting/assets/AssetDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Asset #${route.params.id}` }
+        },
+        {
+          path: 'accounting/assets/:id/edit',
+          name: 'asset-edit',
+          component: () => import('@/pages/accounting/assets/AssetFormPage.vue'),
+          meta: { breadcrumb: 'Edit Asset' }
+        },
+        {
+          path: 'accounting/depreciation-schedule',
+          name: 'depreciation-schedule',
+          component: () => import('@/pages/accounting/depreciation-schedule/DepreciationSchedulePage.vue'),
+          meta: { breadcrumb: 'Depreciation Schedule' }
+        },
         // Accounting - Journal Entries routes
         {
           path: 'accounting/journal-entries',
