@@ -198,6 +198,139 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/analytic-budgets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List analytic budgets (Odoo Accounting › Analytic Budgets) */
+        get: operations["analytic-budgets.index"];
+        put?: never;
+        post: operations["analytic-budgets.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-budgets/{analyticBudget}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["analytic-budgets.show"];
+        put: operations["analytic-budgets.update"];
+        post?: never;
+        delete: operations["analytic-budgets.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-distribution-models/match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Return the first matching distribution for partner / account / product */
+        get: operations["analyticDistributionModel.match"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-distribution-models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List analytic distribution models (Odoo Configuration › Analytic Distribution Models) */
+        get: operations["analytic-distribution-models.index"];
+        put?: never;
+        post: operations["analytic-distribution-models.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-distribution-models/{analyticDistributionModel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["analytic-distribution-models.show"];
+        put: operations["analytic-distribution-models.update"];
+        post?: never;
+        delete: operations["analytic-distribution-models.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Browse analytic items generated from posted journal distributions (Odoo Accounting › Analytic Items) */
+        get: operations["analyticItem.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List analytic plans (Odoo Configuration › Analytic Plans) */
+        get: operations["analytic-plans.index"];
+        put?: never;
+        post: operations["analytic-plans.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/analytic-plans/{analyticPlan}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["analytic-plans.show"];
+        put: operations["analytic-plans.update"];
+        post?: never;
+        delete: operations["analytic-plans.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/asset-models": {
         parameters: {
             query?: never;
@@ -8600,7 +8733,103 @@ export interface components {
             id: string;
             code: string;
             name: string;
+            analytic_plan_id: string;
+            plan?: {
+                id: string;
+                code: string;
+                name: string;
+            } | null;
             is_active: string;
+        };
+        /** AnalyticBudgetLineResource */
+        AnalyticBudgetLineResource: {
+            id: string;
+            analytic_budget_id: string;
+            analytic_account_id: string;
+            planned_amount: string;
+            actual_amount: unknown;
+            variance: unknown;
+            analytic_account?: {
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+        };
+        /** AnalyticBudgetResource */
+        AnalyticBudgetResource: {
+            id: string;
+            name: string;
+            date_from: string | null;
+            date_to: string | null;
+            status: string;
+            notes: string;
+            lines_count?: number;
+            lines?: components["schemas"]["AnalyticBudgetLineResource"][];
+            created_at: string | null;
+            updated_at: string | null;
+        };
+        /** AnalyticDistributionModelResource */
+        AnalyticDistributionModelResource: {
+            id: string;
+            name: string;
+            partner_id: string;
+            account_prefix: string;
+            product_id: string;
+            analytic_distribution: Record<string, never> | {
+                [key: string]: number;
+            } | null;
+            sequence: string;
+            is_active: string;
+            partner?: {
+                id: number;
+                name: string;
+            } | null;
+            product?: {
+                id: number;
+                name: string;
+            } | null;
+            created_at: string | null;
+            updated_at: string | null;
+        };
+        /** AnalyticItemResource */
+        AnalyticItemResource: {
+            id: string | null;
+            journal_entry_line_id: string | null;
+            journal_entry_id: string | null;
+            entry_number: string | null;
+            entry_date: string | null;
+            analytic_account_id: string | null;
+            account_id: string | null;
+            partner_id: string | null;
+            percentage: string | 0;
+            amount: string | 0;
+            description: string | null;
+            analytic_account: string | null;
+            account: string | null;
+            partner: string | null;
+        };
+        /** AnalyticPlanResource */
+        AnalyticPlanResource: {
+            id: string;
+            code: string;
+            name: string;
+            parent_id: string;
+            default_applicability: string;
+            is_active: string;
+            notes: string;
+            analytic_accounts_count?: number;
+            parent?: {
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+            analytic_accounts?: {
+                id: string;
+                code: string;
+                name: string;
+            }[];
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** ApplyCostOptimizationRequest */
         ApplyCostOptimizationRequest: {
@@ -11600,7 +11829,41 @@ export interface components {
         StoreAnalyticAccountRequest: {
             code: string;
             name: string;
+            analytic_plan_id?: number | null;
             is_active?: boolean;
+        };
+        /** StoreAnalyticBudgetRequest */
+        StoreAnalyticBudgetRequest: {
+            name: string;
+            /** Format: date-time */
+            date_from: string;
+            /** Format: date-time */
+            date_to: string;
+            notes?: string | null;
+            lines: {
+                analytic_account_id: number;
+                planned_amount: number;
+            }[];
+        };
+        /** StoreAnalyticDistributionModelRequest */
+        StoreAnalyticDistributionModelRequest: {
+            name: string;
+            partner_id?: number | null;
+            account_prefix?: string | null;
+            product_id?: number | null;
+            analytic_distribution: number[];
+            sequence?: number | null;
+            is_active?: boolean;
+        };
+        /** StoreAnalyticPlanRequest */
+        StoreAnalyticPlanRequest: {
+            code: string;
+            name: string;
+            parent_id?: number | null;
+            /** @enum {string|null} */
+            default_applicability?: "optional" | "mandatory" | "unavailable" | null;
+            is_active?: boolean;
+            notes?: string | null;
         };
         /** StoreAssetModelRequest */
         StoreAssetModelRequest: {
@@ -12924,7 +13187,43 @@ export interface components {
         UpdateAnalyticAccountRequest: {
             code?: string;
             name?: string;
+            analytic_plan_id?: number | null;
             is_active?: boolean;
+        };
+        /** UpdateAnalyticBudgetRequest */
+        UpdateAnalyticBudgetRequest: {
+            name?: string;
+            /** Format: date-time */
+            date_from?: string;
+            /** Format: date-time */
+            date_to?: string;
+            /** @enum {string} */
+            status?: "draft" | "open" | "closed";
+            notes?: string | null;
+            lines?: {
+                analytic_account_id?: number;
+                planned_amount?: number;
+            }[];
+        };
+        /** UpdateAnalyticDistributionModelRequest */
+        UpdateAnalyticDistributionModelRequest: {
+            name?: string;
+            partner_id?: number | null;
+            account_prefix?: string | null;
+            product_id?: number | null;
+            analytic_distribution?: number[];
+            sequence?: number | null;
+            is_active?: boolean;
+        };
+        /** UpdateAnalyticPlanRequest */
+        UpdateAnalyticPlanRequest: {
+            code?: string;
+            name?: string;
+            parent_id?: number | null;
+            /** @enum {string|null} */
+            default_applicability?: "optional" | "mandatory" | "unavailable" | null;
+            is_active?: boolean;
+            notes?: string | null;
         };
         /** UpdateAssetModelRequest */
         UpdateAssetModelRequest: {
@@ -14805,6 +15104,575 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-budgets.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AnalyticBudgetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticBudgetResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "analytic-budgets.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAnalyticBudgetRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticBudgetResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticBudgetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-budgets.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic budget ID */
+                analyticBudget: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AnalyticBudgetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticBudgetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "analytic-budgets.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic budget ID */
+                analyticBudget: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnalyticBudgetRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticBudgetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticBudgetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-budgets.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic budget ID */
+                analyticBudget: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Anggaran analitik berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "analyticDistributionModel.match": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            analytic_distribution: {
+                                [key: string]: number;
+                            } | null;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "analytic-distribution-models.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AnalyticDistributionModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AnalyticDistributionModelResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "analytic-distribution-models.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAnalyticDistributionModelRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticDistributionModelResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticDistributionModelResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-distribution-models.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic distribution model ID */
+                analyticDistributionModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AnalyticDistributionModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticDistributionModelResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "analytic-distribution-models.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic distribution model ID */
+                analyticDistributionModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnalyticDistributionModelRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticDistributionModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticDistributionModelResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-distribution-models.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic distribution model ID */
+                analyticDistributionModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Model distribusi analitik berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "analyticItem.index": {
+        parameters: {
+            query?: {
+                page?: number;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `AnalyticItemResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticItemResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "analytic-plans.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AnalyticPlanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AnalyticPlanResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "analytic-plans.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAnalyticPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticPlanResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticPlanResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-plans.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic plan ID */
+                analyticPlan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AnalyticPlanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticPlanResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "analytic-plans.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic plan ID */
+                analyticPlan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAnalyticPlanRequest"];
+            };
+        };
+        responses: {
+            /** @description `AnalyticPlanResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AnalyticPlanResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "analytic-plans.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The analytic plan ID */
+                analyticPlan: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Rencana analitik berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "asset-models.index": {

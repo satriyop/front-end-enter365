@@ -140,7 +140,11 @@ onBeforeUnmount(stopNavRescue)
                           ? 'sidebar-deferred-expenses'
                           : item.path === '/accounting/deferred-revenues'
                             ? 'sidebar-deferred-revenues'
-                            : undefined"
+                            : item.path === '/accounting/analytic-plans'
+                              ? 'sidebar-analytic-plans'
+                              : item.path === '/accounting/analytic-items'
+                                ? 'sidebar-analytic-items'
+                                : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[
