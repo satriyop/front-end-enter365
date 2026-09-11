@@ -799,6 +799,60 @@ const router = createRouter({
           redirect: { name: 'ledgers' },
         },
         {
+          path: 'accounting/follow-up-levels',
+          name: 'follow-up-levels',
+          component: () => import('@/pages/accounting/follow-up-levels/FollowUpLevelListPage.vue'),
+          meta: { breadcrumb: 'Follow-up Levels' }
+        },
+        {
+          path: 'accounting/follow-up-levels/new',
+          name: 'follow-up-level-new',
+          component: () => import('@/pages/accounting/follow-up-levels/FollowUpLevelFormPage.vue'),
+          meta: { breadcrumb: 'New Follow-up Level' }
+        },
+        {
+          path: 'accounting/follow-up-levels/:id/edit',
+          name: 'follow-up-level-edit',
+          component: () => import('@/pages/accounting/follow-up-levels/FollowUpLevelFormPage.vue'),
+          meta: { breadcrumb: 'Edit Follow-up Level' }
+        },
+        {
+          path: 'follow-up-levels',
+          redirect: { name: 'follow-up-levels' },
+        },
+        {
+          path: 'accounting/employee-expenses',
+          name: 'employee-expenses',
+          component: () => import('@/pages/accounting/employee-expenses/EmployeeExpenseListPage.vue'),
+          meta: { breadcrumb: 'Employee Expenses' }
+        },
+        {
+          path: 'accounting/employee-expenses/new',
+          name: 'employee-expense-new',
+          component: () => import('@/pages/accounting/employee-expenses/EmployeeExpenseFormPage.vue'),
+          meta: { breadcrumb: 'New Employee Expense' }
+        },
+        {
+          path: 'accounting/employee-expenses/:id/edit',
+          name: 'employee-expense-edit',
+          component: () => import('@/pages/accounting/employee-expenses/EmployeeExpenseFormPage.vue'),
+          meta: { breadcrumb: 'Edit Employee Expense' }
+        },
+        {
+          path: 'accounting/employee-expenses/:id',
+          name: 'employee-expense-detail',
+          component: () => import('@/pages/accounting/employee-expenses/EmployeeExpenseDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Expense #${route.params.id}` }
+        },
+        {
+          path: 'employee-expenses',
+          redirect: { name: 'employee-expenses' },
+        },
+        {
+          path: 'expenses-employee',
+          redirect: { name: 'employee-expenses' },
+        },
+        {
           path: 'accounting/asset-models',
           name: 'asset-models',
           component: () => import('@/pages/accounting/asset-models/AssetModelListPage.vue'),
