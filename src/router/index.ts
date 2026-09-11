@@ -1013,6 +1013,44 @@ const router = createRouter({
           component: () => import('@/pages/accounting/budgets/BudgetFormPage.vue'),
           meta: { breadcrumb: 'Edit Budget' }
         },
+        {
+          path: 'accounting/transfers',
+          name: 'accounting-transfers',
+          component: () => import('@/pages/accounting/transfers/TransferListPage.vue'),
+          meta: { breadcrumb: 'Transfers' }
+        },
+        {
+          path: 'accounting/transfers/new',
+          name: 'accounting-transfer-new',
+          component: () => import('@/pages/accounting/transfers/TransferFormPage.vue'),
+          meta: { breadcrumb: 'New Transfer' }
+        },
+        {
+          path: 'accounting/transfers/:id',
+          name: 'accounting-transfer-detail',
+          component: () => import('@/pages/accounting/transfers/TransferDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Transfer #${route.params.id}` }
+        },
+        {
+          path: 'accounting/transfers/:id/edit',
+          name: 'accounting-transfer-edit',
+          component: () => import('@/pages/accounting/transfers/TransferFormPage.vue'),
+          meta: { breadcrumb: 'Edit Transfer' }
+        },
+        {
+          path: 'transfers',
+          redirect: { name: 'accounting-transfers' },
+        },
+        {
+          path: 'accounting/reconcile',
+          name: 'accounting-reconcile',
+          component: () => import('@/pages/accounting/reconcile/ReconcileWorkspacePage.vue'),
+          meta: { breadcrumb: 'Reconcile' }
+        },
+        {
+          path: 'reconcile',
+          redirect: { name: 'accounting-reconcile' },
+        },
         // Accounting - Bank Reconciliation routes
         {
           path: 'accounting/bank-reconciliation',
