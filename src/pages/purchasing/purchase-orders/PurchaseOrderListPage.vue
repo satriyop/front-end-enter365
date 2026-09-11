@@ -11,6 +11,7 @@ import {
 } from '@/api/usePurchaseOrders'
 import { useResourceList } from '@/composables/useResourceList'
 import { formatCurrency, formatDate } from '@/utils/format'
+import { purchaseOrderAmount } from './purchaseOrderAmount'
 import {
   Plus,
   Package,
@@ -71,7 +72,7 @@ function handleStatusChange(value: string | number | null) {
 const columns: ResponsiveColumn[] = [
   { key: 'po_number', label: 'PO Number', mobilePriority: 1 },
   { key: 'contact', label: 'Vendor', mobilePriority: 2 },
-  { key: 'total', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
+  { key: 'total_amount', label: 'Amount', align: 'right', mobilePriority: 3, format: (v) => formatCurrency(v as number) },
   { key: 'status', label: 'Status', showInMobile: false },
   { key: 'expected_date', label: 'Expected', showInMobile: false, format: (v) => v ? formatDate(v as string) : '-' },
   { key: 'actions', label: '', showInMobile: false },
@@ -234,6 +235,10 @@ function viewPO(item: Record<string, unknown>) {
         <template #cell-contact="{ item }">
           <div class="font-medium text-slate-900 dark:text-slate-100">{{ (item as PurchaseOrder).contact?.name || '-' }}</div>
           <div v-if="(item as PurchaseOrder).subject" class="text-sm text-slate-500 dark:text-slate-400">{{ (item as PurchaseOrder).subject }}</div>
+        </template>
+
+        <template #cell-total_amount="{ item }">
+          <span data-testid="po-list-amount">{{ formatCurrency(purchaseOrderAmount(item as PurchaseOrder)) }}</span>
         </template>
 
         <!-- Status -->
