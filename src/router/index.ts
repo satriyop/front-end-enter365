@@ -1205,6 +1205,72 @@ const router = createRouter({
           path: 'audit-trail',
           redirect: { name: 'audit-trail' },
         },
+        {
+          path: 'accounting/tax-returns',
+          name: 'tax-returns',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'tax-returns' },
+          meta: { breadcrumb: 'Tax Returns', permission: 'reports.tax' }
+        },
+        {
+          path: 'accounting/unrealized-currencies',
+          name: 'unrealized-currencies',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'unrealized-currencies' },
+          meta: { breadcrumb: 'Unrealized Currencies', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/invoice-analysis',
+          name: 'invoice-analysis',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'invoice-analysis' },
+          meta: { breadcrumb: 'Invoice Analysis', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/analytic-report',
+          name: 'analytic-report',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'analytic-report' },
+          meta: { breadcrumb: 'Analytic Report', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/executive-summary',
+          name: 'executive-summary',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'executive-summary' },
+          meta: { breadcrumb: 'Executive Summary', permission: 'reports.financial' }
+        },
+        {
+          path: 'accounting/budget-report',
+          name: 'budget-report',
+          component: () => import('@/pages/accounting/analysis/AccountingAnalysisPage.vue'),
+          props: { kind: 'budget-report' },
+          meta: { breadcrumb: 'Budget Report', permission: 'reports.financial' }
+        },
+        {
+          path: 'tax-returns',
+          redirect: { name: 'tax-returns' },
+        },
+        {
+          path: 'unrealized-currencies',
+          redirect: { name: 'unrealized-currencies' },
+        },
+        {
+          path: 'invoice-analysis',
+          redirect: { name: 'invoice-analysis' },
+        },
+        {
+          path: 'analytic-report',
+          redirect: { name: 'analytic-report' },
+        },
+        {
+          path: 'executive-summary',
+          redirect: { name: 'executive-summary' },
+        },
+        {
+          path: 'budget-report',
+          redirect: { name: 'budget-report' },
+        },
         // Accounting - Bank Reconciliation routes
         {
           path: 'accounting/bank-reconciliation',

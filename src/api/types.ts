@@ -177,6 +177,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/tax-returns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Monthly VAT filing workspace (Odoo Accounting › Tax Returns) */
+        get: operations["reports.tax-returns"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/review/unrealized-currencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Open foreign-currency AR/AP vs closing rate (Odoo Review › Unrealized Currencies) */
+        get: operations["reports.review.unrealized-currencies"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/invoice-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Posted invoice analysis (Odoo Reporting › Invoice Analysis) */
+        get: operations["reports.invoice-analysis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/analytic-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Analytic profitability from posted journal distributions (Odoo Reporting › Analytic Report) */
+        get: operations["reports.analytic-report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/executive-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Period KPI pack (Odoo Reporting › Executive Summary) */
+        get: operations["reports.executive-summary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/budget-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Company budgets vs posted actuals (Odoo Reporting › Budget Report) */
+        get: operations["reports.budget-report"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/accounting-ledgers": {
         parameters: {
             query?: never;
@@ -15497,6 +15599,335 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reports.tax-returns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Tax Returns";
+                            year: number;
+                            rows: {
+                                period: string;
+                                /** @constant */
+                                month: 1;
+                                name: string;
+                                output_count: string;
+                                output_base: string;
+                                output_tax: string;
+                                input_count: string;
+                                input_base: string;
+                                input_tax: string;
+                                net_tax: string;
+                                /** @enum {string} */
+                                status: "balanced" | "to_file" | "nil";
+                            }[];
+                            totals: {
+                                output_tax: number;
+                                input_tax: number;
+                                net_tax: string;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.review.unrealized-currencies": {
+        parameters: {
+            query?: {
+                rates?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Unrealized Currencies";
+                            as_of_date: string;
+                            closing_rates: string;
+                            rows: ({
+                                /** @constant */
+                                type: "invoice";
+                                reference: string;
+                                currency: string;
+                                outstanding: string;
+                                booked_rate: number;
+                                closing_rate: number;
+                                booked_base: number;
+                                revalued_base: number;
+                                unrealized_fx: string;
+                            } | {
+                                /** @constant */
+                                type: "bill";
+                                reference: string;
+                                currency: string;
+                                outstanding: string;
+                                booked_rate: number;
+                                closing_rate: number;
+                                booked_base: number;
+                                revalued_base: number;
+                                unrealized_fx: string;
+                            })[];
+                            totals: {
+                                count: number;
+                                total_gain: number;
+                                total_loss: number;
+                                net: string;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.invoice-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Invoice Analysis";
+                            group_by: string;
+                            from: string;
+                            to: string;
+                            rows: unknown[];
+                            totals: {
+                                count: number;
+                                subtotal: number;
+                                tax_amount: number;
+                                total_amount: number;
+                                paid_amount: number;
+                                outstanding: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.analytic-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Analytic Report";
+                            from: string;
+                            to: string;
+                            rows: {
+                                analytic_account_id: string;
+                                code: string | null;
+                                name: string | null;
+                                income: string;
+                                expense: string;
+                                amount: string;
+                                debit: string;
+                                credit: string;
+                                balance: string;
+                            }[];
+                            totals: {
+                                debit: number;
+                                credit: number;
+                                amount: number;
+                                income: number;
+                                expense: number;
+                                balance: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.executive-summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Executive Summary";
+                            from: string;
+                            to: string;
+                            kpis: {
+                                sales_total: number;
+                                sales_count: number;
+                                sales_tax: number;
+                                purchase_total: number;
+                                purchase_count: number;
+                                purchase_tax: number;
+                                net_operating: string;
+                                receivable_outstanding: number;
+                                payable_outstanding: number;
+                                cash_balance: number;
+                            };
+                            rows: [
+                                {
+                                    /** @constant */
+                                    label: "Sales";
+                                    amount: number;
+                                },
+                                {
+                                    /** @constant */
+                                    label: "Purchases";
+                                    amount: number;
+                                },
+                                {
+                                    /** @constant */
+                                    label: "Net operating";
+                                    amount: string;
+                                },
+                                {
+                                    /** @constant */
+                                    label: "Receivables";
+                                    amount: number;
+                                },
+                                {
+                                    /** @constant */
+                                    label: "Payables";
+                                    amount: number;
+                                },
+                                {
+                                    /** @constant */
+                                    label: "Cash";
+                                    amount: number;
+                                }
+                            ];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.budget-report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Budget Report";
+                            as_of_date: string | null;
+                            rows: {
+                                id: number;
+                                name: string;
+                                type: string;
+                                status: string;
+                                period_name: string;
+                                budgeted_revenue: number;
+                                actual_revenue: number;
+                                revenue_variance: string;
+                                budgeted_expense: number;
+                                actual_expense: number;
+                                expense_variance: string;
+                                net_budget: number;
+                                net_actual: string;
+                            }[];
+                            totals: {
+                                budgeted_revenue: number;
+                                actual_revenue: number;
+                                budgeted_expense: number;
+                                actual_expense: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "accounting-ledgers.index": {
