@@ -177,6 +177,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/accounting-ledgers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List accounting ledgers (Odoo Configuration › Multi Ledgers) */
+        get: operations["accounting-ledgers.index"];
+        put?: never;
+        post: operations["accounting-ledgers.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounting-ledgers/{accountingLedger}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["accounting-ledgers.show"];
+        put: operations["accounting-ledgers.update"];
+        post?: never;
+        delete: operations["accounting-ledgers.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/accounting-policies": {
         parameters: {
             query?: never;
@@ -1876,6 +1909,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/cash-roundings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List cash rounding rules (Odoo Configuration › Cash Roundings) */
+        get: operations["cash-roundings.index"];
+        put?: never;
+        post: operations["cash-roundings.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/cash-roundings/{cashRounding}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["cash-roundings.show"];
+        put: operations["cash-roundings.update"];
+        post?: never;
+        delete: operations["cash-roundings.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/checks": {
         parameters: {
             query?: never;
@@ -2643,6 +2709,39 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/currencies": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List currencies (Odoo Configuration › Currencies) */
+        get: operations["currencies.index"];
+        put?: never;
+        post: operations["currencies.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/currencies/{currency}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["currencies.show"];
+        put: operations["currencies.update"];
+        post?: never;
+        delete: operations["currencies.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -9027,6 +9126,24 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** AccountingLedgerResource */
+        AccountingLedgerResource: {
+            id: number;
+            code: string;
+            name: string;
+            currency_code: string | null;
+            is_default: boolean;
+            is_active: boolean;
+            notes: string | null;
+            currency?: {
+                id: number;
+                code: string;
+                name: string;
+                symbol: string;
+            } | null;
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** AccountingPolicyResource */
         AccountingPolicyResource: {
             id: number;
@@ -9626,6 +9743,29 @@ export interface components {
         CancelQuotationRequest: {
             reason?: string | null;
         };
+        /** CashRoundingResource */
+        CashRoundingResource: {
+            id: number;
+            name: string;
+            rounding: number;
+            strategy: string;
+            profit_account_id: number | null;
+            loss_account_id: number | null;
+            is_active: boolean;
+            notes: string | null;
+            profit_account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            loss_account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** CheckSettingResource */
         CheckSettingResource: {
             id: number;
@@ -9808,6 +9948,25 @@ export interface components {
             variant_label?: string | null;
             name?: string | null;
             is_primary_variant?: boolean | null;
+        };
+        /** CurrencyResource */
+        CurrencyResource: {
+            id: number;
+            code: string;
+            name: string;
+            symbol: string;
+            decimal_places: number;
+            is_base_currency: boolean;
+            is_active: boolean;
+            exchange_rates?: {
+                id: number;
+                from_currency: string;
+                to_currency: string;
+                rate: number;
+                effective_date: string;
+            }[];
+            created_at: string | null;
+            updated_at: string | null;
         };
         /** DeferredEntryLineResource */
         DeferredEntryLineResource: {
@@ -12207,6 +12366,15 @@ export interface components {
             /** @enum {string|null} */
             currency?: "IDR" | "USD" | "EUR" | "SGD" | "JPY" | "CNY" | null;
         };
+        /** StoreAccountingLedgerRequest */
+        StoreAccountingLedgerRequest: {
+            code: string;
+            name: string;
+            currency_code?: string | null;
+            is_default?: boolean;
+            is_active?: boolean;
+            notes?: string | null;
+        };
         /** StoreAccountingTransferRequest */
         StoreAccountingTransferRequest: {
             /** Format: date-time */
@@ -12453,6 +12621,17 @@ export interface components {
                 notes?: string | null;
             }[] | null;
         };
+        /** StoreCashRoundingRequest */
+        StoreCashRoundingRequest: {
+            name: string;
+            rounding: number;
+            /** @enum {string} */
+            strategy: "half_up" | "up" | "down";
+            profit_account_id?: number | null;
+            loss_account_id?: number | null;
+            is_active?: boolean;
+            notes?: string | null;
+        };
         /** StoreCompanyProfileRequest */
         StoreCompanyProfileRequest: {
             name: string;
@@ -12583,6 +12762,15 @@ export interface components {
             notes?: string | null;
             is_active?: boolean;
             fiscal_position_id?: number | null;
+        };
+        /** StoreCurrencyRequest */
+        StoreCurrencyRequest: {
+            code: string;
+            name: string;
+            symbol: string;
+            decimal_places?: number | null;
+            is_base_currency?: boolean;
+            is_active?: boolean;
         };
         /** StoreDeferredEntryRequest */
         StoreDeferredEntryRequest: {
@@ -13561,6 +13749,15 @@ export interface components {
             /** @enum {string|null} */
             currency?: "IDR" | "USD" | "EUR" | "SGD" | "JPY" | "CNY" | null;
         };
+        /** UpdateAccountingLedgerRequest */
+        UpdateAccountingLedgerRequest: {
+            code?: string;
+            name?: string;
+            currency_code?: string | null;
+            is_default?: boolean;
+            is_active?: boolean;
+            notes?: string | null;
+        };
         /** UpdateAccountingPoliciesRequest */
         UpdateAccountingPoliciesRequest: {
             /** @enum {string} */
@@ -13769,6 +13966,17 @@ export interface components {
             type?: "annual" | "quarterly" | "monthly";
             notes?: string | null;
         };
+        /** UpdateCashRoundingRequest */
+        UpdateCashRoundingRequest: {
+            name?: string;
+            rounding?: number;
+            /** @enum {string} */
+            strategy?: "half_up" | "up" | "down";
+            profit_account_id?: number | null;
+            loss_account_id?: number | null;
+            is_active?: boolean;
+            notes?: string | null;
+        };
         /** UpdateCompanyProfileRequest */
         UpdateCompanyProfileRequest: {
             name?: string;
@@ -13898,6 +14106,15 @@ export interface components {
             notes?: string | null;
             is_active?: boolean;
             fiscal_position_id?: number | null;
+        };
+        /** UpdateCurrencyRequest */
+        UpdateCurrencyRequest: {
+            code?: string;
+            name?: string;
+            symbol?: string;
+            decimal_places?: number | null;
+            is_base_currency?: boolean;
+            is_active?: boolean;
         };
         /** UpdateDeferredEntryRequest */
         UpdateDeferredEntryRequest: {
@@ -15274,6 +15491,177 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["AccountReconciliationResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accounting-ledgers.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AccountingLedgerResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AccountingLedgerResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "accounting-ledgers.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAccountingLedgerRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountingLedgerResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingLedgerResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "accounting-ledgers.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting ledger ID */
+                accountingLedger: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AccountingLedgerResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingLedgerResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accounting-ledgers.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting ledger ID */
+                accountingLedger: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAccountingLedgerRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountingLedgerResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingLedgerResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "accounting-ledgers.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting ledger ID */
+                accountingLedger: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Buku besar berhasil dihapus.";
                     };
                 };
             };
@@ -20407,6 +20795,177 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
+    "cash-roundings.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `CashRoundingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["CashRoundingResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "cash-roundings.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreCashRoundingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CashRoundingResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CashRoundingResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "cash-roundings.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The cash rounding ID */
+                cashRounding: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CashRoundingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CashRoundingResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "cash-roundings.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The cash rounding ID */
+                cashRounding: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateCashRoundingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CashRoundingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CashRoundingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "cash-roundings.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The cash rounding ID */
+                cashRounding: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Aturan pembulatan kas berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "checks.index": {
         parameters: {
             query?: {
@@ -22438,6 +22997,177 @@ export interface operations {
                     };
                 };
             };
+        };
+    };
+    "currencies.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `CurrencyResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CurrencyResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "currencies.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreCurrencyRequest"];
+            };
+        };
+        responses: {
+            /** @description `CurrencyResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CurrencyResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "currencies.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The currency ID */
+                currency: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CurrencyResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CurrencyResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "currencies.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The currency ID */
+                currency: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateCurrencyRequest"];
+            };
+        };
+        responses: {
+            /** @description `CurrencyResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CurrencyResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "currencies.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The currency ID */
+                currency: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Mata uang berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "reports.cutover.bill-to-receive": {

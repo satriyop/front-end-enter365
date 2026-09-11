@@ -164,7 +164,13 @@ onBeforeUnmount(stopNavRescue)
                                                   ? 'sidebar-working-files'
                                                   : item.path === '/accounting/audit-trail'
                                                     ? 'sidebar-audit-trail'
-                                                    : undefined"
+                                                    : item.path === '/accounting/currencies'
+                                                      ? 'sidebar-currencies'
+                                                      : item.path === '/accounting/cash-roundings'
+                                                        ? 'sidebar-cash-roundings'
+                                                        : item.path === '/accounting/ledgers'
+                                                          ? 'sidebar-ledgers'
+                                                          : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

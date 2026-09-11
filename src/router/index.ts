@@ -733,6 +733,72 @@ const router = createRouter({
           meta: { breadcrumb: 'Edit Fiscal Position' }
         },
         {
+          path: 'accounting/currencies',
+          name: 'currencies',
+          component: () => import('@/pages/accounting/currencies/CurrencyListPage.vue'),
+          meta: { breadcrumb: 'Currencies' }
+        },
+        {
+          path: 'accounting/currencies/new',
+          name: 'currency-new',
+          component: () => import('@/pages/accounting/currencies/CurrencyFormPage.vue'),
+          meta: { breadcrumb: 'New Currency' }
+        },
+        {
+          path: 'accounting/currencies/:id/edit',
+          name: 'currency-edit',
+          component: () => import('@/pages/accounting/currencies/CurrencyFormPage.vue'),
+          meta: { breadcrumb: 'Edit Currency' }
+        },
+        {
+          path: 'currencies',
+          redirect: { name: 'currencies' },
+        },
+        {
+          path: 'accounting/cash-roundings',
+          name: 'cash-roundings',
+          component: () => import('@/pages/accounting/cash-roundings/CashRoundingListPage.vue'),
+          meta: { breadcrumb: 'Cash Roundings' }
+        },
+        {
+          path: 'accounting/cash-roundings/new',
+          name: 'cash-rounding-new',
+          component: () => import('@/pages/accounting/cash-roundings/CashRoundingFormPage.vue'),
+          meta: { breadcrumb: 'New Cash Rounding' }
+        },
+        {
+          path: 'accounting/cash-roundings/:id/edit',
+          name: 'cash-rounding-edit',
+          component: () => import('@/pages/accounting/cash-roundings/CashRoundingFormPage.vue'),
+          meta: { breadcrumb: 'Edit Cash Rounding' }
+        },
+        {
+          path: 'cash-roundings',
+          redirect: { name: 'cash-roundings' },
+        },
+        {
+          path: 'accounting/ledgers',
+          name: 'ledgers',
+          component: () => import('@/pages/accounting/ledgers/LedgerListPage.vue'),
+          meta: { breadcrumb: 'Multi Ledgers' }
+        },
+        {
+          path: 'accounting/ledgers/new',
+          name: 'ledger-new',
+          component: () => import('@/pages/accounting/ledgers/LedgerFormPage.vue'),
+          meta: { breadcrumb: 'New Ledger' }
+        },
+        {
+          path: 'accounting/ledgers/:id/edit',
+          name: 'ledger-edit',
+          component: () => import('@/pages/accounting/ledgers/LedgerFormPage.vue'),
+          meta: { breadcrumb: 'Edit Ledger' }
+        },
+        {
+          path: 'ledgers',
+          redirect: { name: 'ledgers' },
+        },
+        {
           path: 'accounting/asset-models',
           name: 'asset-models',
           component: () => import('@/pages/accounting/asset-models/AssetModelListPage.vue'),
