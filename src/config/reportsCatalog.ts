@@ -40,6 +40,18 @@ export const reportCategories: ReportCategory[] = [
       { name: 'Journal Audit', path: '/accounting/journal-audit', description: 'Posted journal register by journal' },
       { name: 'Working Files', path: '/accounting/working-files', description: 'Unposted journals and draft invoices/bills' },
       { name: 'Audit Trail', path: '/accounting/audit-trail', description: 'Accounting document change log' },
+      { name: 'Unrealized Currencies', path: '/accounting/unrealized-currencies', description: 'Open FX AR/AP vs closing rate' },
+    ],
+  },
+  {
+    title: 'Analysis & Tax',
+    description: 'Tax return filing, invoice analysis, analytic, executive, and budget reports',
+    reports: [
+      { name: 'Tax Returns', path: '/accounting/tax-returns', description: 'Monthly VAT filing workspace' },
+      { name: 'Invoice Analysis', path: '/accounting/invoice-analysis', description: 'Posted invoices by month, partner, or status' },
+      { name: 'Analytic Report', path: '/accounting/analytic-report', description: 'Income and expense by analytic account' },
+      { name: 'Executive Summary', path: '/accounting/executive-summary', description: 'Sales, purchases, AR/AP, and cash KPIs' },
+      { name: 'Budget Report', path: '/accounting/budget-report', description: 'Company budgets versus posted actuals' },
     ],
   },
   {

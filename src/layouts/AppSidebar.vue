@@ -170,7 +170,19 @@ onBeforeUnmount(stopNavRescue)
                                                         ? 'sidebar-cash-roundings'
                                                         : item.path === '/accounting/ledgers'
                                                           ? 'sidebar-ledgers'
-                                                          : undefined"
+                                                          : item.path === '/accounting/tax-returns'
+                                                            ? 'sidebar-tax-returns'
+                                                            : item.path === '/accounting/unrealized-currencies'
+                                                              ? 'sidebar-unrealized-currencies'
+                                                              : item.path === '/accounting/invoice-analysis'
+                                                                ? 'sidebar-invoice-analysis'
+                                                                : item.path === '/accounting/analytic-report'
+                                                                  ? 'sidebar-analytic-report'
+                                                                  : item.path === '/accounting/executive-summary'
+                                                                    ? 'sidebar-executive-summary'
+                                                                    : item.path === '/accounting/budget-report'
+                                                                      ? 'sidebar-budget-report'
+                                                                      : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[
