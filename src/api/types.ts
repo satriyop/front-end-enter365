@@ -93,6 +93,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reconcile/accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reconcilable accounts with outstanding residual totals */
+        get: operations["accountReconcile.accounts"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconcile/lines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Unreconciled posted journal lines for an account */
+        get: operations["accountReconcile.lines"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconcile/{accountReconciliation}/unreconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Undo a general reconciliation and restore line residuals */
+        post: operations["accountReconcile.unreconcile"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List past general reconciliations (not bank-statement matching) */
+        get: operations["reconcile.index"];
+        put?: never;
+        post: operations["reconcile.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reconcile/{accountReconciliation}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["reconcile.show"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/accounting-policies": {
         parameters: {
             query?: never;
@@ -105,6 +189,73 @@ export interface paths {
         /** PUT /api/v1/accounting-policies */
         put: operations["accounting-policies.update"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounting-transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List inter-journal/account transfers (Odoo Accounting › Transfers) */
+        get: operations["accounting-transfers.index"];
+        put?: never;
+        post: operations["accounting-transfers.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounting-transfers/{accountingTransfer}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["accounting-transfers.show"];
+        put: operations["accounting-transfers.update"];
+        post?: never;
+        delete: operations["accounting-transfers.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounting-transfers/{accountingTransfer}/post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post a draft transfer: debit destination, credit source */
+        post: operations["accountingTransfer.post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/accounting-transfers/{accountingTransfer}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reverse a posted transfer */
+        post: operations["accountingTransfer.cancel"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8690,6 +8841,36 @@ export interface components {
         AcceptSolarProposalRequest: {
             selected_bom_id?: number | null;
         };
+        /** AccountReconciliationResource */
+        AccountReconciliationResource: {
+            id: number;
+            account_id: number;
+            partner_id: number | null;
+            amount: number;
+            notes: string | null;
+            reconciled_at: string | null;
+            reconciled_by: number | null;
+            account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            partner?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            items?: {
+                id: number;
+                journal_entry_line_id: number;
+                amount: number;
+                entry_number: string;
+                debit: number;
+                credit: number;
+            }[];
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** AccountResource */
         AccountResource: {
             id: number;
@@ -8719,6 +8900,47 @@ export interface components {
             manufacturing_costing: string;
             closing_strategy: string;
             costing_method: string;
+            updated_at: string | null;
+        };
+        /** AccountingTransferResource */
+        AccountingTransferResource: {
+            id: number;
+            transfer_number: string;
+            transfer_date: string | null;
+            from_journal_id: number;
+            to_journal_id: number;
+            from_account_id: number;
+            to_account_id: number;
+            amount: number;
+            status: string;
+            memo: string | null;
+            journal_entry_id: number | null;
+            from_journal?: {
+                id: number;
+                name: string;
+                type: string;
+            } | null;
+            to_journal?: {
+                id: number;
+                name: string;
+                type: string;
+            } | null;
+            from_account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            to_account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            journal_entry?: {
+                id: number;
+                entry_number: string;
+                is_posted: boolean;
+            } | null;
+            created_at: string | null;
             updated_at: string | null;
         };
         /** AddBomToVariantGroupRequest */
@@ -11811,6 +12033,16 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** StoreAccountReconcileRequest */
+        StoreAccountReconcileRequest: {
+            account_id: number;
+            partner_id?: number | null;
+            notes?: string | null;
+            items: {
+                journal_entry_line_id: number;
+                amount?: number | null;
+            }[];
+        };
         /** StoreAccountRequest */
         StoreAccountRequest: {
             code: string;
@@ -11824,6 +12056,17 @@ export interface components {
             allow_reconciliation?: boolean;
             /** @enum {string|null} */
             currency?: "IDR" | "USD" | "EUR" | "SGD" | "JPY" | "CNY" | null;
+        };
+        /** StoreAccountingTransferRequest */
+        StoreAccountingTransferRequest: {
+            /** Format: date-time */
+            transfer_date: string;
+            from_journal_id: number;
+            to_journal_id: number;
+            from_account_id?: number | null;
+            to_account_id?: number | null;
+            amount: number;
+            memo?: string | null;
         };
         /** StoreAnalyticAccountRequest */
         StoreAnalyticAccountRequest: {
@@ -13182,6 +13425,17 @@ export interface components {
             closing_strategy: "direct" | "income_summary";
             /** @enum {string} */
             costing_method: "weighted_average" | "fifo";
+        };
+        /** UpdateAccountingTransferRequest */
+        UpdateAccountingTransferRequest: {
+            /** Format: date-time */
+            transfer_date?: string;
+            from_journal_id?: number;
+            to_journal_id?: number;
+            from_account_id?: number | null;
+            to_account_id?: number | null;
+            amount?: number;
+            memo?: string | null;
         };
         /** UpdateAnalyticAccountRequest */
         UpdateAnalyticAccountRequest: {
@@ -14711,6 +14965,173 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "accountReconcile.accounts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "accountReconcile.lines": {
+        parameters: {
+            query?: {
+                account_id?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: unknown[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "accountReconcile.unreconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The account reconciliation ID */
+                accountReconciliation: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Rekonsiliasi berhasil dibatalkan.";
+                        data: null;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "reconcile.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Array of `AccountReconciliationResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountReconciliationResource"][];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reconcile.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAccountReconcileRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountReconciliationResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountReconciliationResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "reconcile.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The account reconciliation ID */
+                accountReconciliation: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AccountReconciliationResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountReconciliationResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "accounting-policies.show": {
         parameters: {
             query?: never;
@@ -14815,6 +15236,232 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "accounting-transfers.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AccountingTransferResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AccountingTransferResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "accounting-transfers.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAccountingTransferRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountingTransferResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingTransferResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "accounting-transfers.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting transfer ID */
+                accountingTransfer: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AccountingTransferResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingTransferResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accounting-transfers.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting transfer ID */
+                accountingTransfer: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAccountingTransferRequest"];
+            };
+        };
+        responses: {
+            /** @description `AccountingTransferResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingTransferResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "accounting-transfers.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting transfer ID */
+                accountingTransfer: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Transfer akuntansi berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accountingTransfer.post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting transfer ID */
+                accountingTransfer: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AccountingTransferResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingTransferResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "accountingTransfer.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The accounting transfer ID */
+                accountingTransfer: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AccountingTransferResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AccountingTransferResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "reports.receivable-aging": {

@@ -144,7 +144,11 @@ onBeforeUnmount(stopNavRescue)
                               ? 'sidebar-analytic-plans'
                               : item.path === '/accounting/analytic-items'
                                 ? 'sidebar-analytic-items'
-                                : undefined"
+                                : item.path === '/accounting/transfers'
+                                  ? 'sidebar-transfers'
+                                  : item.path === '/accounting/reconcile'
+                                    ? 'sidebar-reconcile'
+                                    : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

@@ -1,0 +1,42 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { describe, expect, it } from 'vitest'
+
+describe('accounting transfers and reconcile (#148)', () => {
+  it('exposes Transfers and Reconcile distinct from Bank Reconciliation', () => {
+    const nav = readFileSync(resolve(__dirname, '../../../../config/nav.ts'), 'utf8')
+    const router = readFileSync(resolve(__dirname, '../../../../router/index.ts'), 'utf8')
+    const sidebar = readFileSync(resolve(__dirname, '../../../../layouts/AppSidebar.vue'), 'utf8')
+    const access = readFileSync(resolve(__dirname, '../../../../router/access.ts'), 'utf8')
+    const list = readFileSync(resolve(__dirname, '../TransferListPage.vue'), 'utf8')
+    const form = readFileSync(resolve(__dirname, '../TransferFormPage.vue'), 'utf8')
+    const detail = readFileSync(resolve(__dirname, '../TransferDetailPage.vue'), 'utf8')
+    const workspace = readFileSync(resolve(__dirname, '../../reconcile/ReconcileWorkspacePage.vue'), 'utf8')
+    const transferApi = readFileSync(resolve(__dirname, '../../../../api/useAccountingTransfers.ts'), 'utf8')
+    const reconcileApi = readFileSync(resolve(__dirname, '../../../../api/useAccountReconcile.ts'), 'utf8')
+
+    expect(nav).toContain("name: 'Transfers'")
+    expect(nav).toContain('/accounting/transfers')
+    expect(nav).toContain("name: 'Reconcile'")
+    expect(nav).toContain('/accounting/reconcile')
+    expect(nav).toContain('/accounting/bank-reconciliation')
+    expect(router).toContain("path: 'accounting/transfers'")
+    expect(router).toContain("path: 'transfers'")
+    expect(router).toContain("path: 'accounting/reconcile'")
+    expect(router).toContain("path: 'reconcile'")
+    expect(access).toContain('/accounting/transfers')
+    expect(access).toContain('/accounting/reconcile')
+    expect(sidebar).toContain('sidebar-transfers')
+    expect(sidebar).toContain('sidebar-reconcile')
+    expect(list).toContain('New Transfer')
+    expect(detail).toContain('transfer-post')
+    expect(workspace).toContain('Reconcile')
+    expect(workspace).toContain('Bank statement matching stays on Bank Reconciliation')
+    expect(transferApi).toContain('/accounting-transfers/')
+    expect(reconcileApi).toContain('/reconcile/accounts')
+    expect(list).not.toContain('router.push(`')
+    expect(form).not.toContain('router.push(`')
+    expect(detail).not.toContain('router.push(`')
+    expect(workspace).not.toContain('router.push(`')
+  })
+})
