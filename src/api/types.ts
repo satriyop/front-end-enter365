@@ -3538,6 +3538,119 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/employee-expenses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List employee expenses for accounting (Odoo Vendors › Expenses) */
+        get: operations["employee-expenses.index"];
+        put?: never;
+        post: operations["employee-expenses.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["employee-expenses.show"];
+        put: operations["employee-expenses.update"];
+        post?: never;
+        delete: operations["employee-expenses.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}/submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["employeeExpense.submit"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["employeeExpense.approve"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}/refuse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["employeeExpense.refuse"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}/post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["employeeExpense.post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/employee-expenses/{employeeExpense}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["employeeExpense.cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/export/trial-balance": {
         parameters: {
             query?: never;
@@ -4082,6 +4195,39 @@ export interface paths {
         /** Post the next draft depreciation line to the journal */
         post: operations["fixedAsset.postDepreciation"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/follow-up-levels": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List dunning follow-up levels (Odoo Configuration › Follow-up Levels) */
+        get: operations["follow-up-levels.index"];
+        put?: never;
+        post: operations["follow-up-levels.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/follow-up-levels/{followUpLevel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["follow-up-levels.show"];
+        put: operations["follow-up-levels.update"];
+        post?: never;
+        delete: operations["follow-up-levels.destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -10256,6 +10402,38 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** EmployeeExpenseResource */
+        EmployeeExpenseResource: {
+            id: number;
+            expense_number: string;
+            employee_id: number;
+            contact_id: number | null;
+            expense_date: string;
+            description: string;
+            amount: number;
+            tax_amount: number;
+            total_amount: number;
+            expense_account_id: number;
+            status: string;
+            journal_entry_id: number | null;
+            notes: string | null;
+            employee?: {
+                id: number;
+                name: string;
+                email: string;
+            } | null;
+            contact?: {
+                id: number;
+                name: string;
+            } | null;
+            expense_account?: {
+                id: number;
+                code: string;
+                name: string;
+            } | null;
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** ExecuteBankStatementImportRequest */
         ExecuteBankStatementImportRequest: {
             /**
@@ -10357,6 +10535,20 @@ export interface components {
                 name: string;
             } | null;
             depreciation_lines?: components["schemas"]["AssetDepreciationLineResource"][];
+            created_at: string | null;
+            updated_at: string | null;
+        };
+        /** FollowUpLevelResource */
+        FollowUpLevelResource: {
+            id: number;
+            name: string;
+            delay_days: number;
+            sequence: number;
+            send_email: boolean;
+            join_invoices: boolean;
+            message: string | null;
+            is_active: boolean;
+            notes: string | null;
             created_at: string | null;
             updated_at: string | null;
         };
@@ -12929,6 +13121,18 @@ export interface components {
             description?: string | null;
             notes?: string | null;
         };
+        /** StoreEmployeeExpenseRequest */
+        StoreEmployeeExpenseRequest: {
+            employee_id: number;
+            contact_id?: number | null;
+            /** Format: date-time */
+            expense_date: string;
+            description: string;
+            amount: number;
+            tax_amount?: number;
+            expense_account_id: number;
+            notes?: string | null;
+        };
         /** StoreFiscalPeriodRequest */
         StoreFiscalPeriodRequest: {
             name: string;
@@ -12971,6 +13175,17 @@ export interface components {
             depreciation_account_id?: number;
             expense_account_id?: number;
             journal_id?: number | null;
+            notes?: string | null;
+        };
+        /** StoreFollowUpLevelRequest */
+        StoreFollowUpLevelRequest: {
+            name: string;
+            delay_days: number;
+            sequence?: number;
+            send_email?: boolean;
+            join_invoices?: boolean;
+            message?: string | null;
+            is_active?: boolean;
             notes?: string | null;
         };
         /** StoreGoodsReceiptNoteRequest */
@@ -14268,6 +14483,18 @@ export interface components {
             description?: string | null;
             notes?: string | null;
         };
+        /** UpdateEmployeeExpenseRequest */
+        UpdateEmployeeExpenseRequest: {
+            employee_id?: number;
+            contact_id?: number | null;
+            /** Format: date-time */
+            expense_date?: string;
+            description?: string;
+            amount?: number;
+            tax_amount?: number;
+            expense_account_id?: number;
+            notes?: string | null;
+        };
         /** UpdateFiscalPeriodRequest */
         UpdateFiscalPeriodRequest: {
             name?: string;
@@ -14316,6 +14543,17 @@ export interface components {
             depreciation_account_id?: number;
             expense_account_id?: number;
             journal_id?: number | null;
+            notes?: string | null;
+        };
+        /** UpdateFollowUpLevelRequest */
+        UpdateFollowUpLevelRequest: {
+            name?: string;
+            delay_days?: number;
+            sequence?: number;
+            send_email?: boolean;
+            join_invoices?: boolean;
+            message?: string | null;
+            is_active?: boolean;
             notes?: string | null;
         };
         /** UpdateGoodsReceiptNoteRequest */
@@ -25619,6 +25857,316 @@ export interface operations {
             422: components["responses"]["ValidationException"];
         };
     };
+    "employee-expenses.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["EmployeeExpenseResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "employee-expenses.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreEmployeeExpenseRequest"];
+            };
+        };
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "employee-expenses.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employee-expenses.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateEmployeeExpenseRequest"];
+            };
+        };
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "employee-expenses.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Biaya karyawan berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employeeExpense.submit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employeeExpense.approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employeeExpense.refuse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employeeExpense.post": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "employeeExpense.cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The employee expense ID */
+                employeeExpense: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `EmployeeExpenseResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["EmployeeExpenseResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
     "export.trialBalance": {
         parameters: {
             query?: {
@@ -27375,6 +27923,177 @@ export interface operations {
                 content: {
                     "application/json": {
                         data: components["schemas"]["FixedAssetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "follow-up-levels.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `FollowUpLevelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FollowUpLevelResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "follow-up-levels.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreFollowUpLevelRequest"];
+            };
+        };
+        responses: {
+            /** @description `FollowUpLevelResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FollowUpLevelResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "follow-up-levels.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The follow up level ID */
+                followUpLevel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `FollowUpLevelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FollowUpLevelResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "follow-up-levels.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The follow up level ID */
+                followUpLevel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateFollowUpLevelRequest"];
+            };
+        };
+        responses: {
+            /** @description `FollowUpLevelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FollowUpLevelResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "follow-up-levels.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The follow up level ID */
+                followUpLevel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Tingkat follow-up berhasil dihapus.";
                     };
                 };
             };
