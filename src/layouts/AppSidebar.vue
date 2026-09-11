@@ -156,7 +156,15 @@ onBeforeUnmount(stopNavRescue)
                                           ? 'sidebar-invoices-to-be-issued'
                                           : item.path === '/accounting/invoiced-not-delivered'
                                             ? 'sidebar-invoiced-not-delivered'
-                                            : undefined"
+                                            : item.path === '/accounting/journal-items'
+                                              ? 'sidebar-journal-items'
+                                              : item.path === '/accounting/journal-audit'
+                                                ? 'sidebar-journal-audit'
+                                                : item.path === '/accounting/working-files'
+                                                  ? 'sidebar-working-files'
+                                                  : item.path === '/accounting/audit-trail'
+                                                    ? 'sidebar-audit-trail'
+                                                    : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

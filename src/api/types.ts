@@ -195,6 +195,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/reports/review/journal-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Line-level journal items (Odoo Review › Journal Items) */
+        get: operations["reports.review.journal-items"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/review/journal-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Posted journal register by journal (Odoo Review › Journal Audit) */
+        get: operations["reports.review.journal-audit"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/review/working-files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Unposted journals and draft invoices/bills (Odoo Review › Working Files) */
+        get: operations["reports.review.working-files"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/review/audit-trail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Accounting document change log (Odoo Review › Audit Trail) */
+        get: operations["reports.review.audit-trail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/accounting-transfers": {
         parameters: {
             query?: never;
@@ -9201,6 +9269,20 @@ export interface components {
             created_at: string | null;
             updated_at: string | null;
         };
+        /** AuditLogResource */
+        AuditLogResource: {
+            id: number;
+            user_id: number | null;
+            user_name: string | null;
+            action: string;
+            auditable_type: string;
+            auditable_id: number;
+            auditable_label: string | null;
+            old_values: unknown[] | null;
+            new_values: unknown[] | null;
+            notes: string | null;
+            created_at: string | null;
+        };
         /** BankTransaction */
         BankTransaction: {
             id: number;
@@ -15304,6 +15386,209 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "reports.review.journal-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Journal Items";
+                            rows: {
+                                id: number;
+                                journal_entry_id: number;
+                                entry_number: unknown;
+                                entry_date: string;
+                                journal_id: number | null;
+                                journal_name: unknown;
+                                journal_type: unknown;
+                                account_id: number;
+                                account_code: unknown;
+                                account_name: unknown;
+                                partner_id: number | null;
+                                partner_name: unknown;
+                                description: unknown;
+                                debit: number;
+                                credit: number;
+                                reconciled_amount: number;
+                                residual: number;
+                                is_posted: boolean;
+                            }[];
+                            meta: {
+                                current_page: number;
+                                last_page: number;
+                                per_page: number;
+                                total: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.review.journal-audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Journal Audit";
+                            from: unknown;
+                            to: unknown;
+                            journals: {
+                                journal_id: number | null;
+                                journal_name: string;
+                                journal_type: string;
+                                entry_count: number;
+                                debit: number;
+                                credit: number;
+                            }[];
+                            totals: {
+                                entry_count: number;
+                                debit: number;
+                                credit: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.review.working-files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Working Files";
+                            unposted_journal_entries: {
+                                id: number;
+                                number: string;
+                                date: string;
+                                description: string;
+                                journal_name: string;
+                            }[];
+                            draft_invoices: {
+                                id: number;
+                                number: string;
+                                date: string;
+                                amount: number;
+                                partner: string;
+                            }[];
+                            draft_bills: {
+                                id: number;
+                                number: string;
+                                date: string;
+                                amount: number;
+                                partner: string;
+                            }[];
+                            totals: {
+                                unposted_journal_entries: number;
+                                draft_invoices: number;
+                                draft_bills: number;
+                            };
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.review.audit-trail": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AuditLogResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AuditLogResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "accounting-transfers.index": {
