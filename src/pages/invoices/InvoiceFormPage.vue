@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, watch, onMounted } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useForm, useFieldArray } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -7,7 +7,6 @@ import {
   useInvoice,
   useCreateInvoice,
   useUpdateInvoice,
-  type CreateInvoiceItem
 } from '@/api/useInvoices'
 import { useContactsLookup } from '@/api/useContacts'
 import { useProductsLookup } from '@/api/useProducts'
@@ -17,6 +16,7 @@ import { invoiceSchema, type InvoiceFormData, type InvoiceItemFormData } from '@
 import { setServerErrors } from '@/composables/useValidatedForm'
 import { formatCurrency, toNumber, CURRENCY_OPTIONS } from '@/utils/format'
 import { applyInvoiceProductDefaults, toggleInvoiceLineTax } from './invoiceLineDefaults'
+import { firstInvoiceFormError, parseInvoiceForm } from './invoiceFormSubmit'
 import {
   Button,
   Input,
@@ -70,7 +70,6 @@ function createEmptyItem(): InvoiceItemFormData {
 const {
   values: form,
   errors,
-  handleSubmit,
   setValues,
   setFieldValue,
   setErrors,
@@ -203,38 +202,30 @@ const isSubmitting = computed(() =>
   createMutation.isPending.value || updateMutation.isPending.value
 )
 
-const onSubmit = handleSubmit(async (formValues) => {
-  const itemsPayload: CreateInvoiceItem[] = (formValues.items || [])
-    .filter(item => item.description)
-    .map(item => ({
-      product_id: item.product_id || undefined,
-      description: item.description,
-      quantity: item.quantity,
-      unit: item.unit,
-      unit_price: item.unit_price,
-      tax_rate: item.tax_rate,
-      revenue_account_id: item.revenue_account_id || undefined,
-    }))
+const submitError = ref('')
 
-  const payload = {
-    contact_id: formValues.contact_id!,
-    invoice_date: formValues.invoice_date || new Date().toISOString().split('T')[0]!,
-    due_date: formValues.due_date || new Date().toISOString().split('T')[0]!,
-    description: formValues.description || undefined,
-    reference: formValues.reference || undefined,
-    currency: formValues.currency || 'IDR',
-    exchange_rate: formValues.exchange_rate || 1,
-    discount_amount: formValues.discount_amount || undefined,
-    items: itemsPayload,
+async function onSubmit() {
+  submitError.value = ''
+  const parsed = parseInvoiceForm(form)
+  if (!parsed.ok) {
+    setErrors(parsed.errors)
+    const message = parsed.message || firstInvoiceFormError(parsed.errors)
+    submitError.value = message
+    toast.error(message)
+    return
   }
 
   try {
     if (isEditing.value && invoiceId.value) {
-      await updateMutation.mutateAsync({ id: invoiceId.value, data: payload })
+      await updateMutation.mutateAsync({ id: invoiceId.value, data: parsed.payload })
       toast.success('Invoice updated successfully')
       router.push(`/invoices/${invoiceId.value}`)
     } else {
-      const result = await createMutation.mutateAsync(payload)
+      const result = await createMutation.mutateAsync(parsed.payload)
+      if (!result?.id) {
+        toast.error('Invoice was not created')
+        return
+      }
       toast.success('Invoice created successfully')
       router.push(`/invoices/${result.id}`)
     }
@@ -245,7 +236,7 @@ const onSubmit = handleSubmit(async (formValues) => {
     }
     toast.error(response?.message || 'Failed to save invoice')
   }
-})
+}
 
 // Set default due_date to 30 days from invoice_date
 onMounted(() => {
@@ -375,8 +366,8 @@ const accountOptions = computed(() =>
           </div>
         </template>
 
-        <Alert v-if="errors.items" variant="destructive" class="mb-4">
-          {{ errors.items }}
+        <Alert v-if="submitError || errors.items" variant="destructive" class="mb-4" data-testid="invoice-form-error">
+          {{ submitError || errors.items }}
         </Alert>
 
         <div class="overflow-x-auto">
@@ -401,6 +392,7 @@ const accountOptions = computed(() =>
                       :options="productOptions"
                       placeholder="Select product…"
                       :test-id="`invoice-item-${index}-product`"
+                      :error="errors[`items.${index}.product_id`] || errors[`items[${index}].product_id`]"
                       @update:model-value="(value) => onProductSelect(index, value ? Number(value) : null)"
                     />
                   </td>
@@ -412,6 +404,12 @@ const accountOptions = computed(() =>
                       placeholder="Item description"
                       class="w-full px-2 py-1.5 rounded border border-slate-300 dark:border-slate-600 text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
                     />
+                    <p
+                      v-if="errors[`items.${index}.description`] || errors[`items[${index}].description`]"
+                      class="text-xs text-red-600 dark:text-red-400 mt-1"
+                    >
+                      {{ errors[`items.${index}.description`] || errors[`items[${index}].description`] }}
+                    </p>
                   </td>
                   <td class="px-3 py-2">
                     <input

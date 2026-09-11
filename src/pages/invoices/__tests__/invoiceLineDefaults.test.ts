@@ -64,7 +64,7 @@ describe('invoice line product defaults (#127)', () => {
     expect(form).toContain('invoice-item-${index}-product')
     expect(form).toContain('invoice-item-${index}-tax-records')
     expect(form).toContain("useTaxRecords('sales')")
-    expect(form).toContain('product_id: item.product_id || undefined')
+    expect(form).toContain('parseInvoiceForm')
     expect(form).not.toContain('Tax (%)')
     expect(form).toContain('Tax (from line taxes)')
     expect(form).not.toContain('defineField(\'tax_rate\')')

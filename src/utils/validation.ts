@@ -312,14 +312,13 @@ export const invoiceItemSchema = z.object({
  * Invoice form schema
  */
 export const invoiceSchema = z.object({
-  contact_id: z.number({ required_error: 'Please select a customer' }).positive('Please select a customer'),
+  contact_id: z.number({ required_error: 'Please select a customer', invalid_type_error: 'Please select a customer' }).positive('Please select a customer'),
   invoice_date: requiredDate('Invoice date'),
   due_date: requiredDate('Due date'),
   description: descriptionSchema,
   reference: referenceSchema,
   currency: z.string().default('IDR'),
   exchange_rate: z.number().min(0).default(1),
-  tax_rate: percentageSchema.default(11),
   discount_amount: currencySchema.default(0),
   receivable_account_id: z.number().optional().nullable(),
   items: z.array(invoiceItemSchema).min(1, 'At least one item is required'),
