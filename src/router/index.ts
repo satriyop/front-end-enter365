@@ -48,8 +48,12 @@ const FEATURE_ROUTE_PREFIXES: Array<{ prefix: string; feature: string }> = [
   { prefix: '/purchases', feature: 'purchase_orders' },
   { prefix: '/purchasing/goods-receipt-notes', feature: 'goods_receipt_notes' },
   { prefix: '/purchasing/purchase-returns', feature: 'purchase_returns' },
+  { prefix: '/accounting/vendor-refunds', feature: 'purchase_returns' },
+  { prefix: '/vendor-refunds', feature: 'purchase_returns' },
   { prefix: '/sales/delivery-orders', feature: 'delivery_orders' },
   { prefix: '/sales/sales-returns', feature: 'sales_returns' },
+  { prefix: '/accounting/credit-notes', feature: 'sales_returns' },
+  { prefix: '/credit-notes', feature: 'sales_returns' },
   { prefix: '/sales/follow-up', feature: 'quotations' },
   { prefix: '/finance/reminders', feature: 'invoices' },
   { prefix: '/sales/overdue-dashboard', feature: 'invoices' },
@@ -620,6 +624,70 @@ const router = createRouter({
           name: 'journal-entry-detail',
           component: () => import('@/pages/accounting/journal-entries/JournalEntryDetailPage.vue'),
           meta: { breadcrumb: (route) => `Entry #${route.params.id}` }
+        },
+        {
+          path: 'accounting/credit-notes',
+          name: 'credit-notes',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnListPage.vue'),
+          meta: { breadcrumb: 'Credit Notes', feature: 'sales_returns' },
+        },
+        {
+          path: 'accounting/credit-notes/new',
+          name: 'credit-note-new',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnFormPage.vue'),
+          meta: { breadcrumb: 'New Credit Note', feature: 'sales_returns' },
+        },
+        {
+          path: 'accounting/credit-notes/:id',
+          name: 'credit-note-detail',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Credit Note #${route.params.id}`, feature: 'sales_returns' },
+        },
+        {
+          path: 'accounting/credit-notes/:id/edit',
+          name: 'credit-note-edit',
+          component: () => import('@/pages/sales/sales-returns/SalesReturnFormPage.vue'),
+          meta: { breadcrumb: 'Edit Credit Note', feature: 'sales_returns' },
+        },
+        {
+          path: 'credit-notes',
+          redirect: { name: 'credit-notes' },
+        },
+        {
+          path: 'accounting/customer-credit-notes',
+          redirect: { name: 'credit-notes' },
+        },
+        {
+          path: 'accounting/vendor-refunds',
+          name: 'vendor-refunds',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnListPage.vue'),
+          meta: { breadcrumb: 'Vendor Refunds', feature: 'purchase_returns' },
+        },
+        {
+          path: 'accounting/vendor-refunds/new',
+          name: 'vendor-refund-new',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnFormPage.vue'),
+          meta: { breadcrumb: 'New Vendor Refund', feature: 'purchase_returns' },
+        },
+        {
+          path: 'accounting/vendor-refunds/:id',
+          name: 'vendor-refund-detail',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnDetailPage.vue'),
+          meta: { breadcrumb: (route) => `Refund #${route.params.id}`, feature: 'purchase_returns' },
+        },
+        {
+          path: 'accounting/vendor-refunds/:id/edit',
+          name: 'vendor-refund-edit',
+          component: () => import('@/pages/purchasing/purchase-returns/PurchaseReturnFormPage.vue'),
+          meta: { breadcrumb: 'Edit Vendor Refund', feature: 'purchase_returns' },
+        },
+        {
+          path: 'vendor-refunds',
+          redirect: { name: 'vendor-refunds' },
+        },
+        {
+          path: 'accounting/refunds',
+          redirect: { name: 'vendor-refunds' },
         },
         // Accounting - Fiscal Periods routes
         {

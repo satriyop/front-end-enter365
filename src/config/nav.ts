@@ -74,6 +74,8 @@ export const navigation: NavGroup[] = [
     label: 'Accounting',
     items: [
       { name: 'Laporan', path: '/reports', icon: '📊', permission: 'reports.financial' },
+      { name: 'Credit Notes', path: '/accounting/credit-notes', icon: '🧾', permission: 'sales_returns.view', feature: 'sales_returns' },
+      { name: 'Vendor Refunds', path: '/accounting/vendor-refunds', icon: '📤', permission: 'purchase_returns.view', feature: 'purchase_returns' },
       { name: 'Chart of Accounts', path: '/accounting/accounts', icon: '📒', permission: 'accounts.view' },
       { name: 'Journals', path: '/accounting/journals', icon: '🗂️', permission: 'journals.view' },
       { name: 'Analytic Accounts', path: '/accounting/analytic-accounts', icon: '🎯', permission: 'journals.view' },
@@ -160,6 +162,8 @@ export const POS_NAV_ID: Record<string, string> = {
   'Journal Entries': 'Jurnal',
   'Fiscal Periods': 'Periode Fiskal',
   'Bank Reconciliation': 'Rekonsiliasi',
+  'Credit Notes': 'Nota Kredit',
+  'Vendor Refunds': 'Refund Vendor',
   Payments: 'Pembayaran',
   Bills: 'Tagihan',
   Reports: 'Laporan',

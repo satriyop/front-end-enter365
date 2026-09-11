@@ -13,6 +13,7 @@ import { useContactsLookup } from '@/api/useContacts'
 import { useWarehousesLookup } from '@/api/useInventory'
 import { salesReturnSchema, type SalesReturnFormData, type SalesReturnItemFormData } from '@/utils/validation'
 import { setServerErrors } from '@/composables/useValidatedForm'
+import { customerCreditNoteJourney } from '@/pages/accounting/creditDocuments'
 import { formatCurrency, toNumber } from '@/utils/format'
 import {
   Button,
@@ -37,7 +38,8 @@ const salesReturnId = computed(() => {
 })
 
 const isEditing = computed(() => salesReturnId.value !== null)
-const pageTitle = computed(() => isEditing.value ? 'Edit Sales Return' : 'New Sales Return')
+const copy = computed(() => customerCreditNoteJourney(route.path))
+const pageTitle = computed(() => isEditing.value ? copy.value.editTitle : copy.value.newTitle)
 
 // Fetch existing sales return if editing
 const srIdRef = computed(() => salesReturnId.value ?? 0)
@@ -179,12 +181,12 @@ const onSubmit = handleSubmit(async (formValues) => {
   try {
     if (isEditing.value && salesReturnId.value) {
       await updateMutation.mutateAsync({ id: salesReturnId.value, data: payload as any })
-      toast.success('Sales return updated successfully')
-      router.push(`/sales/sales-returns/${salesReturnId.value}`)
+      toast.success(`${copy.value.listTitle.slice(0, -1)} updated successfully`)
+      router.push(copy.value.detailPath(salesReturnId.value))
     } else {
       const result = await createMutation.mutateAsync(payload as any)
-      toast.success('Sales return created successfully')
-      router.push(`/sales/sales-returns/${result.id}`)
+      toast.success(`${copy.value.listTitle.slice(0, -1)} created successfully`)
+      router.push(copy.value.detailPath(result.id))
     }
   } catch (err: unknown) {
     const response = (err as { response?: { data?: { message?: string; errors?: Record<string, string[]> } } })?.response?.data
@@ -223,7 +225,7 @@ const warehouseOptions = computed(() => {
       <div>
         <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-100">{{ pageTitle }}</h1>
         <p class="text-slate-500 dark:text-slate-400">
-          {{ isEditing ? 'Update sales return details' : 'Create a new sales return' }}
+          {{ isEditing ? copy.listHint : copy.emptyHint }}
         </p>
       </div>
       <Button variant="ghost" @click="router.back()">
@@ -417,7 +419,7 @@ const warehouseOptions = computed(() => {
           Cancel
         </Button>
         <Button type="submit" :loading="isSubmitting" data-testid="sr-submit">
-          {{ isEditing ? 'Update Sales Return' : 'Create Sales Return' }}
+          {{ isEditing ? copy.saveUpdate : copy.saveCreate }}
         </Button>
       </div>
     </form>

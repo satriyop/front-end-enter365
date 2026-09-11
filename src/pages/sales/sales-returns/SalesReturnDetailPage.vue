@@ -13,6 +13,7 @@ import {
   formatReturnNumber,
 } from '@/api/useSalesReturns'
 import { formatCurrency, formatDate, formatDateTime } from '@/utils/format'
+import { customerCreditNoteJourney } from '@/pages/accounting/creditDocuments'
 import {
   ArrowLeft,
   Send,
@@ -42,6 +43,7 @@ import { Button, Badge, Card, Modal, Input, Alert } from '@/components/ui'
 const route = useRoute()
 const router = useRouter()
 const id = computed(() => Number(route.params.id))
+const copy = computed(() => customerCreditNoteJourney(route.path))
 
 // Fetch sales return
 const { data: salesReturn, isLoading, error } = useSalesReturn(id)
@@ -99,11 +101,11 @@ async function handleCancel() {
 
 async function handleDelete() {
   await deleteMutation.mutateAsync(id.value)
-  router.push('/sales/sales-returns')
+  router.push(copy.value.listPath)
 }
 
 function goBack() {
-  router.push('/sales/sales-returns')
+  router.push(copy.value.listPath)
 }
 </script>
 
@@ -188,7 +190,7 @@ function goBack() {
               <DropdownMenuItem
                 v-if="canEdit"
                 class="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded cursor-pointer"
-                @click="router.push(`/sales/sales-returns/${id}/edit`)"
+                @click="router.push(copy.editPath(id))"
               >
                 <Edit class="w-4 h-4" />
                 Edit
