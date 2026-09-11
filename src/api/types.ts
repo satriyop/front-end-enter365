@@ -198,6 +198,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/asset-models": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List depreciation models (Odoo Asset Models) */
+        get: operations["asset-models.index"];
+        put?: never;
+        post: operations["asset-models.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/asset-models/{assetModel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["asset-models.show"];
+        put: operations["asset-models.update"];
+        post?: never;
+        delete: operations["asset-models.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/attachments": {
         parameters: {
             query?: never;
@@ -1491,6 +1524,38 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["checks.index"];
+        put?: never;
+        post: operations["checks.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/checks/{check}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["checks.show"];
+        put: operations["checks.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/cogs-summary": {
         parameters: {
             query?: never;
@@ -2517,6 +2582,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/depreciation-schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Review the depreciation board across assets (Odoo Review › Depreciation Schedule) */
+        get: operations["depreciationSchedule.index"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/down-payments": {
         parameters: {
             query?: never;
@@ -3184,6 +3266,73 @@ export interface paths {
         post?: never;
         /** Delete a fiscal position that is not assigned to contacts */
         delete: operations["fiscal-positions.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the fixed asset register (Odoo Accounting › Assets) */
+        get: operations["assets.index"];
+        put?: never;
+        post: operations["assets.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{fixedAsset}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["assets.show"];
+        put: operations["assets.update"];
+        post?: never;
+        delete: operations["assets.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{fixedAsset}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm a draft asset and generate its depreciation schedule */
+        post: operations["fixedAsset.confirm"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/assets/{fixedAsset}/post-depreciation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Post the next draft depreciation line to the journal */
+        post: operations["fixedAsset.postDepreciation"];
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4277,6 +4426,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payment-methods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-methods.index"];
+        put?: never;
+        post: operations["payment-methods.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-methods/{payment_method}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-methods.show"];
+        put: operations["payment-methods.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-providers.index"];
+        put?: never;
+        post: operations["payment-providers.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-providers/{payment_provider}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-providers.show"];
+        put: operations["payment-providers.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/payment-reminders": {
         parameters: {
             query?: never;
@@ -4391,6 +4604,54 @@ export interface paths {
         put?: never;
         /** Quick action: create and send an immediate reminder for an invoice */
         post: operations["paymentReminder.sendImmediate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-terms": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-terms.index"];
+        put?: never;
+        post: operations["payment-terms.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-terms/{payment_term}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["payment-terms.show"];
+        put: operations["payment-terms.update"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-terms/{payment_term}/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["paymentTerm.preview"];
         delete?: never;
         options?: never;
         head?: never;
@@ -8140,6 +8401,48 @@ export interface components {
             applied_date?: string;
             notes?: string | null;
         };
+        /** AssetDepreciationLineResource */
+        AssetDepreciationLineResource: {
+            id: string;
+            fixed_asset_id: string;
+            sequence: string;
+            depreciation_date: string | null;
+            amount: string;
+            depreciated_value: string;
+            remaining_value: string;
+            status: string;
+            journal_entry_id: string;
+            posted_at: string | null;
+            asset?: {
+                id: string;
+                code: string;
+                name: string;
+            };
+        };
+        /** AssetModelResource */
+        AssetModelResource: {
+            id: string;
+            code: string;
+            name: string;
+            method: string;
+            method_number: string;
+            method_period: string;
+            method_progress_factor: number | null;
+            salvage_value_percent: number;
+            asset_account_id: string;
+            depreciation_account_id: string;
+            expense_account_id: string;
+            journal_id: string;
+            notes: string;
+            is_active: string;
+            asset_account?: {
+                id: number;
+                code: string;
+                name: string;
+            };
+            created_at: string | null;
+            updated_at: string | null;
+        };
         /** AttachSolarVariantsRequest */
         AttachSolarVariantsRequest: {
             variant_group_id: number;
@@ -8509,6 +8812,17 @@ export interface components {
         /** CancelQuotationRequest */
         CancelQuotationRequest: {
             reason?: string | null;
+        };
+        /** CheckSettingResource */
+        CheckSettingResource: {
+            id: number;
+            code: string;
+            name: string;
+            is_active: boolean;
+            journal_id: number;
+            next_number: number;
+            layout: string;
+            manual_numbering: boolean;
         };
         /** CheckoutPosSaleRequest */
         CheckoutPosSaleRequest: {
@@ -8900,6 +9214,36 @@ export interface components {
                     name: string;
                 } | null;
             }[];
+            created_at: string | null;
+            updated_at: string | null;
+        };
+        /** FixedAssetResource */
+        FixedAssetResource: {
+            id: string;
+            code: string;
+            name: string;
+            asset_model_id: string;
+            original_value: string;
+            salvage_value: string;
+            acquisition_date: string | null;
+            method: string;
+            method_number: string;
+            method_period: string;
+            method_progress_factor: number | null;
+            asset_account_id: string;
+            depreciation_account_id: string;
+            expense_account_id: string;
+            journal_id: string;
+            status: string;
+            accumulated_depreciation: string;
+            book_value: number;
+            notes: string;
+            asset_model?: {
+                id: string;
+                code: string;
+                name: string;
+            } | null;
+            depreciation_lines?: components["schemas"]["AssetDepreciationLineResource"][];
             created_at: string | null;
             updated_at: string | null;
         };
@@ -9551,6 +9895,27 @@ export interface components {
             warehouse_id: number;
             opening_cash_amount: number;
         };
+        /** PaymentMethodResource */
+        PaymentMethodResource: {
+            id: number;
+            code: string;
+            name: string;
+            is_active: boolean;
+            direction: string;
+            payment_type: string;
+            journal_id: number | null;
+        };
+        /** PaymentProviderResource */
+        PaymentProviderResource: {
+            id: number;
+            code: string;
+            name: string;
+            is_active: boolean;
+            state: string;
+            journal_id: number | null;
+            website: string | null;
+            payment_method_ids?: number[];
+        };
         /** PaymentReminderResource */
         PaymentReminderResource: {
             id: number;
@@ -9612,6 +9977,20 @@ export interface components {
             created_by: number | null;
             created_at: string | null;
             updated_at: string | null;
+        };
+        /** PaymentTermResource */
+        PaymentTermResource: {
+            id: number;
+            code: string;
+            name: string;
+            is_active: boolean;
+            note: string | null;
+            lines: {
+                type: string;
+                value: number;
+                days: number;
+                due_type: string;
+            }[];
         };
         /** PermissionResource */
         PermissionResource: {
@@ -9755,6 +10134,12 @@ export interface components {
          * @enum {string}
          */
         PphCategory: "pph23_jasa" | "pph23_sewa" | "pph23_bunga" | "pph23_royalti" | "pph4_2_konstruksi" | "pph4_2_sewa" | "pph26";
+        /** PreviewPaymentTermRequest */
+        PreviewPaymentTermRequest: {
+            amount: number;
+            /** Format: date */
+            date: string;
+        };
         /** PreviewSwapBrandRequest */
         PreviewSwapBrandRequest: {
             target_brand: string;
@@ -10543,6 +10928,55 @@ export interface components {
             created_at: string;
             updated_at: string;
         };
+        /** SaveCheckSettingRequest */
+        SaveCheckSettingRequest: {
+            code: string;
+            name: string;
+            is_active?: boolean;
+            journal_id: number;
+            next_number: number;
+            /** @enum {string} */
+            layout: "top" | "middle" | "bottom";
+            manual_numbering?: boolean;
+        };
+        /** SavePaymentMethodRequest */
+        SavePaymentMethodRequest: {
+            code: string;
+            name: string;
+            is_active?: boolean;
+            /** @enum {string} */
+            direction: "inbound" | "outbound";
+            /** @enum {string} */
+            payment_type: "manual" | "bank_transfer" | "check" | "card" | "cash";
+            journal_id?: number | null;
+        };
+        /** SavePaymentProviderRequest */
+        SavePaymentProviderRequest: {
+            code: string;
+            name: string;
+            is_active?: boolean;
+            /** @enum {string} */
+            state: "disabled" | "test" | "enabled";
+            /** Format: uri */
+            website?: string | null;
+            journal_id?: number | null;
+            payment_method_ids?: number[];
+        };
+        /** SavePaymentTermRequest */
+        SavePaymentTermRequest: {
+            code: string;
+            name: string;
+            is_active?: boolean;
+            note?: string | null;
+            lines: {
+                /** @enum {string} */
+                type: "percent" | "fixed" | "balance";
+                value: number;
+                days: number;
+                /** @enum {string} */
+                due_type: "days_after" | "end_of_month" | "end_of_next_month";
+            }[];
+        };
         /** SelectQuotationVariantRequest */
         SelectQuotationVariantRequest: {
             variant_option_id: number;
@@ -10874,6 +11308,24 @@ export interface components {
         StoreAnalyticAccountRequest: {
             code: string;
             name: string;
+            is_active?: boolean;
+        };
+        /** StoreAssetModelRequest */
+        StoreAssetModelRequest: {
+            code: string;
+            name: string;
+            /** @enum {string} */
+            method: "linear" | "degressive";
+            method_number: number;
+            /** @enum {string} */
+            method_period: "month" | "year";
+            method_progress_factor?: number | null;
+            salvage_value_percent?: number | null;
+            asset_account_id: number;
+            depreciation_account_id: number;
+            expense_account_id: number;
+            journal_id?: number | null;
+            notes?: string | null;
             is_active?: boolean;
         };
         /** StoreAttachmentRequest */
@@ -11246,6 +11698,27 @@ export interface components {
                 source_account_id: number;
                 dest_account_id: number;
             }[] | null;
+        };
+        /** StoreFixedAssetRequest */
+        StoreFixedAssetRequest: {
+            code: string;
+            name: string;
+            asset_model_id?: number | null;
+            original_value: number;
+            salvage_value?: number | null;
+            /** Format: date-time */
+            acquisition_date: string;
+            /** @enum {string} */
+            method?: "linear" | "degressive";
+            method_number?: number;
+            /** @enum {string|null} */
+            method_period?: "month" | "year" | null;
+            method_progress_factor?: number | null;
+            asset_account_id?: number;
+            depreciation_account_id?: number;
+            expense_account_id?: number;
+            journal_id?: number | null;
+            notes?: string | null;
         };
         /** StoreGoodsReceiptNoteRequest */
         StoreGoodsReceiptNoteRequest: {
@@ -12130,6 +12603,24 @@ export interface components {
             name?: string;
             is_active?: boolean;
         };
+        /** UpdateAssetModelRequest */
+        UpdateAssetModelRequest: {
+            code?: string;
+            name?: string;
+            /** @enum {string} */
+            method?: "linear" | "degressive";
+            method_number?: number;
+            /** @enum {string} */
+            method_period?: "month" | "year";
+            method_progress_factor?: number | null;
+            salvage_value_percent?: number | null;
+            asset_account_id?: number;
+            depreciation_account_id?: number;
+            expense_account_id?: number;
+            journal_id?: number | null;
+            notes?: string | null;
+            is_active?: boolean;
+        };
         /** UpdateBillRequest */
         UpdateBillRequest: {
             contact_id?: number | null;
@@ -12445,6 +12936,27 @@ export interface components {
                 source_account_id: number;
                 dest_account_id: number;
             }[];
+        };
+        /** UpdateFixedAssetRequest */
+        UpdateFixedAssetRequest: {
+            code?: string;
+            name?: string;
+            asset_model_id?: number | null;
+            original_value?: number;
+            salvage_value?: number | null;
+            /** Format: date-time */
+            acquisition_date?: string;
+            /** @enum {string} */
+            method?: "linear" | "degressive";
+            method_number?: number;
+            /** @enum {string} */
+            method_period?: "month" | "year";
+            method_progress_factor?: number | null;
+            asset_account_id?: number;
+            depreciation_account_id?: number;
+            expense_account_id?: number;
+            journal_id?: number | null;
+            notes?: string | null;
         };
         /** UpdateGoodsReceiptNoteRequest */
         UpdateGoodsReceiptNoteRequest: {
@@ -13939,6 +14451,177 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
+        };
+    };
+    "asset-models.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AssetModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AssetModelResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "asset-models.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreAssetModelRequest"];
+            };
+        };
+        responses: {
+            /** @description `AssetModelResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AssetModelResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "asset-models.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The asset model ID */
+                assetModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `AssetModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AssetModelResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "asset-models.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The asset model ID */
+                assetModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateAssetModelRequest"];
+            };
+        };
+        responses: {
+            /** @description `AssetModelResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["AssetModelResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "asset-models.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The asset model ID */
+                assetModel: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Model aset berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
         };
     };
     "attachment.index": {
@@ -17502,6 +18185,148 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
+    "checks.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `CheckSettingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CheckSettingResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "checks.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveCheckSettingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CheckSettingResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CheckSettingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "checks.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The check ID */
+                check: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CheckSettingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CheckSettingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "checks.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The check ID */
+                check: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaveCheckSettingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CheckSettingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CheckSettingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "reports.cogs-summary": {
         parameters: {
             query?: {
@@ -20133,6 +20958,57 @@ export interface operations {
             403: components["responses"]["AuthorizationException"];
         };
     };
+    "depreciationSchedule.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `AssetDepreciationLineResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["AssetDepreciationLineResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
     "down-payments.index": {
         parameters: {
             query?: never;
@@ -22140,6 +23016,232 @@ export interface operations {
                         success: boolean;
                         /** @constant */
                         message: "Posisi fiskal berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "assets.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `FixedAssetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["FixedAssetResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "assets.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreFixedAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description `FixedAssetResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FixedAssetResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "assets.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The fixed asset ID */
+                fixedAsset: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `FixedAssetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FixedAssetResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "assets.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The fixed asset ID */
+                fixedAsset: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateFixedAssetRequest"];
+            };
+        };
+        responses: {
+            /** @description `FixedAssetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FixedAssetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "assets.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The fixed asset ID */
+                fixedAsset: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Aset tetap berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "fixedAsset.confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The fixed asset ID */
+                fixedAsset: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `FixedAssetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FixedAssetResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "fixedAsset.postDepreciation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The fixed asset ID */
+                fixedAsset: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `FixedAssetResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["FixedAssetResource"];
                     };
                 };
             };
@@ -24982,6 +26084,290 @@ export interface operations {
             404: components["responses"]["ModelNotFoundException"];
         };
     };
+    "payment-methods.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `PaymentMethodResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentMethodResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "payment-methods.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentMethodRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentMethodResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentMethodResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "payment-methods.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment method ID */
+                payment_method: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentMethodResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentMethodResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "payment-methods.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment method ID */
+                payment_method: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentMethodRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentMethodResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentMethodResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "payment-providers.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `PaymentProviderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["PaymentProviderResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "payment-providers.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentProviderRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentProviderResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentProviderResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "payment-providers.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment provider ID */
+                payment_provider: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentProviderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentProviderResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "payment-providers.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment provider ID */
+                payment_provider: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentProviderRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentProviderResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentProviderResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
     "paymentReminder.index": {
         parameters: {
             query?: {
@@ -25261,6 +26647,183 @@ export interface operations {
                 };
             };
             401: components["responses"]["AuthenticationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "payment-terms.index": {
+        parameters: {
+            query?: {
+                is_active?: boolean;
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `PaymentTermResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentTermResource"][];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "payment-terms.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentTermRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentTermResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentTermResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "payment-terms.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment term ID */
+                payment_term: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `PaymentTermResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentTermResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "payment-terms.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment term ID */
+                payment_term: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavePaymentTermRequest"];
+            };
+        };
+        responses: {
+            /** @description `PaymentTermResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["PaymentTermResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "paymentTerm.preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The payment term ID */
+                payment_term: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreviewPaymentTermRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: {
+                            due_date: string;
+                            amount: number;
+                        }[];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
             422: components["responses"]["ValidationException"];
         };
