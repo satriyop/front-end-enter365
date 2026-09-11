@@ -1095,6 +1095,50 @@ const router = createRouter({
           path: 'invoiced-not-delivered',
           redirect: { name: 'invoiced-not-delivered' },
         },
+        {
+          path: 'accounting/journal-items',
+          name: 'journal-items',
+          component: () => import('@/pages/accounting/review/AccountingReviewPage.vue'),
+          props: { kind: 'journal-items' },
+          meta: { breadcrumb: 'Journal Items', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/journal-audit',
+          name: 'journal-audit',
+          component: () => import('@/pages/accounting/review/AccountingReviewPage.vue'),
+          props: { kind: 'journal-audit' },
+          meta: { breadcrumb: 'Journal Audit', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/working-files',
+          name: 'working-files',
+          component: () => import('@/pages/accounting/review/AccountingReviewPage.vue'),
+          props: { kind: 'working-files' },
+          meta: { breadcrumb: 'Working Files', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/audit-trail',
+          name: 'audit-trail',
+          component: () => import('@/pages/accounting/review/AccountingReviewPage.vue'),
+          props: { kind: 'audit-trail' },
+          meta: { breadcrumb: 'Audit Trail', permission: 'journals.view' }
+        },
+        {
+          path: 'journal-items',
+          redirect: { name: 'journal-items' },
+        },
+        {
+          path: 'journal-audit',
+          redirect: { name: 'journal-audit' },
+        },
+        {
+          path: 'working-files',
+          redirect: { name: 'working-files' },
+        },
+        {
+          path: 'audit-trail',
+          redirect: { name: 'audit-trail' },
+        },
         // Accounting - Bank Reconciliation routes
         {
           path: 'accounting/bank-reconciliation',

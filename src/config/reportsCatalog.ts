@@ -36,6 +36,10 @@ export const reportCategories: ReportCategory[] = [
       { name: 'Billed Not Received', path: '/accounting/billed-not-received', description: 'Vendor bill posted, goods not received' },
       { name: 'Invoices to Be Issued', path: '/accounting/invoices-to-be-issued', description: 'Goods delivered, customer invoice not posted' },
       { name: 'Invoiced Not Delivered', path: '/accounting/invoiced-not-delivered', description: 'Customer invoice posted, goods not delivered' },
+      { name: 'Journal Items', path: '/accounting/journal-items', description: 'Line-level journal item browser' },
+      { name: 'Journal Audit', path: '/accounting/journal-audit', description: 'Posted journal register by journal' },
+      { name: 'Working Files', path: '/accounting/working-files', description: 'Unposted journals and draft invoices/bills' },
+      { name: 'Audit Trail', path: '/accounting/audit-trail', description: 'Accounting document change log' },
     ],
   },
   {
