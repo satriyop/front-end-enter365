@@ -123,7 +123,7 @@ export function useCreateGRNFromPO() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async ({ purchaseOrderId, data }: { purchaseOrderId: number; data: CreateFromPOData }) => {
-      const response = await api.post<{ data: GoodsReceiptNote }>(`/purchase-orders/${purchaseOrderId}/grn`, data)
+      const response = await api.post<{ data: GoodsReceiptNote }>(`/purchase-orders/${purchaseOrderId}/create-grn`, data)
       return response.data.data
     },
     onSuccess: (data) => {
