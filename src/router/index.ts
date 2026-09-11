@@ -533,6 +533,38 @@ const router = createRouter({
           component: () => import('@/pages/accounting/accounts/AccountFormPage.vue'),
           meta: { breadcrumb: 'Edit Account' }
         },
+        {
+          path: 'accounting/payment-terms',
+          name: 'payment-terms',
+          alias: '/payment-terms',
+          component: () => import('@/pages/accounting/payment-configuration/PaymentConfigurationPage.vue'),
+          props: { kind: 'payment-terms' },
+          meta: { breadcrumb: 'Payment Terms', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/payment-methods',
+          name: 'payment-methods',
+          alias: '/payment-methods',
+          component: () => import('@/pages/accounting/payment-configuration/PaymentConfigurationPage.vue'),
+          props: { kind: 'payment-methods' },
+          meta: { breadcrumb: 'Payment Methods', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/payment-providers',
+          name: 'payment-providers',
+          alias: '/payment-providers',
+          component: () => import('@/pages/accounting/payment-configuration/PaymentConfigurationPage.vue'),
+          props: { kind: 'payment-providers' },
+          meta: { breadcrumb: 'Payment Providers', permission: 'journals.view' }
+        },
+        {
+          path: 'accounting/checks',
+          name: 'checks',
+          alias: '/checks',
+          component: () => import('@/pages/accounting/payment-configuration/PaymentConfigurationPage.vue'),
+          props: { kind: 'checks' },
+          meta: { breadcrumb: 'Checks', permission: 'journals.view' }
+        },
         // Accounting - Journals master routes
         {
           path: 'accounting/journals',
