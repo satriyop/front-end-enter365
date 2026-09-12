@@ -47,6 +47,10 @@ export const navigation: NavGroup[] = [
     label: 'Projects',
     items: [
       { name: 'Projects', path: '/projects', icon: '🏗️', permission: 'projects.view', feature: 'projects' },
+      { name: 'My Tasks', path: '/projects/my-tasks', icon: '✅', permission: 'project_tasks.view', feature: 'projects' },
+      { name: 'All Tasks', path: '/projects/tasks', icon: '📋', permission: 'project_tasks.view', feature: 'projects' },
+      { name: 'Tasks Analysis', path: '/projects/tasks-analysis', icon: '📊', permission: 'reports.project', feature: 'projects' },
+      { name: 'Customer Ratings', path: '/projects/customer-ratings', icon: '⭐', permission: 'project_tasks.view', feature: 'projects' },
       { name: 'Work Orders', path: '/work-orders', icon: '🔧', permission: 'work_orders.view', feature: 'work_orders' },
     ],
   },
