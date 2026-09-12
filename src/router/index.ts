@@ -392,6 +392,42 @@ const router = createRouter({
           meta: { breadcrumb: 'New Project' }
         },
         {
+          path: 'projects/my-tasks',
+          name: 'my-tasks',
+          component: () => import('@/pages/projects/TaskWorkspacePage.vue'),
+          meta: { breadcrumb: 'My Tasks' },
+        },
+        {
+          path: 'projects/tasks',
+          name: 'all-tasks',
+          component: () => import('@/pages/projects/TaskWorkspacePage.vue'),
+          meta: { breadcrumb: 'All Tasks' },
+        },
+        {
+          path: 'projects/tasks-analysis',
+          name: 'tasks-analysis',
+          component: () => import('@/pages/projects/TaskAnalysisPage.vue'),
+          meta: { breadcrumb: 'Tasks Analysis' },
+        },
+        {
+          path: 'projects/customer-ratings',
+          name: 'customer-ratings',
+          component: () => import('@/pages/projects/CustomerRatingListPage.vue'),
+          meta: { breadcrumb: 'Customer Ratings' },
+        },
+        {
+          path: 'projects/customer-ratings/new',
+          name: 'customer-rating-new',
+          component: () => import('@/pages/projects/CustomerRatingFormPage.vue'),
+          meta: { breadcrumb: 'New Rating' },
+        },
+        {
+          path: 'projects/customer-ratings/:id/edit',
+          name: 'customer-rating-edit',
+          component: () => import('@/pages/projects/CustomerRatingFormPage.vue'),
+          meta: { breadcrumb: 'Edit Rating' },
+        },
+        {
           path: 'projects/:id',
           name: 'project-detail',
           component: () => import('@/pages/projects/ProjectDetailPage.vue'),
@@ -819,6 +855,22 @@ const router = createRouter({
         {
           path: 'follow-up-levels',
           redirect: { name: 'follow-up-levels' },
+        },
+        {
+          path: 'my-tasks',
+          redirect: { name: 'my-tasks' },
+        },
+        {
+          path: 'all-tasks',
+          redirect: { name: 'all-tasks' },
+        },
+        {
+          path: 'tasks-analysis',
+          redirect: { name: 'tasks-analysis' },
+        },
+        {
+          path: 'customer-ratings',
+          redirect: { name: 'customer-ratings' },
         },
         {
           path: 'accounting/employee-expenses',

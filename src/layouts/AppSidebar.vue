@@ -186,7 +186,15 @@ onBeforeUnmount(stopNavRescue)
                                                                     ? 'sidebar-executive-summary'
                                                                     : item.path === '/accounting/budget-report'
                                                                       ? 'sidebar-budget-report'
-                                                                      : undefined"
+                                                                      : item.path === '/projects/my-tasks'
+                                                                        ? 'sidebar-my-tasks'
+                                                                        : item.path === '/projects/tasks'
+                                                                          ? 'sidebar-all-tasks'
+                                                                          : item.path === '/projects/tasks-analysis'
+                                                                            ? 'sidebar-tasks-analysis'
+                                                                            : item.path === '/projects/customer-ratings'
+                                                                              ? 'sidebar-customer-ratings'
+                                                                              : undefined"
           data-rescue="nav"
           class="flex items-center gap-3 px-4 py-2.5 mx-2 rounded-lg text-sm font-medium transition-colors"
           :class="[

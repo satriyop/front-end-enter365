@@ -5,7 +5,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { computed, type Ref } from 'vue'
+import { computed, unref, type MaybeRef, type Ref } from 'vue'
 import { api, type PaginatedResponse } from './client'
 import type { components } from './types'
 
@@ -24,6 +24,16 @@ export interface ProjectTaskFilters {
   parent_id?: number | null
   search?: string
   is_overdue?: boolean
+}
+
+export interface WorkspaceTaskFilters {
+  page?: number
+  per_page?: number
+  status?: string
+  priority?: string
+  project_id?: number
+  search?: string
+  overdue_only?: boolean
 }
 
 export interface CreateProjectTaskData {
@@ -99,6 +109,22 @@ export function useProjectTask(projectId: Ref<number | string>, taskId: Ref<numb
       return response.data.data
     },
     enabled: computed(() => !!projectId.value && !!taskId.value),
+  })
+}
+
+export function useWorkspaceTasks(scope: MaybeRef<'all' | 'my'>, filters: Ref<WorkspaceTaskFilters>) {
+  const resolvedScope = computed(() => unref(scope))
+  return useQuery({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    queryKey: computed(() => ['workspace-tasks', resolvedScope.value, filters.value]) as any,
+    queryFn: async () => {
+      const params = cleanParams(filters.value as Record<string, unknown>)
+      const response = await api.get<PaginatedResponse<ProjectTask>>(
+        resolvedScope.value === 'my' ? '/tasks/my' : '/tasks',
+        { params },
+      )
+      return response.data
+    },
   })
 }
 

@@ -104,11 +104,13 @@ export const reportCategories: ReportCategory[] = [
   },
   {
     title: 'Project Reports',
-    description: 'Project profitability and cost analysis',
+    description: 'Project profitability, tasks, and customer ratings',
     feature: 'projects',
     reports: [
       { name: 'Project Profitability', path: '/reports/project-profitability', description: 'Revenue, costs, and margins per project' },
       { name: 'Project Cost Analysis', path: '/reports/project-cost-analysis', description: 'Cost breakdown by type and project' },
+      { name: 'Tasks Analysis', path: '/projects/tasks-analysis', description: 'Task status, overdue, and assignee breakdown' },
+      { name: 'Customer Ratings', path: '/projects/customer-ratings', description: 'Recorded customer scores on projects and tasks' },
     ],
   },
   {

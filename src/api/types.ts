@@ -2849,6 +2849,39 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/customer-ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List customer ratings (Odoo Project › Customer Ratings) */
+        get: operations["customer-ratings.index"];
+        put?: never;
+        post: operations["customer-ratings.store"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/customer-ratings/{customerRating}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["customer-ratings.show"];
+        put: operations["customer-ratings.update"];
+        post?: never;
+        delete: operations["customer-ratings.destroy"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/reports/cutover/bill-to-receive": {
         parameters: {
             query?: never;
@@ -8778,6 +8811,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/tasks/my": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tasks assigned to the current user (Odoo Project › My Tasks) */
+        get: operations["task.mine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List tasks across all projects (Odoo Project › All Tasks) */
+        get: operations["task.all"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/tasks-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Tasks analysis across projects (Odoo Project › Reporting › Tasks Analysis) */
+        get: operations["reports.tasks-analysis"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/reports/customer-ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Customer ratings summary (Odoo Project › Customer Ratings) */
+        get: operations["reports.customer-ratings"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/tax-records": {
         parameters: {
             query?: never;
@@ -10213,6 +10314,44 @@ export interface components {
                 rate: number;
                 effective_date: string;
             }[];
+            created_at: string | null;
+            updated_at: string | null;
+        };
+        /** CustomerRatingResource */
+        CustomerRatingResource: {
+            id: number;
+            project_id: number;
+            project?: {
+                id: number;
+                project_number: string;
+                name: string;
+            } | null;
+            rateable_type: string | null;
+            rateable_id: number | null;
+            rateable?: null | {
+                id: number;
+                /** @constant */
+                type: "project";
+                name: string;
+            } | {
+                id: number;
+                /** @constant */
+                type: "task";
+                title: string;
+            };
+            contact_id: number | null;
+            contact?: {
+                id: number;
+                name: string;
+            } | null;
+            rating: number;
+            comment: string | null;
+            rated_at: string | null;
+            created_by: number | null;
+            creator?: {
+                id: number;
+                name: string;
+            } | null;
             created_at: string | null;
             updated_at: string | null;
         };
@@ -13066,6 +13205,18 @@ export interface components {
             is_base_currency?: boolean;
             is_active?: boolean;
         };
+        /** StoreCustomerRatingRequest */
+        StoreCustomerRatingRequest: {
+            project_id: number;
+            /** @enum {string|null} */
+            rateable_type?: "task" | "project" | null;
+            rateable_id?: number | null;
+            contact_id?: number | null;
+            rating: number;
+            comment?: string | null;
+            /** Format: date-time */
+            rated_at?: string | null;
+        };
         /** StoreDeferredEntryRequest */
         StoreDeferredEntryRequest: {
             code: string;
@@ -14432,6 +14583,18 @@ export interface components {
             decimal_places?: number | null;
             is_base_currency?: boolean;
             is_active?: boolean;
+        };
+        /** UpdateCustomerRatingRequest */
+        UpdateCustomerRatingRequest: {
+            project_id?: number;
+            /** @enum {string|null} */
+            rateable_type?: "task" | "project" | null;
+            rateable_id?: number | null;
+            contact_id?: number | null;
+            rating?: number;
+            comment?: string | null;
+            /** Format: date-time */
+            rated_at?: string | null;
         };
         /** UpdateDeferredEntryRequest */
         UpdateDeferredEntryRequest: {
@@ -23831,6 +23994,176 @@ export interface operations {
                         success: boolean;
                         /** @constant */
                         message: "Mata uang berhasil dihapus.";
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "customer-ratings.index": {
+        parameters: {
+            query?: {
+                per_page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `CustomerRatingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["CustomerRatingResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "customer-ratings.store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StoreCustomerRatingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CustomerRatingResource` */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerRatingResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "customer-ratings.show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The customer rating ID */
+                customerRating: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description `CustomerRatingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerRatingResource"] & Record<string, never>;
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "customer-ratings.update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The customer rating ID */
+                customerRating: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["UpdateCustomerRatingRequest"];
+            };
+        };
+        responses: {
+            /** @description `CustomerRatingResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: components["schemas"]["CustomerRatingResource"];
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+            404: components["responses"]["ModelNotFoundException"];
+            422: components["responses"]["ValidationException"];
+        };
+    };
+    "customer-ratings.destroy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The customer rating ID */
+                customerRating: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Rating pelanggan berhasil dihapus.";
                     };
                 };
             };
@@ -40013,6 +40346,205 @@ export interface operations {
             401: components["responses"]["AuthenticationException"];
             403: components["responses"]["AuthorizationException"];
             404: components["responses"]["ModelNotFoundException"];
+        };
+    };
+    "task.mine": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["TaskResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "task.all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Paginated set of `TaskResource` */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        data: (components["schemas"]["TaskResource"] & Record<string, never>)[];
+                        links: {
+                            first: string | null;
+                            last: string | null;
+                            prev: string | null;
+                            next: string | null;
+                        };
+                        meta: {
+                            current_page: number;
+                            from: number | null;
+                            last_page: number;
+                            /** @description Generated paginator links. */
+                            links: {
+                                url: string | null;
+                                label: string;
+                                active: boolean;
+                            }[];
+                            /** @description Base path for paginator generated URLs. */
+                            path: string | null;
+                            /** @description Number of items shown per page. */
+                            per_page: number;
+                            /** @description Number of the last item in the slice. */
+                            to: number | null;
+                            /** @description Total number of items being paginated. */
+                            total: number;
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.tasks-analysis": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Tasks Analysis";
+                            from: string | null;
+                            to: string | null;
+                            totals: {
+                                count: string;
+                                done: number;
+                                overdue: number;
+                                completion_rate: number;
+                            };
+                            by_status: unknown[];
+                            by_priority: unknown[];
+                            by_project: {
+                                ""?: string;
+                                project_number: string | null;
+                                project_name: string | null;
+                            }[];
+                            by_assignee: {
+                                ""?: string;
+                                name: string | null | "Unassigned";
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
+        };
+    };
+    "reports.customer-ratings": {
+        parameters: {
+            query?: {
+                project_id?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        success: boolean;
+                        /** @constant */
+                        message: "Operasi berhasil.";
+                        data: {
+                            /** @constant */
+                            report_name: "Customer Ratings";
+                            totals: {
+                                count: number;
+                                average: number | null;
+                            };
+                            by_rating: {
+                                rating: number;
+                                count: number;
+                            }[];
+                            rows: {
+                                id: number;
+                                project_id: number;
+                                project_name: string;
+                                project_number: string;
+                                rateable_type: string;
+                                rateable_id: number | null;
+                                task_title: string;
+                                contact_id: number | null;
+                                contact_name: string;
+                                rating: number;
+                                comment: string;
+                                rated_at: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+            401: components["responses"]["AuthenticationException"];
+            403: components["responses"]["AuthorizationException"];
         };
     };
     "taxRecord.index": {
