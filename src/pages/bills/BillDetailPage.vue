@@ -303,6 +303,18 @@ const journalItemColumns: ResponsiveColumn[] = [
   { key: 'debit', label: 'Debit', align: 'right', mobilePriority: 2 },
   { key: 'credit', label: 'Credit', align: 'right', mobilePriority: 3 },
 ]
+
+const purchaseOrderId = computed<number | null>(() => {
+  return (bill.value as { purchase_order_id?: number | null } | undefined)?.purchase_order_id ?? null
+})
+
+function getLineAnalyticDistribution(item: unknown) {
+  return (item as { analytic_distribution?: { [key: string]: number } | null } | undefined)?.analytic_distribution
+}
+
+function getLineTaxes(item: unknown) {
+  return formatBillLineTaxes(item as { tax_record_ids?: number[] | null; tax_tag_ids?: number[] | null }) || '-'
+}
 </script>
 
 <template>
@@ -405,14 +417,14 @@ const journalItemColumns: ResponsiveColumn[] = [
                 <dt class="text-sm text-muted-foreground">Vendor Invoice #</dt>
                 <dd class="text-slate-900 dark:text-slate-100">{{ bill.vendor_invoice_number || '-' }}</dd>
               </div>
-              <div v-if="(bill as { purchase_order_id?: number | null }).purchase_order_id">
+              <div v-if="purchaseOrderId">
                 <dt class="text-sm text-muted-foreground">Purchase Order</dt>
                 <dd class="text-slate-900 dark:text-slate-100">
                   <RouterLink
-                    :to="`/purchasing/purchase-orders/${(bill as { purchase_order_id: number }).purchase_order_id}`"
+                    :to="`/purchasing/purchase-orders/${purchaseOrderId}`"
                     class="text-orange-600 hover:text-orange-700"
                   >
-                    PO #{{ (bill as { purchase_order_id: number }).purchase_order_id }}
+                    PO #{{ purchaseOrderId }}
                   </RouterLink>
                 </dd>
               </div>
@@ -455,12 +467,12 @@ const journalItemColumns: ResponsiveColumn[] = [
               </template>
               <template #cell-analytic="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">
-                  {{ formatAnalyticDistributionLabel((item as { analytic_distribution?: { [key: string]: number } | null }).analytic_distribution, analyticAccounts) || '-' }}
+                  {{ formatAnalyticDistributionLabel(getLineAnalyticDistribution(item), analyticAccounts) || '-' }}
                 </span>
               </template>
               <template #cell-taxes="{ item }">
                 <span class="text-slate-900 dark:text-slate-100">
-                  {{ formatBillLineTaxes(item as { tax_record_ids?: number[] | null; tax_tag_ids?: number[] | null }) || '-' }}
+                  {{ getLineTaxes(item) }}
                 </span>
               </template>
               <template #cell-quantity="{ item }">
