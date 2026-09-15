@@ -7,7 +7,7 @@
 | Environment | URL | How |
 |-------------|-----|-----|
 | Development | `http://localhost:3000` | `npm run dev` |
-| Production | `https://enter365.pamungkas.org` | From `$BE`: `./scripts/prod.sh deploy` |
+| Production | `https://app.example.com` | From `$BE`: `./scripts/prod.sh deploy` |
 
 Merging this repo is not a release. GitHub Actions runs Vitest only. See [CI-CD.md](CI-CD.md).
 
@@ -20,7 +20,7 @@ Laptop ($BE = ../enter365)
   ./scripts/prod.sh deploy
        │
        ├─ npx vite build   (this repo)
-       ├─ rsync dist/  →  aidev:/var/www/enter365-spa
+       ├─ rsync dist/  →  deploy-server:/var/www/enter365-spa
        └─ rsync Laravel + migrate --force
 ```
 

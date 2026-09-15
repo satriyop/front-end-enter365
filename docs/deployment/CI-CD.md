@@ -19,6 +19,6 @@ cd ../enter365
 ./scripts/prod.sh deploy
 ```
 
-That builds this SPA on the laptop (`npx vite build`) and rsyncs `dist/` to aidev (`/var/www/enter365-spa`). Pair FE and BE changes in the same release so the API migrate matches the UI.
+That builds this SPA on the deployment environment (`npx vite build`) and syncs `dist/` to the web server (`/var/www/enter365-spa`). Pair FE and BE changes in the same release so the API migrate matches the UI.
 
 See [README.md](README.md) and `$BE/scripts/prod/README.md`.

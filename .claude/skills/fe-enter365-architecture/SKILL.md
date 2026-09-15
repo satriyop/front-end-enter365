@@ -201,7 +201,7 @@ Resources follow consistent naming:
 - Special: `{Entity}WizardPage.vue`, `{Entity}DashboardPage.vue`
 
 ## Backend API
-- Path: `/Users/satriyo/dev/laravel-project/enter365`
+- Path: `../enter365`
 - Laravel API with Sanctum authentication
 - REST endpoints at `/api/*`
 - Types auto-generated from Dedoc Scramble in `src/api/types.ts`

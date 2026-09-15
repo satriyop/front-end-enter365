@@ -39,9 +39,14 @@ logs
 Thumbs.db
 
 
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 
 # Playwright
 tests/e2e/.auth/
 test-results/
 playwright-report/
+
+# Non-public / proprietary specifications & internal planning
+api.json
+/archive/
+/plans/
